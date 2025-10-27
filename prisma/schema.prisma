@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Pet model - Temel pet bilgilerini tutar
+model Pet {
+  id           String    @id @default(cuid())
+  name         String
+  type         String    // dog, cat, bird, etc.
+  breed        String?
+  birthDate    DateTime?
+  weight       Float?    // kg cinsinden
+  gender       String?   // male, female, other
+  profilePhoto String?   // fotoğraf URL'i
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // İlişkiler
+  healthRecords    HealthRecord[]
+  events           Event[]
+  feedingSchedules FeedingSchedule[]
+
+  @@map("pets")
+}
+
+// HealthRecord model - Sağlık kayıtlarını tutar
+model HealthRecord {
+  id           String    @id @default(cuid())
+  petId        String
+  type         String    // vaccination, checkup, medication, surgery
+  title        String
+  description  String?
+  date         DateTime
+  veterinarian String?
+  clinic       String?
+  cost         Float?
+  nextDueDate  DateTime? // Bir sonraki randevu/aşı tarihi
+  attachments  String?   // JSON formatında dosya listesi
+  createdAt    DateTime  @default(now())
+
+  // İlişkiler
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("health_records")
+}
+
+// Event model - Olay ve aktiviteleri tutar
+model Event {
+  id          String    @id @default(cuid())
+  petId       String
+  title       String
+  description String?
+  type        String    // feeding, exercise, grooming, play, other
+  startTime   DateTime
+  endTime     DateTime?
+  location    String?
+  notes       String?
+  reminder    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  // İlişkiler
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("events")
+}
+
+// FeedingSchedule model - Besleme programlarını tutar
+model FeedingSchedule {
+  id        String    @id @default(cuid())
+  petId     String
+  time      String    // "08:00", "18:00" formatında
+  foodType  String    // kedi maması, köpek maması, yaş mama, vb.
+  amount    String    // 1 su bardağı, 100gr, vb.
+  days      String    // JSON array: ["monday", "tuesday", ...]
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  // İlişkiler
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("feeding_schedules")
+}
