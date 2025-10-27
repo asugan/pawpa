@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 interface EmptyStateProps {
   title: string;
   description?: string;
-  icon?: string;
+  icon?: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   buttonText?: string;
   onButtonPress?: () => void;
   buttonColor?: string;

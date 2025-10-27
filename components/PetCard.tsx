@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Text, Button, Avatar, useTheme } from 'react-native-paper';
 import { Pet } from '../lib/types';
+import { PET_TYPE_LABELS } from '../constants';
 
 interface PetCardProps {
   pet: Pet;
@@ -22,24 +23,28 @@ const PetCard: React.FC<PetCardProps> = ({
 
   const getPetIcon = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'kedi':
       case 'cat':
         return 'cat';
-      case 'köpek':
       case 'dog':
         return 'dog';
-      case 'kuş':
       case 'bird':
         return 'bird';
-      case 'balık':
       case 'fish':
         return 'fish';
+      case 'rabbit':
+        return 'rabbit';
+      case 'hamster':
+        return 'hamster';
+      case 'reptile':
+        return 'lizard';
       default:
         return 'paw';
     }
   };
 
-  const getAgeText = (birthDate: Date) => {
+  const getAgeText = (birthDate: Date | null | undefined) => {
+    if (!birthDate) return 'Yaş bilinmiyor';
+
     const today = new Date();
     const birth = new Date(birthDate);
     const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
@@ -70,7 +75,7 @@ const PetCard: React.FC<PetCardProps> = ({
               {pet.name}
             </Text>
             <Text variant="bodyMedium" style={[styles.details, { color: theme.colors.onSurfaceVariant }]}>
-              {pet.type} • {pet.breed}
+              {PET_TYPE_LABELS[pet.type as keyof typeof PET_TYPE_LABELS] || pet.type} • {pet.breed || 'Bilinmiyor'}
             </Text>
             <Text variant="bodySmall" style={[styles.age, { color: theme.colors.onSurfaceVariant }]}>
               {getAgeText(pet.birthDate)}

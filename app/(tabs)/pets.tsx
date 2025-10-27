@@ -1,30 +1,49 @@
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pet } from '../../lib/types';
+import { usePetStore } from '../../stores/petStore';
+import PetCard from '../../components/PetCard';
+import PetModal from '../../components/PetModal';
 
 export default function PetsScreen() {
   const theme = useTheme();
+  const { pets, isLoading, loadPets } = usePetStore();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
 
-  const renderPetCard = () => (
-    <Card style={[styles.petCard, { backgroundColor: theme.colors.surface }]}>
-      <Card.Content style={styles.petContent}>
-        <View style={styles.petInfo}>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-            Pet Adı
-          </Text>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            Tür • Yaş
-          </Text>
-        </View>
-        <Button
-          mode="outlined"
-          textColor={theme.colors.primary}
-          onPress={() => console.log('View pet details')}
-        >
-          Detaylar
-        </Button>
-      </Card.Content>
-    </Card>
+  useEffect(() => {
+    loadPets();
+  }, [loadPets]);
+
+  const handleAddPet = () => {
+    setSelectedPet(undefined);
+    setModalVisible(true);
+  };
+
+  const handleEditPet = (pet: Pet) => {
+    setSelectedPet(pet);
+    setModalVisible(true);
+  };
+
+  const handleDeletePet = (pet: Pet) => {
+    // TODO: Implement delete functionality
+    console.log('Delete pet:', pet.id);
+  };
+
+  const handleModalSuccess = () => {
+    // Refresh data after successful create/update
+    loadPets();
+  };
+
+  const renderPetCard = ({ item }: { item: Pet }) => (
+    <PetCard
+      pet={item}
+      onPress={() => console.log('View pet details:', item.id)}
+      onEdit={() => handleEditPet(item)}
+      onDelete={() => handleDeletePet(item)}
+    />
   );
 
   return (
@@ -36,9 +55,9 @@ export default function PetsScreen() {
       </View>
 
       <FlatList
-        data={[]}
+        data={pets}
         renderItem={renderPetCard}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.petsList}
         ListEmptyComponent={
@@ -52,12 +71,22 @@ export default function PetsScreen() {
           </View>
         }
         showsVerticalScrollIndicator={false}
+        refreshing={isLoading}
+        onRefresh={loadPets}
       />
 
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => console.log('Add new pet')}
+        onPress={handleAddPet}
+      />
+
+      <PetModal
+        visible={modalVisible}
+        pet={selectedPet}
+        onClose={() => setModalVisible(false)}
+        onSuccess={handleModalSuccess}
+        testID="pet-modal"
       />
     </SafeAreaView>
   );

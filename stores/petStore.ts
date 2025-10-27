@@ -9,6 +9,7 @@ interface PetStore {
   error: string | null;
 
   // Actions
+  loadPets: () => void;
   addPet: (pet: Omit<Pet, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePet: (id: string, updates: Partial<Pet>) => void;
   deletePet: (id: string) => void;
@@ -29,6 +30,15 @@ export const usePetStore = create<PetStore>()(
       selectedPetId: null,
       isLoading: false,
       error: null,
+
+      loadPets: () => {
+        // For now, just simulate loading from storage
+        // In Phase 4, this will load from the actual database
+        set({ isLoading: true, error: null });
+        setTimeout(() => {
+          set({ isLoading: false });
+        }, 500);
+      },
 
       addPet: (petData: CreatePetInput) => {
         set((state) => ({
