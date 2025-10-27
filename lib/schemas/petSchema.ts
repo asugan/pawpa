@@ -64,9 +64,17 @@ const BasePetSchema = z.object({
 
   profilePhoto: z
     .string()
-    .url("Geçerli bir fotoğraf URL'i giriniz")
+    .min(1, "Geçerli bir fotoğraf seçiniz")
     .optional()
     .or(z.literal('').transform(() => undefined))
+    .refine((val) => {
+      if (!val) return true; // Optional field
+      // Local URI veya URL formatı kontrolü
+      return val.startsWith('file://') || val.startsWith('/') ||
+             val.startsWith('data:image/') || val.startsWith('http');
+    }, {
+      message: "Geçerli bir fotoğraf URI veya URL'i giriniz"
+    })
 });
 
 // Schema for creating a new pet

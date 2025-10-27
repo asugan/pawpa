@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useTheme, Text, Button } from 'react-native-paper';
+import { Controller } from 'react-hook-form';
 import { Pet } from '../../lib/types';
 import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { usePetForm } from '../../hooks/usePetForm';
@@ -9,6 +10,7 @@ import FormInput from './FormInput';
 import FormDropdown from './FormDropdown';
 import FormDatePicker from './FormDatePicker';
 import FormWeightInput from './FormWeightInput';
+import { PetPhotoPicker } from './PetPhotoPicker';
 
 interface PetFormProps {
   pet?: Pet;
@@ -122,12 +124,19 @@ export function PetForm({
           testID="pet-weight-input"
         />
 
-        {/* Profile Photo - Placeholder for Phase 3 */}
-        <View style={[styles.photoPlaceholder, { borderColor: theme.colors.outline }]}>
-          <Text style={[styles.photoPlaceholderText, { color: theme.colors.onSurfaceVariant }]}>
-            📷 Fotoğraf yükleme Phase 3'te eklenecek
-          </Text>
-        </View>
+        {/* Profile Photo */}
+        <Controller
+          control={control}
+          name="profilePhoto"
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <PetPhotoPicker
+              value={value}
+              onChange={onChange}
+              petType={control._formValues?.type}
+              disabled={loading}
+            />
+          )}
+        />
 
         {/* Form Actions */}
         <View style={styles.actions}>
