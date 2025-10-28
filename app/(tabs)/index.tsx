@@ -1,9 +1,11 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -14,7 +16,7 @@ export default function HomeScreen() {
             PawPa
           </Text>
           <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-            Evcil Dostlarınızın Sağlık Asistanı
+            {t('home.title')}
           </Text>
         </View>
 
@@ -26,7 +28,7 @@ export default function HomeScreen() {
                 0
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, textAlign: 'center' }}>
-                Toplam Pet
+                {t('home.totalPets')}
               </Text>
             </Card.Content>
           </Card>
@@ -37,7 +39,7 @@ export default function HomeScreen() {
                 0
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, textAlign: 'center' }}>
-                Sağlık Hatırlatıcısı
+                {t('home.healthReminder')}
               </Text>
             </Card.Content>
           </Card>
@@ -46,7 +48,7 @@ export default function HomeScreen() {
         {/* Quick Actions */}
         <View style={styles.quickActionsContainer}>
           <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
-            Hızlı İşlemler
+            {t('home.quickActions')}
           </Text>
           <View style={styles.actionButtons}>
             <Button
@@ -55,7 +57,7 @@ export default function HomeScreen() {
               style={styles.actionButton}
               onPress={() => console.log('Add pet')}
             >
-              Yeni Pet Ekle
+              {t('home.addNewPet')}
             </Button>
             <Button
               mode="contained"
@@ -63,7 +65,7 @@ export default function HomeScreen() {
               style={styles.actionButton}
               onPress={() => console.log('Add health record')}
             >
-              Sağlık Kaydı
+              {t('home.healthRecord')}
             </Button>
             <Button
               mode="contained"
@@ -71,7 +73,7 @@ export default function HomeScreen() {
               style={styles.actionButton}
               onPress={() => console.log('Feeding schedule')}
             >
-              Besleme Planı
+              {t('home.feedingPlan')}
             </Button>
           </View>
         </View>
@@ -80,10 +82,10 @@ export default function HomeScreen() {
         <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surfaceVariant }]}>
           <Card.Content style={styles.emptyContent}>
             <Text variant="headlineSmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              Henüz pet eklemediniz
+              {t('home.noPetsYet')}
             </Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              Aşağıdaki butona basarak ilk evcil dostunuzu ekleyebilirsiniz
+              {t('pets.addFirstPet')}
             </Text>
             <Button
               mode="contained"
@@ -91,7 +93,7 @@ export default function HomeScreen() {
               style={styles.emptyButton}
               onPress={() => console.log('Add first pet')}
             >
-              İlk Peti Ekle
+              {t('home.addFirstPet')}
             </Button>
           </Card.Content>
         </Card>

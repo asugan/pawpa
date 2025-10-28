@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 interface QuickActionButtonsProps {
   onAddPet?: () => void;
@@ -16,6 +17,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
   style,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, style]}>
@@ -28,7 +30,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         onPress={onAddPet}
         icon="plus"
       >
-        Yeni Pet Ekle
+        {t('home.addNewPet')}
       </Button>
 
       <Button
@@ -40,7 +42,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         onPress={onAddHealthRecord}
         icon="heart-plus"
       >
-        Sağlık Kaydı
+        {t('home.healthRecord')}
       </Button>
 
       <Button
@@ -52,7 +54,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         onPress={onAddFeedingSchedule}
         icon="clock-plus"
       >
-        Besleme Planı
+        {t('home.feedingPlan')}
       </Button>
     </View>
   );

@@ -43,7 +43,8 @@
     "healthRecords": "Health Records",
     "vaccinationRecord": "Vaccination Record",
     "view": "View",
-    "noRecords": "No health records yet"
+    "noRecords": "No health records yet",
+    "petNameDate": "Pet Name • Date"
   },
   "calendar": {
     "calendar": "Calendar",
@@ -54,9 +55,23 @@
   "settings": {
     "appearance": "Appearance",
     "darkMode": "Dark Mode",
+    "changeTheme": "Change theme",
     "appSettings": "App Settings",
     "notifications": "Notifications",
-    "language": "Language"
+    "reminderNotifications": "Enable reminder notifications",
+    "language": "Language",
+    "changeLanguage": "Change app language",
+    "dataPrivacy": "Data & Privacy",
+    "dataBackup": "Data Backup",
+    "dataBackupDescription": "Backup your data to the cloud",
+    "dataCleanup": "Data Cleanup",
+    "dataCleanupDescription": "Delete all data",
+    "about": "About",
+    "version": "Version",
+    "versionNumber": "1.0.0",
+    "helpSupport": "Help & Support",
+    "helpSupportDescription": "FAQ and contact",
+    "logout": "Logout"
   },
   "common": {
     "loading": "Loading...",
@@ -113,5 +128,72 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "forms": {
+    "petForm": {
+      "title": "Pet Information",
+      "addNewPet": "Add New Pet",
+      "editPet": "Edit Pet",
+      "subtitle": "Please enter your pet's information",
+      "petName": "Pet Name",
+      "petNamePlaceholder": "Ex: Max, Luna, Buddy",
+      "type": "Type",
+      "typePlaceholder": "Select pet type",
+      "breed": "Breed",
+      "breedPlaceholder": "Ex: Golden Retriever, Siamese, Van Cat",
+      "gender": "Gender",
+      "genderPlaceholder": "Select gender (optional)",
+      "birthDate": "Birth Date",
+      "birthDatePlaceholder": "Select birth date (optional)",
+      "weight": "Weight",
+      "weightPlaceholder": "Enter weight (optional)",
+      "selectType": "Select pet type",
+      "selectGender": "Select gender (optional)"
+    },
+    "validation": {
+      "nameMinLength": "Name must be at least 2 characters",
+      "nameMaxLength": "Name cannot exceed 50 characters",
+      "nameInvalidChars": "Name can only contain letters and special characters (ç, ğ, ı, ö, ş, ü)",
+      "weightRequired": "Please enter a valid weight value",
+      "weightPositive": "Weight must be a positive number",
+      "weightMin": "Weight must be at least 0.1 kg",
+      "weightMax": "Weight must be less than 200 kg",
+      "birthDateRequired": "Please select a valid birth date",
+      "birthDateFuture": "Birth date cannot be in the future",
+      "birthDateMaxAge": "Birth date cannot be more than 30 years ago"
+    },
+    "dropdown": {
+      "searchPlaceholder": "Search...",
+      "noMatchingOptions": "No matching options found",
+      "noOptionsAvailable": "No options available",
+      "clearSearch": "Clear search"
+    },
+    "datePicker": {
+      "cancel": "Cancel",
+      "select": "Select",
+      "minusOneYear": "-1 Year",
+      "minusOneMonth": "-1 Month",
+      "minusOneWeek": "-1 Week",
+      "minusOneDay": "-1 Day",
+      "plusOneDay": "+1 Day"
+    },
+    "photoPicker": {
+      "permissionsRequired": "Permissions Required",
+      "permissionsMessage": "Camera and gallery permissions are required to select photos.",
+      "cancel": "Cancel",
+      "settings": "Settings",
+      "errorSelectingPhoto": "Error selecting photo. Please try again.",
+      "errorTakingPhoto": "Error taking photo. Please try again.",
+      "changePhoto": "Change",
+      "addPhoto": "Add Photo",
+      "removePhoto": "Remove",
+      "selectPhoto": "Select Photo",
+      "selectFromGallery": "Select from Gallery",
+      "selectFromGalleryDescription": "Select photos from your device",
+      "takePhoto": "Take Photo",
+      "takePhotoDescription": "Take a new photo",
+      "removePhotoTitle": "Remove Photo",
+      "removePhotoDescription": "Remove the current photo"
+    }
   }
 }

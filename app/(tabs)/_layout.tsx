@@ -2,10 +2,12 @@ import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore } from '../../stores/themeStore';
 import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
   const { themeMode } = useThemeStore();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -29,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Ana Sayfa',
+          title: t('navigation.home'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
@@ -39,41 +41,41 @@ export default function TabLayout() {
       <Tabs.Screen
         name="pets"
         options={{
-          title: 'Evcil Dostlar',
+          title: t('navigation.pets'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="paw" size={size} color={color} />
           ),
-          headerTitle: 'Evcil Dostlarım',
+          headerTitle: t('pets.myPets'),
         }}
       />
       <Tabs.Screen
         name="health"
         options={{
-          title: 'Sağlık',
+          title: t('navigation.health'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="heart" size={size} color={color} />
           ),
-          headerTitle: 'Sağlık Kayıtları',
+          headerTitle: t('health.healthRecords'),
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Takvim',
+          title: t('navigation.calendar'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="calendar" size={size} color={color} />
           ),
-          headerTitle: 'Takvim',
+          headerTitle: t('calendar.calendar'),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Ayarlar',
+          title: t('navigation.settings'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cog" size={size} color={color} />
           ),
-          headerTitle: 'Ayarlar',
+          headerTitle: t('settings.settings'),
         }}
       />
     </Tabs>

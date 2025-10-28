@@ -1,15 +1,17 @@
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function CalendarScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          Takvim
+          {t('calendar.calendar')}
         </Text>
       </View>
 
@@ -17,22 +19,22 @@ export default function CalendarScreen() {
         <Card style={[styles.calendarCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content style={styles.calendarContent}>
             <Text variant="headlineMedium" style={{ color: theme.colors.tertiary, textAlign: 'center' }}>
-              Takvim
+              {t('calendar.calendar')}
             </Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, textAlign: 'center', marginTop: 8 }}>
-              Yakında gelecek
+              {t('calendar.comingSoon')}
             </Text>
           </Card.Content>
         </Card>
 
         <View style={styles.upcomingEvents}>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
-            Yaklaşan Etkinlikler
+            {t('calendar.upcomingEvents')}
           </Text>
           <Card style={[styles.eventCard, { backgroundColor: theme.colors.surfaceVariant }]}>
             <Card.Content style={styles.eventContent}>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                Henüz etkinlik planlanmadı
+                {t('calendar.noEvents')}
               </Text>
             </Card.Content>
           </Card>

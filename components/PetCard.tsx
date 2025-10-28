@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Text, Button, Avatar, useTheme } from 'react-native-paper';
 import { Pet } from '../lib/types';
-import { PET_TYPE_LABELS } from '../constants';
+import { useTranslation } from 'react-i18next';
 
 interface PetCardProps {
   pet: Pet;
@@ -20,6 +20,7 @@ const PetCard: React.FC<PetCardProps> = ({
   showActions = true,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const getPetIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -42,19 +43,24 @@ const PetCard: React.FC<PetCardProps> = ({
     }
   };
 
+  const getPetTypeLabel = (type: string) => {
+    const typeKey = type.toLowerCase();
+    return t(typeKey, type); // Fallback to original type if translation not found
+  };
+
   const getAgeText = (birthDate: Date | null | undefined) => {
-    if (!birthDate) return 'Yaş bilinmiyor';
+    if (!birthDate) return t('pets.ageUnknown');
 
     const today = new Date();
     const birth = new Date(birthDate);
     const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
 
     if (months < 12) {
-      return `${months} ay`;
+      return `${months} ${t('pets.months')}`;
     } else {
       const years = Math.floor(months / 12);
       const remainingMonths = months % 12;
-      return remainingMonths > 0 ? `${years} yıl ${remainingMonths} ay` : `${years} yıl`;
+      return remainingMonths > 0 ? `${years} ${t('pets.years')} ${remainingMonths} ${t('pets.months')}` : `${years} ${t('pets.years')}`;
     }
   };
 
@@ -75,7 +81,7 @@ const PetCard: React.FC<PetCardProps> = ({
               {pet.name}
             </Text>
             <Text variant="bodyMedium" style={[styles.details, { color: theme.colors.onSurfaceVariant }]}>
-              {PET_TYPE_LABELS[pet.type as keyof typeof PET_TYPE_LABELS] || pet.type} • {pet.breed || 'Bilinmiyor'}
+              {getPetTypeLabel(pet.type)} • {pet.breed || 'Unknown'}
             </Text>
             <Text variant="bodySmall" style={[styles.age, { color: theme.colors.onSurfaceVariant }]}>
               {getAgeText(pet.birthDate)}
@@ -93,7 +99,7 @@ const PetCard: React.FC<PetCardProps> = ({
                 style={styles.actionButton}
                 onPress={onEdit}
               >
-                Düzenle
+                {t('pets.edit')}
               </Button>
             )}
             {onDelete && (
@@ -104,7 +110,7 @@ const PetCard: React.FC<PetCardProps> = ({
                 style={[styles.actionButton, { borderColor: theme.colors.error }]}
                 onPress={onDelete}
               >
-                Sil
+                {t('pets.delete')}
               </Button>
             )}
           </View>

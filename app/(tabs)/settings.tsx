@@ -2,10 +2,14 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button, Switch, List, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '../../stores/themeStore';
+import { useLanguageStore } from '../../stores/languageStore';
+import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
   const { themeMode, toggleTheme } = useThemeStore();
+  const { language, setLanguage } = useLanguageStore();
   const isDarkMode = themeMode === 'dark';
 
   return (
@@ -15,11 +19,11 @@ export default function SettingsScreen() {
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Görünüm
+              {t('settings.appearance')}
             </Text>
             <List.Item
-              title="Karanlık Mod"
-              description="Uygulama temasını değiştir"
+              title={t('settings.darkMode')}
+              description={t('settings.changeTheme')}
               left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
               right={() => (
                 <Switch
@@ -36,11 +40,11 @@ export default function SettingsScreen() {
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Uygulama Ayarları
+              {t('settings.appSettings')}
             </Text>
             <List.Item
-              title="Bildirimler"
-              description="Hatırlatıcı bildirimleri"
+              title={t('settings.notifications')}
+              description={t('settings.reminderNotifications')}
               left={(props) => <List.Icon {...props} icon="bell" />}
               right={() => (
                 <Switch
@@ -51,10 +55,20 @@ export default function SettingsScreen() {
               )}
             />
             <List.Item
-              title="Dil"
-              description="Türkçe"
+              title={t('settings.language')}
+              description={language === 'tr' ? 'Türkçe' : 'English'}
               left={(props) => <List.Icon {...props} icon="translate" />}
-              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {
+                const newLanguage = language === 'en' ? 'tr' : 'en';
+                setLanguage(newLanguage);
+              }}
+              right={(props) => (
+                <View style={styles.languageIndicator}>
+                  <Text style={[styles.languageText, { color: theme.colors.onSurface }]}>
+                    {language === 'en' ? 'EN' : 'TR'}
+                  </Text>
+                </View>
+              )}
             />
           </Card.Content>
         </Card>
@@ -63,17 +77,17 @@ export default function SettingsScreen() {
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Veri ve Gizlilik
+              {t('settings.dataPrivacy')}
             </Text>
             <List.Item
-              title="Veri Yedekleme"
-              description="Verilerinizi bulutta yedekleyin"
+              title={t('settings.dataBackup')}
+              description={t('settings.dataBackupDescription')}
               left={(props) => <List.Icon {...props} icon="cloud-upload" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
             />
             <List.Item
-              title="Veri Temizleme"
-              description="Tüm verileri sil"
+              title={t('settings.dataCleanup')}
+              description={t('settings.dataCleanupDescription')}
               left={(props) => <List.Icon {...props} icon="delete" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
             />
@@ -84,16 +98,16 @@ export default function SettingsScreen() {
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Hakkında
+              {t('settings.about')}
             </Text>
             <List.Item
-              title="Versiyon"
-              description="1.0.0"
+              title={t('settings.version')}
+              description={t('settings.versionNumber')}
               left={(props) => <List.Icon {...props} icon="information" />}
             />
             <List.Item
-              title="Yardım ve Destek"
-              description="SSS ve iletişim"
+              title={t('settings.helpSupport')}
+              description={t('settings.helpSupportDescription')}
               left={(props) => <List.Icon {...props} icon="help-circle" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
             />
@@ -108,7 +122,7 @@ export default function SettingsScreen() {
             style={[styles.logoutButton, { borderColor: theme.colors.error }]}
             onPress={() => console.log('Logout')}
           >
-            Çıkış Yap
+            {t('settings.logout')}
           </Button>
         </View>
       </ScrollView>
@@ -138,5 +152,17 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     borderWidth: 1,
+  },
+  languageIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  languageText: {
+    fontSize: 14,
+    fontWeight: '600',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 4,
   },
 });

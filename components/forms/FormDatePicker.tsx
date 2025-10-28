@@ -1,9 +1,10 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
 import { useTheme, IconButton, Button } from 'react-native-paper';
 import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { tr, en } from 'date-fns/locale';
 
 interface FormDatePickerProps<T extends FieldValues> {
   control: Control<T>;
@@ -24,13 +25,15 @@ export function FormDatePicker<T extends FieldValues>({
   placeholder,
   testID,
 }: FormDatePickerProps<T>) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [tempDate, setTempDate] = React.useState(new Date());
 
   const formatDate = (date: Date | undefined) => {
     if (!date) return '';
-    return format(date, 'dd MMMM yyyy', { locale: tr });
+    const locale = i18n.language === 'tr' ? tr : en;
+    return format(date, 'dd MMMM yyyy', { locale });
   };
 
   const handleDateSelect = (onChange: (date: Date) => void, currentValue?: Date) => {
@@ -61,7 +64,7 @@ export function FormDatePicker<T extends FieldValues>({
       render={({ field, fieldState }) => {
         const openDatePicker = () => {
           if (!disabled) {
-            console.log('Date picker açılıyor:', label);
+            console.log('Date picker opening:', label);
             handleDateSelect(field.onChange, field.value);
           }
         };
@@ -116,7 +119,7 @@ export function FormDatePicker<T extends FieldValues>({
             <RNModal
               visible={modalVisible}
               onRequestClose={() => {
-                console.log('Date picker modal kapanıyor');
+                console.log('Date picker modal closing');
                 setModalVisible(false);
               }}
               animationType="slide"
@@ -151,21 +154,21 @@ export function FormDatePicker<T extends FieldValues>({
                               onPress={() => adjustDate(-365)}
                               style={styles.controlButton}
                             >
-                              -1 Yıl
+                              {t('forms.datePicker.minusOneYear')}
                             </Button>
                             <Button
                               mode="outlined"
                               onPress={() => adjustDate(-30)}
                               style={styles.controlButton}
                             >
-                              -1 Ay
+                              {t('forms.datePicker.minusOneMonth')}
                             </Button>
                             <Button
                               mode="outlined"
                               onPress={() => adjustDate(-7)}
                               style={styles.controlButton}
                             >
-                              -1 Hafta
+                              {t('forms.datePicker.minusOneWeek')}
                             </Button>
                           </View>
 
@@ -175,14 +178,14 @@ export function FormDatePicker<T extends FieldValues>({
                               onPress={() => adjustDate(-1)}
                               style={styles.controlButton}
                             >
-                              -1 Gün
+                              {t('forms.datePicker.minusOneDay')}
                             </Button>
                             <Button
                               mode="outlined"
                               onPress={() => adjustDate(1)}
                               style={styles.controlButton}
                             >
-                              +1 Gün
+                              {t('forms.datePicker.plusOneDay')}
                             </Button>
                           </View>
                         </View>
@@ -193,18 +196,18 @@ export function FormDatePicker<T extends FieldValues>({
                             onPress={() => setModalVisible(false)}
                             style={styles.cancelButton}
                           >
-                            İptal
+                            {t('forms.datePicker.cancel')}
                           </Button>
                           <Button
                             mode="contained"
                             onPress={() => {
-                              console.log('Tarih seçildi:', formatDate(tempDate));
+                              console.log('Date selected:', formatDate(tempDate));
                               field.onChange(tempDate);
                               setModalVisible(false);
                             }}
                             style={styles.confirmButton}
                           >
-                            Seç
+                            {t('forms.datePicker.select')}
                           </Button>
                         </View>
                       </View>

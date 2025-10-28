@@ -43,7 +43,8 @@
     "healthRecords": "Sağlık Kayıtları",
     "vaccinationRecord": "Aşı Kaydı",
     "view": "Görüntüle",
-    "noRecords": "Henüz sağlık kaydı yok"
+    "noRecords": "Henüz sağlık kaydı yok",
+    "petNameDate": "Pet Adı • Tarih"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -54,9 +55,23 @@
   "settings": {
     "appearance": "Görünüm",
     "darkMode": "Karanlık Mod",
+    "changeTheme": "Temayı değiştir",
     "appSettings": "Uygulama Ayarları",
     "notifications": "Bildirimler",
-    "language": "Dil"
+    "reminderNotifications": "Hatırlatıcı bildirimleri etkinleştir",
+    "language": "Dil",
+    "changeLanguage": "Uygulama dilini değiştir",
+    "dataPrivacy": "Veri ve Gizlilik",
+    "dataBackup": "Veri Yedekleme",
+    "dataBackupDescription": "Verilerinizi bulutta yedekleyin",
+    "dataCleanup": "Veri Temizleme",
+    "dataCleanupDescription": "Tüm verileri sil",
+    "about": "Hakkında",
+    "version": "Versiyon",
+    "versionNumber": "1.0.0",
+    "helpSupport": "Yardım ve Destek",
+    "helpSupportDescription": "SSS ve iletişim",
+    "logout": "Çıkış Yap"
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -113,5 +128,72 @@
     "friday": "Cuma",
     "saturday": "Cumartesi",
     "sunday": "Pazar"
+  },
+  "forms": {
+    "petForm": {
+      "title": "Pet Bilgileri",
+      "addNewPet": "Yeni Pet Ekle",
+      "editPet": "Pet Düzenle",
+      "subtitle": "Lütfen evcil dostunuzun bilgilerini giriniz",
+      "petName": "Pet Adı",
+      "petNamePlaceholder": "Örn: Max, Luna, Patis",
+      "type": "Tür",
+      "typePlaceholder": "Pet türünü seçin",
+      "breed": "Cins",
+      "breedPlaceholder": "Örn: Golden Retriever, Siyam, Van kedisi",
+      "gender": "Cinsiyet",
+      "genderPlaceholder": "Cinsiyet seçin (opsiyonel)",
+      "birthDate": "Doğum Tarihi",
+      "birthDatePlaceholder": "Doğum tarihi seçin (opsiyonel)",
+      "weight": "Kilo",
+      "weightPlaceholder": "Kilo girin (opsiyonel)",
+      "selectType": "Pet türünü seçin",
+      "selectGender": "Cinsiyet seçin (opsiyonel)"
+    },
+    "validation": {
+      "nameMinLength": "İsim en az 2 karakter olmalıdır",
+      "nameMaxLength": "İsim en fazla 50 karakter olabilir",
+      "nameInvalidChars": "İsim sadece harf ve Türkçe karakterler içerebilir (ç, ğ, ı, ö, ş, ü)",
+      "weightRequired": "Lütfen geçerli bir kilo değeri giriniz",
+      "weightPositive": "Kilo pozitif bir sayı olmalıdır",
+      "weightMin": "Kilo en az 0.1 kg olmalıdır",
+      "weightMax": "Kilo 200 kg'den az olmalıdır",
+      "birthDateRequired": "Lütfen geçerli bir doğum tarihi seçiniz",
+      "birthDateFuture": "Doğum tarihi gelecek bir tarih olamaz",
+      "birthDateMaxAge": "Doğum tarihi 30 yıldan eski olamaz"
+    },
+    "dropdown": {
+      "searchPlaceholder": "Ara...",
+      "noMatchingOptions": "Eşleşen seçenek bulunamadı",
+      "noOptionsAvailable": "Seçenek mevcut değil",
+      "clearSearch": "Aramayı temizle"
+    },
+    "datePicker": {
+      "cancel": "İptal",
+      "select": "Seç",
+      "minusOneYear": "-1 Yıl",
+      "minusOneMonth": "-1 Ay",
+      "minusOneWeek": "-1 Hafta",
+      "minusOneDay": "-1 Gün",
+      "plusOneDay": "+1 Gün"
+    },
+    "photoPicker": {
+      "permissionsRequired": "İzin Gerekli",
+      "permissionsMessage": "Fotoğraf seçmek için kamera ve galeri izinleri gerekli.",
+      "cancel": "İptal",
+      "settings": "Ayarlar",
+      "errorSelectingPhoto": "Fotoğraf seçilemedi. Lütfen tekrar deneyin.",
+      "errorTakingPhoto": "Fotoğraf çekilemedi. Lütfen tekrar deneyin.",
+      "changePhoto": "Değiştir",
+      "addPhoto": "Fotoğraf Ekle",
+      "removePhoto": "Kaldır",
+      "selectPhoto": "Fotoğraf Seç",
+      "selectFromGallery": "Galeriden Seç",
+      "selectFromGalleryDescription": "Cihazınızdaki fotoğrafları seçin",
+      "takePhoto": "Fotoğraf Çek",
+      "takePhotoDescription": "Yeni bir fotoğraf çekin",
+      "removePhotoTitle": "Fotoğrafı Kaldır",
+      "removePhotoDescription": "Mevcut fotoğrafı silin"
+    }
   }
 }

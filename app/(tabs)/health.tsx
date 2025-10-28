@@ -1,19 +1,21 @@
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function HealthScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const renderHealthRecord = () => (
     <Card style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}>
       <Card.Content style={styles.healthContent}>
         <View style={styles.healthInfo}>
           <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-            Aşı Kaydı
+            {t('health.vaccinationRecord')}
           </Text>
           <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            Pet Adı • Tarih
+            {t('health.petNameDate')}
           </Text>
         </View>
         <Button
@@ -21,7 +23,7 @@ export default function HealthScreen() {
           textColor={theme.colors.secondary}
           onPress={() => console.log('View health details')}
         >
-          Görüntüle
+          {t('health.view')}
         </Button>
       </Card.Content>
     </Card>
@@ -31,7 +33,7 @@ export default function HealthScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          Sağlık Kayıtları
+          {t('health.healthRecords')}
         </Text>
       </View>
 
@@ -43,10 +45,10 @@ export default function HealthScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text variant="headlineSmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              Sağlık kaydı bulunmuyor
+              {t('health.noRecords')}
             </Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              + butonuna basarak sağlık kaydı ekleyin
+              {t('pets.addFirstPet')}
             </Text>
           </View>
         }

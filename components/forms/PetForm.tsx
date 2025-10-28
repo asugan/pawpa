@@ -2,10 +2,11 @@ import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useTheme, Text, Button } from 'react-native-paper';
 import { Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Pet } from '../../lib/types';
 import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { usePetForm } from '../../hooks/usePetForm';
-import { PET_TYPE_OPTIONS, GENDER_OPTIONS } from '../../constants';
+import { createPetTypeOptions, createGenderOptions } from '../../constants';
 import FormInput from './FormInput';
 import FormDropdown from './FormDropdown';
 import FormDatePicker from './FormDatePicker';
@@ -27,6 +28,7 @@ export function PetForm({
   loading = false,
   testID,
 }: PetFormProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { control, handleSubmit, errors, isSubmitting, isValid } = usePetForm(pet);
 
@@ -40,6 +42,10 @@ export function PetForm({
 
   const isEditMode = !!pet;
 
+  // Create dropdown options using i18n helper functions
+  const petTypeOptions = React.useMemo(() => createPetTypeOptions(t), [t]);
+  const genderOptions = React.useMemo(() => createGenderOptions(t), [t]);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
@@ -52,10 +58,10 @@ export function PetForm({
         {/* Form Header */}
         <View style={styles.header}>
           <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-            {isEditMode ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
+            {isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
           </Text>
           <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-            Lütfen evcil dostunuzun bilgilerini giriniz
+            {t('forms.petForm.subtitle')}
           </Text>
         </View>
 
@@ -63,9 +69,9 @@ export function PetForm({
         <FormInput
           control={control}
           name="name"
-          label="Pet Adı"
+          label={t('forms.petForm.petName')}
           required
-          placeholder="Örn: Max, Luna, Patis"
+          placeholder={t('forms.petForm.petNamePlaceholder')}
           maxLength={50}
           autoCapitalize="words"
           testID="pet-name-input"
@@ -75,10 +81,10 @@ export function PetForm({
         <FormDropdown
           control={control}
           name="type"
-          label="Tür"
+          label={t('forms.petForm.type')}
           required
-          options={PET_TYPE_OPTIONS}
-          placeholder="Pet türünü seçin"
+          options={petTypeOptions}
+          placeholder={t('forms.petForm.typePlaceholder')}
           searchable
           testID="pet-type-dropdown"
         />
@@ -87,8 +93,8 @@ export function PetForm({
         <FormInput
           control={control}
           name="breed"
-          label="Cins"
-          placeholder="Örn: Golden Retriever, Siyam, Van kedisi"
+          label={t('forms.petForm.breed')}
+          placeholder={t('forms.petForm.breedPlaceholder')}
           maxLength={100}
           autoCapitalize="words"
           testID="pet-breed-input"
@@ -98,9 +104,9 @@ export function PetForm({
         <FormDropdown
           control={control}
           name="gender"
-          label="Cinsiyet"
-          options={GENDER_OPTIONS}
-          placeholder="Cinsiyet seçin (opsiyonel)"
+          label={t('forms.petForm.gender')}
+          options={genderOptions}
+          placeholder={t('forms.petForm.genderPlaceholder')}
           testID="pet-gender-dropdown"
         />
 
@@ -108,8 +114,8 @@ export function PetForm({
         <FormDatePicker
           control={control}
           name="birthDate"
-          label="Doğum Tarihi"
-          placeholder="Doğum tarihi seçin (opsiyonel)"
+          label={t('forms.petForm.birthDate')}
+          placeholder={t('forms.petForm.birthDatePlaceholder')}
           testID="pet-birthdate-picker"
         />
 
@@ -117,8 +123,8 @@ export function PetForm({
         <FormWeightInput
           control={control}
           name="weight"
-          label="Kilo"
-          placeholder="Kilo girin (opsiyonel)"
+          label={t('forms.petForm.weight')}
+          placeholder={t('forms.petForm.weightPlaceholder')}
           min={0.1}
           max={200}
           step={0.1}
@@ -149,7 +155,7 @@ export function PetForm({
             contentStyle={styles.buttonContent}
             testID="cancel-button"
           >
-            İptal
+            {t('pets.cancel')}
           </Button>
 
           <Button
@@ -161,7 +167,7 @@ export function PetForm({
             contentStyle={styles.buttonContent}
             testID="submit-button"
           >
-            {isEditMode ? 'Güncelle' : 'Ekle'}
+            {isEditMode ? t('pets.update') : t('pets.add')}
           </Button>
         </View>
 
@@ -169,7 +175,7 @@ export function PetForm({
         {!isValid && (
           <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
             <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
-              Lütfen zorunlu alanları doldurunuz
+              {t('pets.pleaseFillRequiredFields')}
             </Text>
           </View>
         )}

@@ -51,80 +51,37 @@ export const DAYS_OF_WEEK = {
   SUNDAY: 'sunday',
 } as const;
 
-// Turkish labels for UI
-export const PET_TYPE_LABELS = {
-  [PET_TYPES.DOG]: 'Köpek',
-  [PET_TYPES.CAT]: 'Kedi',
-  [PET_TYPES.BIRD]: 'Kuş',
-  [PET_TYPES.RABBIT]: 'Tavşan',
-  [PET_TYPES.HAMSTER]: 'Hamster',
-  [PET_TYPES.FISH]: 'Balık',
-  [PET_TYPES.REPTILE]: 'Sürüngen',
-  [PET_TYPES.OTHER]: 'Diğer',
-};
+// Note: Labels for UI are now handled by i18n translation files
+// Use translation keys in components instead of these hardcoded labels
 
-export const GENDER_LABELS = {
-  [PET_GENDERS.MALE]: 'Erkek',
-  [PET_GENDERS.FEMALE]: 'Dişi',
-  [PET_GENDERS.OTHER]: 'Diğer',
-};
+// Helper functions to create options with i18n support
+// These should be used in components with useTranslation hook
+export const createPetTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(PET_TYPES).map(type => ({
+    value: type,
+    label: t(type, type),
+  }));
 
-export const HEALTH_RECORD_TYPE_LABELS = {
-  [HEALTH_RECORD_TYPES.VACCINATION]: 'Aşı',
-  [HEALTH_RECORD_TYPES.CHECKUP]: 'Kontrol',
-  [HEALTH_RECORD_TYPES.MEDICATION]: 'İlaç',
-  [HEALTH_RECORD_TYPES.SURGERY]: 'Ameliyat',
-  [HEALTH_RECORD_TYPES.DENTAL]: 'Diş',
-  [HEALTH_RECORD_TYPES.GROOMING]: 'Bakım',
-  [HEALTH_RECORD_TYPES.OTHER]: 'Diğer',
-};
+export const createGenderOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(PET_GENDERS).map(gender => ({
+    value: gender,
+    label: t(gender, gender),
+  }));
 
-export const EVENT_TYPE_LABELS = {
-  [EVENT_TYPES.FEEDING]: 'Besleme',
-  [EVENT_TYPES.EXERCISE]: 'Egzersiz',
-  [EVENT_TYPES.GROOMING]: 'Bakım',
-  [EVENT_TYPES.PLAY]: 'Oyun',
-  [EVENT_TYPES.TRAINING]: 'Eğitim',
-  [EVENT_TYPES.VET_VISIT]: 'Veteriner',
-  [EVENT_TYPES.WALK]: 'Yürüyüş',
-  [EVENT_TYPES.BATH]: 'Banyo',
-  [EVENT_TYPES.OTHER]: 'Diğer',
-};
+export const createHealthRecordTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(HEALTH_RECORD_TYPES).map(type => ({
+    value: type,
+    label: t(type, type),
+  }));
 
-export const DAY_LABELS = {
-  [DAYS_OF_WEEK.MONDAY]: 'Pazartesi',
-  [DAYS_OF_WEEK.TUESDAY]: 'Salı',
-  [DAYS_OF_WEEK.WEDNESDAY]: 'Çarşamba',
-  [DAYS_OF_WEEK.THURSDAY]: 'Perşembe',
-  [DAYS_OF_WEEK.FRIDAY]: 'Cuma',
-  [DAYS_OF_WEEK.SATURDAY]: 'Cumartesi',
-  [DAYS_OF_WEEK.SUNDAY]: 'Pazar',
-};
+export const createEventTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(EVENT_TYPES).map(type => ({
+    value: type,
+    label: t(type, type),
+  }));
 
-// Common arrays for dropdowns
-export const PET_TYPE_OPTIONS = Object.entries(PET_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-export const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-export const HEALTH_RECORD_TYPE_OPTIONS = Object.entries(HEALTH_RECORD_TYPE_LABELS).map(
-  ([value, label]) => ({
-    value,
-    label,
-  })
-);
-
-export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
+export const createDayOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(DAYS_OF_WEEK).map(day => ({
+    value: day,
+    label: t(`days.${day}`, day),
+  }));

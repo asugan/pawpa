@@ -18,11 +18,9 @@ const resources = {
 
 // Get device language or fallback to English
 const getDeviceLanguage = () => {
-  if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    // For React Native, we'll use a simple approach
-    // In a real app, you might want to use react-native-localize
-    return 'en'; // Default to English for now
-  }
+  // For now, default to English
+  // In a production app with Expo managed workflow, we could use
+  // Expo Localization module or ask user to select language on first launch
   return 'en';
 };
 
@@ -31,7 +29,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // Default language - English as primary
+    lng: getDeviceLanguage(), // Use device language as default
     fallbackLng: 'en', // Fallback to English
     debug: __DEV__, // Enable debug in development
 

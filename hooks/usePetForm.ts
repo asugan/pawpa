@@ -128,68 +128,68 @@ export const useFormFieldState = (fieldName: keyof PetCreateInput, control: Cont
 };
 
 // Validation helper functions
-export const validatePetName = (name: string): string | null => {
+export const validatePetName = (name: string, t: (key: string) => string): string | null => {
   if (!name || name.trim().length < 2) {
-    return 'İsim en az 2 karakter olmalıdır';
+    return t('forms.validation.nameMinLength');
   }
   if (name.length > 50) {
-    return 'İsim en fazla 50 karakter olabilir';
+    return t('forms.validation.nameMaxLength');
   }
   const turkishNameRegex = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
   if (!turkishNameRegex.test(name.trim())) {
-    return 'İsim sadece harf ve Türkçe karakterler içerebilir (ç, ğ, ı, ö, ş, ü)';
+    return t('forms.validation.nameInvalidChars');
   }
   return null;
 };
 
-export const validatePetWeight = (weight: number | undefined): string | null => {
+export const validatePetWeight = (weight: number | undefined, t: (key: string) => string): string | null => {
   if (weight === undefined || weight === null) {
     return null; // Weight is optional
   }
   if (isNaN(weight)) {
-    return 'Lütfen geçerli bir kilo değeri giriniz';
+    return t('forms.validation.weightRequired');
   }
   if (weight <= 0) {
-    return 'Kilo pozitif bir sayı olmalıdır';
+    return t('forms.validation.weightPositive');
   }
   if (weight < 0.1) {
-    return 'Kilo en az 0.1 kg olmalıdır';
+    return t('forms.validation.weightMin');
   }
   if (weight > 200) {
-    return 'Kilo 200 kg\'den az olmalıdır';
+    return t('forms.validation.weightMax');
   }
   return null;
 };
 
-export const validateBirthDate = (date: Date | undefined): string | null => {
+export const validateBirthDate = (date: Date | undefined, t: (key: string) => string): string | null => {
   if (!date) {
     return null; // Birth date is optional
   }
   if (isNaN(date.getTime())) {
-    return 'Lütfen geçerli bir doğum tarihi seçiniz';
+    return t('forms.validation.birthDateRequired');
   }
   const now = new Date();
   const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate());
 
   if (date > now) {
-    return 'Doğum tarihi gelecek bir tarih olamaz';
+    return t('forms.validation.birthDateFuture');
   }
   if (date < minDate) {
-    return 'Doğum tarihi 30 yıldan eski olamaz';
+    return t('forms.validation.birthDateMaxAge');
   }
   return null;
 };
 
 // Form validation hook for real-time validation
-export const usePetFormValidation = () => {
+export const usePetFormValidation = (t: (key: string) => string) => {
   const validateField = (fieldName: keyof PetCreateInput, value: any): string | null => {
     switch (fieldName) {
       case 'name':
-        return validatePetName(value as string);
+        return validatePetName(value as string, t);
       case 'weight':
-        return validatePetWeight(value as number | undefined);
+        return validatePetWeight(value as number | undefined, t);
       case 'birthDate':
-        return validateBirthDate(value as Date | undefined);
+        return validateBirthDate(value as Date | undefined, t);
       default:
         return null;
     }
@@ -198,13 +198,13 @@ export const usePetFormValidation = () => {
   const validateForm = (data: PetCreateInput): Record<string, string> => {
     const errors: Record<string, string> = {};
 
-    const nameError = validatePetName(data.name);
+    const nameError = validatePetName(data.name, t);
     if (nameError) errors.name = nameError;
 
-    const weightError = validatePetWeight(data.weight);
+    const weightError = validatePetWeight(data.weight, t);
     if (weightError) errors.weight = weightError;
 
-    const birthDateError = validateBirthDate(data.birthDate);
+    const birthDateError = validateBirthDate(data.birthDate, t);
     if (birthDateError) errors.birthDate = birthDateError;
 
     return errors;

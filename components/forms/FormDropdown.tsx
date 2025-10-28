@@ -1,5 +1,6 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, ScrollView, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
 import { useTheme, IconButton, TextInput } from 'react-native-paper';
 
@@ -31,6 +32,7 @@ export function FormDropdown<T extends FieldValues>({
   searchable = false,
   testID,
 }: FormDropdownProps<T>) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -137,7 +139,7 @@ export function FormDropdown<T extends FieldValues>({
                       {searchable && (
                         <View style={styles.searchContainer}>
                           <TextInput
-                            placeholder="Ara..."
+                            placeholder={t('forms.dropdown.searchPlaceholder')}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             style={[
@@ -202,13 +204,13 @@ export function FormDropdown<T extends FieldValues>({
                           <View style={styles.emptyContainer}>
                             <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                               {searchable && searchQuery
-                                ? 'Eşleşen seçenek bulunamadı'
-                                : 'Seçenek mevcut değil'}
+                                ? t('forms.dropdown.noMatchingOptions')
+                                : t('forms.dropdown.noOptionsAvailable')}
                             </Text>
                             {searchable && searchQuery && (
                               <Pressable onPress={() => setSearchQuery('')}>
                                 <Text style={[styles.clearSearchText, { color: theme.colors.primary }]}>
-                                  Aramayı temizle
+                                  {t('forms.dropdown.clearSearch')}
                                 </Text>
                               </Pressable>
                             )}

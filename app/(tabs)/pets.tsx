@@ -6,9 +6,11 @@ import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';
 import PetCard from '../../components/PetCard';
 import PetModal from '../../components/PetModal';
+import { useTranslation } from 'react-i18next';
 
 export default function PetsScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { pets, isLoading, loadPets } = usePetStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
@@ -50,7 +52,7 @@ export default function PetsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          Evcil Dostlarım
+          {t('pets.myPets')}
         </Text>
       </View>
 
@@ -63,10 +65,10 @@ export default function PetsScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text variant="headlineSmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              Henüz pet yok
+              {t('pets.noPetsYet')}
             </Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              + butonuna basarak ilk evcil dostunuzu ekleyin
+              {t('pets.addFirstPet')}
             </Text>
           </View>
         }
