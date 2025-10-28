@@ -2,20 +2,41 @@ import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useThemeStore } from "../stores/themeStore";
-import { useLanguageStore } from "../stores/languageStore";
 import { lightTheme, darkTheme } from "../lib/theme";
 import { LanguageProvider } from "../providers/LanguageProvider";
-import { db } from "../db";
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import migrations from '../drizzle/migrations';
-import { View, Text } from 'react-native';
+import { NetworkStatus } from "../lib/components/NetworkStatus";
+import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
 import "../lib/i18n"; // Initialize i18n
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 3,
+      retry: (failureCount, error) => {
+        // Network error'larında daha az retry
+        if (error instanceof Error && error.message.includes('Ağ bağlantısı')) {
+          return failureCount < 2;
+        }
+        // 404 hatalarında retry yok
+        if (error instanceof Error && error.message.includes('bulunamadı')) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (cacheTime renamed to gcTime)
+      refetchOnWindowFocus: false, // Mobil için uygun değil
+      refetchOnReconnect: true, // Network geri gelince yenile
+      // Error handling için custom logic
+      throwOnError: (error) => {
+        // Sadece network error'larda error boundary kullan
+        return error instanceof Error && error.message.includes('Ağ bağlantısı');
+      },
+    },
+    mutations: {
+      retry: 1, // Mutation'lar genellikle bir kereden fazla denenmemeli
+      // Mutation error'larında error boundary kullanma
+      throwOnError: false,
     },
   },
 });
@@ -31,41 +52,17 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DatabaseProvider({ children }: { children: React.ReactNode }) {
-  const { success, error } = useMigrations(db, migrations);
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ fontSize: 16, color: 'red', textAlign: 'center' }}>
-          Migration error: {error.message}
-        </Text>
-      </View>
-    );
-  }
-
-  if (!success) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ fontSize: 16, textAlign: 'center' }}>
-          Migration is in progress...
-        </Text>
-      </View>
-    );
-  }
-
-  return <>{children}</>;
-}
-
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <DatabaseProvider>
+        <NetworkStatus>
           <ThemeProvider>
-            {children}
+            <ApiErrorBoundary>
+              {children}
+            </ApiErrorBoundary>
           </ThemeProvider>
-        </DatabaseProvider>
+        </NetworkStatus>
       </LanguageProvider>
     </QueryClientProvider>
   );

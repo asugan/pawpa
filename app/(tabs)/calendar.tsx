@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
+import { Text, Card, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 

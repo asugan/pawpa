@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert } from 'react-native';
-import { Text, Card, Button, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
+import { Text, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';

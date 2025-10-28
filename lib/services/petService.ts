@@ -1,34 +1,35 @@
-import { BaseService } from './baseService';
-import { pets, type Pet, type NewPet } from '../../db';
-import { eq, like, desc } from 'drizzle-orm';
-import { ApiResponse, CreatePetInput, UpdatePetInput } from '../types';
+import { api, ApiError } from '../api/client';
+import { ENV } from '../config/env';
+import type { Pet, CreatePetInput, UpdatePetInput, ApiResponse } from '../types';
 
 /**
- * Pet Service - Tüm pet veritabanı operasyonlarını yönetir
+ * Pet Service - Tüm pet API operasyonlarını yönetir
  */
-export class PetService extends BaseService {
+export class PetService {
   /**
    * Yeni pet oluşturur
    */
   async createPet(data: CreatePetInput): Promise<ApiResponse<Pet>> {
     try {
-      const id = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const newPet: NewPet = {
-        id,
+      const response = await api.post<Pet>(ENV.ENDPOINTS.PETS, {
         ...data,
-        birthDate: data.birthDate ? (data.birthDate instanceof Date ? data.birthDate : new Date(data.birthDate)) : null,
-      };
+        birthDate: data.birthDate || null,
+      });
 
-      const [pet] = await this.db.insert(pets).values(newPet).returning();
-
-      console.log('✅ Pet created successfully:', pet.id);
+      console.log('✅ Pet created successfully:', response.data?.id);
       return {
         success: true,
-        data: pet,
+        data: response.data!,
         message: 'Pet başarıyla oluşturuldu',
       };
     } catch (error) {
       console.error('❌ Create pet error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Pet oluşturulamadı. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -41,16 +42,22 @@ export class PetService extends BaseService {
    */
   async getPets(): Promise<ApiResponse<Pet[]>> {
     try {
-      const allPets = await this.db.select().from(pets).orderBy(desc(pets.createdAt));
+      const response = await api.get<Pet[]>(ENV.ENDPOINTS.PETS);
 
-      console.log(`✅ ${allPets.length} pets loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} pets loaded successfully`);
       return {
         success: true,
-        data: allPets,
-        message: `${allPets.length} pet başarıyla yüklendi`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} pet başarıyla yüklendi`,
       };
     } catch (error) {
       console.error('❌ Get pets error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Petler yüklenemedi. Lütfen internet bağlantınızı kontrol edin.',
@@ -63,23 +70,28 @@ export class PetService extends BaseService {
    */
   async getPetById(id: string): Promise<ApiResponse<Pet>> {
     try {
-      const [pet] = await this.db.select().from(pets).where(eq(pets.id, id));
+      const response = await api.get<Pet>(ENV.ENDPOINTS.PET_BY_ID(id));
 
-      if (!pet) {
-        return {
-          success: false,
-          error: 'Pet bulunamadı',
-        };
-      }
-
-      console.log('✅ Pet loaded successfully:', pet.id);
+      console.log('✅ Pet loaded successfully:', response.data?.id);
       return {
         success: true,
-        data: pet,
+        data: response.data!,
         message: 'Pet başarıyla yüklendi',
       };
     } catch (error) {
       console.error('❌ Get pet error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Pet bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Pet yüklenemedi. Lütfen tekrar deneyin.',
@@ -94,31 +106,31 @@ export class PetService extends BaseService {
     try {
       const updateData = {
         ...data,
-        birthDate: data.birthDate ? (data.birthDate instanceof Date ? data.birthDate : new Date(data.birthDate)) : undefined,
-        updatedAt: new Date(),
+        birthDate: data.birthDate || undefined,
       };
 
-      const [pet] = await this.db
-        .update(pets)
-        .set(updateData)
-        .where(eq(pets.id, id))
-        .returning();
+      const response = await api.put<Pet>(ENV.ENDPOINTS.PET_BY_ID(id), updateData);
 
-      if (!pet) {
-        return {
-          success: false,
-          error: 'Güncellenecek pet bulunamadı',
-        };
-      }
-
-      console.log('✅ Pet updated successfully:', pet.id);
+      console.log('✅ Pet updated successfully:', response.data?.id);
       return {
         success: true,
-        data: pet,
+        data: response.data!,
         message: 'Pet başarıyla güncellendi',
       };
     } catch (error) {
       console.error('❌ Update pet error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Güncellenecek pet bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Pet güncellenemedi. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -131,17 +143,7 @@ export class PetService extends BaseService {
    */
   async deletePet(id: string): Promise<ApiResponse<void>> {
     try {
-      // Önce pet'in var olup olmadığını kontrol et
-      const [existingPet] = await this.db.select().from(pets).where(eq(pets.id, id));
-
-      if (!existingPet) {
-        return {
-          success: false,
-          error: 'Silinecek pet bulunamadı',
-        };
-      }
-
-      await this.db.delete(pets).where(eq(pets.id, id));
+      await api.delete(ENV.ENDPOINTS.PET_BY_ID(id));
 
       console.log('✅ Pet deleted successfully:', id);
       return {
@@ -150,6 +152,18 @@ export class PetService extends BaseService {
       };
     } catch (error) {
       console.error('❌ Delete pet error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Silinecek pet bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Pet silinemedi. Lütfen tekrar deneyin.',
@@ -162,20 +176,22 @@ export class PetService extends BaseService {
    */
   async getPetsByType(type: string): Promise<ApiResponse<Pet[]>> {
     try {
-      const petsByType = await this.db
-        .select()
-        .from(pets)
-        .where(eq(pets.type, type))
-        .orderBy(desc(pets.createdAt));
+      const response = await api.get<Pet[]>(ENV.ENDPOINTS.PETS, { type });
 
-      console.log(`✅ ${petsByType.length} pets of type ${type} loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} pets of type ${type} loaded successfully`);
       return {
         success: true,
-        data: petsByType,
-        message: `${petsByType.length} adet ${type} türünde pet bulundu`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} adet ${type} türünde pet bulundu`,
       };
     } catch (error) {
       console.error('❌ Get pets by type error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Petler yüklenemedi. Lütfen tekrar deneyin.',
@@ -188,23 +204,60 @@ export class PetService extends BaseService {
    */
   async searchPets(query: string): Promise<ApiResponse<Pet[]>> {
     try {
-      const foundPets = await this.db
-        .select()
-        .from(pets)
-        .where(like(pets.name, `%${query}%`))
-        .orderBy(desc(pets.createdAt));
+      const response = await api.get<Pet[]>(ENV.ENDPOINTS.PETS, { search: query });
 
-      console.log(`✅ ${foundPets.length} pets found for query: ${query}`);
+      console.log(`✅ ${response.data?.length || 0} pets found for query: ${query}`);
       return {
         success: true,
-        data: foundPets,
-        message: `${foundPets.length} pet bulundu`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} pet bulundu`,
       };
     } catch (error) {
       console.error('❌ Search pets error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Arama yapılırken hata oluştu. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Pet fotoğrafı yükler
+   */
+  async uploadPetPhoto(id: string, photoUri: string): Promise<ApiResponse<Pet>> {
+    try {
+      const formData = new FormData();
+      formData.append('photo', {
+        uri: photoUri,
+        type: 'image/jpeg',
+        name: 'pet-photo.jpg',
+      } as any);
+
+      const response = await api.upload<Pet>(ENV.ENDPOINTS.PET_PHOTO(id), formData);
+
+      console.log('✅ Pet photo uploaded successfully:', response.data?.id);
+      return {
+        success: true,
+        data: response.data!,
+        message: 'Pet fotoğrafı başarıyla yüklendi',
+      };
+    } catch (error) {
+      console.error('❌ Upload pet photo error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Pet fotoğrafı yüklenemedi. Lütfen tekrar deneyin.',
       };
     }
   }
@@ -219,7 +272,9 @@ export class PetService extends BaseService {
     averageAge: number;
   }>> {
     try {
-      const allPets = await this.db.select().from(pets);
+      // Backend'de bu endpoint olabilir ya da tüm petleri çekip hesaplayabiliriz
+      const allPetsResponse = await api.get<Pet[]>(ENV.ENDPOINTS.PETS);
+      const allPets = allPetsResponse.data || [];
 
       const byType: Record<string, number> = {};
       const byGender: Record<string, number> = {};
@@ -258,6 +313,12 @@ export class PetService extends BaseService {
       };
     } catch (error) {
       console.error('❌ Get pet stats error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'İstatistikler yüklenemedi. Lütfen tekrar deneyin.',

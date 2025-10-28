@@ -12,7 +12,6 @@ import {
   Button,
   Surface,
   Text,
-  Portal,
   Modal,
   List,
 } from 'react-native-paper';

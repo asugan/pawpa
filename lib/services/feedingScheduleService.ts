@@ -1,34 +1,37 @@
-import { BaseService } from './baseService';
-import { feedingSchedules, type FeedingSchedule, type NewFeedingSchedule } from '../../db';
-import { eq, and, desc } from 'drizzle-orm';
-import { ApiResponse, CreateFeedingScheduleInput, UpdateFeedingScheduleInput } from '../types';
+import { api, ApiError } from '../api/client';
+import { ENV } from '../config/env';
+import type { FeedingSchedule, CreateFeedingScheduleInput, UpdateFeedingScheduleInput, ApiResponse } from '../types';
 
 /**
- * Feeding Schedule Service - Tüm besleme programı operasyonlarını yönetir
+ * Feeding Schedule Service - Tüm besleme programı API operasyonlarını yönetir
  */
-export class FeedingScheduleService extends BaseService {
+export class FeedingScheduleService {
   /**
    * Yeni besleme programı oluşturur
    */
   async createFeedingSchedule(data: CreateFeedingScheduleInput): Promise<ApiResponse<FeedingSchedule>> {
     try {
-      const id = `feed_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const newSchedule: NewFeedingSchedule = {
-        id,
+      const scheduleData = {
         ...data,
         isActive: data.isActive !== undefined ? data.isActive : true,
       };
 
-      const [schedule] = await this.db.insert(feedingSchedules).values(newSchedule).returning();
+      const response = await api.post<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULES, scheduleData);
 
-      console.log('✅ Feeding schedule created successfully:', schedule.id);
+      console.log('✅ Feeding schedule created successfully:', response.data?.id);
       return {
         success: true,
-        data: schedule,
+        data: response.data!,
         message: 'Besleme programı başarıyla oluşturuldu',
       };
     } catch (error) {
       console.error('❌ Create feeding schedule error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programı oluşturulamadı. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -41,54 +44,25 @@ export class FeedingScheduleService extends BaseService {
    */
   async getFeedingSchedulesByPetId(petId: string): Promise<ApiResponse<FeedingSchedule[]>> {
     try {
-      const schedules = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(eq(feedingSchedules.petId, petId))
-        .orderBy(desc(feedingSchedules.createdAt));
+      const response = await api.get<FeedingSchedule[]>(ENV.ENDPOINTS.FEEDING_SCHEDULES_BY_PET(petId));
 
-      console.log(`✅ ${schedules.length} feeding schedules loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} feeding schedules loaded successfully`);
       return {
         success: true,
-        data: schedules,
-        message: `${schedules.length} besleme programı başarıyla yüklendi`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} besleme programı başarıyla yüklendi`,
       };
     } catch (error) {
       console.error('❌ Get feeding schedules error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programları yüklenemedi. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Aktif besleme programlarını getirir
-   */
-  async getActiveFeedingSchedules(petId: string): Promise<ApiResponse<FeedingSchedule[]>> {
-    try {
-      const activeSchedules = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(
-          and(
-            eq(feedingSchedules.petId, petId),
-            eq(feedingSchedules.isActive, true)
-          )
-        )
-        .orderBy(feedingSchedules.time);
-
-      console.log(`✅ ${activeSchedules.length} active feeding schedules loaded successfully`);
-      return {
-        success: true,
-        data: activeSchedules,
-        message: `${activeSchedules.length} aktif besleme programı bulundu`,
-      };
-    } catch (error) {
-      console.error('❌ Get active feeding schedules error:', error);
-      return {
-        success: false,
-        error: 'Aktif besleme programları yüklenemedi. Lütfen tekrar deneyin.',
       };
     }
   }
@@ -98,26 +72,28 @@ export class FeedingScheduleService extends BaseService {
    */
   async getFeedingScheduleById(id: string): Promise<ApiResponse<FeedingSchedule>> {
     try {
-      const [schedule] = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(eq(feedingSchedules.id, id));
+      const response = await api.get<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id));
 
-      if (!schedule) {
-        return {
-          success: false,
-          error: 'Besleme programı bulunamadı',
-        };
-      }
-
-      console.log('✅ Feeding schedule loaded successfully:', schedule.id);
+      console.log('✅ Feeding schedule loaded successfully:', response.data?.id);
       return {
         success: true,
-        data: schedule,
+        data: response.data!,
         message: 'Besleme programı başarıyla yüklendi',
       };
     } catch (error) {
       console.error('❌ Get feeding schedule error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Besleme programı bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programı yüklenemedi. Lütfen tekrar deneyin.',
@@ -130,27 +106,28 @@ export class FeedingScheduleService extends BaseService {
    */
   async updateFeedingSchedule(id: string, data: UpdateFeedingScheduleInput): Promise<ApiResponse<FeedingSchedule>> {
     try {
-      const [schedule] = await this.db
-        .update(feedingSchedules)
-        .set(data)
-        .where(eq(feedingSchedules.id, id))
-        .returning();
+      const response = await api.put<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id), data);
 
-      if (!schedule) {
-        return {
-          success: false,
-          error: 'Güncellenecek besleme programı bulunamadı',
-        };
-      }
-
-      console.log('✅ Feeding schedule updated successfully:', schedule.id);
+      console.log('✅ Feeding schedule updated successfully:', response.data?.id);
       return {
         success: true,
-        data: schedule,
+        data: response.data!,
         message: 'Besleme programı başarıyla güncellendi',
       };
     } catch (error) {
       console.error('❌ Update feeding schedule error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Güncellenecek besleme programı bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programı güncellenemedi. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -163,19 +140,7 @@ export class FeedingScheduleService extends BaseService {
    */
   async deleteFeedingSchedule(id: string): Promise<ApiResponse<void>> {
     try {
-      const [existingSchedule] = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(eq(feedingSchedules.id, id));
-
-      if (!existingSchedule) {
-        return {
-          success: false,
-          error: 'Silinecek besleme programı bulunamadı',
-        };
-      }
-
-      await this.db.delete(feedingSchedules).where(eq(feedingSchedules.id, id));
+      await api.delete(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id));
 
       console.log('✅ Feeding schedule deleted successfully:', id);
       return {
@@ -184,6 +149,18 @@ export class FeedingScheduleService extends BaseService {
       };
     } catch (error) {
       console.error('❌ Delete feeding schedule error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Silinecek besleme programı bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programı silinemedi. Lütfen tekrar deneyin.',
@@ -192,36 +169,116 @@ export class FeedingScheduleService extends BaseService {
   }
 
   /**
-   * Besleme programını aktif/pasif yapar
+   * Aktif besleme programlarını getirir
    */
-  async toggleFeedingSchedule(id: string): Promise<ApiResponse<FeedingSchedule>> {
+  async getActiveFeedingSchedules(): Promise<ApiResponse<FeedingSchedule[]>> {
     try {
-      const [schedule] = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(eq(feedingSchedules.id, id));
+      const response = await api.get<FeedingSchedule[]>(ENV.ENDPOINTS.ACTIVE_FEEDING_SCHEDULES);
 
-      if (!schedule) {
-        return {
-          success: false,
-          error: 'Besleme programı bulunamadı',
-        };
-      }
-
-      const [updatedSchedule] = await this.db
-        .update(feedingSchedules)
-        .set({ isActive: !schedule.isActive })
-        .where(eq(feedingSchedules.id, id))
-        .returning();
-
-      console.log('✅ Feeding schedule toggled successfully:', updatedSchedule.id);
+      console.log(`✅ ${response.data?.length || 0} active feeding schedules loaded successfully`);
       return {
         success: true,
-        data: updatedSchedule,
-        message: `Besleme programı başarıyla ${updatedSchedule.isActive ? 'aktifleştirildi' : 'pasifleştirildi'}`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} aktif besleme programı bulundu`,
+      };
+    } catch (error) {
+      console.error('❌ Get active feeding schedules error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Aktif besleme programları yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Bugünkü besleme programlarını getirir
+   */
+  async getTodayFeedingSchedules(): Promise<ApiResponse<FeedingSchedule[]>> {
+    try {
+      const response = await api.get<FeedingSchedule[]>(ENV.ENDPOINTS.TODAY_FEEDING_SCHEDULES);
+
+      console.log(`✅ ${response.data?.length || 0} today's feeding schedules loaded successfully`);
+      return {
+        success: true,
+        data: response.data || [],
+        message: `${response.data?.length || 0} bugünkü besleme programı bulundu`,
+      };
+    } catch (error) {
+      console.error('❌ Get today feeding schedules error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Bugünkü besleme programları yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Sonraki besleme zamanını getirir
+   */
+  async getNextFeeding(): Promise<ApiResponse<FeedingSchedule[]>> {
+    try {
+      const response = await api.get<FeedingSchedule[]>(ENV.ENDPOINTS.NEXT_FEEDING);
+
+      console.log(`✅ Next feeding schedule loaded successfully`);
+      return {
+        success: true,
+        data: response.data || [],
+        message: 'Sonraki besleme zamanı başarıyla getirildi',
+      };
+    } catch (error) {
+      console.error('❌ Get next feeding error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Sonraki besleme zamanı yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Besleme programını aktif/pasif hale getirir
+   */
+  async toggleFeedingSchedule(id: string, isActive: boolean): Promise<ApiResponse<FeedingSchedule>> {
+    try {
+      const response = await api.put<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id), { isActive });
+
+      console.log(`✅ Feeding schedule ${isActive ? 'activated' : 'deactivated'} successfully:`, response.data?.id);
+      return {
+        success: true,
+        data: response.data!,
+        message: `Besleme programı başarıyla ${isActive ? 'aktifleştirildi' : 'pasifleştirildi'}`,
       };
     } catch (error) {
       console.error('❌ Toggle feeding schedule error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Besleme programı bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Besleme programı durumu değiştirilemedi. Lütfen tekrar deneyin.',
@@ -230,64 +287,29 @@ export class FeedingScheduleService extends BaseService {
   }
 
   /**
-   * Belirli bir gün için besleme programlarını getirir
+   * Pet'e ait aktif besleme programlarını getirir
    */
-  async getFeedingSchedulesForDay(petId: string, dayOfWeek: string): Promise<ApiResponse<FeedingSchedule[]>> {
+  async getActiveFeedingSchedulesByPet(petId: string): Promise<ApiResponse<FeedingSchedule[]>> {
     try {
-      const daySchedules = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(
-          and(
-            eq(feedingSchedules.petId, petId),
-            eq(feedingSchedules.isActive, true),
-            eq(feedingSchedules.days, dayOfWeek)
-          )
-        )
-        .orderBy(feedingSchedules.time);
+      const response = await api.get<FeedingSchedule[]>(ENV.ENDPOINTS.FEEDING_SCHEDULES_BY_PET(petId), { isActive: true });
 
-      console.log(`✅ ${daySchedules.length} feeding schedules for ${dayOfWeek} loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} active feeding schedules for pet loaded successfully`);
       return {
         success: true,
-        data: daySchedules,
-        message: `${daySchedules.length} besleme programı ${dayOfWeek} günü için bulundu`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} aktif besleme programı bulundu`,
       };
     } catch (error) {
-      console.error('❌ Get feeding schedules for day error:', error);
+      console.error('❌ Get active feeding schedules by pet error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
-        error: 'Günlük besleme programları yüklenemedi. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Mama türüne göre besleme programlarını filtreler
-   */
-  async getFeedingSchedulesByFoodType(petId: string, foodType: string): Promise<ApiResponse<FeedingSchedule[]>> {
-    try {
-      const foodTypeSchedules = await this.db
-        .select()
-        .from(feedingSchedules)
-        .where(
-          and(
-            eq(feedingSchedules.petId, petId),
-            eq(feedingSchedules.foodType, foodType)
-          )
-        )
-        .orderBy(desc(feedingSchedules.createdAt));
-
-      console.log(`✅ ${foodTypeSchedules.length} ${foodType} feeding schedules loaded successfully`);
-      return {
-        success: true,
-        data: foodTypeSchedules,
-        message: `${foodTypeSchedules.length} adet ${foodType} besleme programı bulundu`,
-      };
-    } catch (error) {
-      console.error('❌ Get feeding schedules by food type error:', error);
-      return {
-        success: false,
-        error: 'Mama türüne göre besleme programları yüklenemedi. Lütfen tekrar deneyin.',
+        error: 'Aktif besleme programları yüklenemedi. Lütfen tekrar deneyin.',
       };
     }
   }

@@ -40,24 +40,24 @@ export function PetModal({
         const updateData = {
           ...data,
           breed: data.breed || null,
-          birthDate: data.birthDate || null,
+          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
           weight: data.weight || null,
           gender: data.gender || null,
           profilePhoto: data.profilePhoto || null,
         };
-        const updatedPet = await updatePet(pet.id, updateData);
+        await updatePet(pet.id, updateData);
         showSnackbar('Pet başarıyla güncellendi');
       } else {
         // Yeni pet oluşturma - breed undefined'ı null'a çevir
         const createData = {
           ...data,
           breed: data.breed || null,
-          birthDate: data.birthDate || null,
+          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
           weight: data.weight || null,
           gender: data.gender || null,
           profilePhoto: data.profilePhoto || null,
         };
-        const newPet = await createPet(createData);
+        await createPet(createData);
         showSnackbar('Pet başarıyla eklendi');
       }
 

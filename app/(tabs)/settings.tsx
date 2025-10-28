@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
   const theme = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { themeMode, toggleTheme } = useThemeStore();
   const { language, setLanguage } = useLanguageStore();
   const isDarkMode = themeMode === 'dark';

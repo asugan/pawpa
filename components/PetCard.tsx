@@ -48,11 +48,11 @@ const PetCard: React.FC<PetCardProps> = ({
     return t(typeKey, type); // Fallback to original type if translation not found
   };
 
-  const getAgeText = (birthDate: Date | null | undefined) => {
+  const getAgeText = (birthDate: string | Date | null | undefined) => {
     if (!birthDate) return t('pets.ageUnknown');
 
     const today = new Date();
-    const birth = new Date(birthDate);
+    const birth = typeof birthDate === 'string' ? new Date(birthDate) : new Date(birthDate);
     const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
 
     if (months < 12) {

@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
 import { useTheme, IconButton, Button } from 'react-native-paper';
 import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
-import { enUS } from 'date-fns/locale';
+import { tr , enUS } from 'date-fns/locale';
 
 interface FormDatePickerProps<T extends FieldValues> {
   control: Control<T>;

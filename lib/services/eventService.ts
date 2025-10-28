@@ -1,36 +1,39 @@
-import { BaseService } from './baseService';
-import { events, type Event, type NewEvent } from '../../db';
-import { eq, and, desc, gte, lte } from 'drizzle-orm';
-import { ApiResponse, CreateEventInput, UpdateEventInput } from '../types';
+import { api, ApiError } from '../api/client';
+import { ENV } from '../config/env';
+import type { Event, CreateEventInput, UpdateEventInput, ApiResponse } from '../types';
 
 /**
- * Event Service - Tüm olay ve aktivite operasyonlarını yönetir
+ * Event Service - Tüm olay ve aktivite API operasyonlarını yönetir
  */
-export class EventService extends BaseService {
+export class EventService {
   /**
    * Yeni olay oluşturur
    */
   async createEvent(data: CreateEventInput): Promise<ApiResponse<Event>> {
     try {
-      const id = `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const newEvent: NewEvent = {
-        id,
+      const eventData = {
         ...data,
-        startTime: data.startTime instanceof Date ? data.startTime : new Date(data.startTime),
-        endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : null,
+        startTime: data.startTime,
+        endTime: data.endTime || null,
         reminder: data.reminder || false,
       };
 
-      const [event] = await this.db.insert(events).values(newEvent).returning();
+      const response = await api.post<Event>(ENV.ENDPOINTS.EVENTS, eventData);
 
-      console.log('✅ Event created successfully:', event.id);
+      console.log('✅ Event created successfully:', response.data?.id);
       return {
         success: true,
-        data: event,
+        data: response.data!,
         message: 'Olay başarıyla oluşturuldu',
       };
     } catch (error) {
       console.error('❌ Create event error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olay oluşturulamadı. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -43,55 +46,25 @@ export class EventService extends BaseService {
    */
   async getEventsByPetId(petId: string): Promise<ApiResponse<Event[]>> {
     try {
-      const petEvents = await this.db
-        .select()
-        .from(events)
-        .where(eq(events.petId, petId))
-        .orderBy(desc(events.startTime));
+      const response = await api.get<Event[]>(ENV.ENDPOINTS.EVENTS_BY_PET(petId));
 
-      console.log(`✅ ${petEvents.length} events loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} events loaded successfully`);
       return {
         success: true,
-        data: petEvents,
-        message: `${petEvents.length} olay başarıyla yüklendi`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} olay başarıyla yüklendi`,
       };
     } catch (error) {
       console.error('❌ Get events error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olaylar yüklenemedi. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Yaklaşan olayları getirir
-   */
-  async getUpcomingEvents(petId: string): Promise<ApiResponse<Event[]>> {
-    try {
-      const now = new Date();
-      const upcoming = await this.db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.petId, petId),
-            gte(events.startTime, now.getTime())
-          )
-        )
-        .orderBy(events.startTime);
-
-      console.log(`✅ ${upcoming.length} upcoming events loaded successfully`);
-      return {
-        success: true,
-        data: upcoming,
-        message: `${upcoming.length} yaklaşan olay bulundu`,
-      };
-    } catch (error) {
-      console.error('❌ Get upcoming events error:', error);
-      return {
-        success: false,
-        error: 'Yaklaşan olaylar yüklenemedi. Lütfen tekrar deneyin.',
       };
     }
   }
@@ -101,26 +74,28 @@ export class EventService extends BaseService {
    */
   async getEventById(id: string): Promise<ApiResponse<Event>> {
     try {
-      const [event] = await this.db
-        .select()
-        .from(events)
-        .where(eq(events.id, id));
+      const response = await api.get<Event>(ENV.ENDPOINTS.EVENT_BY_ID(id));
 
-      if (!event) {
-        return {
-          success: false,
-          error: 'Olay bulunamadı',
-        };
-      }
-
-      console.log('✅ Event loaded successfully:', event.id);
+      console.log('✅ Event loaded successfully:', response.data?.id);
       return {
         success: true,
-        data: event,
+        data: response.data!,
         message: 'Olay başarıyla yüklendi',
       };
     } catch (error) {
       console.error('❌ Get event error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Olay bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olay yüklenemedi. Lütfen tekrar deneyin.',
@@ -135,31 +110,32 @@ export class EventService extends BaseService {
     try {
       const updateData = {
         ...data,
-        startTime: data.startTime ? (data.startTime instanceof Date ? data.startTime : new Date(data.startTime)) : undefined,
-        endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : undefined,
+        startTime: data.startTime || undefined,
+        endTime: data.endTime || undefined,
       };
 
-      const [event] = await this.db
-        .update(events)
-        .set(updateData)
-        .where(eq(events.id, id))
-        .returning();
+      const response = await api.put<Event>(ENV.ENDPOINTS.EVENT_BY_ID(id), updateData);
 
-      if (!event) {
-        return {
-          success: false,
-          error: 'Güncellenecek olay bulunamadı',
-        };
-      }
-
-      console.log('✅ Event updated successfully:', event.id);
+      console.log('✅ Event updated successfully:', response.data?.id);
       return {
         success: true,
-        data: event,
+        data: response.data!,
         message: 'Olay başarıyla güncellendi',
       };
     } catch (error) {
       console.error('❌ Update event error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Güncellenecek olay bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olay güncellenemedi. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -172,19 +148,7 @@ export class EventService extends BaseService {
    */
   async deleteEvent(id: string): Promise<ApiResponse<void>> {
     try {
-      const [existingEvent] = await this.db
-        .select()
-        .from(events)
-        .where(eq(events.id, id));
-
-      if (!existingEvent) {
-        return {
-          success: false,
-          error: 'Silinecek olay bulunamadı',
-        };
-      }
-
-      await this.db.delete(events).where(eq(events.id, id));
+      await api.delete(ENV.ENDPOINTS.EVENT_BY_ID(id));
 
       console.log('✅ Event deleted successfully:', id);
       return {
@@ -193,6 +157,18 @@ export class EventService extends BaseService {
       };
     } catch (error) {
       console.error('❌ Delete event error:', error);
+      if (error instanceof ApiError) {
+        if (error.status === 404) {
+          return {
+            success: false,
+            error: 'Silinecek olay bulunamadı',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olay silinemedi. Lütfen tekrar deneyin.',
@@ -201,61 +177,26 @@ export class EventService extends BaseService {
   }
 
   /**
-   * Tarihe göre olayları getirir
+   * Belirli bir tarihteki olayları getirir
    */
-  async getEventsByDateRange(petId: string, startDate: Date, endDate: Date): Promise<ApiResponse<Event[]>> {
+  async getEventsByDate(date: string): Promise<ApiResponse<Event[]>> {
     try {
-      const rangeEvents = await this.db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.petId, petId),
-            gte(events.startTime, startDate.getTime()),
-            lte(events.startTime, endDate.getTime())
-          )
-        )
-        .orderBy(desc(events.startTime));
+      const response = await api.get<Event[]>(ENV.ENDPOINTS.EVENTS_BY_DATE(date));
 
-      console.log(`✅ ${rangeEvents.length} events in date range loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} events for ${date} loaded successfully`);
       return {
         success: true,
-        data: rangeEvents,
-        message: `${rangeEvents.length} olay tarihe göre bulundu`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} olay bulundu`,
       };
     } catch (error) {
-      console.error('❌ Get events by date range error:', error);
-      return {
-        success: false,
-        error: 'Tarihe göre olaylar yüklenemedi. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Türe göre olayları filtreler
-   */
-  async getEventsByType(petId: string, type: string): Promise<ApiResponse<Event[]>> {
-    try {
-      const typeEvents = await this.db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.petId, petId),
-            eq(events.type, type)
-          )
-        )
-        .orderBy(desc(events.startTime));
-
-      console.log(`✅ ${typeEvents.length} ${type} events loaded successfully`);
-      return {
-        success: true,
-        data: typeEvents,
-        message: `${typeEvents.length} adet ${type} olayı bulundu`,
-      };
-    } catch (error) {
-      console.error('❌ Get events by type error:', error);
+      console.error('❌ Get events by date error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
         error: 'Olaylar yüklenemedi. Lütfen tekrar deneyin.',
@@ -264,32 +205,85 @@ export class EventService extends BaseService {
   }
 
   /**
-   * Hatırlatıcıları getirir
+   * Yaklaşan olayları getirir
    */
-  async getEventsWithReminders(petId: string): Promise<ApiResponse<Event[]>> {
+  async getUpcomingEvents(): Promise<ApiResponse<Event[]>> {
     try {
-      const reminderEvents = await this.db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.petId, petId),
-            eq(events.reminder, true)
-          )
-        )
-        .orderBy(desc(events.startTime));
+      const response = await api.get<Event[]>(ENV.ENDPOINTS.UPCOMING_EVENTS);
 
-      console.log(`✅ ${reminderEvents.length} events with reminders loaded successfully`);
+      console.log(`✅ ${response.data?.length || 0} upcoming events loaded successfully`);
       return {
         success: true,
-        data: reminderEvents,
-        message: `${reminderEvents.length} hatırlatıcılı olay bulundu`,
+        data: response.data || [],
+        message: `${response.data?.length || 0} yaklaşan olay bulundu`,
       };
     } catch (error) {
-      console.error('❌ Get events with reminders error:', error);
+      console.error('❌ Get upcoming events error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
       return {
         success: false,
-        error: 'Hatırlatıcılar yüklenemedi. Lütfen tekrar deneyin.',
+        error: 'Yaklaşan olaylar yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Bugünkü olayları getirir
+   */
+  async getTodayEvents(): Promise<ApiResponse<Event[]>> {
+    try {
+      const response = await api.get<Event[]>(ENV.ENDPOINTS.TODAY_EVENTS);
+
+      console.log(`✅ ${response.data?.length || 0} today's events loaded successfully`);
+      return {
+        success: true,
+        data: response.data || [],
+        message: `${response.data?.length || 0} bugünkü olay bulundu`,
+      };
+    } catch (error) {
+      console.error('❌ Get today events error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Bugünkü olaylar yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Türüne göre olayları filtreler
+   */
+  async getEventsByType(petId: string, type: string): Promise<ApiResponse<Event[]>> {
+    try {
+      const response = await api.get<Event[]>(ENV.ENDPOINTS.EVENTS_BY_PET(petId), { type });
+
+      console.log(`✅ ${response.data?.length || 0} ${type} events loaded successfully`);
+      return {
+        success: true,
+        data: response.data || [],
+        message: `${response.data?.length || 0} adet ${type} olayı bulundu`,
+      };
+    } catch (error) {
+      console.error('❌ Get events by type error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Olaylar yüklenemedi. Lütfen tekrar deneyin.',
       };
     }
   }
