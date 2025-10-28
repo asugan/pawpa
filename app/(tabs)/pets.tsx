@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Text, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';
 import PetCard from '../../components/PetCard';
+import PetCardSkeleton from '../../components/PetCardSkeleton';
+import { Grid } from '../../components/Grid';
 import PetModal from '../../components/PetModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
@@ -87,14 +89,25 @@ export default function PetsScreen() {
     router.push(`/pet/${pet.id}`);
   };
 
-  const renderPetCard = ({ item }: { item: Pet }) => (
+  const renderPetCard = (pet: Pet) => (
     <PetCard
-      pet={item}
-      onPress={() => handleViewPet(item)}
-      onEdit={() => handleEditPet(item)}
-      onDelete={() => handleDeletePet(item)}
+      pet={pet}
+      onPress={() => handleViewPet(pet)}
+      onEdit={() => handleEditPet(pet)}
+      onDelete={() => handleDeletePet(pet)}
+      // Mock data for upcoming events and vaccinations
+      // In a real app, this would come from your API
+      upcomingEvents={Math.floor(Math.random() * 3)}
+      upcomingVaccinations={Math.floor(Math.random() * 2)}
     />
   );
+
+  // Create skeleton cards for loading state
+  const renderLoadingSkeleton = () => {
+    return Array.from({ length: 4 }, (_, index) => (
+      <PetCardSkeleton key={`skeleton-${index}`} />
+    ));
+  };
 
   // Show loading spinner on initial load
   if (isLoading && pets.length === 0) {
@@ -105,7 +118,9 @@ export default function PetsScreen() {
             {t('pets.myPets')}
           </Text>
         </View>
-        <LoadingSpinner text="Petler yükleniyor..." />
+        <Grid maxColumns={2}>
+          {renderLoadingSkeleton()}
+        </Grid>
       </SafeAreaView>
     );
   }
@@ -118,13 +133,20 @@ export default function PetsScreen() {
         </Text>
       </View>
 
-      <FlatList
-        data={pets}
-        renderItem={renderPetCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.petsList}
-        ListEmptyComponent={
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={loadPets}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
+        }
+      >
+        {pets.length === 0 ? (
           !isLoading && (
             <EmptyState
               title={t('pets.noPetsYet')}
@@ -136,12 +158,21 @@ export default function PetsScreen() {
               style={styles.emptyState}
             />
           )
-        }
-        showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
-        onRefresh={loadPets}
-        ListFooterComponent={isLoading && pets.length > 0 ? <LoadingSpinner size="small" /> : null}
-      />
+        ) : (
+          <>
+            <Grid maxColumns={2}>
+              {pets.map(renderPetCard)}
+            </Grid>
+
+            {/* Loading indicator at bottom when refreshing */}
+            {isLoading && pets.length > 0 && (
+              <View style={styles.loadingFooter}>
+                <LoadingSpinner size="small" />
+              </View>
+            )}
+          </>
+        )}
+      </ScrollView>
 
       <FAB
         icon="plus"
@@ -182,23 +213,22 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 8,
   },
-  petsList: {
-    padding: 16,
-    paddingTop: 0,
-  },
-  petCard: {
+  scrollView: {
     flex: 1,
-    margin: 4,
-    elevation: 2,
   },
-  petContent: {
+  scrollContent: {
     padding: 16,
-  },
-  petInfo: {
-    marginBottom: 12,
+    paddingTop: 8,
+    minHeight: '100%',
   },
   emptyState: {
     marginTop: 40,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',
