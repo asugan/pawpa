@@ -17,6 +17,7 @@ import {
   List,
 } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
+import { useTranslation } from 'react-i18next';
 import { Pet } from '../../lib/types';
 
 interface PetPhotoPickerProps {
@@ -74,6 +75,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
   petType,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -87,11 +89,11 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
         mediaLibraryPermission.status !== 'granted'
       ) {
         Alert.alert(
-          'İzin Gerekli',
-          'Fotoğraf seçmek için kamera ve galeri izinleri gerekli.',
+          t('forms.photoPicker.permissionsRequired'),
+          t('forms.photoPicker.permissionsMessage'),
           [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Ayarlar', onPress: () => {/* Settings'e yönlendirme eklenebilir */} },
+            { text: t('forms.photoPicker.cancel'), style: 'cancel' },
+            { text: t('forms.photoPicker.settings'), onPress: () => {/* Settings'e yönlendirme eklenebilir */} },
           ]
         );
         return false;
@@ -126,7 +128,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
       }
     } catch (error) {
       console.error('Gallery picker error:', error);
-      Alert.alert('Hata', 'Fotoğraf seçilemedi. Lütfen tekrar deneyin.');
+      Alert.alert(t('common.error'), t('forms.photoPicker.errorSelectingPhoto'));
     } finally {
       setLoading(false);
     }
@@ -155,7 +157,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
       }
     } catch (error) {
       console.error('Camera picker error:', error);
-      Alert.alert('Hata', 'Fotoğraf çekilemedi. Lütfen tekrar deneyin.');
+      Alert.alert(t('common.error'), t('forms.photoPicker.errorTakingPhoto'));
     } finally {
       setLoading(false);
     }
@@ -217,7 +219,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
             style={styles.button}
             compact
           >
-            {value ? 'Değiştir' : 'Fotoğraf Ekle'}
+            {value ? t('forms.photoPicker.changePhoto') : t('forms.photoPicker.addPhoto')}
           </Button>
           {value && !disabled && (
             <Button
@@ -226,7 +228,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
               textColor="#FF6B6B"
               compact
             >
-              Kaldır
+              {t('forms.photoPicker.removePhoto')}
             </Button>
           )}
         </View>
@@ -253,21 +255,21 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
           ]}
         >
           <Text variant="headlineSmall" style={styles.modalTitle}>
-            Fotoğraf Seç
+            {t('forms.photoPicker.selectPhoto')}
           </Text>
 
           <Surface style={styles.modalContent}>
             <List.Item
-              title="Galeriden Seç"
-              description="Cihazınızdaki fotoğrafları seçin"
+              title={t('forms.photoPicker.selectFromGallery')}
+              description={t('forms.photoPicker.selectFromGalleryDescription')}
               left={(props) => <List.Icon {...props} icon="image" />}
               onPress={pickFromGallery}
               style={styles.modalItem}
             />
 
             <List.Item
-              title="Fotoğraf Çek"
-              description="Yeni bir fotoğraf çekin"
+              title={t('forms.photoPicker.takePhoto')}
+              description={t('forms.photoPicker.takePhotoDescription')}
               left={(props) => <List.Icon {...props} icon="camera" />}
               onPress={takePhoto}
               style={styles.modalItem}
@@ -275,8 +277,8 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
 
             {value && (
               <List.Item
-                title="Fotoğrafı Kaldır"
-                description="Mevcut fotoğrafı silin"
+                title={t('forms.photoPicker.removePhotoTitle')}
+                description={t('forms.photoPicker.removePhotoDescription')}
                 left={(props) => <List.Icon {...props} icon="delete" />}
                 onPress={removePhoto}
                 style={[styles.modalItem, styles.dangerItem]}
@@ -290,7 +292,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
             onPress={() => setModalVisible(false)}
             style={styles.cancelButton}
           >
-            İptal
+            {t('forms.photoPicker.cancel')}
           </Button>
         </Modal>
     </>
