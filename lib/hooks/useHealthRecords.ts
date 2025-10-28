@@ -31,6 +31,23 @@ export function useHealthRecords(petId?: string) {
   });
 }
 
+// Get a single health record by ID
+export function useHealthRecordById(id?: string) {
+  return useQuery({
+    queryKey: healthRecordKeys.detail(id || ''),
+    queryFn: async () => {
+      if (!id) throw new Error('Health record ID is required');
+      const result = await healthRecordService.getHealthRecordById(id);
+      if (!result.success) {
+        throw new Error(result.error || 'Sağlık kaydı yüklenemedi');
+      }
+      return result.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!id,
+  });
+}
+
 // Get vaccinations only
 export function useVaccinations(petId?: string) {
   return useQuery({

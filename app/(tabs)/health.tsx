@@ -3,6 +3,7 @@ import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Text, Card, Button, FAB, useTheme, Chip, IconButton, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
 import { useHealthRecords, useCreateHealthRecord } from '../../lib/hooks/useHealthRecords';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -14,6 +15,7 @@ import type { HealthRecord } from '../../lib/types';
 export default function HealthScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const [selectedPetId, setSelectedPetId] = useState<string>();
   const [selectedType, setSelectedType] = useState<string>('all');
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -51,8 +53,19 @@ export default function HealthScreen() {
     setIsFormVisible(false);
   };
 
+  const handleHealthRecordPress = (record: HealthRecord) => {
+    router.push(`/health/${record.id}`);
+  };
+
+  const handleEditRecord = (record: HealthRecord) => {
+    router.push(`/health/edit/${record.id}`);
+  };
+
   const renderHealthRecord = ({ item }: { item: HealthRecord }) => (
-    <Card style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}>
+    <Card
+      style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}
+      onPress={() => handleHealthRecordPress(item)}
+    >
       <Card.Content style={styles.healthContent}>
         <View style={styles.healthInfo}>
           <View style={styles.titleRow}>
@@ -86,9 +99,9 @@ export default function HealthScreen() {
         </View>
         <View style={styles.actionButtons}>
           <IconButton
-            icon="dots-vertical"
+            icon="pencil"
             size={20}
-            onPress={() => console.log('Health record actions:', item.id)}
+            onPress={() => handleEditRecord(item)}
           />
         </View>
       </Card.Content>
