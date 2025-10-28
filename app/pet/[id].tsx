@@ -334,7 +334,7 @@ export default function PetDetailScreen() {
               <Button
                 mode="outlined"
                 icon="food"
-                onPress={() => router.push(`/feeding?petId=${pet.id}`)}
+                onPress={() => router.push(`/feeding` as any, { query: { petId: pet.id } } as any)}
                 style={styles.quickActionButton}
               >
                 Beslenme

@@ -29,9 +29,20 @@ export interface HealthRecord {
   description?: string;
   date: string;
   veterinarian?: string;
+  clinic?: string;
   cost?: number;
   notes?: string;
   nextDueDate?: string | null;
+  // Vaccination specific fields
+  vaccineName?: string;
+  vaccineManufacturer?: string;
+  batchNumber?: string;
+  // Medication specific fields
+  medicationName?: string;
+  dosage?: string;
+  frequency?: string;
+  startDate?: string | null;
+  endDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }

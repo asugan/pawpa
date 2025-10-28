@@ -7,13 +7,16 @@ import { usePets } from '../../lib/hooks/usePets';
 import { useHealthRecords, useCreateHealthRecord } from '../../lib/hooks/useHealthRecords';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
 import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
+import type { HealthRecord } from '../../lib/types';
 
 export default function HealthScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [selectedPetId, setSelectedPetId] = useState<string>();
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   // Get pets for selection
   const { data: pets = [], isLoading: petsLoading } = usePets();
@@ -33,7 +36,22 @@ export default function HealthScreen() {
     ? healthRecords
     : healthRecords.filter(record => record.type === selectedType);
 
-  const renderHealthRecord = ({ item }: { item: any }) => (
+  const handleAddHealthRecord = () => {
+    if (selectedPetId) {
+      setIsFormVisible(true);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setIsFormVisible(false);
+    refetch();
+  };
+
+  const handleFormCancel = () => {
+    setIsFormVisible(false);
+  };
+
+  const renderHealthRecord = ({ item }: { item: HealthRecord }) => (
     <Card style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}>
       <Card.Content style={styles.healthContent}>
         <View style={styles.healthInfo}>
@@ -190,7 +208,7 @@ export default function HealthScreen() {
           description="Henüz sağlık kaydı eklenmemiş"
           icon="medical-bag"
           buttonText="İlk Sağlık Kaydını Ekle"
-          onButtonPress={() => console.log('Add health record')}
+          onButtonPress={handleAddHealthRecord}
         />
       ) : (
         <FlatList
@@ -213,8 +231,19 @@ export default function HealthScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.secondary }]}
-        onPress={() => selectedPetId ? console.log('Add health record for pet:', selectedPetId) : console.log('Please select a pet first')}
+        onPress={handleAddHealthRecord}
+        disabled={!selectedPetId}
       />
+
+      {/* Health Record Form Modal */}
+      {selectedPetId && (
+        <HealthRecordForm
+          petId={selectedPetId}
+          visible={isFormVisible}
+          onSuccess={handleFormSuccess}
+          onCancel={handleFormCancel}
+        />
+      )}
     </SafeAreaView>
   );
 }

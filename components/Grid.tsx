@@ -51,8 +51,8 @@ export const Grid: React.FC<GridProps> = ({
               style={[
                 styles.item,
                 isTabletItem && {
-                  width: itemWidth,
-                  maxWidth: `${100 / columns}%`,
+                  width: itemWidth as any,
+                  maxWidth: `${100 / columns}%` as any,
                 },
               ]}
             >

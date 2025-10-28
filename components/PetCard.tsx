@@ -3,7 +3,6 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Card, Text, Button, Avatar, Badge, Surface, useTheme } from 'react-native-paper';
 import { Pet } from '../lib/types';
 import { useTranslation } from 'react-i18next';
-import { MD3Colors } from 'react-native-paper/lib/typescript/src/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface PetCardProps {

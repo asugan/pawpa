@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';
 import PetCard from '../../components/PetCard';
-import PetCardSkeleton from '../../components/PetCardSkeleton';
+import { PetCardSkeleton } from '../../components/PetCardSkeleton';
 import { Grid } from '../../components/Grid';
 import PetModal from '../../components/PetModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
