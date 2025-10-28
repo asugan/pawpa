@@ -16,7 +16,7 @@ export class PetService extends BaseService {
       const newPet: NewPet = {
         id,
         ...data,
-        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+        birthDate: data.birthDate ? (data.birthDate instanceof Date ? data.birthDate : new Date(data.birthDate)) : null,
       };
 
       const [pet] = await this.db.insert(pets).values(newPet).returning();
@@ -94,7 +94,7 @@ export class PetService extends BaseService {
     try {
       const updateData = {
         ...data,
-        birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+        birthDate: data.birthDate ? (data.birthDate instanceof Date ? data.birthDate : new Date(data.birthDate)) : undefined,
         updatedAt: new Date(),
       };
 

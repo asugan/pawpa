@@ -16,8 +16,8 @@ export class EventService extends BaseService {
       const newEvent: NewEvent = {
         id,
         ...data,
-        startTime: new Date(data.startTime),
-        endTime: data.endTime ? new Date(data.endTime) : null,
+        startTime: data.startTime instanceof Date ? data.startTime : new Date(data.startTime),
+        endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : null,
         reminder: data.reminder || false,
       };
 
@@ -135,8 +135,8 @@ export class EventService extends BaseService {
     try {
       const updateData = {
         ...data,
-        startTime: data.startTime ? new Date(data.startTime) : undefined,
-        endTime: data.endTime ? new Date(data.endTime) : undefined,
+        startTime: data.startTime ? (data.startTime instanceof Date ? data.startTime : new Date(data.startTime)) : undefined,
+        endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : undefined,
       };
 
       const [event] = await this.db

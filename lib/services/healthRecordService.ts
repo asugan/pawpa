@@ -16,8 +16,8 @@ export class HealthRecordService extends BaseService {
       const newRecord: NewHealthRecord = {
         id,
         ...data,
-        date: new Date(data.date),
-        nextDueDate: data.nextDueDate ? new Date(data.nextDueDate) : null,
+        date: data.date instanceof Date ? data.date : new Date(data.date),
+        nextDueDate: data.nextDueDate ? (data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate)) : null,
       };
 
       const [record] = await this.db.insert(healthRecords).values(newRecord).returning();
@@ -102,8 +102,8 @@ export class HealthRecordService extends BaseService {
     try {
       const updateData = {
         ...data,
-        date: data.date ? new Date(data.date) : undefined,
-        nextDueDate: data.nextDueDate ? new Date(data.nextDueDate) : undefined,
+        date: data.date ? (data.date instanceof Date ? data.date : new Date(data.date)) : undefined,
+        nextDueDate: data.nextDueDate ? (data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate)) : undefined,
       };
 
       const [record] = await this.db

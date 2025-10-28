@@ -1,6 +1,16 @@
+import { FeedingSchedule, HealthRecord, Pet } from "@/db";
+
 // Export Drizzle types for easy access
-export type { Pet, HealthRecord, Event, FeedingSchedule } from '../db/schema';
-export type { NewPet, NewHealthRecord, NewEvent, NewFeedingSchedule } from '../db/schema';
+export type {
+  Event,
+  FeedingSchedule,
+  HealthRecord,
+  NewEvent,
+  NewFeedingSchedule,
+  NewHealthRecord,
+  NewPet,
+  Pet,
+} from "../db/schema";
 
 // Extended types with additional fields if needed
 export type PetWithRelations = Pet & {
@@ -10,16 +20,22 @@ export type PetWithRelations = Pet & {
 };
 
 // Input types for forms (without id and timestamps)
-export type CreatePetInput = Omit<Pet, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreatePetInput = Omit<Pet, "id" | "createdAt" | "updatedAt">;
 export type UpdatePetInput = Partial<CreatePetInput>;
 
-export type CreateHealthRecordInput = Omit<HealthRecord, 'id' | 'createdAt' | 'pet'>;
+export type CreateHealthRecordInput = Omit<
+  HealthRecord,
+  "id" | "createdAt" | "pet"
+>;
 export type UpdateHealthRecordInput = Partial<CreateHealthRecordInput>;
 
-export type CreateEventInput = Omit<Event, 'id' | 'createdAt' | 'pet'>;
+export type CreateEventInput = Omit<Event, "id" | "createdAt" | "pet">;
 export type UpdateEventInput = Partial<CreateEventInput>;
 
-export type CreateFeedingScheduleInput = Omit<FeedingSchedule, 'id' | 'createdAt' | 'pet'>;
+export type CreateFeedingScheduleInput = Omit<
+  FeedingSchedule,
+  "id" | "createdAt" | "pet"
+>;
 export type UpdateFeedingScheduleInput = Partial<CreateFeedingScheduleInput>;
 
 // API Response types
