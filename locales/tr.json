@@ -1,0 +1,117 @@
+{
+  "navigation": {
+    "home": "Ana Sayfa",
+    "pets": "Evcil Dostlar",
+    "health": "Sağlık",
+    "calendar": "Takvim",
+    "settings": "Ayarlar"
+  },
+  "home": {
+    "title": "Evcil Dostlarınızın Sağlık Asistanı",
+    "totalPets": "Toplam Pet",
+    "healthReminder": "Sağlık Hatırlatıcı",
+    "quickActions": "Hızlı İşlemler",
+    "addNewPet": "Yeni Pet Ekle",
+    "healthRecord": "Sağlık Kaydı",
+    "feedingPlan": "Besleme Planı",
+    "noPetsYet": "Henüz pet eklemediniz",
+    "addFirstPet": "İlk Peti Ekle"
+  },
+  "pets": {
+    "myPets": "Evcil Dostlarım",
+    "noPetsYet": "Henüz pet yok",
+    "addFirstPet": "+ butonuna basarak ilk evcil dostunuzu ekleyin",
+    "addNewPet": "Yeni Pet Ekle",
+    "editPet": "Pet Düzenle",
+    "petName": "Pet Adı",
+    "type": "Tür",
+    "breed": "Cins",
+    "gender": "Cinsiyet",
+    "birthDate": "Doğum Tarihi",
+    "weight": "Kilo",
+    "cancel": "İptal",
+    "update": "Güncelle",
+    "add": "Ekle",
+    "pleaseFillRequiredFields": "Lütfen zorunlu alanları doldurunuz",
+    "ageUnknown": "Yaş bilinmiyor",
+    "months": "ay",
+    "years": "yıl",
+    "edit": "Düzenle",
+    "delete": "Sil"
+  },
+  "health": {
+    "healthRecords": "Sağlık Kayıtları",
+    "vaccinationRecord": "Aşı Kaydı",
+    "view": "Görüntüle",
+    "noRecords": "Henüz sağlık kaydı yok"
+  },
+  "calendar": {
+    "calendar": "Takvim",
+    "comingSoon": "Yakında gelecek",
+    "upcomingEvents": "Yaklaşan Etkinlikler",
+    "noEvents": "Planlanmış etkinlik yok"
+  },
+  "settings": {
+    "appearance": "Görünüm",
+    "darkMode": "Karanlık Mod",
+    "appSettings": "Uygulama Ayarları",
+    "notifications": "Bildirimler",
+    "language": "Dil"
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "retry": "Tekrar Dene",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "cancel": "İptal",
+    "confirm": "Onayla",
+    "yes": "Evet",
+    "no": "Hayır",
+    "ok": "Tamam"
+  },
+  "petTypes": {
+    "dog": "Köpek",
+    "cat": "Kedi",
+    "bird": "Kuş",
+    "rabbit": "Tavşan",
+    "hamster": "Hamster",
+    "fish": "Balık",
+    "reptile": "Sürüngen",
+    "other": "Diğer"
+  },
+  "gender": {
+    "male": "Erkek",
+    "female": "Dişi",
+    "other": "Diğer"
+  },
+  "healthRecordTypes": {
+    "vaccination": "Aşı",
+    "checkup": "Kontrol",
+    "medication": "İlaç",
+    "surgery": "Ameliyat",
+    "dental": "Diş",
+    "grooming": "Bakım",
+    "other": "Diğer"
+  },
+  "eventTypes": {
+    "feeding": "Besleme",
+    "exercise": "Egzersiz",
+    "grooming": "Bakım",
+    "play": "Oyun",
+    "training": "Eğitim",
+    "vetVisit": "Veteriner",
+    "walk": "Yürüyüş",
+    "bath": "Banyo",
+    "other": "Diğer"
+  },
+  "days": {
+    "monday": "Pazartesi",
+    "tuesday": "Salı",
+    "wednesday": "Çarşamba",
+    "thursday": "Perşembe",
+    "friday": "Cuma",
+    "saturday": "Cumartesi",
+    "sunday": "Pazar"
+  }
+}

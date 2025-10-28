@@ -1,0 +1,117 @@
+{
+  "navigation": {
+    "home": "Home",
+    "pets": "Pets",
+    "health": "Health",
+    "calendar": "Calendar",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Your Pet Health Assistant",
+    "totalPets": "Total Pets",
+    "healthReminder": "Health Reminder",
+    "quickActions": "Quick Actions",
+    "addNewPet": "Add New Pet",
+    "healthRecord": "Health Record",
+    "feedingPlan": "Feeding Plan",
+    "noPetsYet": "You haven't added any pets yet",
+    "addFirstPet": "Add First Pet"
+  },
+  "pets": {
+    "myPets": "My Pets",
+    "noPetsYet": "No pets yet",
+    "addFirstPet": "Press the + button to add your first pet",
+    "addNewPet": "Add New Pet",
+    "editPet": "Edit Pet",
+    "petName": "Pet Name",
+    "type": "Type",
+    "breed": "Breed",
+    "gender": "Gender",
+    "birthDate": "Birth Date",
+    "weight": "Weight",
+    "cancel": "Cancel",
+    "update": "Update",
+    "add": "Add",
+    "pleaseFillRequiredFields": "Please fill required fields",
+    "ageUnknown": "Age unknown",
+    "months": "months",
+    "years": "years",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "health": {
+    "healthRecords": "Health Records",
+    "vaccinationRecord": "Vaccination Record",
+    "view": "View",
+    "noRecords": "No health records yet"
+  },
+  "calendar": {
+    "calendar": "Calendar",
+    "comingSoon": "Coming Soon",
+    "upcomingEvents": "Upcoming Events",
+    "noEvents": "No events scheduled"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "darkMode": "Dark Mode",
+    "appSettings": "App Settings",
+    "notifications": "Notifications",
+    "language": "Language"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK"
+  },
+  "petTypes": {
+    "dog": "Dog",
+    "cat": "Cat",
+    "bird": "Bird",
+    "rabbit": "Rabbit",
+    "hamster": "Hamster",
+    "fish": "Fish",
+    "reptile": "Reptile",
+    "other": "Other"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  },
+  "healthRecordTypes": {
+    "vaccination": "Vaccination",
+    "checkup": "Checkup",
+    "medication": "Medication",
+    "surgery": "Surgery",
+    "dental": "Dental",
+    "grooming": "Grooming",
+    "other": "Other"
+  },
+  "eventTypes": {
+    "feeding": "Feeding",
+    "exercise": "Exercise",
+    "grooming": "Grooming",
+    "play": "Play",
+    "training": "Training",
+    "vetVisit": "Vet Visit",
+    "walk": "Walk",
+    "bath": "Bath",
+    "other": "Other"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  }
+}

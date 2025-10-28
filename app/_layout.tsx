@@ -3,6 +3,7 @@ import { PaperProvider } from "react-native-paper";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useThemeStore } from "../stores/themeStore";
 import { lightTheme, darkTheme } from "../lib/theme";
+import "../lib/i18n"; // Initialize i18n
 
 const queryClient = new QueryClient({
   defaultOptions: {
