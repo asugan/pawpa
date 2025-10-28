@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, Card, Button, FAB, useTheme } from 'react-native-paper';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { Text, Card, Button, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';
@@ -11,13 +11,27 @@ import { useTranslation } from 'react-i18next';
 export default function PetsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { pets, isLoading, loadPets } = usePetStore();
+  const { pets, isLoading, loadPets, deletePet, error, clearError } = usePetStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     loadPets();
   }, [loadPets]);
+
+  useEffect(() => {
+    if (error) {
+      setSnackbarMessage(error);
+      setSnackbarVisible(true);
+    }
+  }, [error]);
+
+  const showSnackbar = React.useCallback((message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  }, []);
 
   const handleAddPet = () => {
     setSelectedPet(undefined);
@@ -30,13 +44,39 @@ export default function PetsScreen() {
   };
 
   const handleDeletePet = (pet: Pet) => {
-    // TODO: Implement delete functionality
-    console.log('Delete pet:', pet.id);
+    Alert.alert(
+      'Pet Sil',
+      `"${pet.name}" adlı pet\'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+      [
+        {
+          text: 'İptal',
+          style: 'cancel',
+        },
+        {
+          text: 'Sil',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deletePet(pet.id);
+              showSnackbar(`"${pet.name}" başarıyla silindi`);
+            } catch (error) {
+              const errorMessage = error instanceof Error ? error.message : 'Pet silinemedi';
+              showSnackbar(errorMessage);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleModalSuccess = () => {
-    // Refresh data after successful create/update
-    loadPets();
+    // Store zaten optimistic update yapıyor, yeniden yüklemeye gerek yok
+    // loadPets();
+  };
+
+  const handleSnackbarDismiss = () => {
+    setSnackbarVisible(false);
+    clearError();
   };
 
   const renderPetCard = ({ item }: { item: Pet }) => (
@@ -90,6 +130,20 @@ export default function PetsScreen() {
         onSuccess={handleModalSuccess}
         testID="pet-modal"
       />
+
+      <Portal>
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={handleSnackbarDismiss}
+          duration={3000}
+          style={[
+            styles.snackbar,
+            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
+          ]}
+        >
+          {snackbarMessage}
+        </Snackbar>
+      </Portal>
     </SafeAreaView>
   );
 }
@@ -129,5 +183,8 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+  },
+  snackbar: {
+    marginBottom: 16,
   },
 });
