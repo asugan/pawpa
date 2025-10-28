@@ -16,14 +16,26 @@ export const petKeys = {
 export function usePets(filters?: { type?: string; search?: string }) {
   return useQuery({
     queryKey: petKeys.list(filters),
-    queryFn: () => {
+    queryFn: async () => {
       if (filters?.type) {
-        return petService.getPetsByType(filters.type);
+        const result = await petService.getPetsByType(filters.type);
+        if (!result.success) {
+          throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+        }
+        return result.data || [];
       }
       if (filters?.search) {
-        return petService.searchPets(filters.search);
+        const result = await petService.searchPets(filters.search);
+        if (!result.success) {
+          throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+        }
+        return result.data || [];
       }
-      return petService.getPets();
+      const result = await petService.getPets();
+      if (!result.success) {
+        throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+      }
+      return result.data || [];
     },
     select: (data) => data,
   });

@@ -17,12 +17,12 @@ const validateNextDueDate = (nextDueDate: Date, healthDate: Date) => {
   return nextDueDate > healthDate;
 };
 
-const validateVeterinarianName = (name: string) => {
+const validateVeterinarianName = (name: string | undefined) => {
   if (!name || name.trim() === '') return true; // Optional field
   return TURKISH_TEXT_REGEX.test(name.trim());
 };
 
-const validateClinicName = (name: string) => {
+const validateClinicName = (name: string | undefined) => {
   if (!name || name.trim() === '') return true; // Optional field
   return TURKISH_CLINIC_REGEX.test(name.trim());
 };

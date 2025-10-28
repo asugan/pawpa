@@ -51,6 +51,63 @@ export const DAYS_OF_WEEK = {
   SUNDAY: 'sunday',
 } as const;
 
+// Turkish Labels (fallback for development)
+export const TURKCE_LABELS = {
+  HEALTH_RECORD_TYPES: {
+    vaccination: 'Aşı',
+    checkup: 'Kontrol',
+    medication: 'İlaç',
+    surgery: 'Cerrahi',
+    dental: 'Diş',
+    grooming: 'Bakım',
+    other: 'Diğer',
+  },
+  PET_TYPES: {
+    dog: 'Köpek',
+    cat: 'Kedi',
+    bird: 'Kuş',
+    rabbit: 'Tavşan',
+    hamster: 'Hamster',
+    fish: 'Balık',
+    reptile: 'Sürüngen',
+    other: 'Diğer',
+  },
+  GENDER: {
+    male: 'Erkek',
+    female: 'Dişi',
+    other: 'Diğer',
+  },
+  COLORS: {
+    primary: 'Pembe',
+    secondary: 'Mint Yeşili',
+    tertiary: 'Lavanta',
+    accent: 'Şeftali',
+    surface: 'Açık Sarı',
+  },
+};
+
+// Health Record Type Icons
+export const HEALTH_RECORD_ICONS = {
+  vaccination: 'needle',
+  checkup: 'stethoscope',
+  medication: 'pill',
+  surgery: 'hospital',
+  dental: 'tooth',
+  grooming: 'content-cut',
+  other: 'medical-bag',
+} as const;
+
+// Health Record Colors (Rainbow Pastel Theme)
+export const HEALTH_RECORD_COLORS = {
+  vaccination: '#FF6B6B', // Soft Red
+  checkup: '#4ECDC4',   // Mint Green
+  medication: '#45B7D1', // Sky Blue
+  surgery: '#96CEB4',   // Sage Green
+  dental: '#FFEAA7',    // Light Yellow
+  grooming: '#DDA0DD',  // Plum
+  other: '#A8A8A8',     // Gray
+} as const;
+
 // Note: Labels for UI are now handled by i18n translation files
 // Use translation keys in components instead of these hardcoded labels
 
