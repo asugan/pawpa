@@ -61,8 +61,15 @@ export function HealthRecordForm({
   const updateMutation = useUpdateHealthRecord();
   const isEditing = !!initialData;
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<any>({
-    resolver: zodResolver(HealthRecordCreateSchema),
+  const [selectedType, setSelectedType] = useState(initialData?.type || 'checkup');
+
+  // Get the appropriate schema based on record type
+  const getSchemaForType = (type: string) => {
+    return getHealthRecordSchema(type as any);
+  };
+
+  const { control, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm<any>({
+    mode: 'onChange', // Enable validation onChange
     defaultValues: {
       petId,
       type: initialData?.type || 'checkup',
@@ -87,33 +94,46 @@ export function HealthRecordForm({
     },
   });
 
-  const selectedType = watch('type');
-  const hasNextDueDate = selectedType === 'vaccination';
+  const watchedType = watch('type');
+  const hasNextDueDate = watchedType === 'vaccination';
+
+  // Update selectedType when form type changes
+  React.useEffect(() => {
+    if (watchedType !== selectedType) {
+      setSelectedType(watchedType);
+    }
+  }, [watchedType, selectedType]);
 
   const onSubmit = async (data: HealthRecordCreateInput) => {
     try {
       setIsLoading(true);
 
-      // Dynamic validation based on record type
+      // Manual validation based on current type
       const schema = getHealthRecordSchema(data.type);
       const validationResult = schema.safeParse(data);
 
       if (!validationResult.success) {
-        // Handle validation errors with proper formatting
         const formattedErrors = formatValidationErrors(validationResult.error);
         const errorMessage = formattedErrors.map(err => err.message).join('\n');
         Alert.alert('Validasyon Hatası', errorMessage);
         return;
       }
 
+      const validatedData = validationResult.data;
+      // Convert undefined to null for backend compatibility
+      const apiData = {
+        ...validatedData,
+        nextDueDate: validatedData.nextDueDate || null,
+      };
+
       if (isEditing && initialData) {
-        const updateData = { ...validationResult.data, id: initialData.id } as HealthRecordUpdateInput;
+        const updateData = { ...apiData, id: initialData.id } as HealthRecordUpdateInput;
         const result = await updateMutation.mutateAsync(updateData);
         if (!result.success) {
           throw new Error(result.error || 'Kayıt güncellenemedi');
         }
       } else {
-        const result = await createMutation.mutateAsync(validationResult.data);
+        const result = await createMutation.mutateAsync(apiData);
         if (!result.success) {
           throw new Error(result.error || 'Kayıt oluşturulamadı');
         }
@@ -297,7 +317,7 @@ export function HealthRecordForm({
                 </View>
 
                 {/* Vaccination Specific Fields */}
-                {selectedType === 'vaccination' && (
+                {watchedType === 'vaccination' && (
                   <>
                     <Divider style={styles.divider} />
                     <View style={styles.field}>
@@ -381,7 +401,7 @@ export function HealthRecordForm({
                 )}
 
                 {/* Medication Specific Fields */}
-                {selectedType === 'medication' && (
+                {watchedType === 'medication' && (
                   <>
                     <Divider style={styles.divider} />
                     <View style={styles.field}>
@@ -489,7 +509,7 @@ export function HealthRecordForm({
                 )}
 
                 {/* Next Due Date for non-vaccination types (optional) */}
-                {selectedType !== 'vaccination' && hasNextDueDate && (
+                {watchedType !== 'vaccination' && hasNextDueDate && (
                   <View style={styles.field}>
                     <Text style={styles.label}>Sonraki Kontrol Tarihi</Text>
                     <Controller

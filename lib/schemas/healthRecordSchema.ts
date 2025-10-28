@@ -46,8 +46,7 @@ const HealthRecordTypeEnum = z.enum([
 const BaseHealthRecordSchema = z.object({
   petId: z
     .string()
-    .min(1, 'Pet seçilmesi zorunludur')
-    .uuid('Geçersiz pet ID'),
+    .min(1, 'Pet seçilmesi zorunludur'),
 
   type: HealthRecordTypeEnum,
 
@@ -64,7 +63,15 @@ const BaseHealthRecordSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   date: z
-    .date()
+    .string()
+    .datetime('Geçersiz tarih formatı')
+    .transform((dateString) => {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Geçersiz tarih formatı');
+      }
+      return date;
+    })
     .refine(validateHealthDate, {
       message: 'Tarih gelecekte olamaz'
     }),
@@ -101,10 +108,18 @@ const BaseHealthRecordSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   nextDueDate: z
-    .date()
+    .string()
+    .datetime('Geçersiz tarih formatı')
     .optional()
     .nullable()
-    .transform(val => val || undefined),
+    .transform((dateString) => {
+      if (!dateString) return undefined;
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Geçersiz tarih formatı');
+      }
+      return date;
+    }),
 });
 
 // Schema for creating a new health record
@@ -139,8 +154,7 @@ export const HealthRecordCreateSchema = BaseHealthRecordSchema.refine(
 export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial().extend({
   id: z
     .string()
-    .min(1, 'ID zorunludur')
-    .uuid('Geçersiz ID formatı'),
+    .min(1, 'ID zorunludur'),
 }).refine(
   (data) => {
     // If both dates are provided, nextDueDate must be after date
@@ -158,13 +172,6 @@ export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial().extend(
 // Schema for vaccination-specific validation
 export const VaccinationSchema = BaseHealthRecordSchema.extend({
   type: z.literal('vaccination'),
-  nextDueDate: z
-    .date({
-      required_error: 'Sonraki aşı tarihi zorunludur'
-    })
-    .refine((date) => date > new Date(), {
-      message: 'Sonraki aşı tarihi gelecekte olmalı'
-    }),
   vaccineName: z
     .string()
     .min(2, 'Aşı adı en az 2 karakter olmalı')
@@ -182,7 +189,31 @@ export const VaccinationSchema = BaseHealthRecordSchema.extend({
     .transform(val => val?.trim() || undefined),
 }).refine(
   (data) => {
-    return validateNextDueDate(data.nextDueDate, data.date);
+    // For vaccination records, nextDueDate is required
+    if (!data.nextDueDate) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Sonraki aşı tarihi zorunludur',
+    path: ["nextDueDate"]
+  }
+).refine(
+  (data) => {
+    // For vaccination records, nextDueDate must be in the future
+    if (data.nextDueDate && data.nextDueDate <= new Date()) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Sonraki aşı tarihi gelecekte olmalı',
+    path: ["nextDueDate"]
+  }
+).refine(
+  (data) => {
+    return validateNextDueDate(data.nextDueDate!, data.date);
   },
   {
     message: 'Sonraki aşı tarihi sağlık kaydından sonra olmalı',
@@ -209,11 +240,29 @@ export const MedicationSchema = BaseHealthRecordSchema.extend({
     .max(100, 'Kullanım sıklığı en fazla 100 karakter olabilir')
     .transform(val => val.trim()),
   startDate: z
-    .date()
-    .optional(),
+    .string()
+    .datetime('Geçersiz tarih formatı')
+    .optional()
+    .transform((dateString) => {
+      if (!dateString) return undefined;
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Geçersiz başlangıç tarihi formatı');
+      }
+      return date;
+    }),
   endDate: z
-    .date()
-    .optional(),
+    .string()
+    .datetime('Geçersiz tarih formatı')
+    .optional()
+    .transform((dateString) => {
+      if (!dateString) return undefined;
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Geçersiz bitiş tarihi formatı');
+      }
+      return date;
+    }),
 }).superRefine((data, ctx) => {
   // Validate that end date is after start date
   if (data.startDate && data.endDate && data.endDate <= data.startDate) {
