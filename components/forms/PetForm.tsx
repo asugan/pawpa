@@ -44,7 +44,8 @@ export function PetForm({
     <ScrollView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps="always"
+      removeClippedSubviews={false}
       testID={testID}
     >
       <View style={styles.formContent}>

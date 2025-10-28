@@ -1,7 +1,7 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useTheme, Portal, Modal, List, IconButton, TextInput } from 'react-native-paper';
+import { View, Text, Pressable, StyleSheet, ScrollView, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
+import { useTheme, IconButton, TextInput } from 'react-native-paper';
 
 interface DropdownOption {
   value: string;
@@ -34,11 +34,11 @@ export function FormDropdown<T extends FieldValues>({
   const theme = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
-
   const filteredOptions = React.useMemo(() => {
     if (!searchable || !searchQuery) return options;
 
     return options.filter(option =>
+      option && option.label && typeof option.label === 'string' &&
       option.label.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [options, searchQuery, searchable]);
@@ -50,10 +50,16 @@ export function FormDropdown<T extends FieldValues>({
       render={({ field, fieldState }) => {
         const selectedOption = options.find(option => option.value === field.value);
 
-        return (
+        const openDropdown = () => {
+        if (!disabled) {
+          setModalVisible(true);
+        }
+      };
+
+      return (
           <View style={styles.container}>
-            <TouchableOpacity
-              onPress={() => !disabled && setModalVisible(true)}
+            <Pressable
+              onPress={openDropdown}
               disabled={disabled}
               style={[
                 styles.dropdown,
@@ -90,7 +96,7 @@ export function FormDropdown<T extends FieldValues>({
                 iconColor={theme.colors.onSurfaceVariant}
                 disabled={disabled}
               />
-            </TouchableOpacity>
+            </Pressable>
 
             {fieldState.error && (
               <Text style={[styles.errorText, { color: theme.colors.error }]}>
@@ -98,96 +104,122 @@ export function FormDropdown<T extends FieldValues>({
               </Text>
             )}
 
-            <Portal>
-              <Modal
-                visible={modalVisible}
-                onDismiss={() => {
-                  setModalVisible(false);
-                  setSearchQuery('');
-                }}
-                contentContainerStyle={[
-                  styles.modal,
-                  { backgroundColor: theme.colors.surface }
-                ]}
-              >
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                    {label}
-                  </Text>
-                  <IconButton
-                    icon="close"
-                    onPress={() => {
-                      setModalVisible(false);
-                      setSearchQuery('');
-                    }}
-                  />
-                </View>
-
-                {searchable && (
-                  <View style={styles.searchContainer}>
-                    <TextInput
-                      placeholder="Ara..."
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      style={[
-                        styles.searchInput,
-                        {
-                          borderColor: theme.colors.outline,
-                          color: theme.colors.onSurface,
-                        }
-                      ]}
-                      placeholderTextColor={theme.colors.onSurfaceVariant}
-                    />
-                  </View>
-                )}
-
-                <ScrollView
-                  style={styles.optionsList}
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  {filteredOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.value}
-                      onPress={() => {
-                        field.onChange(option.value);
-                        setModalVisible(false);
-                        setSearchQuery('');
-                      }}
-                      style={[
-                        styles.option,
-                        {
-                          backgroundColor: field.value === option.value
-                            ? theme.colors.primaryContainer
-                            : 'transparent',
-                        }
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.optionText,
-                          {
-                            color: field.value === option.value
-                              ? theme.colors.onPrimaryContainer
-                              : theme.colors.onSurface,
-                          }
-                        ]}
-                      >
-                        {option.label}
-                      </Text>
-
-                      {field.value === option.value && (
+            <RNModal
+              visible={modalVisible}
+              onRequestClose={() => {
+                setModalVisible(false);
+                setSearchQuery('');
+              }}
+              animationType="slide"
+              presentationStyle="pageSheet"
+              transparent={false}
+            >
+              <TouchableWithoutFeedback onPress={() => {
+                setModalVisible(false);
+                setSearchQuery('');
+              }}>
+                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                  <TouchableWithoutFeedback onPress={() => {}}>
+                    <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+                      <View style={styles.modalHeader}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                          {label}
+                        </Text>
                         <IconButton
-                          icon="check"
-                          size={20}
-                          iconColor={theme.colors.primary}
+                          icon="close"
+                          onPress={() => {
+                            setModalVisible(false);
+                            setSearchQuery('');
+                          }}
                         />
+                      </View>
+
+                      {searchable && (
+                        <View style={styles.searchContainer}>
+                          <TextInput
+                            placeholder="Ara..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={[
+                              styles.searchInput,
+                              {
+                                borderColor: theme.colors.outline,
+                                color: theme.colors.onSurface,
+                              }
+                            ]}
+                            placeholderTextColor={theme.colors.onSurfaceVariant}
+                          />
+                        </View>
                       )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </Modal>
-            </Portal>
+
+                      <ScrollView
+                        style={styles.optionsList}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        removeClippedSubviews={false}
+                      >
+                        {filteredOptions && filteredOptions.length > 0 ? (
+                          filteredOptions.map((option) => (
+                          <Pressable
+                            key={option.value}
+                            onPress={() => {
+                              field.onChange(option.value);
+                              setModalVisible(false);
+                              setSearchQuery('');
+                            }}
+                            style={[
+                              styles.option,
+                              {
+                                backgroundColor: field.value === option.value
+                                  ? theme.colors.primaryContainer
+                                  : 'transparent',
+                              }
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.optionText,
+                                {
+                                  color: field.value === option.value
+                                    ? theme.colors.onPrimaryContainer
+                                    : theme.colors.onSurface,
+                                }
+                              ]}
+                            >
+                              {option.label}
+                            </Text>
+
+                            {field.value === option.value && (
+                              <IconButton
+                                icon="check"
+                                size={20}
+                                iconColor={theme.colors.primary}
+                              />
+                            )}
+                          </Pressable>
+                        ))
+                        ) : (
+                          <View style={styles.emptyContainer}>
+                            <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+                              {searchable && searchQuery
+                                ? 'Eşleşen seçenek bulunamadı'
+                                : 'Seçenek mevcut değil'}
+                            </Text>
+                            {searchable && searchQuery && (
+                              <Pressable onPress={() => setSearchQuery('')}>
+                                <Text style={[styles.clearSearchText, { color: theme.colors.primary }]}>
+                                  Aramayı temizle
+                                </Text>
+                              </Pressable>
+                            )}
+                          </View>
+                        )}
+                      </ScrollView>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </View>
+              </TouchableWithoutFeedback>
+            </RNModal>
           </View>
         );
       }}
@@ -220,16 +252,31 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontFamily: 'System',
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modal: {
-    margin: 20,
-    borderRadius: 16,
+    width: '90%',
     maxHeight: '80%',
+    minHeight: '50%',
+    padding: 0,
+    borderRadius: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.12)',
   },
@@ -253,6 +300,7 @@ const styles = StyleSheet.create({
   },
   optionsList: {
     flex: 1,
+    minHeight: 200,
   },
   option: {
     flexDirection: 'row',
@@ -265,6 +313,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: 'System',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'System',
+    marginBottom: 12,
+  },
+  clearSearchText: {
+    fontSize: 14,
+    fontFamily: 'System',
+    textDecorationLine: 'underline',
   },
 });
 

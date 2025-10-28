@@ -1,7 +1,7 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme, Portal, Modal, IconButton, Button } from 'react-native-paper';
+import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
+import { useTheme, IconButton, Button } from 'react-native-paper';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
@@ -35,7 +35,6 @@ export function FormDatePicker<T extends FieldValues>({
 
   const handleDateSelect = (onChange: (date: Date) => void, currentValue?: Date) => {
     const now = new Date();
-    const minDate = new Date(now.getFullYear() - 30, 0, 1);
 
     // Simple date selection using modal
     setTempDate(currentValue || now);
@@ -59,146 +58,164 @@ export function FormDatePicker<T extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <View style={styles.container}>
-          <TouchableOpacity
-            onPress={() => !disabled && handleDateSelect(field.onChange, field.value)}
-            disabled={disabled}
-            style={[
-              styles.datePicker,
-              {
-                borderColor: fieldState.error
-                  ? theme.colors.error
-                  : fieldState.isTouched
-                    ? theme.colors.primary
-                    : theme.colors.outline,
-                backgroundColor: disabled
-                  ? theme.colors.surfaceDisabled
-                  : theme.colors.surface,
-              }
-            ]}
-            testID={testID}
-          >
-            <Text
+      render={({ field, fieldState }) => {
+        const openDatePicker = () => {
+          if (!disabled) {
+            console.log('Date picker açılıyor:', label);
+            handleDateSelect(field.onChange, field.value);
+          }
+        };
+
+        return (
+          <View style={styles.container}>
+            <Pressable
+              onPress={openDatePicker}
+              disabled={disabled}
               style={[
-                styles.dateText,
+                styles.datePicker,
                 {
-                  color: field.value
-                    ? theme.colors.onSurface
-                    : theme.colors.onSurfaceVariant,
+                  borderColor: fieldState.error
+                    ? theme.colors.error
+                    : fieldState.isTouched
+                      ? theme.colors.primary
+                      : theme.colors.outline,
+                  backgroundColor: disabled
+                    ? theme.colors.surfaceDisabled
+                    : theme.colors.surface,
                 }
               ]}
+              testID={testID}
             >
-              {field.value ? formatDate(field.value) : (placeholder || `${label}${required ? ' *' : ''}`)}
-            </Text>
+              <Text
+                style={[
+                  styles.dateText,
+                  {
+                    color: field.value
+                      ? theme.colors.onSurface
+                      : theme.colors.onSurfaceVariant,
+                  }
+                ]}
+              >
+                {field.value ? formatDate(field.value) : (placeholder || `${label}${required ? ' *' : ''}`)}
+              </Text>
 
-            <IconButton
-              icon="calendar"
-              size={20}
-              iconColor={theme.colors.onSurfaceVariant}
-              disabled={disabled}
-            />
-          </TouchableOpacity>
+              <IconButton
+                icon="calendar"
+                size={20}
+                iconColor={theme.colors.onSurfaceVariant}
+                disabled={disabled}
+              />
+            </Pressable>
 
-          {fieldState.error && (
-            <Text style={[styles.errorText, { color: theme.colors.error }]}>
-              {fieldState.error.message}
-            </Text>
-          )}
+            {fieldState.error && (
+              <Text style={[styles.errorText, { color: theme.colors.error }]}>
+                {fieldState.error.message}
+              </Text>
+            )}
 
-          <Portal>
-            <Modal
+            <RNModal
               visible={modalVisible}
-              onDismiss={() => setModalVisible(false)}
-              contentContainerStyle={[
-                styles.modal,
-                { backgroundColor: theme.colors.surface }
-              ]}
+              onRequestClose={() => {
+                console.log('Date picker modal kapanıyor');
+                setModalVisible(false);
+              }}
+              animationType="slide"
+              presentationStyle="pageSheet"
+              transparent={false}
             >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                  {label}
-                </Text>
-                <IconButton
-                  icon="close"
-                  onPress={() => setModalVisible(false)}
-                />
-              </View>
+              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                  <TouchableWithoutFeedback onPress={() => {}}>
+                    <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+                      <View style={styles.modalHeader}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                          {label}
+                        </Text>
+                        <IconButton
+                          icon="close"
+                          onPress={() => setModalVisible(false)}
+                        />
+                      </View>
 
-              <View style={styles.modalContent}>
-                <View style={[styles.dateDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
-                  <Text style={[styles.dateDisplayText, { color: theme.colors.onSurface }]}>
-                    {formatDate(tempDate)}
-                  </Text>
+                      <View style={styles.modalContent}>
+                        <View style={[styles.dateDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
+                          <Text style={[styles.dateDisplayText, { color: theme.colors.onSurface }]}>
+                            {formatDate(tempDate)}
+                          </Text>
+                        </View>
+
+                        <View style={styles.dateControls}>
+                          <View style={styles.controlRow}>
+                            <Button
+                              mode="outlined"
+                              onPress={() => adjustDate(-365)}
+                              style={styles.controlButton}
+                            >
+                              -1 Yıl
+                            </Button>
+                            <Button
+                              mode="outlined"
+                              onPress={() => adjustDate(-30)}
+                              style={styles.controlButton}
+                            >
+                              -1 Ay
+                            </Button>
+                            <Button
+                              mode="outlined"
+                              onPress={() => adjustDate(-7)}
+                              style={styles.controlButton}
+                            >
+                              -1 Hafta
+                            </Button>
+                          </View>
+
+                          <View style={styles.controlRow}>
+                            <Button
+                              mode="outlined"
+                              onPress={() => adjustDate(-1)}
+                              style={styles.controlButton}
+                            >
+                              -1 Gün
+                            </Button>
+                            <Button
+                              mode="outlined"
+                              onPress={() => adjustDate(1)}
+                              style={styles.controlButton}
+                            >
+                              +1 Gün
+                            </Button>
+                          </View>
+                        </View>
+
+                        <View style={styles.modalActions}>
+                          <Button
+                            mode="outlined"
+                            onPress={() => setModalVisible(false)}
+                            style={styles.cancelButton}
+                          >
+                            İptal
+                          </Button>
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              console.log('Tarih seçildi:', formatDate(tempDate));
+                              field.onChange(tempDate);
+                              setModalVisible(false);
+                            }}
+                            style={styles.confirmButton}
+                          >
+                            Seç
+                          </Button>
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableWithoutFeedback>
                 </View>
-
-                <View style={styles.dateControls}>
-                  <View style={styles.controlRow}>
-                    <Button
-                      mode="outlined"
-                      onPress={() => adjustDate(-365)}
-                      style={styles.controlButton}
-                    >
-                      -1 Yıl
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      onPress={() => adjustDate(-30)}
-                      style={styles.controlButton}
-                    >
-                      -1 Ay
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      onPress={() => adjustDate(-7)}
-                      style={styles.controlButton}
-                    >
-                      -1 Hafta
-                    </Button>
-                  </View>
-
-                  <View style={styles.controlRow}>
-                    <Button
-                      mode="outlined"
-                      onPress={() => adjustDate(-1)}
-                      style={styles.controlButton}
-                    >
-                      -1 Gün
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      onPress={() => adjustDate(1)}
-                      style={styles.controlButton}
-                    >
-                      +1 Gün
-                    </Button>
-                  </View>
-                </View>
-
-                <View style={styles.modalActions}>
-                  <Button
-                    mode="outlined"
-                    onPress={() => setModalVisible(false)}
-                    style={styles.cancelButton}
-                  >
-                    İptal
-                  </Button>
-                  <Button
-                    mode="contained"
-                    onPress={() => {
-                      field.onChange(tempDate);
-                      setModalVisible(false);
-                    }}
-                    style={styles.confirmButton}
-                  >
-                    Seç
-                  </Button>
-                </View>
-              </View>
-            </Modal>
-          </Portal>
-        </View>
-      )}
+              </TouchableWithoutFeedback>
+            </RNModal>
+          </View>
+        );
+      }}
     />
   );
 }
@@ -228,16 +245,29 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontFamily: 'System',
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modal: {
-    margin: 20,
+    width: '90%',
+    padding: 0,
     borderRadius: 16,
-    maxHeight: '80%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.12)',
   },
@@ -247,7 +277,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
   },
   modalContent: {
-    padding: 16,
+    padding: 20,
   },
   dateDisplay: {
     padding: 16,

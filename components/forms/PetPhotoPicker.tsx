@@ -168,6 +168,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
 
   const openPicker = () => {
     if (!disabled) {
+      console.log('Pet photo picker açılıyor...');
       setModalVisible(true);
     }
   };
@@ -177,11 +178,14 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={styles.container} pointerEvents="box-none">
         <TouchableOpacity
           onPress={openPicker}
           style={[styles.photoContainer, disabled && styles.disabled]}
           disabled={disabled}
+          activeOpacity={0.8}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          pointerEvents="auto"
         >
           {value ? (
             <>
@@ -229,11 +233,25 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
         </View>
       </View>
 
-      <Portal>
         <Modal
           visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={styles.modal}
+          onDismiss={() => {
+            console.log('Photo picker modal kapanıyor');
+            setModalVisible(false);
+          }}
+          contentContainerStyle={[
+            styles.modal,
+            {
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }
+          ]}
         >
           <Text variant="headlineSmall" style={styles.modalTitle}>
             Fotoğraf Seç
@@ -276,7 +294,6 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
             İptal
           </Button>
         </Modal>
-      </Portal>
     </>
   );
 };
