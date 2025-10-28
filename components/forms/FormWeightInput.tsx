@@ -1,7 +1,21 @@
 import React from 'react';
-import { Control, Controller, FieldValues, Path } from 'react-hook-form';
+import { Control, Controller, FieldValues, Path, useWatch } from 'react-hook-form';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
+
+// Custom hook for managing weight input state
+const useWeightInputState = (value: number | undefined) => {
+  const [displayText, setDisplayText] = React.useState(() => {
+    if (value === undefined || value === null) return '';
+    return value.toFixed(1);
+  });
+
+  React.useEffect(() => {
+    setDisplayText(value === undefined || value === null ? '' : value.toFixed(1));
+  }, [value]);
+
+  return { displayText, setDisplayText };
+};
 
 interface FormWeightInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -52,19 +66,15 @@ export function FormWeightInput<T extends FieldValues>({
     return value.toFixed(1);
   };
 
+  // Watch the field value for changes
+  const fieldValue = useWatch({ control, name });
+  const { displayText, setDisplayText } = useWeightInputState(fieldValue);
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const [displayText, setDisplayText] = React.useState(
-          formatWeightValue(field.value)
-        );
-
-        // Sync display text with field value changes
-        React.useEffect(() => {
-          setDisplayText(formatWeightValue(field.value));
-        }, [field.value]);
 
         const handleTextChange = (text: string) => {
           setDisplayText(text);

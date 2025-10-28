@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Pet } from '../lib/types';
 import { PetCreateSchema, PetUpdateSchema, PetCreateInput, PetUpdateInput } from '../lib/schemas/petSchema';
+import { createZodI18nErrorMap } from '../lib/schemas/createZodI18n';
 
 // Form hook types
 export interface UsePetFormReturn {

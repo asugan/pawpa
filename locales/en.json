@@ -154,13 +154,21 @@
       "nameMinLength": "Name must be at least 2 characters",
       "nameMaxLength": "Name cannot exceed 50 characters",
       "nameInvalidChars": "Name can only contain letters and special characters (ç, ğ, ı, ö, ş, ü)",
+      "typeRequired": "Please select a valid pet type",
+      "breedMaxLength": "Breed cannot exceed 100 characters",
       "weightRequired": "Please enter a valid weight value",
       "weightPositive": "Weight must be a positive number",
       "weightMin": "Weight must be at least 0.1 kg",
       "weightMax": "Weight must be less than 200 kg",
       "birthDateRequired": "Please select a valid birth date",
       "birthDateFuture": "Birth date cannot be in the future",
-      "birthDateMaxAge": "Birth date cannot be more than 30 years ago"
+      "birthDateMaxAge": "Birth date cannot be more than 30 years ago",
+      "genderRequired": "Please select a valid gender",
+      "photoRequired": "Please select a valid photo",
+      "photoInvalid": "Please enter a valid photo URI or URL",
+      "petNameAndTypeRequired": "Pet name and type are required",
+      "required": "This field is required",
+      "invalid": "Invalid value"
     },
     "dropdown": {
       "searchPlaceholder": "Search...",

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
 import { useTheme, IconButton, Button } from 'react-native-paper';
 import { format } from 'date-fns';
-import { tr, en } from 'date-fns/locale';
+import { tr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 interface FormDatePickerProps<T extends FieldValues> {
   control: Control<T>;
@@ -32,7 +33,7 @@ export function FormDatePicker<T extends FieldValues>({
 
   const formatDate = (date: Date | undefined) => {
     if (!date) return '';
-    const locale = i18n.language === 'tr' ? tr : en;
+    const locale = i18n.language === 'tr' ? tr : enUS;
     return format(date, 'dd MMMM yyyy', { locale });
   };
 

@@ -185,7 +185,6 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
           disabled={disabled}
           activeOpacity={0.8}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-          pointerEvents="auto"
         >
           {value ? (
             <>

@@ -1,9 +1,6 @@
 import { z } from 'zod';
 import { PET_TYPES, PET_GENDERS } from '../../constants/index';
-
-// Pet type values for validation
-const PET_TYPES_VALUES = Object.values(PET_TYPES);
-const GENDER_VALUES = Object.values(PET_GENDERS);
+import { t, createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
@@ -23,48 +20,37 @@ const validateTurkishName = (name: string) => {
 const BasePetSchema = z.object({
   name: z
     .string()
-    .min(2, "İsim en az 2 karakter olmalıdır")
-    .max(50, "İsim en fazla 50 karakter olabilir")
-    .refine(validateTurkishName, {
-      message: "İsim sadece harf ve Türkçe karakterler içerebilir (ç, ğ, ı, ö, ş, ü)"
-    })
+    .min(2)
+    .max(50)
+    .regex(TURKISH_NAME_REGEX)
     .transform(val => val.trim()),
 
-  type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other'] as const, {
-    errorMap: () => ({ message: "Lütfen geçerli bir pet türü seçiniz" })
-  }),
+  type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other'] as const),
 
   breed: z
     .string()
-    .max(100, "Cins bilgisi en fazla 100 karakter olabilir")
+    .max(100)
     .optional()
     .transform(val => val?.trim() || undefined),
 
   birthDate: z
-    .date({
-      errorMap: () => ({ message: "Lütfen geçerli bir doğum tarihi seçiniz" })
-    })
+    .date()
     .refine(validateBirthDate, {
-      message: "Doğum tarihi gelecek bir tarih veya 30 yıldan eski olamaz"
+      message: t('forms.validation.birthDateFuture')
     })
     .optional(),
 
   weight: z
-    .number({
-      errorMap: () => ({ message: "Lütfen geçerli bir kilo değeri giriniz" })
-    })
-    .positive("Kilo pozitif bir sayı olmalıdır")
-    .min(0.1, "Kilo en az 0.1 kg olmalıdır")
-    .max(200, "Kilo 200 kg'den az olmalıdır")
+    .number()
+    .positive()
+    .min(0.1)
+    .max(200)
     .optional(),
 
-  gender: z.enum(['male', 'female', 'other'] as const, {
-    errorMap: () => ({ message: "Lütfen geçerli bir cinsiyet seçiniz" })
-  }).optional(),
+  gender: z.enum(['male', 'female', 'other'] as const).optional(),
 
   profilePhoto: z
     .string()
-    .min(1, "Geçerli bir fotoğraf seçiniz")
     .optional()
     .or(z.literal('').transform(() => undefined))
     .refine((val) => {
@@ -73,15 +59,15 @@ const BasePetSchema = z.object({
       return val.startsWith('file://') || val.startsWith('/') ||
              val.startsWith('data:image/') || val.startsWith('http');
     }, {
-      message: "Geçerli bir fotoğraf URI veya URL'i giriniz"
+      message: t('forms.validation.photoInvalid')
     })
 });
 
 // Schema for creating a new pet
 export const PetCreateSchema = BasePetSchema.refine(
-  (data) => data.name && data.type,
+  (data: any) => data.name && data.type,
   {
-    message: "Pet adı ve türü zorunludur",
+    message: t('forms.validation.petNameAndTypeRequired'),
     path: ["type"]
   }
 );

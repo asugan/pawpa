@@ -56,16 +56,16 @@ export const DAYS_OF_WEEK = {
 
 // Helper functions to create options with i18n support
 // These should be used in components with useTranslation hook
-export const createPetTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+export const createPetTypeOptions = (t: (key: string) => string) =>
   Object.values(PET_TYPES).map(type => ({
     value: type,
-    label: t(type, type),
+    label: t(`petTypes.${type}`),
   }));
 
-export const createGenderOptions = (t: (key: string, defaultValue?: string) => string) =>
+export const createGenderOptions = (t: (key: string) => string) =>
   Object.values(PET_GENDERS).map(gender => ({
     value: gender,
-    label: t(gender, gender),
+    label: t(`gender.${gender}`),
   }));
 
 export const createHealthRecordTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
