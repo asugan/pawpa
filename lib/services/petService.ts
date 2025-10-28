@@ -1,21 +1,25 @@
-import { prisma } from '../prisma';
-import { Pet, CreatePetInput, UpdatePetInput, ApiResponse } from '../types';
+import { BaseService } from './baseService';
+import { pets, type Pet, type NewPet } from '../../db';
+import { eq, like, desc } from 'drizzle-orm';
+import { ApiResponse, CreatePetInput, UpdatePetInput } from '../types';
 
 /**
  * Pet Service - Tüm pet veritabanı operasyonlarını yönetir
  */
-export class PetService {
+export class PetService extends BaseService {
   /**
    * Yeni pet oluşturur
    */
   async createPet(data: CreatePetInput): Promise<ApiResponse<Pet>> {
     try {
-      const pet = await prisma.pet.create({
-        data: {
-          ...data,
-          birthDate: data.birthDate ? new Date(data.birthDate) : null,
-        },
-      });
+      const id = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newPet: NewPet = {
+        id,
+        ...data,
+        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+      };
+
+      const [pet] = await this.db.insert(pets).values(newPet).returning();
 
       console.log('✅ Pet created successfully:', pet.id);
       return {
@@ -37,15 +41,13 @@ export class PetService {
    */
   async getPets(): Promise<ApiResponse<Pet[]>> {
     try {
-      const pets = await prisma.pet.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
+      const allPets = await this.db.select().from(pets).orderBy(desc(pets.createdAt));
 
-      console.log(`✅ ${pets.length} pets loaded successfully`);
+      console.log(`✅ ${allPets.length} pets loaded successfully`);
       return {
         success: true,
-        data: pets,
-        message: `${pets.length} pet başarıyla yüklendi`,
+        data: allPets,
+        message: `${allPets.length} pet başarıyla yüklendi`,
       };
     } catch (error) {
       console.error('❌ Get pets error:', error);
@@ -61,9 +63,7 @@ export class PetService {
    */
   async getPetById(id: string): Promise<ApiResponse<Pet>> {
     try {
-      const pet = await prisma.pet.findUnique({
-        where: { id },
-      });
+      const [pet] = await this.db.select().from(pets).where(eq(pets.id, id));
 
       if (!pet) {
         return {
@@ -92,14 +92,24 @@ export class PetService {
    */
   async updatePet(id: string, data: UpdatePetInput): Promise<ApiResponse<Pet>> {
     try {
-      const pet = await prisma.pet.update({
-        where: { id },
-        data: {
-          ...data,
-          birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
-          updatedAt: new Date(),
-        },
-      });
+      const updateData = {
+        ...data,
+        birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+        updatedAt: new Date(),
+      };
+
+      const [pet] = await this.db
+        .update(pets)
+        .set(updateData)
+        .where(eq(pets.id, id))
+        .returning();
+
+      if (!pet) {
+        return {
+          success: false,
+          error: 'Güncellenecek pet bulunamadı',
+        };
+      }
 
       console.log('✅ Pet updated successfully:', pet.id);
       return {
@@ -109,15 +119,6 @@ export class PetService {
       };
     } catch (error) {
       console.error('❌ Update pet error:', error);
-
-      // Record not found hatası için özel mesaj
-      if (error instanceof Error && error.message.includes('Record to update not found')) {
-        return {
-          success: false,
-          error: 'Güncellenecek pet bulunamadı',
-        };
-      }
-
       return {
         success: false,
         error: 'Pet güncellenemedi. Lütfen bilgileri kontrol edip tekrar deneyin.',
@@ -131,9 +132,7 @@ export class PetService {
   async deletePet(id: string): Promise<ApiResponse<void>> {
     try {
       // Önce pet'in var olup olmadığını kontrol et
-      const existingPet = await prisma.pet.findUnique({
-        where: { id },
-      });
+      const [existingPet] = await this.db.select().from(pets).where(eq(pets.id, id));
 
       if (!existingPet) {
         return {
@@ -142,9 +141,7 @@ export class PetService {
         };
       }
 
-      await prisma.pet.delete({
-        where: { id },
-      });
+      await this.db.delete(pets).where(eq(pets.id, id));
 
       console.log('✅ Pet deleted successfully:', id);
       return {
@@ -165,16 +162,17 @@ export class PetService {
    */
   async getPetsByType(type: string): Promise<ApiResponse<Pet[]>> {
     try {
-      const pets = await prisma.pet.findMany({
-        where: { type },
-        orderBy: { createdAt: 'desc' },
-      });
+      const petsByType = await this.db
+        .select()
+        .from(pets)
+        .where(eq(pets.type, type))
+        .orderBy(desc(pets.createdAt));
 
-      console.log(`✅ ${pets.length} pets of type ${type} loaded successfully`);
+      console.log(`✅ ${petsByType.length} pets of type ${type} loaded successfully`);
       return {
         success: true,
-        data: pets,
-        message: `${pets.length} adet ${type} türünde pet bulundu`,
+        data: petsByType,
+        message: `${petsByType.length} adet ${type} türünde pet bulundu`,
       };
     } catch (error) {
       console.error('❌ Get pets by type error:', error);
@@ -190,20 +188,17 @@ export class PetService {
    */
   async searchPets(query: string): Promise<ApiResponse<Pet[]>> {
     try {
-      const pets = await prisma.pet.findMany({
-        where: {
-          name: {
-            contains: query,
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      const foundPets = await this.db
+        .select()
+        .from(pets)
+        .where(like(pets.name, `%${query}%`))
+        .orderBy(desc(pets.createdAt));
 
-      console.log(`✅ ${pets.length} pets found for query: ${query}`);
+      console.log(`✅ ${foundPets.length} pets found for query: ${query}`);
       return {
         success: true,
-        data: pets,
-        message: `${pets.length} pet bulundu`,
+        data: foundPets,
+        message: `${foundPets.length} pet bulundu`,
       };
     } catch (error) {
       console.error('❌ Search pets error:', error);
@@ -224,13 +219,13 @@ export class PetService {
     averageAge: number;
   }>> {
     try {
-      const pets = await prisma.pet.findMany();
+      const allPets = await this.db.select().from(pets);
 
       const byType: Record<string, number> = {};
       const byGender: Record<string, number> = {};
       let totalAge = 0;
 
-      pets.forEach(pet => {
+      allPets.forEach(pet => {
         // Tür sayımı
         byType[pet.type] = (byType[pet.type] || 0) + 1;
 
@@ -248,13 +243,13 @@ export class PetService {
         }
       });
 
-      const averageAge = pets.length > 0 ? totalAge / pets.length : 0;
+      const averageAge = allPets.length > 0 ? totalAge / allPets.length : 0;
 
       console.log('✅ Pet stats calculated successfully');
       return {
         success: true,
         data: {
-          total: pets.length,
+          total: allPets.length,
           byType,
           byGender,
           averageAge: Math.round(averageAge * 10) / 10, // 1 decimal basamak

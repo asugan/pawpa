@@ -1,7 +1,6 @@
-import { Pet, HealthRecord, Event, FeedingSchedule } from '@prisma/client';
-
-// Export Prisma types for easy access
-export type { Pet, HealthRecord, Event, FeedingSchedule };
+// Export Drizzle types for easy access
+export type { Pet, HealthRecord, Event, FeedingSchedule } from '../db/schema';
+export type { NewPet, NewHealthRecord, NewEvent, NewFeedingSchedule } from '../db/schema';
 
 // Extended types with additional fields if needed
 export type PetWithRelations = Pet & {
