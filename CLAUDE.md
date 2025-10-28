@@ -54,10 +54,12 @@ npm run lint              # Run ESLint
 ```
 
 ### Development Notes
-- Backend server'ının çalıştığından emin olun (localhost:3000)
-- Network connectivity otomatik olarak izlenir
-- API error'ları global error boundary ile yönetilir
-- React Query cache invalidation otomatik çalışır
+- Backend server must be running on localhost:3000 for development
+- Network connectivity is automatically monitored with @react-native-community/netinfo
+- API errors are handled globally with ApiErrorBoundary component
+- TanStack Query cache invalidation works automatically with proper mutations
+- All local database infrastructure has been removed and replaced with API calls
+- Service layer now uses Axios instead of Drizzle ORM for data operations
 
 ## Architecture
 
@@ -98,17 +100,49 @@ npm run lint              # Run ESLint
 
 ### API Integration
 
-The app connects to a Node.js Express backend with SQLite database through:
-- **Pet Management** - Create, read, update, delete pets
-- **Health Records** - Track vaccinations, appointments, medications
-- **Events** - Schedule and manage pet activities
-- **Feeding Schedules** - Manage recurring feeding times
+The app connects to a Node.js Express backend with SQLite database through 25 REST endpoints:
+
+**Pet Management API (6 endpoints)**:
+- `GET /api/pets` - List all pets with pagination and filtering
+- `GET /api/pets/:id` - Get single pet details
+- `POST /api/pets` - Create new pet
+- `PUT /api/pets/:id` - Update pet information
+- `DELETE /api/pets/:id` - Delete pet
+- `POST /api/pets/:id/photo` - Upload pet photo
+
+**Health Records API (5 endpoints)**:
+- `GET /api/pets/:petId/health-records` - Get pet health records
+- `POST /api/health-records` - Create new health record
+- `PUT /api/health-records/:id` - Update health record
+- `DELETE /api/health-records/:id` - Delete health record
+- `GET /api/health-records/upcoming` - Get upcoming vaccinations
+
+**Events API (7 endpoints)**:
+- `GET /api/pets/:petId/events` - Get pet events
+- `POST /api/events` - Create new event
+- `PUT /api/events/:id` - Update event
+- `DELETE /api/events/:id` - Delete event
+- `GET /api/events/calendar/:date` - Get calendar events
+- `GET /api/events/upcoming` - Get upcoming events
+- `GET /api/events/today` - Get today's events
+
+**Feeding Schedules API (7 endpoints)**:
+- `GET /api/pets/:petId/feeding-schedules` - Get pet feeding schedules
+- `POST /api/feeding-schedules` - Create new feeding schedule
+- `PUT /api/feeding-schedules/:id` - Update feeding schedule
+- `DELETE /api/feeding-schedules/:id` - Delete feeding schedule
+- `GET /api/feeding-schedules/active` - Get active schedules
+- `GET /api/feeding-schedules/today` - Get today's schedules
+- `GET /api/feeding-schedules/next` - Get next feeding time
 
 **Key Features**:
-- Automatic network connectivity detection
-- Graceful error handling with user-friendly messages
-- Intelligent caching with background refetch
-- Offline mode awareness and feedback
+- Automatic network connectivity detection with NetworkStatus component
+- Graceful error handling with ApiErrorBoundary component
+- Intelligent caching with TanStack Query and background refetch
+- Offline mode awareness and user feedback
+- Network-aware retry logic (fewer retries for network errors, none for 404s)
+- Request/response logging in development mode
+- Centralized error handling with user-friendly messages
 
 ### Theme System
 
@@ -123,23 +157,62 @@ Theme switching between light and dark modes is supported and persisted.
 
 ## Current Development Status
 
-✅ **Backend Migration Completed** (28.10.2025)
-- ✅ Backend API implementation (25 REST endpoints)
-- ✅ Mobile app API integration with Axios
-- ✅ Service layer refactoring to use API calls
-- ✅ TanStack Query optimization with network-aware caching
-- ✅ Error handling and network monitoring
-- ✅ UI/UX foundation phase with React Native Paper
+✅ **Phase 1: Backend Foundation** (28.10.2025) - COMPLETED
+- ✅ Node.js Express server setup with TypeScript
+- ✅ SQLite database with Drizzle ORM configuration
+- ✅ Middleware setup (CORS, helmet, morgan, rate limiting)
+- ✅ Project structure with controllers, routes, services, middleware
+
+✅ **Phase 2: API Implementation** (28.10.2025) - COMPLETED
+- ✅ 25 REST API endpoints implemented
+- ✅ Pet Management API (6 endpoints)
+- ✅ Health Records API (5 endpoints)
+- ✅ Events API (7 endpoints)
+- ✅ Feeding Schedules API (7 endpoints)
+- ✅ Input validation with Zod schemas
+- ✅ Error handling and response formatting
+- ✅ Pagination and filtering support
+
+✅ **Phase 3: Mobile App API Integration** (28.10.2025) - COMPLETED
+- ✅ Added Axios and @react-native-community/netinfo dependencies
+- ✅ HTTP client setup with interceptors and error handling (`lib/api/client.ts`)
+- ✅ Environment configuration with API endpoints (`lib/config/env.ts`)
+- ✅ Service layer completely refactored to use API calls instead of local database
+- ✅ TanStack Query configuration with network-aware caching and retry logic
+- ✅ React Query hooks created (`lib/hooks/usePets.ts`)
+- ✅ NetworkStatus component for connectivity monitoring
+- ✅ ApiErrorBoundary component for global error handling
+- ✅ Provider structure updated in app/_layout.tsx
+- ✅ Local database infrastructure completely removed
+
+✅ **Earlier Features** (Previously Completed)
+- ✅ UI/UX foundation with React Native Paper
 - ✅ Rainbow pastel theme implementation
-- ✅ Bottom tabs navigation
+- ✅ Bottom tabs navigation with Expo Router
 - ✅ Basic components (PetCard, QuickActionButtons, LoadingSpinner, ErrorBoundary, EmptyState)
-- ✅ All main screens with placeholder content
-- ✅ Store management setup with Zustand
+- ✅ All main screens with proper structure
+- ✅ Zustand store management setup
 - ✅ Multi-language support (i18n) setup
 
-Next phases include:
-- ✅ API integration and testing (Phase 4)
-- Performance optimization and deployment (Phase 5)
+🔄 **Phase 4: Integration & Testing** (CURRENT PHASE)
+- [ ] Backend unit and integration tests
+- [ ] End-to-end mobile app + backend testing
+- [ ] CRUD operations testing scenarios
+- [ ] Network error handling validation
+- [ ] Performance optimization and monitoring
+
+⏳ **Phase 5: Deployment & Monitoring** (PENDING)
+- [ ] Production environment setup
+- [ ] Deployment strategy implementation
+- [ ] Monitoring and logging setup
+- [ ] Documentation finalization
+
+### Recent Major Changes
+- **Architecture Migration**: Complete transition from local SQLite to remote API integration
+- **Service Layer Transformation**: All services now use Axios HTTP client instead of Drizzle ORM
+- **Enhanced Error Handling**: Global ApiErrorBoundary with user-friendly error messages
+- **Network Awareness**: Real-time connectivity monitoring and offline mode support
+- **Performance Optimization**: Intelligent caching with background refetch and retry logic
 
 ## Development Notes
 

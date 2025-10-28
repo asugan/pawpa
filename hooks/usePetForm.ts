@@ -39,17 +39,58 @@ export interface UsePetUpdateFormReturn {
   watch: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
 }
 
+// Helper function to normalize pet type from database to form values
+const normalizePetType = (type: string): string => {
+  const typeLower = type.toLowerCase();
+  const typeMap: Record<string, string> = {
+    'köpek': 'dog',
+    'kedi': 'cat',
+    'kuş': 'bird',
+    'balık': 'fish',
+    'tavşan': 'rabbit',
+    'hamster': 'hamster',
+    'sürüngen': 'reptile',
+    'diğer': 'other'
+  };
+
+  // If it's already in English format, return as is
+  if (['dog', 'cat', 'bird', 'fish', 'rabbit', 'hamster', 'reptile', 'other'].includes(typeLower)) {
+    return typeLower;
+  }
+
+  // Otherwise map from Turkish to English
+  return typeMap[typeLower] || typeLower;
+};
+
+// Helper function to normalize gender from database to form values
+const normalizeGender = (gender: string): string => {
+  const genderLower = gender.toLowerCase();
+  const genderMap: Record<string, string> = {
+    'erkek': 'male',
+    'dişi': 'female',
+    'diğer': 'other'
+  };
+
+  // If it's already in English format, return as is
+  if (['male', 'female', 'other'].includes(genderLower)) {
+    return genderLower;
+  }
+
+  // Otherwise map from Turkish to English
+  return genderMap[genderLower] || genderLower;
+};
+
 // Main hook for pet form - for creating new pets
 export const usePetForm = (pet?: Pet): UsePetFormReturn => {
   const form = useForm<PetCreateInput>({
     resolver: zodResolver(PetCreateSchema),
     defaultValues: pet ? {
       name: pet.name || '',
-      type: (pet.type as any) || '',
+      type: normalizePetType(pet.type) || '',
       breed: pet.breed || '',
       birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
       weight: pet.weight || undefined,
-      gender: (pet.gender as any) || undefined,
+      gender: pet.gender ? normalizeGender(pet.gender) : undefined,
       profilePhoto: pet.profilePhoto || ''
     } : {
       name: '',
@@ -87,11 +128,11 @@ export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
     resolver: zodResolver(PetUpdateSchema),
     defaultValues: {
       name: pet.name || '',
-      type: (pet.type as any) || '',
+      type: normalizePetType(pet.type) || '',
       breed: pet.breed || '',
       birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
       weight: pet.weight || undefined,
-      gender: (pet.gender as any) || undefined,
+      gender: pet.gender ? normalizeGender(pet.gender) : undefined,
       profilePhoto: pet.profilePhoto || ''
     },
     mode: 'onChange',

@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert } from 'react-native';
 import { Text, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
 import { usePetStore } from '../../stores/petStore';
 import PetCard from '../../components/PetCard';
 import PetModal from '../../components/PetModal';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 
 export default function PetsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const { pets, isLoading, loadPets, deletePet, error, clearError } = usePetStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
@@ -79,14 +83,32 @@ export default function PetsScreen() {
     clearError();
   };
 
+  const handleViewPet = (pet: Pet) => {
+    router.push(`/pet/${pet.id}`);
+  };
+
   const renderPetCard = ({ item }: { item: Pet }) => (
     <PetCard
       pet={item}
-      onPress={() => console.log('View pet details:', item.id)}
+      onPress={() => handleViewPet(item)}
       onEdit={() => handleEditPet(item)}
       onDelete={() => handleDeletePet(item)}
     />
   );
+
+  // Show loading spinner on initial load
+  if (isLoading && pets.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
+            {t('pets.myPets')}
+          </Text>
+        </View>
+        <LoadingSpinner text="Petler yükleniyor..." />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -103,18 +125,22 @@ export default function PetsScreen() {
         numColumns={2}
         contentContainerStyle={styles.petsList}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text variant="headlineSmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              {t('pets.noPetsYet')}
-            </Text>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              {t('pets.addFirstPet')}
-            </Text>
-          </View>
+          !isLoading && (
+            <EmptyState
+              title={t('pets.noPetsYet')}
+              description={t('pets.addFirstPet')}
+              icon="paw"
+              buttonText={t('pets.addFirstPetButton', 'İlk Peti Ekle')}
+              onButtonPress={handleAddPet}
+              buttonColor={theme.colors.primary}
+              style={styles.emptyState}
+            />
+          )
         }
         showsVerticalScrollIndicator={false}
         refreshing={isLoading}
         onRefresh={loadPets}
+        ListFooterComponent={isLoading && pets.length > 0 ? <LoadingSpinner size="small" /> : null}
       />
 
       <FAB
@@ -171,12 +197,8 @@ const styles = StyleSheet.create({
   petInfo: {
     marginBottom: 12,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    marginTop: 80,
+  emptyState: {
+    marginTop: 40,
   },
   fab: {
     position: 'absolute',

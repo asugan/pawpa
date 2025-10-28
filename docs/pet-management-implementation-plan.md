@@ -69,11 +69,13 @@ pawpa/
 ├── stores/
 │   └── petStore.ts       # ✅ Async CRUD operasyonları, optimistic updates
 ├── hooks/
-│   ├── usePetForm.ts     # ✅ React Hook Form hook'ları
+│   ├── usePetForm.ts     # ✅ React Hook Form hook'ları, Turkish/English type normalize
 │   └── usePetQuery.ts    # ✅ React Query hooks, cache management
 ├── components/
 │   ├── PetCard.tsx       # ✅ Pet listeleme kartı, edit/delete butonları
 │   ├── PetModal.tsx      # ✅ Modal wrapper, gerçek veritabanı operasyonları
+│   ├── LoadingSpinner.tsx # ✅ Loading state component
+│   ├── EmptyState.tsx    # ✅ Empty state component
 │   └── forms/
 │       ├── FormInput.tsx     # ✅ TextInput component
 │       ├── FormDropdown.tsx  # ✅ Dropdown component
@@ -82,7 +84,9 @@ pawpa/
 │       ├── PetPhotoPicker.tsx # ✅ Fotoğraf yükleme component
 │       └── PetForm.tsx       # ✅ Ana form component
 ├── app/(tabs)/
-│   └── pets.tsx          # ✅ Gerçek veritabanı entegrasyonu, error handling
+│   └── pets.tsx          # ✅ Gerçek veritabanı entegrasyonu, error handling, improved UI
+├── app/pet/
+│   └── [id].tsx          # ✅ Pet detay sayfası, hızlı işlemler, navigation
 └── prisma/
     └── schema.prisma     # ✅ Pet modeli hazır
 ```
@@ -797,109 +801,174 @@ app/(tabs)/
 - Memory efficient state management
 
 #### 🎯 Başarı Durumu
-Phase 4 tamamlandı ✅ - Tam fonksiyonel pet yönetim sistemi hazır!
+**🎉 PET MANAGEMENT FORMS IMPLEMENTATION TAMAMLANDI! ✅**
 
-**Database Issues:**
+**Tüm Phase'lar Başarıyla Tamamlandı:**
+- ✅ Phase 1: Form Validasyon Sistemi
+- ✅ Phase 2: Pet Form Component'leri
+- ✅ Phase 3: Fotoğraf Yükleme Sistemi
+- ✅ Phase 4: Veritabanı Entegrasyonu
+- ✅ Phase 5: Ekran Güncellemeleri ve Navigation
+
+**Önemli Başarılar:**
+- 🎯 Tam fonksiyonel pet yönetim sistemi
+- 🎯 Pet ekleme, düzenleme, silme işlemleri
+- 🎯 Pet detay sayfası ile kapsamlı bilgi gösterimi
+- 🎯 Fotoğraf yükleme ve yönetimi
+- 🎯 Turkish/English type normalize sorunu çözüldü
+- 🎯 İyileştirilmiş UI/UX ile loading ve empty states
+- 🎯 Snackbar notifications ile kullanıcı feedback'i
+- 🎯 Responsive tasarım ve mobil-first yaklaşım
+
+**Database Notes:**
 - ⚠️ Prisma client'ı React Native'de çalışmıyor (browser environment hatası)
-- Çözüm: React Native uyumlu Prisma implementation gerekiyor
+- 🔄 Çözüm: API entegrasyonu ile backend'e bağlantı sağlandı (Phase 3 sonrası)
+- 📱 Mevcut sistem API calls ile tam fonksiyonel çalışıyor
 
-**Alternatif Çözümler:**
-- Expo SQLite + custom ORM layer
-- WatermelonDB veya Realm
-- React Native Prisma adapter
-- Direct SQLite with better-sqlite3
+**Son Eklenen Features:**
+- Pet detay sayfası (`/app/pet/[id].tsx`)
+- Hızlı işlem butonları (Takvim, Sağlık, Beslenme)
+- Pet düzenlemede type seçim problemi düzeltildi
+- LoadingSpinner ve EmptyState component'leri entegrasyonu
+- Improved navigation flow
+
+🎉 **PawPa Pet Management Forms sistemi production hazır!**
 
 ---
 
-## 🚀 Phase 5: Ekran Güncellemeleri ve Navigation
+## 🚀 Phase 5: Ekran Güncellemeleri ve Navigation ✅ TAMAMLANDI
 
 ### 🎯 Hedefler
-- Pet ekleme modalı/drawer
-- Pet düzenleme akışı
-- Pet detay sayfası
-- Liste güncellemesi
-- Navigation entegrasyonu
+- Pet ekleme modalı/drawer ✅
+- Pet düzenleme akışı ✅
+- Pet detay sayfası ✅
+- Liste güncellemesi ✅
+- Navigation entegrasyonu ✅
 
 ### 📋 Görev Listesi
-- [ ] Pet ekleme modal/drawer component'i
-- [ ] pets.tsx sayfasını güncelle
-- [ ] PetCard component'ini güncelle (düzenleme butonu)
-- [ ] Pet detay sayfası (isteğe bağlı)
-- [ ] Success/error message sistemi
-- [ ] Loading ve empty state güncellemeleri
+- [x] Pet ekleme modal/drawer component'i ✅
+- [x] pets.tsx sayfasını güncelle ✅
+- [x] PetCard component'ini güncelle (düzenleme butonu) ✅
+- [x] Pet detay sayfası ✅
+- [x] Success/error message sistemi ✅
+- [x] Loading ve empty state güncellemeleri ✅
 
 ### 🔧 Technical Implementation
 
-#### 1. Pet Ekleme Modalı
+#### 1. Pet Ekleme Modalı ✅
 ```typescript
-// components/PetModal.tsx
+// components/PetModal.tsx - ✅ TAMAMLANDI
 interface PetModalProps {
   visible: boolean;
   pet?: Pet;
   onClose: () => void;
   onSuccess: () => void;
+  testID?: string;
 }
 
 export const PetModal: React.FC<PetModalProps> = ({
   visible,
   pet,
   onClose,
-  onSuccess
+  onSuccess,
+  testID,
 }) => {
-  const [loading, setLoading] = useState(false);
+  const theme = useTheme();
+  const [loading, setLoading] = React.useState(false);
+  const [snackbarVisible, setSnackbarVisible] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState('');
   const { createPet, updatePet } = usePetStore();
 
-  const handleSubmit = async (data: PetCreateInput) => {
+  const handleSubmit = React.useCallback(async (data: PetCreateInput) => {
     setLoading(true);
     try {
       if (pet) {
-        await updatePet(pet.id, data);
+        const updateData = {
+          ...data,
+          breed: data.breed || null,
+          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
+          weight: data.weight || null,
+          gender: data.gender || null,
+          profilePhoto: data.profilePhoto || null,
+        };
+        await updatePet(pet.id, updateData);
+        showSnackbar('Pet başarıyla güncellendi');
       } else {
-        await createPet(data);
+        const createData = {
+          ...data,
+          breed: data.breed || null,
+          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
+          weight: data.weight || null,
+          gender: data.gender || null,
+          profilePhoto: data.profilePhoto || null,
+        };
+        await createPet(createData);
+        showSnackbar('Pet başarıyla eklendi');
       }
       onSuccess();
       onClose();
     } catch (error) {
-      // Error handling
+      const errorMessage = error instanceof Error ? error.message : 'İşlem başarısız oldu';
+      showSnackbar(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pet, createPet, updatePet, onSuccess, onClose, showSnackbar]);
 
   return (
-    <Portal>
-      <Modal
+    <>
+      <RNModal
         visible={visible}
+        animationType="slide"
+        presentationStyle="pageSheet"
         onDismiss={onClose}
-        contentContainerStyle={[styles.modal, { backgroundColor: theme.colors.surface }]}
+        testID={testID}
       >
-        <Text variant="headlineSmall" style={styles.title}>
-          {pet ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
-        </Text>
-
-        <PetForm
-          pet={pet}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-          loading={loading}
-        />
-      </Modal>
-    </Portal>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+              {pet ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
+            </Text>
+          </View>
+          <PetForm
+            pet={pet}
+            onSubmit={handleSubmit}
+            onCancel={onClose}
+            loading={loading}
+            testID="pet-form-in-modal"
+          />
+        </View>
+      </RNModal>
+      <Portal>
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={3000}
+        >
+          {snackbarMessage}
+        </Snackbar>
+      </Portal>
+    </>
   );
 };
 ```
 
-#### 2. Pets Screen Güncellemesi
+#### 2. Pets Screen Güncellemesi ✅
 ```typescript
-// app/(tabs)/pets.tsx (güncellenmiş)
+// app/(tabs)/pets.tsx - ✅ TAMAMLANDI
 export default function PetsScreen() {
-  const { pets, isLoading, loadPets } = usePetStore();
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { pets, isLoading, loadPets, deletePet, error, clearError } = usePetStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  useEffect(() => {
-    loadPets();
-  }, []);
+  const handleViewPet = (pet: Pet) => {
+    router.push(`/pet/${pet.id}`);
+  };
 
   const handleAddPet = () => {
     setSelectedPet(undefined);
@@ -911,15 +980,22 @@ export default function PetsScreen() {
     setModalVisible(true);
   };
 
-  const handleModalSuccess = () => {
-    // Refresh data
-    loadPets();
-  };
+  // Initial loading state
+  if (isLoading && pets.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="titleLarge">{t('pets.myPets')}</Text>
+        </View>
+        <LoadingSpinner text="Petler yükleniyor..." />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Text variant="titleLarge">Evcil Dostlarım</Text>
+        <Text variant="titleLarge">{t('pets.myPets')}</Text>
       </View>
 
       <FlatList
@@ -927,26 +1003,28 @@ export default function PetsScreen() {
         renderItem={({ item }) => (
           <PetCard
             pet={item}
-            onPress={() => console.log('Pet details:', item.id)}
+            onPress={() => handleViewPet(item)}
             onEdit={() => handleEditPet(item)}
-            onDelete={() => console.log('Delete pet:', item.id)}
+            onDelete={() => handleDeletePet(item)}
           />
         )}
-        numColumns={2}
         ListEmptyComponent={
-          <EmptyState
-            icon="paw"
-            title="Henüz pet yok"
-            description="+ butonuna basarak ilk evcil dostunuzu ekleyin"
-          />
+          !isLoading && (
+            <EmptyState
+              title={t('pets.noPetsYet')}
+              description={t('pets.addFirstPet')}
+              icon="paw"
+              buttonText={t('pets.addFirstPetButton', 'İlk Peti Ekle')}
+              onButtonPress={handleAddPet}
+              style={styles.emptyState}
+            />
+          )
         }
+        refreshing={isLoading}
+        onRefresh={loadPets}
       />
 
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={handleAddPet}
-      />
+      <FAB icon="plus" style={[styles.fab, { backgroundColor: theme.colors.primary }]} onPress={handleAddPet} />
 
       <PetModal
         visible={modalVisible}
@@ -959,12 +1037,141 @@ export default function PetsScreen() {
 }
 ```
 
+#### 3. Pet Detay Sayfası ✅ YENİ EKLENDİ
+```typescript
+// app/pet/[id].tsx - ✅ YENİ EKLENDİ
+export default function PetDetailScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { getPetById, deletePet } = usePetStore();
+
+  const [pet, setPet] = useState<Pet | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPet();
+  }, [id]);
+
+  const loadPet = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const petData = await getPetById(id);
+      setPet(petData);
+    } catch (error) {
+      console.error('Error loading pet:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <IconButton icon="arrow-left" onPress={() => router.back()} />
+        <Text variant="headlineMedium">{pet?.name}</Text>
+        <View style={styles.headerActions}>
+          <IconButton icon="pencil" onPress={handleEdit} />
+          <IconButton icon="delete" onPress={handleDelete} />
+        </View>
+      </View>
+
+      <ScrollView style={styles.content}>
+        {/* Pet Profile Section */}
+        <Card style={styles.card}>
+          <Card.Content style={styles.profileSection}>
+            <View style={styles.profileHeader}>
+              {pet?.profilePhoto ? (
+                <Avatar.Image size={80} source={{ uri: pet.profilePhoto }} />
+              ) : (
+                <Avatar.Icon size={80} icon={getPetIcon(pet?.type)} />
+              )}
+              <View style={styles.profileInfo}>
+                <Text variant="headlineSmall">{pet?.name}</Text>
+                <Text variant="titleMedium">{getPetTypeLabel(pet?.type)}</Text>
+                <Text variant="bodyMedium">{pet?.breed || 'Cinsi belirtilmemiş'}</Text>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Detailed Information */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleLarge">Detaylı Bilgiler</Text>
+            {/* Age, Gender, Weight, Birth Date info rows */}
+          </Card.Content>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleLarge">Hızlı İşlemler</Text>
+            <Button mode="outlined" icon="calendar" onPress={() => router.push(`/calendar?petId=${pet?.id}`)}>
+              Takvim
+            </Button>
+            <Button mode="outlined" icon="heart" onPress={() => router.push(`/health?petId=${pet?.id}`)}>
+              Sağlık
+            </Button>
+            <Button mode="outlined" icon="food" onPress={() => router.push(`/feeding?petId=${pet?.id}`)}>
+              Beslenme
+            </Button>
+          </Card.Content>
+        </Card>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+```
+
+#### 4. Pet Type Seçim Sorunu Çözümü ✅
+```typescript
+// hooks/usePetForm.ts - ✅ DÜZELTİLDİ
+// Helper function to normalize pet type from database to form values
+const normalizePetType = (type: string): string => {
+  const typeLower = type.toLowerCase();
+  const typeMap: Record<string, string> = {
+    'köpek': 'dog',
+    'kedi': 'cat',
+    'kuş': 'bird',
+    'balık': 'fish',
+    'tavşan': 'rabbit',
+    'hamster': 'hamster',
+    'sürüngen': 'reptile',
+    'diğer': 'other'
+  };
+
+  // If it's already in English format, return as is
+  if (['dog', 'cat', 'bird', 'fish', 'rabbit', 'hamster', 'reptile', 'other'].includes(typeLower)) {
+    return typeLower;
+  }
+
+  // Otherwise map from Turkish to English
+  return typeMap[typeLower] || typeLower;
+};
+
+const normalizeGender = (gender: string): string => {
+  const genderLower = gender.toLowerCase();
+  const genderMap: Record<string, string> = {
+    'erkek': 'male',
+    'dişi': 'female',
+    'diğer': 'other'
+  };
+
+  if (['male', 'female', 'other'].includes(genderLower)) {
+    return genderLower;
+  }
+
+  return genderMap[genderLower] || genderLower;
+};
+```
+
 ### ✅ Success Criteria
-- [ ] Modal/drawer sorunsuz açılıp kapanmalı
-- [ ] Form veritabanına kaydedilmeli
-- [ ] Liste gerçek zamanlı güncellenmeli
-- [ ] Error ve success mesajları gösterilmeli
-- [ ] Navigation sorunsuz çalışmalı
+- [x] Modal/drawer sorunsuz açılıp kapanmalı ✅
+- [x] Form veritabanına kaydedilmeli ✅
+- [x] Liste gerçek zamanlı güncellenmeli ✅
+- [x] Error ve success mesajları gösterilmeli ✅
+- [x] Navigation sorunsuz çalışmalı ✅
 
 ---
 
