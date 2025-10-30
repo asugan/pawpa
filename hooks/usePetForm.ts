@@ -1,7 +1,7 @@
 import { useForm, Control, UseFormReturn, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Pet } from '../lib/types';
+import { Pet, PetType, PetGender } from '../lib/types';
 import { PetCreateSchema, PetUpdateSchema, PetCreateInput, PetUpdateInput } from '../lib/schemas/petSchema';
 import { createZodI18nErrorMap } from '../lib/schemas/createZodI18n';
 
@@ -40,9 +40,9 @@ export interface UsePetUpdateFormReturn {
 }
 
 // Helper function to normalize pet type from database to form values
-const normalizePetType = (type: string): string => {
+const normalizePetType = (type: string): PetType => {
   const typeLower = type.toLowerCase();
-  const typeMap: Record<string, string> = {
+  const typeMap: Record<string, PetType> = {
     'köpek': 'dog',
     'kedi': 'cat',
     'kuş': 'bird',
@@ -53,31 +53,35 @@ const normalizePetType = (type: string): string => {
     'diğer': 'other'
   };
 
+  const validTypes: PetType[] = ['dog', 'cat', 'bird', 'fish', 'rabbit', 'hamster', 'reptile', 'other'];
+
   // If it's already in English format, return as is
-  if (['dog', 'cat', 'bird', 'fish', 'rabbit', 'hamster', 'reptile', 'other'].includes(typeLower)) {
-    return typeLower;
+  if (validTypes.includes(typeLower as PetType)) {
+    return typeLower as PetType;
   }
 
   // Otherwise map from Turkish to English
-  return typeMap[typeLower] || typeLower;
+  return typeMap[typeLower] || 'other';
 };
 
 // Helper function to normalize gender from database to form values
-const normalizeGender = (gender: string): string => {
+const normalizeGender = (gender: string): PetGender => {
   const genderLower = gender.toLowerCase();
-  const genderMap: Record<string, string> = {
+  const genderMap: Record<string, PetGender> = {
     'erkek': 'male',
     'dişi': 'female',
     'diğer': 'other'
   };
 
+  const validGenders: PetGender[] = ['male', 'female', 'other'];
+
   // If it's already in English format, return as is
-  if (['male', 'female', 'other'].includes(genderLower)) {
-    return genderLower;
+  if (validGenders.includes(genderLower as PetGender)) {
+    return genderLower as PetGender;
   }
 
   // Otherwise map from Turkish to English
-  return genderMap[genderLower] || genderLower;
+  return genderMap[genderLower] || 'other';
 };
 
 // Main hook for pet form - for creating new pets
@@ -86,7 +90,7 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
     resolver: zodResolver(PetCreateSchema),
     defaultValues: pet ? {
       name: pet.name || '',
-      type: normalizePetType(pet.type) || '',
+      type: normalizePetType(pet.type),
       breed: pet.breed || '',
       birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
       weight: pet.weight || undefined,
@@ -94,7 +98,7 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
       profilePhoto: pet.profilePhoto || ''
     } : {
       name: '',
-      type: '',
+      type: 'other',
       breed: '',
       birthDate: undefined,
       weight: undefined,
@@ -106,14 +110,14 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
   });
 
   return {
-    form: form as UseFormReturn<PetCreateInput>,
-    control: form.control as Control<PetCreateInput>,
+    form,
+    control: form.control,
     errors: form.formState.errors,
     isSubmitting: form.formState.isSubmitting,
     isValid: form.formState.isValid,
     touchedFields: form.formState.touchedFields,
     dirtyFields: form.formState.dirtyFields,
-    handleSubmit: form.handleSubmit as any,
+    handleSubmit: form.handleSubmit,
     reset: form.reset,
     setValue: form.setValue,
     getValues: form.getValues,
@@ -128,7 +132,7 @@ export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
     resolver: zodResolver(PetUpdateSchema),
     defaultValues: {
       name: pet.name || '',
-      type: normalizePetType(pet.type) || '',
+      type: normalizePetType(pet.type),
       breed: pet.breed || '',
       birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
       weight: pet.weight || undefined,

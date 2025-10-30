@@ -153,7 +153,7 @@ export function useCreateHealthRecord() {
 
   return useMutation({
     mutationFn: (data: CreateHealthRecordInput) =>
-      healthRecordService.createHealthRecord(data).then(res => res.data),
+      healthRecordService.createHealthRecord(data),
     onMutate: async (newRecord) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
@@ -188,16 +188,20 @@ export function useCreateHealthRecord() {
         queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), context.previousRecords);
       }
     },
-    onSettled: (newRecord) => {
+    onSettled: (result, error, variables) => {
       // Always refetch after error or success
-      if (newRecord) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(newRecord.petId) });
+      if (result?.data) {
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(result.data.petId) });
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
 
-        if (newRecord.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(newRecord.petId) });
+        if (result.data.type === 'vaccination') {
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
           queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
         }
+      } else if (variables && !error) {
+        // Fallback to using input variables if no error and no data returned
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(variables.petId) });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
       }
     },
   });
@@ -209,7 +213,7 @@ export function useUpdateHealthRecord() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateHealthRecordInput }) =>
-      healthRecordService.updateHealthRecord(id, data).then(res => res.data),
+      healthRecordService.updateHealthRecord(id, data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.detail(id) });
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
@@ -236,15 +240,19 @@ export function useUpdateHealthRecord() {
         queryClient.setQueryData(healthRecordKeys.detail(variables.id), context.previousRecord);
       }
     },
-    onSettled: (result) => {
-      if (result) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(result.id) });
+    onSettled: (result, error, variables) => {
+      if (result?.data) {
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(result.data.id) });
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
 
-        if (result.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.petId) });
+        if (result.data.type === 'vaccination') {
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
           queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
         }
+      } else if (variables && !error) {
+        // Fallback to using input variables if no error and no data returned
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(variables.id) });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
       }
     },
   });

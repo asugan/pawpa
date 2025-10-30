@@ -24,11 +24,10 @@ import { CurrencyInput } from '../../../components/CurrencyInput';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import EmptyState from '../../../components/EmptyState';
 import { HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../../constants';
-import type { HealthRecord } from '../../../lib/types';
+import type { HealthRecord, UpdateHealthRecordInput } from '../../../lib/types';
 import {
   getHealthRecordSchema,
   formatValidationErrors,
-  type HealthRecordUpdateInput
 } from '../../../lib/schemas/healthRecordSchema';
 
 export default function EditHealthRecordScreen() {
@@ -114,16 +113,36 @@ export default function EditHealthRecordScreen() {
       }
 
       const validatedData = validationResult.data;
-      const updateData = {
-        ...validatedData,
-        id: healthRecord.id,
-        nextDueDate: validatedData.nextDueDate || null,
-      } as HealthRecordUpdateInput;
 
-      const result = await updateMutation.mutateAsync(updateData);
-      if (!result.success) {
-        throw new Error(result.error || 'Kayıt güncellenemedi');
-      }
+      // Transform data for API - convert Date objects to strings and include conditional fields
+      const updateData: UpdateHealthRecordInput = {
+        type: validatedData.type,
+        petId: validatedData.petId,
+        title: validatedData.title,
+        description: validatedData.description,
+        date: validatedData.date instanceof Date ? validatedData.date.toISOString() : validatedData.date,
+        veterinarian: validatedData.veterinarian,
+        clinic: validatedData.clinic,
+        cost: validatedData.cost,
+        notes: validatedData.notes,
+        nextDueDate: validatedData.nextDueDate instanceof Date ? validatedData.nextDueDate.toISOString() : validatedData.nextDueDate || undefined,
+        // Vaccination specific fields (only include if type is vaccination)
+        ...(validatedData.type === 'vaccination' && {
+          vaccineName: (validatedData as any).vaccineName,
+          vaccineManufacturer: (validatedData as any).vaccineManufacturer,
+          batchNumber: (validatedData as any).batchNumber,
+        }),
+        // Medication specific fields (only include if type is medication)
+        ...(validatedData.type === 'medication' && {
+          medicationName: (validatedData as any).medicationName,
+          dosage: (validatedData as any).dosage,
+          frequency: (validatedData as any).frequency,
+          startDate: (validatedData as any).startDate instanceof Date ? (validatedData as any).startDate.toISOString() : (validatedData as any).startDate,
+          endDate: (validatedData as any).endDate instanceof Date ? (validatedData as any).endDate.toISOString() : (validatedData as any).endDate,
+        }),
+      };
+
+      await updateMutation.mutateAsync({ id: healthRecord.id, data: updateData });
 
       router.back();
     } catch (error) {

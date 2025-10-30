@@ -120,20 +120,35 @@ export function HealthRecordForm({
       }
 
       const validatedData = validationResult.data;
-      // Convert undefined to null for backend compatibility
-      const apiData = {
+      // Convert undefined to null for backend compatibility and Date objects to ISO strings
+      const apiData: any = {
         ...validatedData,
-        nextDueDate: validatedData.nextDueDate || null,
+        date: validatedData.date.toISOString(),
+        nextDueDate: validatedData.nextDueDate ? validatedData.nextDueDate.toISOString() : null,
       };
 
+      // Add medication-specific dates if they exist
+      if ('startDate' in validatedData && validatedData.startDate) {
+        apiData.startDate = (validatedData.startDate as Date).toISOString();
+      }
+      if ('endDate' in validatedData && validatedData.endDate) {
+        apiData.endDate = (validatedData.endDate as Date).toISOString();
+      }
+
       if (isEditing && initialData) {
-        const updateData = { ...apiData, id: initialData.id } as HealthRecordUpdateInput;
-        const result = await updateMutation.mutateAsync(updateData);
+        const result = await updateMutation.mutateAsync({
+          id: initialData.id,
+          data: apiData
+        });
         if (!result.success) {
           throw new Error(result.error || 'Kayıt güncellenemedi');
         }
       } else {
-        const result = await createMutation.mutateAsync(apiData);
+        const createData = {
+          ...apiData,
+          updatedAt: new Date().toISOString()
+        };
+        const result = await createMutation.mutateAsync(createData);
         if (!result.success) {
           throw new Error(result.error || 'Kayıt oluşturulamadı');
         }
