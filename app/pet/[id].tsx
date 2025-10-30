@@ -19,7 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Pet } from '../../lib/types';
-import { usePetStore } from '../../stores/petStore';
+import { usePet, useDeletePet } from '../../lib/hooks/usePets';
 import PetModal from '../../components/PetModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
@@ -29,32 +29,20 @@ export default function PetDetailScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPetById, deletePet } = usePetStore();
 
-  const [pet, setPet] = useState<Pet | null>(null);
-  const [loading, setLoading] = useState(true);
+  // ✅ React Query hooks for server state
+  const { data: pet, isLoading, error } = usePet(id || '');
+  const deletePetMutation = useDeletePet();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
-    loadPet();
-  }, [id]);
-
-  const loadPet = async () => {
-    if (!id) return;
-
-    try {
-      setLoading(true);
-      const petData = await getPetById(id);
-      setPet(petData);
-    } catch (error) {
-      console.error('Error loading pet:', error);
+    if (error) {
       showSnackbar('Pet yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error]);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -83,7 +71,7 @@ export default function PetDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deletePet(pet.id);
+              await deletePetMutation.mutateAsync(pet.id);
               showSnackbar(`"${pet.name}" başarıyla silindi`);
               setTimeout(() => {
                 router.back();
@@ -99,7 +87,8 @@ export default function PetDetailScreen() {
   };
 
   const handleModalSuccess = () => {
-    loadPet(); // Refresh pet data after edit
+    // React Query handles cache invalidation automatically
+    showSnackbar('Pet başarıyla güncellendi');
   };
 
   const getPetIcon = (type: string) => {
@@ -155,7 +144,7 @@ export default function PetDetailScreen() {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <LoadingSpinner />

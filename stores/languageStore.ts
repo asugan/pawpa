@@ -12,7 +12,7 @@ const getDeviceLanguage = (): Language => {
   return 'en';
 };
 
-interface LanguageStore {
+export interface LanguageStore {
   language: Language;
   setLanguage: (language: Language) => void;
   toggleLanguage: () => void;

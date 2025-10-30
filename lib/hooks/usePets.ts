@@ -14,7 +14,7 @@ export const petKeys = {
 
 // Hook for fetching all pets
 export function usePets(filters?: { type?: string; search?: string }) {
-  return useQuery({
+  return useQuery<Pet[]>({
     queryKey: petKeys.list(filters),
     queryFn: async () => {
       if (filters?.type) {
@@ -43,9 +43,15 @@ export function usePets(filters?: { type?: string; search?: string }) {
 
 // Hook for fetching a single pet
 export function usePet(id: string) {
-  return useQuery({
+  return useQuery<Pet>({
     queryKey: petKeys.detail(id),
-    queryFn: () => petService.getPetById(id),
+    queryFn: async () => {
+      const result = await petService.getPetById(id);
+      if (!result.success) {
+        throw new Error(result.error || 'Pet yüklenemedi');
+      }
+      return result.data!;
+    },
     enabled: !!id, // Only fetch if id exists
   });
 }

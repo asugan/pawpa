@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ThemeMode } from '../lib/theme';
 
-interface ThemeStore {
+export interface ThemeStore {
   themeMode: ThemeMode;
   toggleTheme: () => void;
   setTheme: (mode: ThemeMode) => void;
