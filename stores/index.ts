@@ -6,7 +6,7 @@ export { useLanguageStore } from './languageStore';
 // Store türleri için type exports
 export type { PetUIState, PetUIActions } from './petStore';
 export type { ThemeStore } from './themeStore';
-export type { LanguageStore, Language } from './languageStore';
+export type { LanguageState, LanguageActions, Language } from './languageStore';
 
 // Re-export for backward compatibility (deprecated)
 // Use usePetUIStore instead

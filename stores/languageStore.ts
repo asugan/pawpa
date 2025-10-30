@@ -2,37 +2,53 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import i18n from '../lib/i18n';
 
-export type Language = 'en' | 'tr';
+type SupportedLanguage = 'tr' | 'en' | 'ar';
 
-// Get device language or fallback to English
-const getDeviceLanguage = (): Language => {
-  // For now, default to English
-  // In a production app with Expo managed workflow, we could use
-  // Expo Localization module or ask user to select language on first launch
-  return 'en';
-};
-
-export interface LanguageStore {
-  language: Language;
-  setLanguage: (language: Language) => void;
-  toggleLanguage: () => void;
-  initializeLanguage: () => void;
+interface LanguageState {
+  language: SupportedLanguage;
+  isRTL: boolean;
+  hasUserExplicitlySetLanguage: boolean;
 }
 
-export const useLanguageStore = create<LanguageStore>()(
+interface LanguageActions {
+  setLanguage: (language: SupportedLanguage, isExplicit?: boolean) => void;
+  toggleLanguage: () => void;
+  initializeLanguage: () => void;
+  resetLanguage: () => void;
+  setExplicitLanguage: (language: SupportedLanguage) => void;
+}
+
+const LANGUAGE_STORAGE_KEY = 'pawpa-language';
+
+export const useLanguageStore = create<LanguageState & LanguageActions>()(
   persist(
     (set, get) => ({
-      language: getDeviceLanguage(),
-      setLanguage: (language: Language) => {
-        set({ language });
+      // Initial state
+      language: 'en',
+      isRTL: false,
+      hasUserExplicitlySetLanguage: false,
+
+      // Actions
+      setLanguage: (language, isExplicit = false) => {
+        set({
+          language,
+          isRTL: language === 'ar', // For future Arabic support
+          hasUserExplicitlySetLanguage: get().hasUserExplicitlySetLanguage || isExplicit,
+        });
         i18n.changeLanguage(language);
       },
+
       toggleLanguage: () => {
         const currentLanguage = get().language;
-        const newLanguage = currentLanguage === 'en' ? 'tr' : 'en';
-        set({ language: newLanguage });
+        const newLanguage = currentLanguage === 'tr' ? 'en' : 'tr';
+        set({
+          language: newLanguage,
+          isRTL: false,
+          hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
+        });
         i18n.changeLanguage(newLanguage);
       },
+
       initializeLanguage: () => {
         const currentLanguage = get().language;
         // Only change i18n language if it's different from store
@@ -40,9 +56,32 @@ export const useLanguageStore = create<LanguageStore>()(
           i18n.changeLanguage(currentLanguage);
         }
       },
+
+      resetLanguage: () => {
+        set({
+          language: 'en',
+          isRTL: false,
+          hasUserExplicitlySetLanguage: false,
+        });
+        i18n.changeLanguage('en');
+      },
+
+      setExplicitLanguage: (language) => {
+        set({
+          language,
+          isRTL: false,
+          hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
+        });
+        i18n.changeLanguage(language);
+      },
     }),
     {
-      name: 'language-storage',
+      name: LANGUAGE_STORAGE_KEY,
+      // Only persist essential data
+      partialize: (state) => ({
+        language: state.language,
+        hasUserExplicitlySetLanguage: state.hasUserExplicitlySetLanguage,
+      }),
       onRehydrateStorage: () => (state) => {
         // Initialize language after rehydration
         if (state) {
@@ -52,3 +91,36 @@ export const useLanguageStore = create<LanguageStore>()(
     }
   )
 );
+
+// Helper functions for external use
+export const getSupportedLanguages = (): SupportedLanguage[] => ['tr', 'en', 'ar'];
+
+export const isLanguageSupported = (language: string): language is SupportedLanguage => {
+  return ['tr', 'en', 'ar'].includes(language);
+};
+
+export const getLanguageDirection = (language: SupportedLanguage): 'ltr' | 'rtl' => {
+  return language === 'ar' ? 'rtl' : 'ltr'; // For future Arabic support
+};
+
+export const getLanguageDisplayName = (language: SupportedLanguage): string => {
+  const displayNames = {
+    tr: 'Türkçe',
+    en: 'English',
+    ar: 'العربية',
+  };
+  return displayNames[language] || language;
+};
+
+export const getLanguageNativeName = (language: SupportedLanguage): string => {
+  const nativeNames = {
+    tr: 'Türkçe',
+    en: 'English',
+    ar: 'العربية',
+  };
+  return nativeNames[language] || language;
+};
+
+// Export types for external components
+export type Language = SupportedLanguage;
+export type { LanguageState, LanguageActions, SupportedLanguage };

@@ -11,6 +11,9 @@ export * from './useRequestCancellation';
 export * from './useSmartPrefetching';
 export * from './useRealtimeUpdates';
 
+// Device integration hooks
+export * from './useDeviceLanguage';
+
 // Re-export commonly used query keys for external use
 export { petKeys } from './usePets';
 export { healthRecordKeys } from './useHealthRecords';
