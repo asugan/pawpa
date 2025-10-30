@@ -35,31 +35,18 @@ export function PetForm({
   // Watch the pet type for the PetPhotoPicker
   const petType = watch('type');
 
-  // Debug: Monitor validation state changes
-  React.useEffect(() => {
-    console.log('Pet form validation state changed:', { isValid, errors });
-  }, [isValid, errors]);
+  // Track if user has attempted to submit the form
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
 
-  // Debug: Monitor form values and trigger validation
-  const formValues = watch();
-  React.useEffect(() => {
-    console.log('Pet form values changed:', formValues);
-    // Manually trigger validation when form values change
-    if (formValues.name && formValues.name.trim().length >= 2 && formValues.type) {
-      trigger();
-    }
-  }, [formValues, trigger]);
-
+  
+  
   const onFormSubmit = React.useCallback(async (data: PetCreateInput) => {
-    console.log('Pet form submitting with data:', data);
-    console.log('Form validation state:', { isValid, errors, isSubmitting });
     try {
       await onSubmit(data);
-      console.log('Pet form submitted successfully');
     } catch (error) {
       console.error('Pet form submission error:', error);
     }
-  }, [onSubmit, isValid, errors, isSubmitting]);
+  }, [onSubmit]);
 
   const isEditMode = !!pet;
 
@@ -181,18 +168,15 @@ export function PetForm({
 
           <Button
             mode="contained"
+            buttonColor={theme.colors.primary}
+            textColor={theme.colors.onPrimary}
             onPress={async () => {
-              // Manually trigger validation before submitting
-              const isFormValid = await trigger();
-              if (isFormValid) {
-                handleSubmit(onFormSubmit)();
-              } else {
-                console.log('Manual validation failed:', errors);
-              }
+              setHasAttemptedSubmit(true);
+              handleSubmit(onFormSubmit)();
             }}
             loading={loading}
             disabled={loading}
-            style={[styles.actionButton, styles.submitButton]}
+            style={styles.actionButton}
             contentStyle={styles.buttonContent}
             testID="submit-button"
           >
@@ -201,7 +185,7 @@ export function PetForm({
         </View>
 
         {/* Form Status */}
-        {!isValid && (
+        {!isValid && hasAttemptedSubmit && (
           <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
             <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
               {t('pets.pleaseFillRequiredFields')}
@@ -258,9 +242,6 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     borderColor: undefined,
-  },
-  submitButton: {
-    backgroundColor: undefined,
   },
   buttonContent: {
     paddingVertical: 8,
