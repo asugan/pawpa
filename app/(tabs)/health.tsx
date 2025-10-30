@@ -29,7 +29,7 @@ export default function HealthScreen() {
     isLoading,
     error,
     refetch
-  } = useHealthRecords(selectedPetId);
+  } = useHealthRecords(selectedPetId || '');
 
   const createMutation = useCreateHealthRecord();
 

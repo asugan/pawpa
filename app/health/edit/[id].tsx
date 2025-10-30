@@ -18,7 +18,7 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
-import { useHealthRecordById, useUpdateHealthRecord } from '../../../lib/hooks/useHealthRecords';
+import { useHealthRecord, useUpdateHealthRecord } from '../../../lib/hooks/useHealthRecords';
 import { DateTimePicker } from '../../../components/DateTimePicker';
 import { CurrencyInput } from '../../../components/CurrencyInput';
 import LoadingSpinner from '../../../components/LoadingSpinner';
@@ -37,7 +37,7 @@ export default function EditHealthRecordScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: healthRecord, isLoading: recordsLoading } = useHealthRecordById(id as string);
+  const { data: healthRecord, isLoading: recordsLoading } = useHealthRecord(id as string);
   const updateMutation = useUpdateHealthRecord();
 
   const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<any>({

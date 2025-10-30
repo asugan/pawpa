@@ -12,7 +12,7 @@ import {
   useTheme,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHealthRecordById, useDeleteHealthRecord } from '../../lib/hooks/useHealthRecords';
+import { useHealthRecord, useDeleteHealthRecord } from '../../lib/hooks/useHealthRecords';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
@@ -25,7 +25,7 @@ export default function HealthRecordDetailScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteMutation = useDeleteHealthRecord();
-  const { data: healthRecord, isLoading } = useHealthRecordById(id as string);
+  const { data: healthRecord, isLoading } = useHealthRecord(id as string);
 
   
   const handleEdit = () => {
