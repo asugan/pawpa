@@ -30,15 +30,36 @@ export function PetForm({
 }: PetFormProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { control, handleSubmit, errors, isSubmitting, isValid } = usePetForm(pet);
+  const { control, handleSubmit, errors, isSubmitting, isValid, watch, trigger } = usePetForm(pet);
+
+  // Watch the pet type for the PetPhotoPicker
+  const petType = watch('type');
+
+  // Debug: Monitor validation state changes
+  React.useEffect(() => {
+    console.log('Pet form validation state changed:', { isValid, errors });
+  }, [isValid, errors]);
+
+  // Debug: Monitor form values and trigger validation
+  const formValues = watch();
+  React.useEffect(() => {
+    console.log('Pet form values changed:', formValues);
+    // Manually trigger validation when form values change
+    if (formValues.name && formValues.name.trim().length >= 2 && formValues.type) {
+      trigger();
+    }
+  }, [formValues, trigger]);
 
   const onFormSubmit = React.useCallback(async (data: PetCreateInput) => {
+    console.log('Pet form submitting with data:', data);
+    console.log('Form validation state:', { isValid, errors, isSubmitting });
     try {
       await onSubmit(data);
+      console.log('Pet form submitted successfully');
     } catch (error) {
       console.error('Pet form submission error:', error);
     }
-  }, [onSubmit]);
+  }, [onSubmit, isValid, errors, isSubmitting]);
 
   const isEditMode = !!pet;
 
@@ -139,7 +160,7 @@ export function PetForm({
             <PetPhotoPicker
               value={value}
               onChange={onChange}
-              petType={control._formValues?.type}
+              petType={petType}
               disabled={loading}
             />
           )}
@@ -160,9 +181,17 @@ export function PetForm({
 
           <Button
             mode="contained"
-            onPress={handleSubmit(onFormSubmit)}
+            onPress={async () => {
+              // Manually trigger validation before submitting
+              const isFormValid = await trigger();
+              if (isFormValid) {
+                handleSubmit(onFormSubmit)();
+              } else {
+                console.log('Manual validation failed:', errors);
+              }
+            }}
             loading={loading}
-            disabled={!isValid || loading}
+            disabled={loading}
             style={[styles.actionButton, styles.submitButton]}
             contentStyle={styles.buttonContent}
             testID="submit-button"

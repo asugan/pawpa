@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { PET_TYPES, PET_GENDERS } from '../../constants/index';
-import { t, createZodI18nErrorMap } from './createZodI18n';
+import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
@@ -36,7 +36,7 @@ const BasePetSchema = z.object({
   birthDate: z
     .date()
     .refine(validateBirthDate, {
-      message: t('forms.validation.birthDateFuture')
+      message: "Birth date cannot be in the future or more than 30 years ago"
     })
     .optional(),
 
@@ -59,16 +59,20 @@ const BasePetSchema = z.object({
       return val.startsWith('file://') || val.startsWith('/') ||
              val.startsWith('data:image/') || val.startsWith('http');
     }, {
-      message: t('forms.validation.photoInvalid')
+      message: "Photo must be a valid image file or URL"
     })
 });
 
 // Schema for creating a new pet
 export const PetCreateSchema = BasePetSchema.refine(
-  (data: any) => data.name && data.type,
+  (data: any) => {
+    const nameValid = data.name && data.name.trim().length >= 2;
+    const typeValid = data.type && data.type !== '';
+    return nameValid && typeValid;
+  },
   {
-    message: t('forms.validation.petNameAndTypeRequired'),
-    path: ["type"]
+    message: "Pet name (min 2 chars) and type are required",
+    path: ["name"]
   }
 );
 

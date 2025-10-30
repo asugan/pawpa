@@ -11,10 +11,14 @@ export class PetService {
    */
   async createPet(data: CreatePetInput): Promise<ApiResponse<Pet>> {
     try {
-      const response = await api.post<Pet>(ENV.ENDPOINTS.PETS, {
+      // Clean up the data before sending to API
+      const cleanedData = {
         ...data,
-        birthDate: data.birthDate || null,
-      });
+        birthDate: data.birthDate && data.birthDate instanceof Date ? data.birthDate.toISOString() : undefined,
+        profilePhoto: data.profilePhoto || undefined,
+      };
+
+      const response = await api.post<Pet>(ENV.ENDPOINTS.PETS, cleanedData);
 
       console.log('✅ Pet created successfully:', response.data?.id);
       return {
@@ -104,9 +108,11 @@ export class PetService {
    */
   async updatePet(id: string, data: UpdatePetInput): Promise<ApiResponse<Pet>> {
     try {
+      // Clean up the data before sending to API
       const updateData = {
         ...data,
-        birthDate: data.birthDate || undefined,
+        birthDate: data.birthDate && data.birthDate instanceof Date ? data.birthDate.toISOString() : undefined,
+        profilePhoto: data.profilePhoto || undefined,
       };
 
       const response = await api.put<Pet>(ENV.ENDPOINTS.PET_BY_ID(id), updateData);

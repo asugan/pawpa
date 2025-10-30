@@ -105,7 +105,7 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
       gender: undefined,
       profilePhoto: ''
     },
-    mode: 'onChange', // Validate on change for better UX
+    mode: 'all', // Validate on change and blur for better UX
     reValidateMode: 'onChange'
   });
 
@@ -139,7 +139,7 @@ export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
       gender: pet.gender ? normalizeGender(pet.gender) : undefined,
       profilePhoto: pet.profilePhoto || ''
     },
-    mode: 'onChange',
+    mode: 'all',
     reValidateMode: 'onChange'
   });
 
