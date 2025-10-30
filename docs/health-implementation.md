@@ -19,7 +19,7 @@
 #### Dosya: `lib/hooks/useHealthRecords.ts`
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { healthRecordService } from '../services/healthRecordService';
+import { healthRecordService } from '../services';
 import { HealthRecord } from '../types';
 import {
   HealthRecordCreateInput,
