@@ -15,7 +15,14 @@
     "healthRecord": "Health Record",
     "feedingPlan": "Feeding Plan",
     "noPetsYet": "You haven't added any pets yet",
-    "addFirstPet": "Add First Pet"
+    "addFirstPet": "Add First Pet",
+    "myPets": "My Pets",
+    "healthOverview": "Health Overview",
+    "todaySchedule": "Today's Schedule",
+    "upcomingHealth": "Upcoming Health",
+    "noHealthActivities": "No health activities scheduled for today",
+    "viewMoreEvents": "+{{count}} more events",
+    "viewMoreVaccinations": "+{{count}} more vaccinations"
   },
   "pets": {
     "myPets": "My Pets",
@@ -32,6 +39,7 @@
     "cancel": "Cancel",
     "update": "Update",
     "add": "Add",
+    "addFirstPetDescription": "Start by adding your first pet",
     "pleaseFillRequiredFields": "Please fill required fields",
     "ageUnknown": "Age unknown",
     "months": "months",
@@ -44,13 +52,22 @@
     "vaccinationRecord": "Vaccination Record",
     "view": "View",
     "noRecords": "No health records yet",
-    "petNameDate": "Pet Name • Date"
+    "petNameDate": "Pet Name • Date",
+    "upcomingVaccinations": "Upcoming Vaccinations",
+    "addRecord": "Add Health Record"
   },
   "calendar": {
     "calendar": "Calendar",
     "comingSoon": "Coming Soon",
     "upcomingEvents": "Upcoming Events",
-    "noEvents": "No events scheduled"
+    "noEvents": "No events scheduled",
+    "today": "Today",
+    "addEvent": "Add Event"
+  },
+  "events": {
+    "today": "Today",
+    "addEvent": "Add Event",
+    "forPet": "For pet"
   },
   "settings": {
     "appearance": "Appearance",
@@ -87,6 +104,8 @@
     "error": "Error",
     "retry": "Retry",
     "save": "Save",
+    "loadingError": "Failed to load data",
+    "viewAll": "View All",
     "delete": "Delete",
     "cancel": "Cancel",
     "confirm": "Confirm",

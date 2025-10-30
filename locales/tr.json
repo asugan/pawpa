@@ -15,7 +15,14 @@
     "healthRecord": "Sağlık Kaydı",
     "feedingPlan": "Besleme Planı",
     "noPetsYet": "Henüz pet eklemediniz",
-    "addFirstPet": "İlk Peti Ekle"
+    "addFirstPet": "İlk Peti Ekle",
+    "myPets": "Evcil Dostlarım",
+    "healthOverview": "Sağlık Genel Bakış",
+    "todaySchedule": "Bugünkü Program",
+    "upcomingHealth": "Yaklaşan Sağlık",
+    "noHealthActivities": "Bugün planlanmış sağlık aktivitesi yok",
+    "viewMoreEvents": "+{{count}} daha fazla etkinlik",
+    "viewMoreVaccinations": "+{{count}} daha fazla aşı"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -32,6 +39,7 @@
     "cancel": "İptal",
     "update": "Güncelle",
     "add": "Ekle",
+    "addFirstPetDescription": "İlk evcil dostunuzu ekleyerek başlayın",
     "pleaseFillRequiredFields": "Lütfen zorunlu alanları doldurunuz",
     "ageUnknown": "Yaş bilinmiyor",
     "months": "ay",
@@ -44,13 +52,22 @@
     "vaccinationRecord": "Aşı Kaydı",
     "view": "Görüntüle",
     "noRecords": "Henüz sağlık kaydı yok",
-    "petNameDate": "Pet Adı • Tarih"
+    "petNameDate": "Pet Adı • Tarih",
+    "upcomingVaccinations": "Yaklaşan Aşılar",
+    "addRecord": "Sağlık Kaydı Ekle"
   },
   "calendar": {
     "calendar": "Takvim",
     "comingSoon": "Yakında gelecek",
     "upcomingEvents": "Yaklaşan Etkinlikler",
-    "noEvents": "Planlanmış etkinlik yok"
+    "noEvents": "Planlanmış etkinlik yok",
+    "today": "Bugün",
+    "addEvent": "Etkinlik Ekle"
+  },
+  "events": {
+    "today": "Bugün",
+    "addEvent": "Etkinlik Ekle",
+    "forPet": "Pet için"
   },
   "settings": {
     "appearance": "Görünüm",
@@ -87,6 +104,8 @@
     "error": "Hata",
     "retry": "Tekrar Dene",
     "save": "Kaydet",
+    "loadingError": "Veriler yüklenemedi",
+    "viewAll": "Hepsini Gör",
     "delete": "Sil",
     "cancel": "İptal",
     "confirm": "Onayla",

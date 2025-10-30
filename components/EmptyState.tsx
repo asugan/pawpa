@@ -11,6 +11,8 @@ interface EmptyStateProps {
   onButtonPress?: () => void;
   buttonColor?: string;
   style?: any;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -21,6 +23,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onButtonPress,
   buttonColor,
   style,
+  actionLabel,
+  onAction,
 }) => {
   const theme = useTheme();
 
@@ -51,17 +55,17 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             </Text>
           )}
 
-          {buttonText && onButtonPress && (
+          {(buttonText && onButtonPress) || (actionLabel && onAction) ? (
             <Button
               mode="contained"
               buttonColor={buttonColor || theme.colors.primary}
               textColor={theme.colors.onPrimary}
-              onPress={onButtonPress}
+              onPress={onButtonPress || onAction}
               style={styles.button}
             >
-              {buttonText}
+              {buttonText || actionLabel}
             </Button>
-          )}
+          ) : null}
         </Card.Content>
       </Card>
     </View>
