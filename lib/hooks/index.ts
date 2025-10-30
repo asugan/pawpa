@@ -4,6 +4,13 @@ export * from './useHealthRecords';
 export * from './useEvents';
 export * from './useFeedingSchedules';
 
+// Performance optimization hooks
+export * from './useOnlineManager';
+export * from './usePrefetchData';
+export * from './useRequestCancellation';
+export * from './useSmartPrefetching';
+export * from './useRealtimeUpdates';
+
 // Re-export commonly used query keys for external use
 export { petKeys } from './usePets';
 export { healthRecordKeys } from './useHealthRecords';

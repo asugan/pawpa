@@ -1,45 +1,29 @@
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import { MOBILE_QUERY_CONFIG } from "../lib/config/queryConfig";
 import { useThemeStore } from "../stores/themeStore";
 import { lightTheme, darkTheme } from "../lib/theme";
 import { LanguageProvider } from "../providers/LanguageProvider";
 import { NetworkStatus } from "../lib/components/NetworkStatus";
 import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
+import { useOnlineManager } from "../lib/hooks/useOnlineManager";
+import { AppState, AppStateStatus } from 'react-native';
+import { useEffect } from 'react';
 import "../lib/i18n"; // Initialize i18n
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error) => {
-        // Network error'larında daha az retry
-        if (error instanceof Error && error.message.includes('Ağ bağlantısı')) {
-          return failureCount < 2;
-        }
-        // 404 hatalarında retry yok
-        if (error instanceof Error && error.message.includes('bulunamadı')) {
-          return false;
-        }
-        return failureCount < 3;
-      },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (cacheTime renamed to gcTime)
-      refetchOnWindowFocus: false, // Mobil için uygun değil
-      refetchOnReconnect: true, // Network geri gelince yenile
-      // Error handling için custom logic
-      throwOnError: (error) => {
-        // Sadece network error'larda error boundary kullan
-        return error instanceof Error && error.message.includes('Ağ bağlantısı');
-      },
-    },
-    mutations: {
-      retry: 1, // Mutation'lar genellikle bir kereden fazla denenmemeli
-      // Mutation error'larında error boundary kullanma
-      throwOnError: false,
-    },
-  },
-});
+// Enhanced QueryClient with better configuration
+const queryClient = new QueryClient(MOBILE_QUERY_CONFIG);
+
+// Custom hook for app state management
+function onAppStateChange(status: AppStateStatus) {
+  // React Query already handles refetching on app focus by default
+  if (status === 'active') {
+    focusManager.setFocused(true);
+  } else {
+    focusManager.setFocused(false);
+  }
+}
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { themeMode } = useThemeStore();
@@ -52,20 +36,37 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Enhanced App Providers with better state management
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
+      <OnlineManagerProvider>
         <NetworkStatus>
-          <ThemeProvider>
-            <ApiErrorBoundary>
-              {children}
-            </ApiErrorBoundary>
-          </ThemeProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <ApiErrorBoundary>
+                {children}
+              </ApiErrorBoundary>
+            </ThemeProvider>
+          </LanguageProvider>
         </NetworkStatus>
-      </LanguageProvider>
+      </OnlineManagerProvider>
     </QueryClientProvider>
   );
+}
+
+// Separate component for online management to ensure QueryClient context is available
+function OnlineManagerProvider({ children }: { children: React.ReactNode }) {
+  // Handle online/offline state - now has access to QueryClient
+  useOnlineManager();
+
+  // Listen to app state changes
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+    return () => subscription.remove();
+  }, []);
+
+  return <>{children}</>;
 }
 
 export default function RootLayout() {
