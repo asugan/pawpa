@@ -2,10 +2,15 @@ import React from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useTheme, Text, Button, Switch, Divider } from 'react-native-paper';
 import { useForm, Controller, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Event } from '../../lib/types';
-import { eventSchema, getMinimumEventDateTime } from '../../lib/schemas/eventSchema';
+import { useTranslation } from 'react-i18next';
+import { Event, Pet } from '../../lib/types';
+import {
+  eventFormSchema,
+  transformFormDataToAPI,
+  getMinimumEventDateTime,
+  type EventFormData
+} from '../../lib/schemas/eventSchema';
 import { createEventTypeOptions } from '../../constants';
 import FormInput from './FormInput';
 import FormDropdown from './FormDropdown';
@@ -17,6 +22,7 @@ interface EventFormProps {
   onCancel: () => void;
   loading?: boolean;
   initialPetId?: string;
+  pets?: Pet[];
   testID?: string;
 }
 
@@ -26,6 +32,7 @@ export function EventForm({
   onCancel,
   loading = false,
   initialPetId,
+  pets = [],
   testID,
 }: EventFormProps) {
   const { t } = useTranslation();
@@ -34,27 +41,38 @@ export function EventForm({
   // Form setup
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Default values
-  const defaultValues = React.useMemo(() => ({
-    title: event?.title || '',
-    description: event?.description || '',
-    petId: initialPetId || event?.petId || '',
-    type: event?.type || 'other',
-    startTime: event?.startTime ? event.startTime.slice(0, 16) : getMinimumEventDateTime(),
-    endTime: event?.endTime ? event.endTime.slice(0, 16) : '',
-    location: event?.location || '',
-    reminder: event?.reminder || false,
-    notes: event?.notes || '',
-  }), [event, initialPetId]);
+  // Default values - parse datetime for date/time pickers
+  const defaultValues = React.useMemo((): EventFormData => {
+    const startDateTime = event?.startTime ? event.startTime.slice(0, 16) : getMinimumEventDateTime();
+    const endDateTime = event?.endTime ? event.endTime.slice(0, 16) : '';
 
-  // React Hook Form setup
+    // Split datetime into date and time parts
+    const [startDate, startTime] = startDateTime.split('T');
+    const [endDate, endTime] = endDateTime ? endDateTime.split('T') : ['', ''];
+
+    return {
+      title: event?.title || '',
+      description: event?.description || '',
+      petId: initialPetId || event?.petId || '',
+      type: event?.type || 'other',
+      startDate,
+      startTime,
+      endDate: endDate || undefined,
+      endTime: endTime || undefined,
+      location: event?.location || undefined,
+      reminder: event?.reminder ?? false,
+      notes: event?.notes || undefined,
+    };
+  }, [event, initialPetId]);
+
+  // React Hook Form setup with Zod validation
   const {
     control,
     handleSubmit,
-    formState: { isValid, isDirty },
+    formState: { isDirty, errors },
     setError,
-  } = useForm({
-    resolver: zodResolver(eventSchema),
+  } = useForm<EventFormData>({
+    resolver: zodResolver(eventFormSchema),
     defaultValues,
     mode: 'onChange',
   });
@@ -69,11 +87,14 @@ export function EventForm({
     [t]
   );
 
-  // Pet options (mock data for now - should be replaced with actual pet data)
-  const petOptions = React.useMemo(() => [
-    { value: 'pet1', label: 'Fluffy (Kedi)' },
-    { value: 'pet2', label: 'Buddy (Köpek)' },
-  ], []);
+  // Pet options from real pet data
+  const petOptions = React.useMemo(() =>
+    pets.map(pet => ({
+      value: pet.id,
+      label: `${pet.name} (${pet.type})`,
+    })),
+    [pets]
+  );
 
   // Get selected pet details
   const selectedPet = React.useMemo(() =>
@@ -105,25 +126,17 @@ export function EventForm({
   };
 
   // Handle form submission
-  const onFormSubmit = React.useCallback(async (data: any) => {
+  const onFormSubmit = React.useCallback(async (data: EventFormData) => {
     try {
       setIsSubmitting(true);
       console.log('Event form submitting:', data);
 
-      // Additional validation for endTime
-      if (data.endTime && data.startTime) {
-        const startDate = new Date(data.startTime);
-        const endDate = new Date(data.endTime);
+      // Transform form data to API format with ISO datetime strings
+      const submitData = transformFormDataToAPI(data);
 
-        if (endDate <= startDate) {
-          setError('endTime', {
-            message: 'Bitiş zamanı başlangıçtan sonra olmalıdır',
-          });
-          return;
-        }
-      }
+      console.log('Transformed data for API:', submitData);
 
-      await onSubmit(data);
+      await onSubmit(submitData);
     } catch (error) {
       console.error('Event form submission error:', error);
       Alert.alert(
@@ -133,7 +146,7 @@ export function EventForm({
     } finally {
       setIsSubmitting(false);
     }
-  }, [onSubmit, setError]);
+  }, [onSubmit]);
 
   // Form actions
   const handleCancel = React.useCallback(() => {
@@ -238,7 +251,7 @@ export function EventForm({
         {/* Date and Time */}
         <FormDateTimePicker
           control={control}
-          dateName="startTime"
+          dateName="startDate"
           timeName="startTime"
           label="Başlangıç Tarihi ve Saati"
           required
@@ -248,7 +261,7 @@ export function EventForm({
         {/* End Date and Time (Optional) */}
         <FormDateTimePicker
           control={control}
-          dateName="endTime"
+          dateName="endDate"
           timeName="endTime"
           label="Bitiş Tarihi ve Saati"
           testID="event-end-datetime"
@@ -325,7 +338,7 @@ export function EventForm({
           <Button
             mode="contained"
             onPress={handleSubmit(onFormSubmit)}
-            disabled={!isValid || loading || isSubmitting}
+            disabled={loading || isSubmitting}
             loading={isSubmitting}
             style={styles.submitButton}
             testID="event-submit-button"

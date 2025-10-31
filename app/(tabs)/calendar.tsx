@@ -8,6 +8,7 @@ import { CalendarHeader, CalendarViewType } from '@/components/calendar/Calendar
 import { MonthView } from '@/components/calendar/MonthView';
 import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
+import { EventModal } from '@/components/EventModal';
 import { useUpcomingEvents } from '@/lib/hooks/useEvents';
 import { Event } from '@/lib/types';
 
@@ -19,6 +20,7 @@ export default function CalendarScreen() {
   const [viewType, setViewType] = useState<CalendarViewType>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // Fetch events
   const { data: events = [], isLoading, error } = useUpcomingEvents();
@@ -73,8 +75,12 @@ export default function CalendarScreen() {
   };
 
   const handleAddEvent = () => {
-    console.log('Add event');
-    // TODO: Open event creation modal/screen
+    setModalVisible(true);
+  };
+
+  const handleModalSuccess = () => {
+    // React Query handles cache invalidation automatically
+    setModalVisible(false);
   };
 
   // Render content based on view type
@@ -171,6 +177,14 @@ export default function CalendarScreen() {
         onPress={handleAddEvent}
         label={t('calendar.addEvent')}
         testID="calendar-add-event-fab"
+      />
+
+      {/* Event Creation Modal */}
+      <EventModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSuccess={handleModalSuccess}
+        testID="calendar-event-modal"
       />
     </SafeAreaView>
   );
