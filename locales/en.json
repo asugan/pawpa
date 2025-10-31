@@ -62,7 +62,13 @@
     "upcomingEvents": "Upcoming Events",
     "noEvents": "No events scheduled",
     "today": "Today",
-    "addEvent": "Add Event"
+    "addEvent": "Add Event",
+    "noEventsToday": "No events scheduled for today",
+    "views": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    }
   },
   "events": {
     "today": "Today",
@@ -112,6 +118,9 @@
     "yes": "Yes",
     "no": "No",
     "ok": "OK"
+  },
+  "errors": {
+    "loadingFailed": "Loading Failed"
   },
   "petTypes": {
     "dog": "Dog",

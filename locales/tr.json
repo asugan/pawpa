@@ -62,7 +62,13 @@
     "upcomingEvents": "Yaklaşan Etkinlikler",
     "noEvents": "Planlanmış etkinlik yok",
     "today": "Bugün",
-    "addEvent": "Etkinlik Ekle"
+    "addEvent": "Etkinlik Ekle",
+    "noEventsToday": "Bugün için planlanmış etkinlik yok",
+    "views": {
+      "month": "Ay",
+      "week": "Hafta",
+      "day": "Gün"
+    }
   },
   "events": {
     "today": "Bugün",
@@ -112,6 +118,9 @@
     "yes": "Evet",
     "no": "Hayır",
     "ok": "Tamam"
+  },
+  "errors": {
+    "loadingFailed": "Yükleme Başarısız"
   },
   "petTypes": {
     "dog": "Köpek",
