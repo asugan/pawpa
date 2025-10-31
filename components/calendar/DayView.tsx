@@ -4,9 +4,7 @@ import { useTheme, Text, Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import {
   format,
-  isSameDay,
   differenceInMinutes,
-  startOfDay,
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
@@ -19,8 +17,8 @@ interface DayViewProps {
 }
 
 const HOUR_HEIGHT = 80; // Height for each hour slot (larger than WeekView)
-const HOURS_START = 6; // Start at 6 AM
-const HOURS_END = 23; // End at 11 PM
+const HOURS_START = 0; // Start at midnight (00:00)
+const HOURS_END = 23; // End at 11 PM (23:59)
 const TOTAL_HOURS = HOURS_END - HOURS_START + 1;
 
 export function DayView({
@@ -36,20 +34,37 @@ export function DayView({
 
   // Filter events for the current day
   const dayEvents = useMemo(() => {
-    return events
+    console.log('🔍 DayView Filter Debug:');
+    console.log('  currentDate:', currentDate);
+    console.log('  total events:', events.length);
+
+    // Extract UTC date portion to avoid timezone conversion issues
+    const currentDateStr = currentDate.toISOString().substring(0, 10);
+    console.log('  currentDateStr:', currentDateStr);
+
+    const filtered = events
       .filter((event) => {
-        const eventDate = new Date(event.startTime);
-        return isSameDay(eventDate, currentDate);
+        // Extract date portion from event startTime (ISO string)
+        const eventDateStr = event.startTime.substring(0, 10);
+        const matches = eventDateStr === currentDateStr;
+        console.log(`  Event "${event.title}": startTime=${event.startTime}, eventDateStr=${eventDateStr}, matches=${matches}`);
+        return matches;
       })
       .sort((a, b) => {
         return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
       });
+
+    console.log('  ✅ Filtered events:', filtered.length);
+    return filtered;
   }, [events, currentDate]);
 
   // Scroll to current time on mount (if viewing today)
   useEffect(() => {
     const now = new Date();
-    if (!isSameDay(now, currentDate)) return;
+    // Check if currentDate is today using UTC date comparison
+    const nowStr = now.toISOString().substring(0, 10);
+    const currentDateStr = currentDate.toISOString().substring(0, 10);
+    if (nowStr !== currentDateStr) return;
 
     const currentHour = now.getHours();
     const currentMinutes = now.getMinutes();
@@ -95,7 +110,10 @@ export function DayView({
   // Render current time indicator
   const renderCurrentTimeIndicator = () => {
     const now = new Date();
-    if (!isSameDay(now, currentDate)) return null;
+    // Check if currentDate is today using UTC date comparison
+    const nowStr = now.toISOString().substring(0, 10);
+    const currentDateStr = currentDate.toISOString().substring(0, 10);
+    if (nowStr !== currentDateStr) return null;
 
     const currentHour = now.getHours();
     const currentMinutes = now.getMinutes();

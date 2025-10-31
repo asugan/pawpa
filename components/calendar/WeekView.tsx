@@ -7,10 +7,8 @@ import {
   endOfWeek,
   eachDayOfInterval,
   format,
-  isSameDay,
   isToday,
   differenceInMinutes,
-  startOfDay,
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
@@ -24,9 +22,10 @@ interface WeekViewProps {
 
 const { width, height } = Dimensions.get('window');
 const HOUR_HEIGHT = 60; // Height for each hour slot
-const DAY_WIDTH = width - 60; // Width for day column (minus time labels)
-const HOURS_START = 6; // Start at 6 AM
-const HOURS_END = 23; // End at 11 PM
+const TIME_LABEL_WIDTH = 50; // Width for time labels column
+const DAY_WIDTH = (width - TIME_LABEL_WIDTH) / 7; // Divide remaining width by 7 days
+const HOURS_START = 0; // Start at midnight (00:00)
+const HOURS_END = 23; // End at 11 PM (23:59)
 const TOTAL_HOURS = HOURS_END - HOURS_START + 1;
 
 export function WeekView({
@@ -66,10 +65,22 @@ export function WeekView({
 
   // Get events for a specific day
   const getEventsForDay = (day: Date) => {
-    return events.filter((event) => {
-      const eventDate = new Date(event.startTime);
-      return isSameDay(eventDate, day);
+    // Extract UTC date portion to avoid timezone conversion issues
+    const dayStr = day.toISOString().substring(0, 10);
+
+    const filtered = events.filter((event) => {
+      // Extract date portion from event startTime (ISO string)
+      const eventDateStr = event.startTime.substring(0, 10);
+      const matches = eventDateStr === dayStr;
+      if (events.length > 0) {
+        console.log(`🔍 WeekView Day ${dayStr}: Event "${event.title}" eventDateStr=${eventDateStr}, matches=${matches}`);
+      }
+      return matches;
     });
+    if (events.length > 0) {
+      console.log(`  WeekView ${dayStr}: ${filtered.length} events matched`);
+    }
+    return filtered;
   };
 
   // Calculate event position and size
@@ -159,144 +170,144 @@ export function WeekView({
     );
   };
 
-  // Render a single day column
-  const renderDayColumn = (day: Date) => {
-    const dayEvents = getEventsForDay(day);
-    const isTodayDate = isToday(day);
-
-    return (
-      <View key={day.toISOString()} style={styles.dayColumn}>
-        {/* Day Header */}
-        <View
-          style={[
-            styles.dayHeader,
-            {
-              backgroundColor: isTodayDate
-                ? theme.colors.primaryContainer
-                : theme.colors.surface,
-            },
-          ]}
-        >
-          <Text
-            variant="labelSmall"
-            style={[
-              styles.dayName,
-              {
-                color: isTodayDate
-                  ? theme.colors.primary
-                  : theme.colors.onSurfaceVariant,
-              },
-            ]}
-          >
-            {format(day, 'EEE', { locale }).toUpperCase()}
-          </Text>
-          <Text
-            variant="titleMedium"
-            style={[
-              styles.dayNumber,
-              {
-                color: isTodayDate
-                  ? theme.colors.primary
-                  : theme.colors.onSurface,
-                fontWeight: isTodayDate ? '700' : '600',
-              },
-            ]}
-          >
-            {format(day, 'd')}
-          </Text>
-        </View>
-
-        {/* Time Grid */}
-        <View style={styles.timeGrid}>
-          {/* Hour Lines */}
-          {Array.from({ length: TOTAL_HOURS }).map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.hourLine,
-                {
-                  height: HOUR_HEIGHT,
-                  borderBottomWidth: 1,
-                  borderBottomColor: theme.colors.outlineVariant,
-                },
-              ]}
-            />
-          ))}
-
-          {/* Events */}
-          {dayEvents.map((event) => {
-            const style = getEventStyle(event);
-            const eventColor = getEventColor(event.type);
-
-            return (
-              <Pressable
-                key={event.id}
-                style={[
-                  styles.eventBlock,
-                  {
-                    top: style.top,
-                    height: style.height,
-                    backgroundColor: eventColor,
-                    borderLeftColor: darkenColor(eventColor, 20),
-                  },
-                ]}
-                onPress={() => onEventPress?.(event)}
-                testID={`${testID}-event-${event.id}`}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={styles.eventTitle}
-                  numberOfLines={2}
-                >
-                  {event.title}
-                </Text>
-                <Text
-                  variant="labelSmall"
-                  style={styles.eventTime}
-                  numberOfLines={1}
-                >
-                  {format(new Date(event.startTime), 'HH:mm')}
-                </Text>
-              </Pressable>
-            );
-          })}
-
-          {/* Current Time Indicator */}
-          {isTodayDate && renderCurrentTimeIndicator()}
-        </View>
-      </View>
-    );
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
-      <View style={styles.content}>
-        {/* Time Labels Column */}
-        <View style={styles.timeLabelsColumn}>
-          <View style={styles.timeLabelsHeader} />
-          <ScrollView
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          >
-            {renderTimeLabels()}
-          </ScrollView>
-        </View>
-
-        {/* Days Scroll View */}
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.daysScrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-          >
-            {weekDays.map((day) => renderDayColumn(day))}
-          </ScrollView>
-        </ScrollView>
+      {/* Week Day Headers */}
+      <View style={styles.headerRow}>
+        <View style={[styles.timeLabelsHeader, { width: TIME_LABEL_WIDTH }]} />
+        {weekDays.map((day) => {
+          const isTodayDate = isToday(day);
+          return (
+            <View
+              key={day.toISOString()}
+              style={[
+                styles.dayHeaderCell,
+                {
+                  width: DAY_WIDTH,
+                  backgroundColor: isTodayDate
+                    ? theme.colors.primaryContainer
+                    : theme.colors.surface,
+                },
+              ]}
+            >
+              <Text
+                variant="labelSmall"
+                style={[
+                  styles.dayName,
+                  {
+                    color: isTodayDate
+                      ? theme.colors.primary
+                      : theme.colors.onSurfaceVariant,
+                  },
+                ]}
+              >
+                {format(day, 'EEE', { locale }).toUpperCase()}
+              </Text>
+              <Text
+                variant="titleSmall"
+                style={[
+                  styles.dayNumber,
+                  {
+                    color: isTodayDate
+                      ? theme.colors.primary
+                      : theme.colors.onSurface,
+                    fontWeight: isTodayDate ? '700' : '600',
+                  },
+                ]}
+              >
+                {format(day, 'd')}
+              </Text>
+            </View>
+          );
+        })}
       </View>
+
+      {/* Scrollable Content */}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.weekContent}>
+          {/* Time Labels Column */}
+          <View style={[styles.timeLabelsColumn, { width: TIME_LABEL_WIDTH }]}>
+            {renderTimeLabels()}
+          </View>
+
+          {/* Week Days Grid */}
+          <View style={styles.daysContainer}>
+            {weekDays.map((day) => {
+              const dayEvents = getEventsForDay(day);
+              const isTodayDate = isToday(day);
+
+              return (
+                <View key={day.toISOString()} style={[styles.dayColumn, { width: DAY_WIDTH }]}>
+                  {/* Time Grid */}
+                  <View style={styles.timeGrid}>
+                    {/* Hour Lines */}
+                    {Array.from({ length: TOTAL_HOURS }).map((_, index) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles.hourLine,
+                          {
+                            height: HOUR_HEIGHT,
+                            borderBottomWidth: 1,
+                            borderBottomColor: theme.colors.outlineVariant,
+                          },
+                        ]}
+                      />
+                    ))}
+
+                    {/* Events */}
+                    {dayEvents.map((event) => {
+                      const style = getEventStyle(event);
+                      const eventColor = getEventColor(event.type);
+
+                      return (
+                        <Pressable
+                          key={event.id}
+                          style={[
+                            styles.eventBlock,
+                            {
+                              top: style.top,
+                              height: style.height,
+                              backgroundColor: eventColor,
+                              borderLeftColor: darkenColor(eventColor, 20),
+                            },
+                          ]}
+                          onPress={() => onEventPress?.(event)}
+                          testID={`${testID}-event-${event.id}`}
+                        >
+                          <Text
+                            variant="labelSmall"
+                            style={styles.eventTitle}
+                            numberOfLines={2}
+                          >
+                            {event.title}
+                          </Text>
+                          {style.height > 30 && (
+                            <Text
+                              variant="labelSmall"
+                              style={styles.eventTime}
+                              numberOfLines={1}
+                            >
+                              {format(new Date(event.startTime), 'HH:mm')}
+                            </Text>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+
+                    {/* Current Time Indicator */}
+                    {isTodayDate && renderCurrentTimeIndicator()}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -341,46 +352,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    flex: 1,
+  headerRow: {
     flexDirection: 'row',
-  },
-  timeLabelsColumn: {
-    width: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   timeLabelsHeader: {
-    height: 60,
+    height: 50,
   },
-  timeLabel: {
-    paddingTop: 4,
-    paddingRight: 8,
-    alignItems: 'flex-end',
-    borderBottomWidth: 1,
-  },
-  timeLabelText: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  daysScrollView: {
-    flex: 1,
-  },
-  dayColumn: {
-    width: DAY_WIDTH,
-  },
-  dayHeader: {
-    height: 60,
+  dayHeaderCell: {
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(0, 0, 0, 0.05)',
   },
   dayName: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     marginBottom: 2,
   },
   dayNumber: {
-    fontSize: 18,
+    fontSize: 14,
+  },
+  scrollContent: {
+    flex: 1,
+  },
+  weekContent: {
+    flexDirection: 'row',
+  },
+  timeLabelsColumn: {
+    // Width set dynamically
+  },
+  timeLabel: {
+    height: HOUR_HEIGHT,
+    paddingTop: 4,
+    paddingRight: 4,
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+  },
+  timeLabelText: {
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  daysContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  dayColumn: {
+    // Width set dynamically
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(0, 0, 0, 0.05)',
   },
   timeGrid: {
     position: 'relative',
@@ -390,31 +412,31 @@ const styles = StyleSheet.create({
   },
   eventBlock: {
     position: 'absolute',
-    left: 4,
-    right: 4,
-    borderRadius: 4,
-    padding: 4,
-    borderLeftWidth: 3,
+    left: 2,
+    right: 2,
+    borderRadius: 3,
+    padding: 2,
+    borderLeftWidth: 2,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 1,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOpacity: 0.18,
+    shadowRadius: 1.5,
   },
   eventTitle: {
     fontWeight: '600',
     color: '#000',
-    fontSize: 11,
+    fontSize: 9,
   },
   eventTime: {
     color: '#000',
     opacity: 0.7,
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: 8,
+    marginTop: 1,
   },
   currentTimeLine: {
     position: 'absolute',

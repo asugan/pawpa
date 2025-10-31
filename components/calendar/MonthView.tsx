@@ -11,7 +11,6 @@ import {
   format,
   isSameMonth,
   isToday,
-  isSameDay,
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
@@ -50,9 +49,12 @@ export function MonthView({
 
   // Get events for a specific day
   const getEventsForDay = (day: Date) => {
+    // Extract UTC date portion to avoid timezone conversion issues
+    const dayStr = day.toISOString().substring(0, 10);
     return events.filter((event) => {
-      const eventDate = new Date(event.startTime);
-      return isSameDay(eventDate, day);
+      // Extract date portion from event startTime (ISO string)
+      const eventDateStr = event.startTime.substring(0, 10);
+      return eventDateStr === dayStr;
     });
   };
 
@@ -73,7 +75,8 @@ export function MonthView({
     const dayEvents = getEventsForDay(day);
     const isCurrentMonth = isSameMonth(day, currentDate);
     const isTodayDate = isToday(day);
-    const isSelected = selectedDate && isSameDay(day, selectedDate);
+    // Check if selected using UTC date comparison
+    const isSelected = selectedDate && day.toISOString().substring(0, 10) === selectedDate.toISOString().substring(0, 10);
     const hasEvents = dayEvents.length > 0;
 
     const dayNumber = format(day, 'd');

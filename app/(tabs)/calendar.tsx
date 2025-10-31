@@ -3,13 +3,13 @@ import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, FAB, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
+import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from 'date-fns';
 import { CalendarHeader, CalendarViewType } from '@/components/calendar/CalendarHeader';
 import { MonthView } from '@/components/calendar/MonthView';
 import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
 import { EventModal } from '@/components/EventModal';
-import { useUpcomingEvents } from '@/lib/hooks/useEvents';
+import { useUpcomingEvents, useCalendarEvents } from '@/lib/hooks/useEvents';
 import { Event } from '@/lib/types';
 
 export default function CalendarScreen() {
@@ -22,8 +22,30 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Fetch events
-  const { data: events = [], isLoading, error } = useUpcomingEvents();
+  // Fetch events based on view type
+  // For month view: use upcoming events
+  // For day view: fetch specific date events
+  const { data: upcomingEvents = [], isLoading: isLoadingUpcoming, error: errorUpcoming } = useUpcomingEvents();
+
+  // Fetch events for specific date when in day view
+  // Extract UTC date portion to avoid timezone conversion issues
+  const formattedDate = currentDate ? currentDate.toISOString().substring(0, 10) : '';
+  const { data: dayEvents = [], isLoading: isLoadingDay, error: errorDay } = useCalendarEvents(formattedDate, {
+    enabled: viewType === 'day',
+  });
+
+  // Determine which events to use based on view type
+  const events = viewType === 'day' ? dayEvents : upcomingEvents;
+  const isLoading = viewType === 'day' ? isLoadingDay : isLoadingUpcoming;
+  const error = viewType === 'day' ? errorDay : errorUpcoming;
+
+  // Debug logging
+  console.log(`📅 Calendar View: ${viewType}`);
+  console.log(`  currentDate: ${currentDate.toISOString()}`);
+  console.log(`  formattedDate: ${formattedDate}`);
+  console.log(`  upcomingEvents: ${upcomingEvents.length}`);
+  console.log(`  dayEvents: ${dayEvents.length}`);
+  console.log(`  events (used): ${events.length}`);
 
   // Navigation handlers
   const handlePrevious = () => {

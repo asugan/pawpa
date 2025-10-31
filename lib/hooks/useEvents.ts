@@ -34,12 +34,12 @@ export const useEvent = (id: string) => {
   });
 };
 
-export const useCalendarEvents = (date: string) => {
+export const useCalendarEvents = (date: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: eventKeys.calendar(date),
     queryFn: () => eventService.getEventsByDate(date).then(res => res.data || []),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!date,
+    enabled: options?.enabled !== undefined ? (options.enabled && !!date) : !!date,
   });
 };
 
