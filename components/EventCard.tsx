@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useTheme, Text, IconButton, Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { format, isToday, isTomorrow, isYesterday, formatDistanceToNow } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../lib/types';
@@ -30,6 +31,7 @@ export function EventCard({
 }: EventCardProps) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Format event date and time
@@ -72,8 +74,13 @@ export function EventCard({
   const eventTypeLabel = getEventTypeLabel(event.type, t);
 
   const handlePress = React.useCallback(() => {
-    onPress?.(event);
-  }, [onPress, event]);
+    // If custom onPress is provided, use it; otherwise navigate to detail page
+    if (onPress) {
+      onPress(event);
+    } else {
+      router.push(`/event/${event.id}`);
+    }
+  }, [onPress, event, router]);
 
   const handleEdit = React.useCallback((e: any) => {
     e.stopPropagation();

@@ -231,7 +231,7 @@ export default function HomeScreen() {
                 styles.quickActionButton,
                 { backgroundColor: theme.colors.tertiaryContainer },
               ]}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/(tabs)/calendar")}
             >
               <MaterialCommunityIcons
                 name="calendar-plus"

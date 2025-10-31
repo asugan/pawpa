@@ -73,7 +73,47 @@
   "events": {
     "today": "Bugün",
     "addEvent": "Etkinlik Ekle",
-    "forPet": "Pet için"
+    "forPet": "Pet için",
+    "eventDetails": "Etkinlik Detayları",
+    "eventNotFound": "Etkinlik bulunamadı",
+    "deleteEvent": "Etkinliği Sil",
+    "deleteEventConfirmation": "\"{{title}}\" etkinliğini silmek istediğinizden emin misiniz?",
+    "eventDeleted": "Etkinlik başarıyla silindi",
+    "deleteEventError": "Etkinlik silinirken bir hata oluştu",
+    "copy": "Kopya",
+    "eventDuplicated": "Etkinlik kopyalandı",
+    "duplicateEventError": "Etkinlik kopyalanırken bir hata oluştu",
+    "duplicate": "Kopyala",
+    "sharedFrom": "PawPa ile paylaşıldı",
+    "dateAndTime": "Tarih ve Saat",
+    "date": "Tarih",
+    "time": "Saat",
+    "pet": "Evcil Dost",
+    "location": "Konum",
+    "noLocation": "Konum belirtilmemiş",
+    "reminder": "Hatırlatıcı",
+    "reminderEnabled": "Hatırlatıcı aktif",
+    "notes": "Notlar",
+    "status": "Durum",
+    "statusUpcoming": "Yaklaşan",
+    "statusCompleted": "Tamamlandı",
+    "statusCancelled": "İptal Edildi",
+    "viewPetProfile": "Pet Profilini Görüntüle",
+    "noUpcomingEvents": "Yaklaşan etkinlik yok"
+  },
+  "notifications": {
+    "enableTitle": "Bildirimleri Etkinleştir",
+    "enableDescription": "Önemli pet bakım hatırlatmalarını kaçırmayın",
+    "enablePrompt": "Pet bakım hatırlatmaları almak için bildirimleri etkinleştirin",
+    "benefit1": "Zamanında besleme ve aktivite hatırlatmaları",
+    "benefit2": "Veteriner randevuları ve aşı hatırlatmaları",
+    "benefit3": "İlaç zamanı ve günlük bakım bildirimleri",
+    "enable": "Etkinleştir",
+    "enabled": "Bildirimler Aktif",
+    "enabledDescription": "Pet bakım hatırlatmaları alacaksınız",
+    "disabled": "Bildirimler Devre Dışı",
+    "disabledDescription": "Ayarlardan bildirimleri etkinleştirin",
+    "openSettings": "Ayarları Aç"
   },
   "settings": {
     "appearance": "Görünüm",
@@ -117,7 +157,12 @@
     "confirm": "Onayla",
     "yes": "Evet",
     "no": "Hayır",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "edit": "Düzenle",
+    "share": "Paylaş",
+    "goBack": "Geri Dön",
+    "created": "Oluşturulma",
+    "updated": "Güncellenme"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"

@@ -20,19 +20,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Pet } from '../../lib/types';
 import { usePet, useDeletePet } from '../../lib/hooks/usePets';
+import { useEvents } from '../../lib/hooks/useEvents';
 import PetModal from '../../components/PetModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { EventCard } from '../../components/EventCard';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
+import { tr, enUS } from 'date-fns/locale';
 
 export default function PetDetailScreen() {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   // ✅ React Query hooks for server state
   const { data: pet, isLoading, error } = usePet(id || '');
+  const { data: events, isLoading: eventsLoading } = useEvents(id || '');
   const deletePetMutation = useDeletePet();
+  const locale = i18n.language === 'tr' ? tr : enUS;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -294,6 +300,48 @@ export default function PetDetailScreen() {
           </Card.Content>
         </Card>
 
+        {/* Upcoming Events Section */}
+        {!eventsLoading && events && events.length > 0 && (
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+            <Card.Content>
+              <View style={styles.sectionHeader}>
+                <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                  📅 Yaklaşan Etkinlikler
+                </Text>
+                <Button
+                  mode="text"
+                  onPress={() => router.push('/(tabs)/calendar')}
+                  compact
+                  textColor={theme.colors.primary}
+                >
+                  {t('common.viewAll')}
+                </Button>
+              </View>
+
+              {/* Show first 3 upcoming events */}
+              {events
+                .filter(event => new Date(event.startTime) >= new Date())
+                .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                .slice(0, 3)
+                .map(event => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    showPetInfo={false}
+                    showActions={false}
+                    compact
+                  />
+                ))}
+
+              {events.filter(event => new Date(event.startTime) >= new Date()).length === 0 && (
+                <Text variant="bodyMedium" style={[styles.noEventsText, { color: theme.colors.onSurfaceVariant }]}>
+                  {t('events.noUpcomingEvents')}
+                </Text>
+              )}
+            </Card.Content>
+          </Card>
+        )}
+
         {/* Quick Actions */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
@@ -303,30 +351,34 @@ export default function PetDetailScreen() {
 
             <View style={styles.quickActions}>
               <Button
+                mode="contained"
+                icon="calendar-plus"
+                onPress={() => router.push({
+                  pathname: '/(tabs)/calendar',
+                  params: { petId: pet.id, action: 'create' }
+                })}
+                style={styles.quickActionButton}
+                buttonColor={theme.colors.primary}
+              >
+                {t('events.addEvent')}
+              </Button>
+
+              <Button
                 mode="outlined"
                 icon="calendar"
-                onPress={() => router.push(`/calendar?petId=${pet.id}`)}
+                onPress={() => router.push('/(tabs)/calendar')}
                 style={styles.quickActionButton}
               >
-                Takvim
+                {t('calendar.calendar')}
               </Button>
 
               <Button
                 mode="outlined"
                 icon="heart"
-                onPress={() => router.push(`/health?petId=${pet.id}`)}
+                onPress={() => router.push('/(tabs)/health')}
                 style={styles.quickActionButton}
               >
-                Sağlık
-              </Button>
-
-              <Button
-                mode="outlined"
-                icon="food"
-                onPress={() => router.push(`/feeding` as any, { query: { petId: pet.id } } as any)}
-                style={styles.quickActionButton}
-              >
-                Beslenme
+                {t('health.healthRecords')}
               </Button>
             </View>
           </Card.Content>
@@ -411,9 +463,20 @@ const styles = StyleSheet.create({
   petBreed: {
     fontStyle: 'italic',
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   sectionTitle: {
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 0,
+  },
+  noEventsText: {
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginVertical: 16,
   },
   infoRow: {
     flexDirection: 'row',

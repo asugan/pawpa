@@ -73,7 +73,47 @@
   "events": {
     "today": "Today",
     "addEvent": "Add Event",
-    "forPet": "For pet"
+    "forPet": "For pet",
+    "eventDetails": "Event Details",
+    "eventNotFound": "Event not found",
+    "deleteEvent": "Delete Event",
+    "deleteEventConfirmation": "Are you sure you want to delete \"{{title}}\"?",
+    "eventDeleted": "Event deleted successfully",
+    "deleteEventError": "Error deleting event",
+    "copy": "Copy",
+    "eventDuplicated": "Event duplicated",
+    "duplicateEventError": "Error duplicating event",
+    "duplicate": "Duplicate",
+    "sharedFrom": "Shared from PawPa",
+    "dateAndTime": "Date & Time",
+    "date": "Date",
+    "time": "Time",
+    "pet": "Pet",
+    "location": "Location",
+    "noLocation": "No location specified",
+    "reminder": "Reminder",
+    "reminderEnabled": "Reminder enabled",
+    "notes": "Notes",
+    "status": "Status",
+    "statusUpcoming": "Upcoming",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "viewPetProfile": "View Pet Profile",
+    "noUpcomingEvents": "No upcoming events"
+  },
+  "notifications": {
+    "enableTitle": "Enable Notifications",
+    "enableDescription": "Never miss important pet care reminders",
+    "enablePrompt": "Enable notifications to receive pet care reminders",
+    "benefit1": "Timely feeding and activity reminders",
+    "benefit2": "Vet appointments and vaccination alerts",
+    "benefit3": "Medication times and daily care notifications",
+    "enable": "Enable",
+    "enabled": "Notifications Enabled",
+    "enabledDescription": "You'll receive pet care reminders",
+    "disabled": "Notifications Disabled",
+    "disabledDescription": "Enable notifications in settings",
+    "openSettings": "Open Settings"
   },
   "settings": {
     "appearance": "Appearance",
@@ -117,7 +157,12 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "ok": "OK"
+    "ok": "OK",
+    "edit": "Edit",
+    "share": "Share",
+    "goBack": "Go Back",
+    "created": "Created",
+    "updated": "Updated"
   },
   "errors": {
     "loadingFailed": "Loading Failed"

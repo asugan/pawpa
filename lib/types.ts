@@ -99,7 +99,7 @@ export type CreateHealthRecordInput = Omit<
 >;
 export type UpdateHealthRecordInput = Partial<CreateHealthRecordInput>;
 
-export type CreateEventInput = Omit<Event, "id" | "createdAt" | "pet">;
+export type CreateEventInput = Omit<Event, "id" | "createdAt" | "updatedAt">;
 export type UpdateEventInput = Partial<CreateEventInput>;
 
 export type CreateFeedingScheduleInput = Omit<
