@@ -131,7 +131,7 @@ export const createHealthRecordTypeOptions = (t: (key: string, defaultValue?: st
     label: t(type, type),
   }));
 
-export const createEventTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+export const createEventTypeOptions = (t: any) =>
   Object.values(EVENT_TYPES).map(type => ({
     value: type,
     label: t(type, type),
