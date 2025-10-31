@@ -17,6 +17,7 @@ interface FormDateTimePickerProps<T extends FieldValues> {
   disabled?: boolean;
   testID?: string;
   minuteInterval?: number;
+  mode?: 'past' | 'future'; // 'past' for historical dates, 'future' for upcoming events
 }
 
 export function FormDateTimePicker<T extends FieldValues>({
@@ -28,6 +29,7 @@ export function FormDateTimePicker<T extends FieldValues>({
   disabled = false,
   testID,
   minuteInterval = 15,
+  mode = 'future',
 }: FormDateTimePickerProps<T>) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -82,6 +84,7 @@ export function FormDateTimePicker<T extends FieldValues>({
             required={required}
             disabled={disabled}
             testID={`${testID}-date`}
+            mode={mode}
           />
         </View>
 

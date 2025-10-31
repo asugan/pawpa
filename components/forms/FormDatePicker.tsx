@@ -14,6 +14,7 @@ interface FormDatePickerProps<T extends FieldValues> {
   disabled?: boolean;
   placeholder?: string;
   testID?: string;
+  mode?: 'past' | 'future'; // 'past' for historical dates, 'future' for upcoming events
 }
 
 export function FormDatePicker<T extends FieldValues>({
@@ -24,23 +25,27 @@ export function FormDatePicker<T extends FieldValues>({
   disabled = false,
   placeholder,
   testID,
+  mode = 'past',
 }: FormDatePickerProps<T>) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [tempDate, setTempDate] = React.useState(new Date());
 
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return '';
+  const formatDate = (dateValue: string | Date | undefined) => {
+    if (!dateValue) return '';
     const locale = i18n.language === 'tr' ? tr : enUS;
+    // Convert string to Date if needed
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
     return format(date, 'dd MMMM yyyy', { locale });
   };
 
-  const handleDateSelect = (onChange: (date: Date) => void, currentValue?: Date) => {
+  const handleDateSelect = (onChange: (date: string) => void, currentValue?: string) => {
     const now = new Date();
 
-    // Simple date selection using modal
-    setTempDate(currentValue || now);
+    // Convert string value to Date if provided
+    const initialDate = currentValue ? new Date(currentValue) : now;
+    setTempDate(initialDate);
     setModalVisible(true);
   };
 
@@ -48,12 +53,23 @@ export function FormDatePicker<T extends FieldValues>({
     const newDate = new Date(tempDate);
     newDate.setDate(newDate.getDate() + days);
 
-    // Don't allow future dates or dates older than 30 years
     const now = new Date();
-    const minDate = new Date(now.getFullYear() - 30, 0, 1);
 
-    if (newDate <= now && newDate >= minDate) {
-      setTempDate(newDate);
+    if (mode === 'future') {
+      // For future dates: allow from today up to 10 years in the future
+      const maxDate = new Date(now.getFullYear() + 10, 11, 31);
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      if (newDate >= todayStart && newDate <= maxDate) {
+        setTempDate(newDate);
+      }
+    } else {
+      // For past dates: don't allow future dates or dates older than 30 years
+      const minDate = new Date(now.getFullYear() - 30, 0, 1);
+
+      if (newDate <= now && newDate >= minDate) {
+        setTempDate(newDate);
+      }
     }
   };
 
@@ -148,46 +164,86 @@ export function FormDatePicker<T extends FieldValues>({
                         </View>
 
                         <View style={styles.dateControls}>
-                          <View style={styles.controlRow}>
-                            <Button
-                              mode="outlined"
-                              onPress={() => adjustDate(-365)}
-                              style={styles.controlButton}
-                            >
-                              {t('forms.datePicker.minusOneYear')}
-                            </Button>
-                            <Button
-                              mode="outlined"
-                              onPress={() => adjustDate(-30)}
-                              style={styles.controlButton}
-                            >
-                              {t('forms.datePicker.minusOneMonth')}
-                            </Button>
-                            <Button
-                              mode="outlined"
-                              onPress={() => adjustDate(-7)}
-                              style={styles.controlButton}
-                            >
-                              {t('forms.datePicker.minusOneWeek')}
-                            </Button>
-                          </View>
+                          {mode === 'past' ? (
+                            <>
+                              <View style={styles.controlRow}>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(-365)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.minusOneYear')}
+                                </Button>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(-30)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.minusOneMonth')}
+                                </Button>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(-7)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.minusOneWeek')}
+                                </Button>
+                              </View>
 
-                          <View style={styles.controlRow}>
-                            <Button
-                              mode="outlined"
-                              onPress={() => adjustDate(-1)}
-                              style={styles.controlButton}
-                            >
-                              {t('forms.datePicker.minusOneDay')}
-                            </Button>
-                            <Button
-                              mode="outlined"
-                              onPress={() => adjustDate(1)}
-                              style={styles.controlButton}
-                            >
-                              {t('forms.datePicker.plusOneDay')}
-                            </Button>
-                          </View>
+                              <View style={styles.controlRow}>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(-1)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.minusOneDay')}
+                                </Button>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(1)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.plusOneDay')}
+                                </Button>
+                              </View>
+                            </>
+                          ) : (
+                            <>
+                              <View style={styles.controlRow}>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(1)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.plusOneDay')}
+                                </Button>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(7)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.plusOneWeek')}
+                                </Button>
+                              </View>
+
+                              <View style={styles.controlRow}>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(30)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.plusOneMonth')}
+                                </Button>
+                                <Button
+                                  mode="outlined"
+                                  onPress={() => adjustDate(365)}
+                                  style={styles.controlButton}
+                                >
+                                  {t('forms.datePicker.plusOneYear')}
+                                </Button>
+                              </View>
+                            </>
+                          )}
                         </View>
 
                         <View style={styles.modalActions}>
@@ -202,7 +258,9 @@ export function FormDatePicker<T extends FieldValues>({
                             mode="contained"
                             onPress={() => {
                               console.log('Date selected:', formatDate(tempDate));
-                              field.onChange(tempDate);
+                              // Convert Date object to 'YYYY-MM-DD' string format
+                              const dateString = format(tempDate, 'yyyy-MM-dd');
+                              field.onChange(dateString);
                               setModalVisible(false);
                             }}
                             style={styles.confirmButton}

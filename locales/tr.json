@@ -198,6 +198,7 @@
     "play": "Oyun",
     "training": "Eğitim",
     "vetVisit": "Veteriner",
+    "vet_visit": "Veteriner",
     "walk": "Yürüyüş",
     "bath": "Banyo",
     "other": "Diğer"
@@ -265,7 +266,26 @@
       "minusOneMonth": "-1 Ay",
       "minusOneWeek": "-1 Hafta",
       "minusOneDay": "-1 Gün",
-      "plusOneDay": "+1 Gün"
+      "plusOneDay": "+1 Gün",
+      "plusOneWeek": "+1 Hafta",
+      "plusOneMonth": "+1 Ay",
+      "plusOneYear": "+1 Yıl"
+    },
+    "dateTimePicker": {
+      "date": "Tarih",
+      "time": "Saat",
+      "pastDateTimeWarning": "Seçilen tarih/saat geçmişte",
+      "minutesFromNow": "{{minutes}} dakika sonra",
+      "hoursFromNow": "{{hours}} saat sonra",
+      "daysFromNow": "{{days}} gün sonra"
+    },
+    "timePicker": {
+      "quickSelect": "Hızlı Seçim",
+      "now": "Şimdi",
+      "hour": "Saat",
+      "minute": "Dakika",
+      "cancel": "İptal",
+      "select": "Seç"
     },
     "photoPicker": {
       "permissionsRequired": "İzin Gerekli",

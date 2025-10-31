@@ -198,6 +198,7 @@
     "play": "Play",
     "training": "Training",
     "vetVisit": "Vet Visit",
+    "vet_visit": "Vet Visit",
     "walk": "Walk",
     "bath": "Bath",
     "other": "Other"
@@ -265,7 +266,26 @@
       "minusOneMonth": "-1 Month",
       "minusOneWeek": "-1 Week",
       "minusOneDay": "-1 Day",
-      "plusOneDay": "+1 Day"
+      "plusOneDay": "+1 Day",
+      "plusOneWeek": "+1 Week",
+      "plusOneMonth": "+1 Month",
+      "plusOneYear": "+1 Year"
+    },
+    "dateTimePicker": {
+      "date": "Date",
+      "time": "Time",
+      "pastDateTimeWarning": "Selected date/time is in the past",
+      "minutesFromNow": "{{minutes}} minutes from now",
+      "hoursFromNow": "{{hours}} hours from now",
+      "daysFromNow": "{{days}} days from now"
+    },
+    "timePicker": {
+      "quickSelect": "Quick Select",
+      "now": "Now",
+      "hour": "Hour",
+      "minute": "Minute",
+      "cancel": "Cancel",
+      "select": "Select"
     },
     "photoPicker": {
       "permissionsRequired": "Permissions Required",
