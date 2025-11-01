@@ -1,84 +1,126 @@
 import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import i18n from '../lib/i18n';
 
-export type Language = 'en' | 'tr';
+type SupportedLanguage = 'tr' | 'en' | 'ar';
 
-// Get device language or fallback to English
-const getDeviceLanguage = (): Language => {
-  // For now, default to English
-  // In a production app with Expo managed workflow, we could use
-  // Expo Localization module or ask user to select language on first launch
-  return 'en';
-};
-
-interface LanguageStore {
-  language: Language;
-  setLanguage: (language: Language) => void;
-  toggleLanguage: () => void;
-  initializeLanguage: () => void;
-  getSupportedLanguages: () => Language[];
-  getCurrentLanguageCode: () => string;
-  isLanguageSupported: (lang: string) => lang is Language;
+interface LanguageState {
+  language: SupportedLanguage;
+  isRTL: boolean;
+  hasUserExplicitlySetLanguage: boolean;
 }
 
-export const useLanguageStore = create<LanguageStore>()(
-  devtools(
-    persist(
-      (set, get) => ({
-        language: getDeviceLanguage(),
+interface LanguageActions {
+  setLanguage: (language: SupportedLanguage, isExplicit?: boolean) => void;
+  toggleLanguage: () => void;
+  initializeLanguage: () => void;
+  resetLanguage: () => void;
+  setExplicitLanguage: (language: SupportedLanguage) => void;
+}
 
-        setLanguage: (language: Language) => {
-          set({ language });
-          i18n.changeLanguage(language);
-          console.log(`🌐 Language set to: ${language}`);
-        },
+const LANGUAGE_STORAGE_KEY = 'pawpa-language';
 
-        toggleLanguage: () => {
-          const currentLanguage = get().language;
-          const newLanguage = currentLanguage === 'en' ? 'tr' : 'en';
-          set({ language: newLanguage });
-          i18n.changeLanguage(newLanguage);
-          console.log(`🌐 Language toggled to: ${newLanguage}`);
-        },
+export const useLanguageStore = create<LanguageState & LanguageActions>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      language: 'en',
+      isRTL: false,
+      hasUserExplicitlySetLanguage: false,
 
-        initializeLanguage: () => {
-          const currentLanguage = get().language;
-          // Only change i18n language if it's different from store
-          if (i18n.language !== currentLanguage) {
-            i18n.changeLanguage(currentLanguage);
-            console.log(`🌐 Language initialized to: ${currentLanguage}`);
-          }
-        },
+      // Actions
+      setLanguage: (language, isExplicit = false) => {
+        set({
+          language,
+          isRTL: language === 'ar', // For future Arabic support
+          hasUserExplicitlySetLanguage: get().hasUserExplicitlySetLanguage || isExplicit,
+        });
+        i18n.changeLanguage(language);
+      },
 
-        getSupportedLanguages: () => {
-          return ['en', 'tr'] as Language[];
-        },
+      toggleLanguage: () => {
+        const currentLanguage = get().language;
+        const newLanguage = currentLanguage === 'tr' ? 'en' : 'tr';
+        set({
+          language: newLanguage,
+          isRTL: false,
+          hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
+        });
+        i18n.changeLanguage(newLanguage);
+      },
 
-        getCurrentLanguageCode: () => {
-          return get().language;
-        },
+      initializeLanguage: () => {
+        const currentLanguage = get().language;
+        // Only change i18n language if it's different from store
+        if (i18n.language !== currentLanguage) {
+          i18n.changeLanguage(currentLanguage);
+        }
+      },
 
-        isLanguageSupported: (lang: string): lang is Language => {
-          return ['en', 'tr'].includes(lang);
-        },
-      }),
-      {
-        name: 'language-storage',
-        version: 1,
-        onRehydrateStorage: () => (state) => {
-          // Initialize language after rehydration
-          if (state) {
-            state.initializeLanguage();
-          }
-        },
-        partialize: (state) => ({
-          language: state.language,
-        }),
-      }
-    ),
+      resetLanguage: () => {
+        set({
+          language: 'en',
+          isRTL: false,
+          hasUserExplicitlySetLanguage: false,
+        });
+        i18n.changeLanguage('en');
+      },
+
+      setExplicitLanguage: (language) => {
+        set({
+          language,
+          isRTL: false,
+          hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
+        });
+        i18n.changeLanguage(language);
+      },
+    }),
     {
-      name: 'language-store',
+      name: LANGUAGE_STORAGE_KEY,
+      // Only persist essential data
+      partialize: (state) => ({
+        language: state.language,
+        hasUserExplicitlySetLanguage: state.hasUserExplicitlySetLanguage,
+      }),
+      onRehydrateStorage: () => (state) => {
+        // Initialize language after rehydration
+        if (state) {
+          state.initializeLanguage();
+        }
+      },
     }
   )
 );
+
+// Helper functions for external use
+export const getSupportedLanguages = (): SupportedLanguage[] => ['tr', 'en', 'ar'];
+
+export const isLanguageSupported = (language: string): language is SupportedLanguage => {
+  return ['tr', 'en', 'ar'].includes(language);
+};
+
+export const getLanguageDirection = (language: SupportedLanguage): 'ltr' | 'rtl' => {
+  return language === 'ar' ? 'rtl' : 'ltr'; // For future Arabic support
+};
+
+export const getLanguageDisplayName = (language: SupportedLanguage): string => {
+  const displayNames = {
+    tr: 'Türkçe',
+    en: 'English',
+    ar: 'العربية',
+  };
+  return displayNames[language] || language;
+};
+
+export const getLanguageNativeName = (language: SupportedLanguage): string => {
+  const nativeNames = {
+    tr: 'Türkçe',
+    en: 'English',
+    ar: 'العربية',
+  };
+  return nativeNames[language] || language;
+};
+
+// Export types for external components
+export type Language = SupportedLanguage;
+export type { LanguageState, LanguageActions, SupportedLanguage };

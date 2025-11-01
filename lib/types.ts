@@ -6,15 +6,19 @@ export interface ApiResponse<T = any> {
   message?: string;
 }
 
+// Pet type and gender unions
+export type PetType = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
+export type PetGender = 'male' | 'female' | 'other';
+
 // Pet types
 export interface Pet {
   id: string;
   name: string;
-  type: string;
+  type: PetType;
   breed?: string | null;
   birthDate?: string | null;
   weight?: number | null;
-  gender?: string | null;
+  gender?: PetGender | null;
   profilePhoto?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -91,11 +95,11 @@ export type UpdatePetInput = Partial<CreatePetInput>;
 
 export type CreateHealthRecordInput = Omit<
   HealthRecord,
-  "id" | "createdAt" | "pet"
+  "id" | "createdAt" | "updatedAt"
 >;
 export type UpdateHealthRecordInput = Partial<CreateHealthRecordInput>;
 
-export type CreateEventInput = Omit<Event, "id" | "createdAt" | "pet">;
+export type CreateEventInput = Omit<Event, "id" | "createdAt" | "updatedAt">;
 export type UpdateEventInput = Partial<CreateEventInput>;
 
 export type CreateFeedingScheduleInput = Omit<

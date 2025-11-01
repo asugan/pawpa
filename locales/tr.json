@@ -15,7 +15,14 @@
     "healthRecord": "Sağlık Kaydı",
     "feedingPlan": "Besleme Planı",
     "noPetsYet": "Henüz pet eklemediniz",
-    "addFirstPet": "İlk Peti Ekle"
+    "addFirstPet": "İlk Peti Ekle",
+    "myPets": "Evcil Dostlarım",
+    "healthOverview": "Sağlık Genel Bakış",
+    "todaySchedule": "Bugünkü Program",
+    "upcomingHealth": "Yaklaşan Sağlık",
+    "noHealthActivities": "Bugün planlanmış sağlık aktivitesi yok",
+    "viewMoreEvents": "+{{count}} daha fazla etkinlik",
+    "viewMoreVaccinations": "+{{count}} daha fazla aşı"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -32,6 +39,7 @@
     "cancel": "İptal",
     "update": "Güncelle",
     "add": "Ekle",
+    "addFirstPetDescription": "İlk evcil dostunuzu ekleyerek başlayın",
     "pleaseFillRequiredFields": "Lütfen zorunlu alanları doldurunuz",
     "ageUnknown": "Yaş bilinmiyor",
     "months": "ay",
@@ -44,13 +52,68 @@
     "vaccinationRecord": "Aşı Kaydı",
     "view": "Görüntüle",
     "noRecords": "Henüz sağlık kaydı yok",
-    "petNameDate": "Pet Adı • Tarih"
+    "petNameDate": "Pet Adı • Tarih",
+    "upcomingVaccinations": "Yaklaşan Aşılar",
+    "addRecord": "Sağlık Kaydı Ekle"
   },
   "calendar": {
     "calendar": "Takvim",
     "comingSoon": "Yakında gelecek",
     "upcomingEvents": "Yaklaşan Etkinlikler",
-    "noEvents": "Planlanmış etkinlik yok"
+    "noEvents": "Planlanmış etkinlik yok",
+    "today": "Bugün",
+    "addEvent": "Etkinlik Ekle",
+    "noEventsToday": "Bugün için planlanmış etkinlik yok",
+    "views": {
+      "month": "Ay",
+      "week": "Hafta",
+      "day": "Gün"
+    }
+  },
+  "events": {
+    "today": "Bugün",
+    "addEvent": "Etkinlik Ekle",
+    "forPet": "Pet için",
+    "eventDetails": "Etkinlik Detayları",
+    "eventNotFound": "Etkinlik bulunamadı",
+    "deleteEvent": "Etkinliği Sil",
+    "deleteEventConfirmation": "\"{{title}}\" etkinliğini silmek istediğinizden emin misiniz?",
+    "eventDeleted": "Etkinlik başarıyla silindi",
+    "deleteEventError": "Etkinlik silinirken bir hata oluştu",
+    "copy": "Kopya",
+    "eventDuplicated": "Etkinlik kopyalandı",
+    "duplicateEventError": "Etkinlik kopyalanırken bir hata oluştu",
+    "duplicate": "Kopyala",
+    "sharedFrom": "PawPa ile paylaşıldı",
+    "dateAndTime": "Tarih ve Saat",
+    "date": "Tarih",
+    "time": "Saat",
+    "pet": "Evcil Dost",
+    "location": "Konum",
+    "noLocation": "Konum belirtilmemiş",
+    "reminder": "Hatırlatıcı",
+    "reminderEnabled": "Hatırlatıcı aktif",
+    "notes": "Notlar",
+    "status": "Durum",
+    "statusUpcoming": "Yaklaşan",
+    "statusCompleted": "Tamamlandı",
+    "statusCancelled": "İptal Edildi",
+    "viewPetProfile": "Pet Profilini Görüntüle",
+    "noUpcomingEvents": "Yaklaşan etkinlik yok"
+  },
+  "notifications": {
+    "enableTitle": "Bildirimleri Etkinleştir",
+    "enableDescription": "Önemli pet bakım hatırlatmalarını kaçırmayın",
+    "enablePrompt": "Pet bakım hatırlatmaları almak için bildirimleri etkinleştirin",
+    "benefit1": "Zamanında besleme ve aktivite hatırlatmaları",
+    "benefit2": "Veteriner randevuları ve aşı hatırlatmaları",
+    "benefit3": "İlaç zamanı ve günlük bakım bildirimleri",
+    "enable": "Etkinleştir",
+    "enabled": "Bildirimler Aktif",
+    "enabledDescription": "Pet bakım hatırlatmaları alacaksınız",
+    "disabled": "Bildirimler Devre Dışı",
+    "disabledDescription": "Ayarlardan bildirimleri etkinleştirin",
+    "openSettings": "Ayarları Aç"
   },
   "settings": {
     "appearance": "Görünüm",
@@ -61,6 +124,15 @@
     "reminderNotifications": "Hatırlatıcı bildirimleri etkinleştir",
     "language": "Dil",
     "changeLanguage": "Uygulama dilini değiştir",
+    "currentLanguage": "Mevcut Dil",
+    "deviceLanguage": "Cihaz Dili",
+    "selectLanguage": "Dil Seç",
+    "languageExplicitlySet": "Dil kullanıcı tarafından belirlendi",
+    "notSupported": "Desteklenmiyor",
+    "willAutoDetect": "Uygulama başlangıcında otomatik algılanacak",
+    "useDeviceLanguage": "Cihaz Dilini Kullan",
+    "resetToDeviceLanguage": "Cihaz Diline Sıfırla",
+    "toggleLanguage": "Dili Değiştir",
     "dataPrivacy": "Veri ve Gizlilik",
     "dataBackup": "Veri Yedekleme",
     "dataBackupDescription": "Verilerinizi bulutta yedekleyin",
@@ -78,12 +150,22 @@
     "error": "Hata",
     "retry": "Tekrar Dene",
     "save": "Kaydet",
+    "loadingError": "Veriler yüklenemedi",
+    "viewAll": "Hepsini Gör",
     "delete": "Sil",
     "cancel": "İptal",
     "confirm": "Onayla",
     "yes": "Evet",
     "no": "Hayır",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "edit": "Düzenle",
+    "share": "Paylaş",
+    "goBack": "Geri Dön",
+    "created": "Oluşturulma",
+    "updated": "Güncellenme"
+  },
+  "errors": {
+    "loadingFailed": "Yükleme Başarısız"
   },
   "petTypes": {
     "dog": "Köpek",
@@ -116,6 +198,7 @@
     "play": "Oyun",
     "training": "Eğitim",
     "vetVisit": "Veteriner",
+    "vet_visit": "Veteriner",
     "walk": "Yürüyüş",
     "bath": "Banyo",
     "other": "Diğer"
@@ -183,7 +266,26 @@
       "minusOneMonth": "-1 Ay",
       "minusOneWeek": "-1 Hafta",
       "minusOneDay": "-1 Gün",
-      "plusOneDay": "+1 Gün"
+      "plusOneDay": "+1 Gün",
+      "plusOneWeek": "+1 Hafta",
+      "plusOneMonth": "+1 Ay",
+      "plusOneYear": "+1 Yıl"
+    },
+    "dateTimePicker": {
+      "date": "Tarih",
+      "time": "Saat",
+      "pastDateTimeWarning": "Seçilen tarih/saat geçmişte",
+      "minutesFromNow": "{{minutes}} dakika sonra",
+      "hoursFromNow": "{{hours}} saat sonra",
+      "daysFromNow": "{{days}} gün sonra"
+    },
+    "timePicker": {
+      "quickSelect": "Hızlı Seçim",
+      "now": "Şimdi",
+      "hour": "Saat",
+      "minute": "Dakika",
+      "cancel": "İptal",
+      "select": "Seç"
     },
     "photoPicker": {
       "permissionsRequired": "İzin Gerekli",

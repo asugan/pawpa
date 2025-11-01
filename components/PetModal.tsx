@@ -4,7 +4,7 @@ import { useTheme, Portal, Snackbar } from 'react-native-paper';
 import { Pet } from '../lib/types';
 import { PetCreateInput } from '../lib/schemas/petSchema';
 import PetForm from './forms/PetForm';
-import { usePetStore } from '../stores/petStore';
+import { useCreatePet, useUpdatePet } from '../lib/hooks/usePets';
 
 interface PetModalProps {
   visible: boolean;
@@ -25,7 +25,10 @@ export function PetModal({
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
-  const { createPet, updatePet } = usePetStore();
+
+  // ✅ React Query hooks for server state
+  const createPetMutation = useCreatePet();
+  const updatePetMutation = useUpdatePet();
 
   const showSnackbar = React.useCallback((message: string) => {
     setSnackbarMessage(message);
@@ -45,7 +48,7 @@ export function PetModal({
           gender: data.gender || null,
           profilePhoto: data.profilePhoto || null,
         };
-        await updatePet(pet.id, updateData);
+        await updatePetMutation.mutateAsync({ id: pet.id, data: updateData });
         showSnackbar('Pet başarıyla güncellendi');
       } else {
         // Yeni pet oluşturma - breed undefined'ı null'a çevir
@@ -57,7 +60,7 @@ export function PetModal({
           gender: data.gender || null,
           profilePhoto: data.profilePhoto || null,
         };
-        await createPet(createData);
+        await createPetMutation.mutateAsync(createData);
         showSnackbar('Pet başarıyla eklendi');
       }
 
@@ -70,7 +73,7 @@ export function PetModal({
     } finally {
       setLoading(false);
     }
-  }, [pet, createPet, updatePet, onSuccess, onClose, showSnackbar]);
+  }, [pet, createPetMutation, updatePetMutation, onSuccess, onClose, showSnackbar]);
 
   const handleClose = React.useCallback(() => {
     if (!loading) {

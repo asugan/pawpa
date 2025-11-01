@@ -4,7 +4,8 @@ import { Text, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
-import { usePetStore } from '../../stores/petStore';
+import { usePetUIStore } from '../../stores/petStore';
+import { usePets, useCreatePet, useDeletePet } from '../../lib/hooks/usePets';
 import PetCard from '../../components/PetCard';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
 import { Grid } from '../../components/Grid';
@@ -17,19 +18,32 @@ export default function PetsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const { pets, isLoading, loadPets, deletePet, error, clearError } = usePetStore();
+
+  // ✅ React Query hooks for server state
+  const { data: pets = [], isLoading, error, refetch } = usePets();
+  const createPetMutation = useCreatePet();
+  const deletePetMutation = useDeletePet();
+
+  // ✅ Zustand store for UI state only
+  const {
+    selectedPetId,
+    isCreatingPet,
+    filterStatus,
+    sortBy,
+    searchQuery,
+    setSelectedPet,
+    setCreatingPet,
+    setSearchQuery
+  } = usePetUIStore();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
+  const [selectedPet, setSelectedPetState] = useState<Pet | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
-    loadPets();
-  }, [loadPets]);
-
-  useEffect(() => {
     if (error) {
-      setSnackbarMessage(error);
+      setSnackbarMessage(error.message || 'Bir hata oluştu');
       setSnackbarVisible(true);
     }
   }, [error]);
@@ -40,12 +54,12 @@ export default function PetsScreen() {
   }, []);
 
   const handleAddPet = () => {
-    setSelectedPet(undefined);
+    setSelectedPetState(undefined);
     setModalVisible(true);
   };
 
   const handleEditPet = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPetState(pet);
     setModalVisible(true);
   };
 
@@ -63,7 +77,7 @@ export default function PetsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deletePet(pet.id);
+              await deletePetMutation.mutateAsync(pet.id);
               showSnackbar(`"${pet.name}" başarıyla silindi`);
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : 'Pet silinemedi';
@@ -76,13 +90,12 @@ export default function PetsScreen() {
   };
 
   const handleModalSuccess = () => {
-    // Store zaten optimistic update yapıyor, yeniden yüklemeye gerek yok
-    // loadPets();
+    // React Query handles cache invalidation automatically
+    showSnackbar('Pet başarıyla kaydedildi');
   };
 
   const handleSnackbarDismiss = () => {
     setSnackbarVisible(false);
-    clearError();
   };
 
   const handleViewPet = (pet: Pet) => {
@@ -110,7 +123,7 @@ export default function PetsScreen() {
   };
 
   // Show loading spinner on initial load
-  if (isLoading && pets.length === 0) {
+  if (isLoading && (!pets || pets.length === 0)) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
@@ -140,13 +153,13 @@ export default function PetsScreen() {
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
-            onRefresh={loadPets}
+            onRefresh={refetch}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
           />
         }
       >
-        {pets.length === 0 ? (
+        {(!pets || pets.length === 0) ? (
           !isLoading && (
             <EmptyState
               title={t('pets.noPetsYet')}

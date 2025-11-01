@@ -15,7 +15,14 @@
     "healthRecord": "Health Record",
     "feedingPlan": "Feeding Plan",
     "noPetsYet": "You haven't added any pets yet",
-    "addFirstPet": "Add First Pet"
+    "addFirstPet": "Add First Pet",
+    "myPets": "My Pets",
+    "healthOverview": "Health Overview",
+    "todaySchedule": "Today's Schedule",
+    "upcomingHealth": "Upcoming Health",
+    "noHealthActivities": "No health activities scheduled for today",
+    "viewMoreEvents": "+{{count}} more events",
+    "viewMoreVaccinations": "+{{count}} more vaccinations"
   },
   "pets": {
     "myPets": "My Pets",
@@ -32,6 +39,7 @@
     "cancel": "Cancel",
     "update": "Update",
     "add": "Add",
+    "addFirstPetDescription": "Start by adding your first pet",
     "pleaseFillRequiredFields": "Please fill required fields",
     "ageUnknown": "Age unknown",
     "months": "months",
@@ -44,13 +52,68 @@
     "vaccinationRecord": "Vaccination Record",
     "view": "View",
     "noRecords": "No health records yet",
-    "petNameDate": "Pet Name • Date"
+    "petNameDate": "Pet Name • Date",
+    "upcomingVaccinations": "Upcoming Vaccinations",
+    "addRecord": "Add Health Record"
   },
   "calendar": {
     "calendar": "Calendar",
     "comingSoon": "Coming Soon",
     "upcomingEvents": "Upcoming Events",
-    "noEvents": "No events scheduled"
+    "noEvents": "No events scheduled",
+    "today": "Today",
+    "addEvent": "Add Event",
+    "noEventsToday": "No events scheduled for today",
+    "views": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    }
+  },
+  "events": {
+    "today": "Today",
+    "addEvent": "Add Event",
+    "forPet": "For pet",
+    "eventDetails": "Event Details",
+    "eventNotFound": "Event not found",
+    "deleteEvent": "Delete Event",
+    "deleteEventConfirmation": "Are you sure you want to delete \"{{title}}\"?",
+    "eventDeleted": "Event deleted successfully",
+    "deleteEventError": "Error deleting event",
+    "copy": "Copy",
+    "eventDuplicated": "Event duplicated",
+    "duplicateEventError": "Error duplicating event",
+    "duplicate": "Duplicate",
+    "sharedFrom": "Shared from PawPa",
+    "dateAndTime": "Date & Time",
+    "date": "Date",
+    "time": "Time",
+    "pet": "Pet",
+    "location": "Location",
+    "noLocation": "No location specified",
+    "reminder": "Reminder",
+    "reminderEnabled": "Reminder enabled",
+    "notes": "Notes",
+    "status": "Status",
+    "statusUpcoming": "Upcoming",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "viewPetProfile": "View Pet Profile",
+    "noUpcomingEvents": "No upcoming events"
+  },
+  "notifications": {
+    "enableTitle": "Enable Notifications",
+    "enableDescription": "Never miss important pet care reminders",
+    "enablePrompt": "Enable notifications to receive pet care reminders",
+    "benefit1": "Timely feeding and activity reminders",
+    "benefit2": "Vet appointments and vaccination alerts",
+    "benefit3": "Medication times and daily care notifications",
+    "enable": "Enable",
+    "enabled": "Notifications Enabled",
+    "enabledDescription": "You'll receive pet care reminders",
+    "disabled": "Notifications Disabled",
+    "disabledDescription": "Enable notifications in settings",
+    "openSettings": "Open Settings"
   },
   "settings": {
     "appearance": "Appearance",
@@ -61,6 +124,15 @@
     "reminderNotifications": "Enable reminder notifications",
     "language": "Language",
     "changeLanguage": "Change app language",
+    "currentLanguage": "Current Language",
+    "deviceLanguage": "Device Language",
+    "selectLanguage": "Select Language",
+    "languageExplicitlySet": "Language explicitly set by user",
+    "notSupported": "Not supported",
+    "willAutoDetect": "Will auto-detect on app start",
+    "useDeviceLanguage": "Use Device Language",
+    "resetToDeviceLanguage": "Reset to Device Language",
+    "toggleLanguage": "Toggle Language",
     "dataPrivacy": "Data & Privacy",
     "dataBackup": "Data Backup",
     "dataBackupDescription": "Backup your data to the cloud",
@@ -78,12 +150,22 @@
     "error": "Error",
     "retry": "Retry",
     "save": "Save",
+    "loadingError": "Failed to load data",
+    "viewAll": "View All",
     "delete": "Delete",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "ok": "OK"
+    "ok": "OK",
+    "edit": "Edit",
+    "share": "Share",
+    "goBack": "Go Back",
+    "created": "Created",
+    "updated": "Updated"
+  },
+  "errors": {
+    "loadingFailed": "Loading Failed"
   },
   "petTypes": {
     "dog": "Dog",
@@ -116,6 +198,7 @@
     "play": "Play",
     "training": "Training",
     "vetVisit": "Vet Visit",
+    "vet_visit": "Vet Visit",
     "walk": "Walk",
     "bath": "Bath",
     "other": "Other"
@@ -183,7 +266,26 @@
       "minusOneMonth": "-1 Month",
       "minusOneWeek": "-1 Week",
       "minusOneDay": "-1 Day",
-      "plusOneDay": "+1 Day"
+      "plusOneDay": "+1 Day",
+      "plusOneWeek": "+1 Week",
+      "plusOneMonth": "+1 Month",
+      "plusOneYear": "+1 Year"
+    },
+    "dateTimePicker": {
+      "date": "Date",
+      "time": "Time",
+      "pastDateTimeWarning": "Selected date/time is in the past",
+      "minutesFromNow": "{{minutes}} minutes from now",
+      "hoursFromNow": "{{hours}} hours from now",
+      "daysFromNow": "{{days}} days from now"
+    },
+    "timePicker": {
+      "quickSelect": "Quick Select",
+      "now": "Now",
+      "hour": "Hour",
+      "minute": "Minute",
+      "cancel": "Cancel",
+      "select": "Select"
     },
     "photoPicker": {
       "permissionsRequired": "Permissions Required",

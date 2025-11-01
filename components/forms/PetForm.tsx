@@ -30,8 +30,16 @@ export function PetForm({
 }: PetFormProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { control, handleSubmit, errors, isSubmitting, isValid } = usePetForm(pet);
+  const { control, handleSubmit, errors, isSubmitting, isValid, watch, trigger } = usePetForm(pet);
 
+  // Watch the pet type for the PetPhotoPicker
+  const petType = watch('type');
+
+  // Track if user has attempted to submit the form
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
+
+  
+  
   const onFormSubmit = React.useCallback(async (data: PetCreateInput) => {
     try {
       await onSubmit(data);
@@ -139,7 +147,7 @@ export function PetForm({
             <PetPhotoPicker
               value={value}
               onChange={onChange}
-              petType={control._formValues?.type}
+              petType={petType}
               disabled={loading}
             />
           )}
@@ -160,10 +168,15 @@ export function PetForm({
 
           <Button
             mode="contained"
-            onPress={handleSubmit(onFormSubmit)}
+            buttonColor={theme.colors.primary}
+            textColor={theme.colors.onPrimary}
+            onPress={async () => {
+              setHasAttemptedSubmit(true);
+              handleSubmit(onFormSubmit)();
+            }}
             loading={loading}
-            disabled={!isValid || loading}
-            style={[styles.actionButton, styles.submitButton]}
+            disabled={loading}
+            style={styles.actionButton}
             contentStyle={styles.buttonContent}
             testID="submit-button"
           >
@@ -172,7 +185,7 @@ export function PetForm({
         </View>
 
         {/* Form Status */}
-        {!isValid && (
+        {!isValid && hasAttemptedSubmit && (
           <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
             <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
               {t('pets.pleaseFillRequiredFields')}
@@ -229,9 +242,6 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     borderColor: undefined,
-  },
-  submitButton: {
-    backgroundColor: undefined,
   },
   buttonContent: {
     paddingVertical: 8,
