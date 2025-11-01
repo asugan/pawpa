@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
-import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput } from '../types';
+import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput, ApiResponse } from '../types';
 
 // Type-safe filters for health records
 interface HealthRecordFilters {
@@ -135,7 +135,7 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
       }
       // Filter by date range on client side
       const allRecords = result.data || [];
-      return allRecords.filter(record => {
+      return allRecords.filter((record: HealthRecord) => {
         const recordDate = new Date(record.date);
         const fromDate = new Date(dateFrom);
         const toDate = new Date(dateTo);
@@ -151,7 +151,7 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
 export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ApiResponse<HealthRecord>, Error, CreateHealthRecordInput, { previousRecords?: HealthRecord[] }>({
     mutationFn: (data: CreateHealthRecordInput) =>
       healthRecordService.createHealthRecord(data),
     onMutate: async (newRecord) => {
@@ -159,7 +159,7 @@ export function useCreateHealthRecord() {
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
 
       // Snapshot the previous value
-      const previousRecords = queryClient.getQueryData(healthRecordKeys.list(newRecord.petId, {}));
+      const previousRecords = queryClient.getQueryData<HealthRecord[]>(healthRecordKeys.list(newRecord.petId, {}));
 
       // Optimistically update to the new value
       const tempRecord = {
@@ -188,7 +188,7 @@ export function useCreateHealthRecord() {
         queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), context.previousRecords);
       }
     },
-    onSettled: (result, error, variables) => {
+    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: CreateHealthRecordInput) => {
       // Always refetch after error or success
       if (result?.data) {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(result.data.petId) });
@@ -211,14 +211,14 @@ export function useCreateHealthRecord() {
 export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ApiResponse<HealthRecord>, Error, { id: string; data: UpdateHealthRecordInput }, { previousRecord?: HealthRecord }>({
     mutationFn: ({ id, data }: { id: string; data: UpdateHealthRecordInput }) =>
       healthRecordService.updateHealthRecord(id, data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.detail(id) });
       await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
 
-      const previousRecord = queryClient.getQueryData(healthRecordKeys.detail(id));
+      const previousRecord = queryClient.getQueryData<HealthRecord>(healthRecordKeys.detail(id));
 
       // Update the record in cache with new data
       queryClient.setQueryData(healthRecordKeys.detail(id), (old: HealthRecord | undefined) =>
@@ -240,7 +240,7 @@ export function useUpdateHealthRecord() {
         queryClient.setQueryData(healthRecordKeys.detail(variables.id), context.previousRecord);
       }
     },
-    onSettled: (result, error, variables) => {
+    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: { id: string; data: UpdateHealthRecordInput }) => {
       if (result?.data) {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(result.data.id) });
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });

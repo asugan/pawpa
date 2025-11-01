@@ -69,6 +69,36 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="feeding"
+        options={{
+          title: t('navigation.feeding'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bowl" size={size} color={color} />
+          ),
+          headerTitle: t('feedingSchedule.title'),
+        }}
+      />
+      <Tabs.Screen
+        name="expenses"
+        options={{
+          title: t('navigation.expenses'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cash-multiple" size={size} color={color} />
+          ),
+          headerTitle: t('expenses.title'),
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          title: t('navigation.budgets'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="wallet" size={size} color={color} />
+          ),
+          headerTitle: t('budgets.title'),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: t('navigation.settings'),

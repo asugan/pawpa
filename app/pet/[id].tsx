@@ -18,7 +18,7 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Pet } from '../../lib/types';
+import { Pet, Event } from '../../lib/types';
 import { usePet, useDeletePet } from '../../lib/hooks/usePets';
 import { useEvents } from '../../lib/hooks/useEvents';
 import PetModal from '../../components/PetModal';
@@ -320,10 +320,10 @@ export default function PetDetailScreen() {
 
               {/* Show first 3 upcoming events */}
               {events
-                .filter(event => new Date(event.startTime) >= new Date())
-                .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                .filter((event: Event) => new Date(event.startTime) >= new Date())
+                .sort((a: Event, b: Event) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
                 .slice(0, 3)
-                .map(event => (
+                .map((event: Event) => (
                   <EventCard
                     key={event.id}
                     event={event}
@@ -333,7 +333,7 @@ export default function PetDetailScreen() {
                   />
                 ))}
 
-              {events.filter(event => new Date(event.startTime) >= new Date()).length === 0 && (
+              {events.filter((event: Event) => new Date(event.startTime) >= new Date()).length === 0 && (
                 <Text variant="bodyMedium" style={[styles.noEventsText, { color: theme.colors.onSurfaceVariant }]}>
                   {t('events.noUpcomingEvents')}
                 </Text>

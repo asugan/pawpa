@@ -51,6 +51,17 @@ export const DAYS_OF_WEEK = {
   SUNDAY: 'sunday',
 } as const;
 
+// Food Types
+export const FOOD_TYPES = {
+  DRY_FOOD: 'dry_food',
+  WET_FOOD: 'wet_food',
+  RAW_FOOD: 'raw_food',
+  HOMEMADE: 'homemade',
+  TREATS: 'treats',
+  SUPPLEMENTS: 'supplements',
+  OTHER: 'other',
+} as const;
+
 // Turkish Labels (fallback for development)
 export const TURKCE_LABELS = {
   HEALTH_RECORD_TYPES: {
@@ -141,4 +152,10 @@ export const createDayOptions = (t: (key: string, defaultValue?: string) => stri
   Object.values(DAYS_OF_WEEK).map(day => ({
     value: day,
     label: t(`days.${day}`, day),
+  }));
+
+export const createFoodTypeOptions = (t: (key: string, defaultValue?: string) => string) =>
+  Object.values(FOOD_TYPES).map(type => ({
+    value: type,
+    label: t(`foodTypes.${type}`, type),
   }));
