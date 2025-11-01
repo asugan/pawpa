@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal, Portal, useTheme } from 'react-native-paper';
-import { StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal as RNModal, View, StyleSheet } from 'react-native';
+import { useTheme, Text, Button } from 'react-native-paper';
 import BudgetForm from './BudgetForm';
 import { CreateBudgetLimitInput, BudgetLimit } from '../lib/types';
 
@@ -24,41 +24,55 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
   const theme = useTheme();
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.modalContainer,
-          { backgroundColor: theme.colors.background },
-        ]}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoid}
-        >
-          <BudgetForm
-            petId={petId}
-            initialData={budget}
-            onSubmit={onSubmit}
-            onCancel={onDismiss}
-            isSubmitting={isSubmitting}
-          />
-        </KeyboardAvoidingView>
-      </Modal>
-    </Portal>
+    <RNModal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onDismiss}
+    >
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            {budget ? 'Edit Budget' : 'Add Budget'}
+          </Text>
+          <Button
+            mode="text"
+            onPress={onDismiss}
+            disabled={isSubmitting}
+            compact
+          >
+            Close
+          </Button>
+        </View>
+
+        <BudgetForm
+          petId={petId}
+          initialData={budget}
+          onSubmit={onSubmit}
+          onCancel={onDismiss}
+          isSubmitting={isSubmitting}
+        />
+      </View>
+    </RNModal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    marginHorizontal: 20,
-    marginVertical: 40,
-    borderRadius: 12,
-    maxHeight: '90%',
-  },
-  keyboardAvoid: {
+  container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 
