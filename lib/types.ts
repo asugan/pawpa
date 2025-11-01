@@ -113,3 +113,94 @@ export type PaginatedResponse<T> = {
   hasNext: boolean;
   hasPrev: boolean;
 };
+
+// Expense and Budget types
+export type ExpenseCategory =
+  | 'food'
+  | 'premium_food'
+  | 'veterinary'
+  | 'vaccination'
+  | 'medication'
+  | 'grooming'
+  | 'toys'
+  | 'accessories'
+  | 'training'
+  | 'insurance'
+  | 'emergency'
+  | 'other';
+
+export type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer';
+
+export type Currency = 'TRY' | 'USD' | 'EUR' | 'GBP';
+
+export type BudgetPeriod = 'monthly' | 'yearly';
+
+export interface Expense {
+  id: string;
+  petId: string;
+  category: ExpenseCategory;
+  amount: number;
+  currency: Currency;
+  paymentMethod?: PaymentMethod | null;
+  description?: string | null;
+  date: string;
+  receiptPhoto?: string | null;
+  vendor?: string | null;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface BudgetLimit {
+  id: string;
+  petId: string;
+  category?: ExpenseCategory | null; // null means overall budget
+  amount: number;
+  currency: Currency;
+  period: BudgetPeriod;
+  alertThreshold: number; // 0-1 (default 0.8 = 80%)
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ExpenseStats {
+  total: number;
+  count: number;
+  average: number;
+  byCategory: Array<{
+    category: ExpenseCategory;
+    total: number;
+    count: number;
+  }>;
+  byCurrency: Array<{
+    currency: Currency;
+    total: number;
+  }>;
+}
+
+export interface BudgetAlert {
+  budgetLimit: BudgetLimit;
+  currentSpending: number;
+  percentage: number;
+  isExceeded: boolean;
+  remainingAmount: number;
+}
+
+export interface BudgetStatus {
+  budgetLimit: BudgetLimit;
+  currentSpending: number;
+  percentage: number;
+  remainingAmount: number;
+}
+
+// Input types for forms
+export type CreateExpenseInput = Omit<Expense, 'id' | 'createdAt'>;
+export type UpdateExpenseInput = Partial<CreateExpenseInput>;
+
+export type CreateBudgetLimitInput = Omit<BudgetLimit, 'id' | 'createdAt'>;
+export type UpdateBudgetLimitInput = Partial<CreateBudgetLimitInput>;
+
+// Extended Pet type with expenses and budgets
+export type PetWithFinances = Pet & {
+  expenses?: Expense[];
+  budgetLimits?: BudgetLimit[];
+};

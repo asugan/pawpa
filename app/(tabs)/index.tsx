@@ -19,6 +19,8 @@ import NetworkStatusBadge from "@/components/NetworkStatusBadge";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
+import ExpenseOverview from "@/components/ExpenseOverview";
+import BudgetOverview from "@/components/BudgetOverview";
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -179,6 +181,14 @@ export default function HomeScreen() {
           upcomingVaccinations={upcomingVaccinations || []}
         />
 
+        {/* Financial Overview Section */}
+        {pets && pets.length > 0 && (
+          <View style={styles.financialSection}>
+            <ExpenseOverview />
+            <BudgetOverview />
+          </View>
+        )}
+
         {/* Quick Actions */}
         <View style={styles.quickActionsContainer}>
           <Text
@@ -332,6 +342,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   widgetSection: {
+    marginBottom: 24,
+  },
+  financialSection: {
     marginBottom: 24,
   },
   sectionHeader: {

@@ -79,6 +79,26 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="expenses"
+        options={{
+          title: t('navigation.expenses'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cash-multiple" size={size} color={color} />
+          ),
+          headerTitle: t('expenses.title'),
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          title: t('navigation.budgets'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="wallet" size={size} color={color} />
+          ),
+          headerTitle: t('budgets.title'),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: t('navigation.settings'),
