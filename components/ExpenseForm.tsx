@@ -3,18 +3,18 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme, Text, HelperText } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
-import { CreateExpenseInput, Expense, ExpenseCategory, PaymentMethod, Currency } from '../lib/types';
+import { ExpenseCreateSchema, ExpenseCreateInput } from '../lib/schemas/expenseSchema';
+import { CreateExpenseInput as CreateExpenseInputType, Expense, ExpenseCategory, PaymentMethod, Currency } from '../lib/types';
 import { useTranslation } from 'react-i18next';
 import CategoryPicker from './CategoryPicker';
 import CurrencyPicker from './CurrencyPicker';
 import PaymentMethodPicker from './PaymentMethodPicker';
-import DatePicker from './DatePicker';
+import { DateTimePicker } from './DateTimePicker';
 
 interface ExpenseFormProps {
   petId: string;
   initialData?: Expense;
-  onSubmit: (data: CreateExpenseInput) => void;
+  onSubmit: (data: CreateExpenseInputType) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
 }
@@ -29,14 +29,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const defaultValues: Partial<CreateExpenseInput> = {
+  const defaultValues = {
     petId,
-    category: initialData?.category || 'food',
+    category: initialData?.category || ('food' as ExpenseCategory),
     amount: initialData?.amount || 0,
-    currency: (initialData?.currency as Currency) || 'TRY',
+    currency: (initialData?.currency as Currency) || ('TRY' as Currency),
     paymentMethod: initialData?.paymentMethod || undefined,
     description: initialData?.description || '',
-    date: initialData?.date ? new Date(initialData.date) : new Date(),
+    date: initialData?.date || new Date().toISOString().split('T')[0],
     vendor: initialData?.vendor || '',
     notes: initialData?.notes || '',
   };
@@ -47,15 +47,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     formState: { errors },
     setValue,
     watch,
-  } = useForm<CreateExpenseInput>({
+  } = useForm<ExpenseCreateInput>({
     resolver: zodResolver(ExpenseCreateSchema),
     defaultValues,
   });
 
   const selectedDate = watch('date');
 
-  const handleFormSubmit = (data: CreateExpenseInput) => {
-    onSubmit(data);
+  const handleFormSubmit = (data: ExpenseCreateInput) => {
+    onSubmit(data as CreateExpenseInputType);
   };
 
   return (
@@ -138,20 +138,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           name="date"
           render={({ field: { value, onChange } }) => (
             <View style={styles.inputContainer}>
-              <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
-                {t('expenses.date', 'Date')}
-              </Text>
-              <DatePicker
-                selectedDate={value ? new Date(value) : new Date()}
-                onDateChange={onChange}
+              <DateTimePicker
+                value={value ? new Date(value) : new Date()}
+                onChange={(date: Date) => onChange(date.toISOString().split('T')[0])}
+                mode="date"
                 maximumDate={new Date()}
-                label={t('expenses.selectDate', 'Select Date')}
+                label={t('expenses.date', 'Date')}
+                error={!!errors.date}
+                errorText={errors.date?.message}
               />
-              {errors.date && (
-                <HelperText type="error" visible={!!errors.date}>
-                  {errors.date.message}
-                </HelperText>
-              )}
             </View>
           )}
         />

@@ -129,7 +129,7 @@ export default function ExpensesScreen() {
         <EmptyState
           icon="cash-multiple"
           title={t('expenses.noPets', 'No pets found')}
-          message={t('expenses.addPetFirst', 'Please add a pet first to track expenses')}
+          description={t('expenses.addPetFirst', 'Please add a pet first to track expenses')}
         />
       </SafeAreaView>
     );
@@ -210,13 +210,13 @@ export default function ExpensesScreen() {
           <EmptyState
             icon="paw"
             title={t('expenses.selectPet', 'Select a pet')}
-            message={t('expenses.selectPetMessage', 'Choose a pet to view expenses')}
+            description={t('expenses.selectPetMessage', 'Choose a pet to view expenses')}
           />
         ) : expenses.length === 0 ? (
           <EmptyState
             icon="cash-remove"
             title={t('expenses.noExpenses', 'No expenses yet')}
-            message={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
+            description={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
           />
         ) : (
           <View style={styles.expenseList}>

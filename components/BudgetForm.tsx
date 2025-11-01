@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme, Text, HelperText, Switch, SegmentedButtons } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BudgetCreateSchema, BUDGET_PERIODS } from '../lib/schemas/budgetSchema';
+import { BudgetCreateSchema, BUDGET_PERIODS, BudgetCreateInput } from '../lib/schemas/budgetSchema';
 import { CreateBudgetLimitInput, BudgetLimit, Currency, BudgetPeriod } from '../lib/types';
 import { useTranslation } from 'react-i18next';
 import CurrencyPicker from './CurrencyPicker';
@@ -27,12 +27,12 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const defaultValues: Partial<CreateBudgetLimitInput> = {
+  const defaultValues = {
     petId,
     category: initialData?.category || null,
     amount: initialData?.amount || 0,
-    currency: (initialData?.currency as Currency) || 'TRY',
-    period: initialData?.period || 'monthly',
+    currency: (initialData?.currency as Currency) || ('TRY' as Currency),
+    period: (initialData?.period || 'monthly') as BudgetPeriod,
     alertThreshold: initialData?.alertThreshold || 0.8,
     isActive: initialData?.isActive ?? true,
   };
@@ -43,15 +43,15 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     formState: { errors },
     setValue,
     watch,
-  } = useForm<CreateBudgetLimitInput>({
+  } = useForm<BudgetCreateInput>({
     resolver: zodResolver(BudgetCreateSchema),
     defaultValues,
   });
 
   const selectedCategory = watch('category');
 
-  const handleFormSubmit = (data: CreateBudgetLimitInput) => {
-    onSubmit(data);
+  const handleFormSubmit = (data: BudgetCreateInput) => {
+    onSubmit(data as CreateBudgetLimitInput);
   };
 
   const periodButtons = BUDGET_PERIODS.map((period) => ({

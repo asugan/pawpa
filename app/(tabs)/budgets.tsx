@@ -114,7 +114,7 @@ export default function BudgetsScreen() {
         <EmptyState
           icon="wallet"
           title={t('budgets.noPets', 'No pets found')}
-          message={t('budgets.addPetFirst', 'Please add a pet first to set budgets')}
+          description={t('budgets.addPetFirst', 'Please add a pet first to set budgets')}
         />
       </SafeAreaView>
     );
@@ -184,13 +184,13 @@ export default function BudgetsScreen() {
           <EmptyState
             icon="paw"
             title={t('budgets.selectPet', 'Select a pet')}
-            message={t('budgets.selectPetMessage', 'Choose a pet to view budgets')}
+            description={t('budgets.selectPetMessage', 'Choose a pet to view budgets')}
           />
         ) : budgets.length === 0 ? (
           <EmptyState
             icon="wallet-outline"
             title={t('budgets.noBudgets', 'No budgets yet')}
-            message={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
+            description={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
           />
         ) : (
           <View style={styles.budgetList}>

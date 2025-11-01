@@ -51,7 +51,7 @@ const BaseExpenseSchema = z.object({
     .min(0.01, 'Amount must be at least 0.01')
     .max(1000000, 'Amount is too large'),
 
-  currency: z.enum(CURRENCIES).default('TRY'),
+  currency: z.enum(CURRENCIES),
 
   paymentMethod: z.enum(PAYMENT_METHODS).optional(),
 
@@ -62,11 +62,14 @@ const BaseExpenseSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   date: z
-    .date({
+    .string({
       required_error: 'Date is required',
-      invalid_type_error: 'Date must be a valid date'
+      invalid_type_error: 'Date must be a valid date string'
     })
-    .refine(validateExpenseDate, {
+    .refine((val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime()) && validateExpenseDate(date);
+    }, {
       message: 'Date cannot be in the future or more than 10 years ago'
     }),
 

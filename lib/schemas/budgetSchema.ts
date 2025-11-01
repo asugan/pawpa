@@ -17,8 +17,8 @@ const BaseBudgetSchema = z.object({
     .enum(EXPENSE_CATEGORIES, {
       errorMap: () => ({ message: 'Invalid category' })
     })
-    .optional()
-    .nullable(), // null means overall budget for all categories
+    .nullable()
+    .optional(), // null means overall budget for all categories
 
   amount: z
     .number({
@@ -44,11 +44,45 @@ const BaseBudgetSchema = z.object({
       message: 'Alert threshold must be between 0 and 1'
     }),
 
-  isActive: z.boolean().default(true)
+  isActive: z.boolean()
 });
 
 // Schema for creating a new budget limit
-export const BudgetCreateSchema = BaseBudgetSchema.refine(
+export const BudgetCreateSchema = z.object({
+  petId: z.string().min(1, 'Pet ID is required'),
+
+  category: z
+    .enum(EXPENSE_CATEGORIES, {
+      errorMap: () => ({ message: 'Invalid category' })
+    })
+    .nullable()
+    .optional(), // null means overall budget for all categories
+
+  amount: z
+    .number({
+      required_error: 'Amount is required',
+      invalid_type_error: 'Amount must be a number'
+    })
+    .positive('Amount must be positive')
+    .min(1, 'Amount must be at least 1')
+    .max(10000000, 'Amount is too large'),
+
+  currency: z.enum(CURRENCIES),
+
+  period: z.enum(BUDGET_PERIODS, {
+    errorMap: () => ({ message: 'Period must be either "monthly" or "yearly"' })
+  }),
+
+  alertThreshold: z
+    .number()
+    .min(0, 'Alert threshold must be at least 0')
+    .max(1, 'Alert threshold must be at most 1')
+    .refine(validateAlertThreshold, {
+      message: 'Alert threshold must be between 0 and 1'
+    }),
+
+  isActive: z.boolean()
+}).refine(
   (data) => {
     return data.petId && data.amount > 0 && data.period;
   },
