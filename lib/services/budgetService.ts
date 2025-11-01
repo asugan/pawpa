@@ -267,6 +267,36 @@ export class BudgetService {
       };
     }
   }
+
+  /**
+   * Get all budget statuses
+   */
+  async getAllBudgetStatuses(petId?: string): Promise<ApiResponse<BudgetStatus[]>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (petId) queryParams.append('petId', petId);
+
+      const url = `/api/budget-limits/statuses${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await api.get<BudgetStatus[]>(url);
+
+      return {
+        success: true,
+        data: response.data || []
+      };
+    } catch (error) {
+      console.error('❌ Get all budget statuses error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message
+        };
+      }
+      return {
+        success: false,
+        error: 'Failed to fetch budget statuses'
+      };
+    }
+  }
 }
 
 // Export a singleton instance

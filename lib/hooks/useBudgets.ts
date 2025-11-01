@@ -108,6 +108,21 @@ export function useBudgetStatus(budgetLimitId?: string) {
   });
 }
 
+// Hook for fetching all budget statuses
+export function useBudgetStatuses(petId?: string) {
+  return useQuery({
+    queryKey: [...budgetKeys.all, 'statuses', petId] as const,
+    queryFn: async () => {
+      const result = await budgetService.getAllBudgetStatuses(petId);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load budget statuses');
+      }
+      return result.data || [];
+    },
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+}
+
 // Mutation hook for creating a budget limit
 export function useCreateBudget() {
   const queryClient = useQueryClient();

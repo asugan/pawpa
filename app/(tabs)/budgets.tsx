@@ -4,7 +4,7 @@ import { Text, FAB, useTheme, Snackbar, Chip, Banner } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
-import { useBudgets, useBudgetAlerts, useCreateBudget, useUpdateBudget, useDeleteBudget } from '../../lib/hooks/useBudgets';
+import { useBudgets, useBudgetAlerts, useBudgetStatuses, useCreateBudget, useUpdateBudget, useDeleteBudget } from '../../lib/hooks/useBudgets';
 import BudgetCard from '../../components/BudgetCard';
 import BudgetFormModal from '../../components/BudgetFormModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -32,6 +32,9 @@ export default function BudgetsScreen() {
 
   // Fetch budget alerts
   const { data: alerts = [] } = useBudgetAlerts(selectedPetId);
+
+  // Fetch all budget statuses
+  const { data: statuses = [] } = useBudgetStatuses(selectedPetId);
 
   // Mutations
   const createBudget = useCreateBudget();
@@ -195,16 +198,8 @@ export default function BudgetsScreen() {
         ) : (
           <View style={styles.budgetList}>
             {budgets.map((budget) => {
-              // Find budget status from alerts or fetch individually
-              const alert = alerts.find((a) => a.budgetLimit.id === budget.id);
-              const status = alert
-                ? {
-                    budgetLimit: budget,
-                    currentSpending: alert.currentSpending,
-                    percentage: alert.percentage,
-                    remainingAmount: alert.remainingAmount,
-                  }
-                : null;
+              // Find budget status from statuses array
+              const status = statuses.find((s) => s.budgetLimit.id === budget.id) || null;
 
               return (
                 <BudgetCard
