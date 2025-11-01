@@ -50,7 +50,7 @@ export class ExpenseService {
         paymentMethod: data.paymentMethod || undefined
       };
 
-      const response = await api.post<Expense>('/expenses', cleanedData);
+      const response = await api.post<Expense>('/api/expenses', cleanedData);
 
       console.log('✅ Expense created successfully:', response.data?.id);
       return {
@@ -102,7 +102,7 @@ export class ExpenseService {
       if (params?.currency) queryParams.append('currency', params.currency);
       if (params?.paymentMethod) queryParams.append('paymentMethod', params.paymentMethod);
 
-      const url = `/pets/${petId}/expenses${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/pets/${petId}/expenses${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<Expense[]>(url);
 
       // Backend response includes data and meta
@@ -136,7 +136,7 @@ export class ExpenseService {
    */
   async getExpenseById(id: string): Promise<ApiResponse<Expense>> {
     try {
-      const response = await api.get<Expense>(`/expenses/${id}`);
+      const response = await api.get<Expense>(`/api/expenses/${id}`);
 
       return {
         success: true,
@@ -167,7 +167,7 @@ export class ExpenseService {
         cleanedData.date = convertDateToISOString(data.date);
       }
 
-      const response = await api.put<Expense>(`/expenses/${id}`, cleanedData);
+      const response = await api.put<Expense>(`/api/expenses/${id}`, cleanedData);
 
       console.log('✅ Expense updated successfully:', id);
       return {
@@ -195,7 +195,7 @@ export class ExpenseService {
    */
   async deleteExpense(id: string): Promise<ApiResponse<void>> {
     try {
-      await api.delete(`/expenses/${id}`);
+      await api.delete(`/api/expenses/${id}`);
 
       console.log('✅ Expense deleted successfully:', id);
       return {
@@ -233,7 +233,7 @@ export class ExpenseService {
       if (params?.endDate) queryParams.append('endDate', params.endDate);
       if (params?.category) queryParams.append('category', params.category);
 
-      const url = `/expenses/stats${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/expenses/stats${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<ExpenseStats>(url);
 
       return {
@@ -269,7 +269,7 @@ export class ExpenseService {
       if (params?.year) queryParams.append('year', params.year.toString());
       if (params?.month !== undefined) queryParams.append('month', params.month.toString());
 
-      const url = `/expenses/monthly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/expenses/monthly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<Expense[]>(url);
 
       return {
@@ -303,7 +303,7 @@ export class ExpenseService {
       if (params?.petId) queryParams.append('petId', params.petId);
       if (params?.year) queryParams.append('year', params.year.toString());
 
-      const url = `/expenses/yearly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/expenses/yearly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<Expense[]>(url);
 
       return {
@@ -336,7 +336,7 @@ export class ExpenseService {
       const queryParams = new URLSearchParams();
       if (petId) queryParams.append('petId', petId);
 
-      const url = `/expenses/by-category/${category}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/expenses/by-category/${category}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<Expense[]>(url);
 
       return {
@@ -372,7 +372,7 @@ export class ExpenseService {
       queryParams.append('startDate', params.startDate);
       queryParams.append('endDate', params.endDate);
 
-      const url = `/expenses/by-date?${queryParams.toString()}`;
+      const url = `/api/expenses/by-date?${queryParams.toString()}`;
       const response = await api.get<Expense[]>(url);
 
       return {
@@ -408,7 +408,7 @@ export class ExpenseService {
       if (params?.startDate) queryParams.append('startDate', params.startDate);
       if (params?.endDate) queryParams.append('endDate', params.endDate);
 
-      const url = `/expenses/export/csv${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/expenses/export/csv${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<string>(url);
 
       return {

@@ -25,7 +25,7 @@ export class BudgetService {
         isActive: data.isActive ?? true
       };
 
-      const response = await api.post<BudgetLimit>('/budget-limits', cleanedData);
+      const response = await api.post<BudgetLimit>('/api/budget-limits', cleanedData);
 
       console.log('✅ Budget limit created successfully:', response.data?.id);
       return {
@@ -69,7 +69,7 @@ export class BudgetService {
       if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
       if (params?.category) queryParams.append('category', params.category);
 
-      const url = `/pets/${petId}/budget-limits${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/pets/${petId}/budget-limits${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<BudgetLimit[]>(url);
 
       // Backend response includes data and meta
@@ -103,7 +103,7 @@ export class BudgetService {
    */
   async getBudgetLimitById(id: string): Promise<ApiResponse<BudgetLimit>> {
     try {
-      const response = await api.get<BudgetLimit>(`/budget-limits/${id}`);
+      const response = await api.get<BudgetLimit>(`/api/budget-limits/${id}`);
 
       return {
         success: true,
@@ -132,7 +132,7 @@ export class BudgetService {
     data: UpdateBudgetLimitInput
   ): Promise<ApiResponse<BudgetLimit>> {
     try {
-      const response = await api.put<BudgetLimit>(`/budget-limits/${id}`, data);
+      const response = await api.put<BudgetLimit>(`/api/budget-limits/${id}`, data);
 
       console.log('✅ Budget limit updated successfully:', id);
       return {
@@ -160,7 +160,7 @@ export class BudgetService {
    */
   async deleteBudgetLimit(id: string): Promise<ApiResponse<void>> {
     try {
-      await api.delete(`/budget-limits/${id}`);
+      await api.delete(`/api/budget-limits/${id}`);
 
       console.log('✅ Budget limit deleted successfully:', id);
       return {
@@ -190,7 +190,7 @@ export class BudgetService {
       const queryParams = new URLSearchParams();
       if (petId) queryParams.append('petId', petId);
 
-      const url = `/budget-limits/active${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/budget-limits/active${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<BudgetLimit[]>(url);
 
       return {
@@ -220,7 +220,7 @@ export class BudgetService {
       const queryParams = new URLSearchParams();
       if (petId) queryParams.append('petId', petId);
 
-      const url = `/budget-limits/alerts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/budget-limits/alerts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<BudgetAlert[]>(url);
 
       return {
@@ -247,7 +247,7 @@ export class BudgetService {
    */
   async getBudgetStatus(budgetLimitId: string): Promise<ApiResponse<BudgetStatus>> {
     try {
-      const response = await api.get<BudgetStatus>(`/budget-limits/${budgetLimitId}/status`);
+      const response = await api.get<BudgetStatus>(`/api/budget-limits/${budgetLimitId}/status`);
 
       return {
         success: true,
