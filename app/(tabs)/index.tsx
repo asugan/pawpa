@@ -18,6 +18,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import NetworkStatusBadge from "@/components/NetworkStatusBadge";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
+import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -165,6 +166,11 @@ export default function HomeScreen() {
               onAction={() => router.push("/pet/add")}
             />
           )}
+        </View>
+
+        {/* Next Feeding Widget */}
+        <View style={styles.widgetSection}>
+          <NextFeedingWidget />
         </View>
 
         {/* Health Overview Section */}
@@ -323,6 +329,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   petsSection: {
+    marginBottom: 24,
+  },
+  widgetSection: {
     marginBottom: 24,
   },
   sectionHeader: {

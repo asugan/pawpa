@@ -69,6 +69,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="feeding"
+        options={{
+          title: t('navigation.feeding'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bowl" size={size} color={color} />
+          ),
+          headerTitle: t('feedingSchedule.title'),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: t('navigation.settings'),

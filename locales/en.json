@@ -4,6 +4,7 @@
     "pets": "Pets",
     "health": "Health",
     "calendar": "Calendar",
+    "feeding": "Feeding",
     "settings": "Settings"
   },
   "home": {
@@ -162,7 +163,13 @@
     "share": "Share",
     "goBack": "Go Back",
     "created": "Created",
-    "updated": "Updated"
+    "updated": "Updated",
+    "create": "Create",
+    "update": "Update",
+    "success": "Success",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to discard them?",
+    "discard": "Discard"
   },
   "errors": {
     "loadingFailed": "Loading Failed"
@@ -211,6 +218,81 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "foodTypes": {
+    "dry_food": "Dry Food",
+    "wet_food": "Wet Food",
+    "raw_food": "Raw Food",
+    "homemade": "Homemade",
+    "treats": "Treats",
+    "supplements": "Supplements",
+    "other": "Other"
+  },
+  "feedingSchedule": {
+    "title": "Feeding Schedules",
+    "createTitle": "Create Feeding Schedule",
+    "editTitle": "Edit Feeding Schedule",
+    "subtitle": "Set up a feeding schedule for your pet",
+    "forPet": "For pet",
+    "everyday": "Everyday",
+    "active": "Active",
+    "inactive": "Inactive",
+    "selectedPet": "Selected Pet",
+    "fields": {
+      "pet": "Pet",
+      "time": "Feeding Time",
+      "foodType": "Food Type",
+      "amount": "Amount",
+      "days": "Days",
+      "isActive": "Active Schedule"
+    },
+    "placeholders": {
+      "selectPet": "Select a pet",
+      "selectTime": "Select feeding time",
+      "selectFoodType": "Select food type",
+      "amount": "e.g., 200g, 1 cup, 2 tbsp"
+    },
+    "daysHelp": "Select days when this feeding schedule should be active",
+    "isActiveHelp": "Toggle to activate or deactivate this schedule",
+    "quickSelect": {
+      "all": "All Days",
+      "weekdays": "Weekdays",
+      "weekends": "Weekends",
+      "clear": "Clear"
+    },
+    "suggestions": {
+      "dryFood": "Recommended: 2-3 times daily. Measure portions based on pet's weight and age.",
+      "wetFood": "Recommended: 1-2 times daily. Store opened cans in refrigerator.",
+      "rawFood": "Recommended: 1-2 times daily. Ensure proper handling and storage.",
+      "homemade": "Recommended: Consult vet for balanced nutrition. Portion based on recipe.",
+      "treats": "Recommended: No more than 10% of daily calories. Use for training.",
+      "supplements": "Recommended: Follow vet's instructions for dosage and timing.",
+      "default": "Consult your veterinarian for specific feeding recommendations."
+    },
+    "errors": {
+      "submitFailed": "Failed to save feeding schedule. Please try again.",
+      "loadFailed": "Failed to load feeding schedules.",
+      "deleteFailed": "Failed to delete feeding schedule.",
+      "toggleFailed": "Failed to update schedule status."
+    },
+    "delete": {
+      "title": "Delete Schedule",
+      "message": "Are you sure you want to delete this feeding schedule?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "noSchedules": "No feeding schedules yet",
+    "addFirstSchedule": "Create your first feeding schedule",
+    "nextFeeding": "Next Feeding",
+    "noNextFeeding": "No upcoming feedings",
+    "todaysSchedules": "Today's Feedings",
+    "upcomingSchedules": "Upcoming Schedules",
+    "allSchedules": "All Schedules",
+    "details": "Details",
+    "status": "Status",
+    "createSuccess": "Feeding schedule created successfully",
+    "updateSuccess": "Feeding schedule updated successfully",
+    "deleteSuccess": "Feeding schedule deleted successfully"
   },
   "forms": {
     "petForm": {

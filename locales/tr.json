@@ -4,6 +4,7 @@
     "pets": "Evcil Dostlar",
     "health": "Sağlık",
     "calendar": "Takvim",
+    "feeding": "Besleme",
     "settings": "Ayarlar"
   },
   "home": {
@@ -162,7 +163,13 @@
     "share": "Paylaş",
     "goBack": "Geri Dön",
     "created": "Oluşturulma",
-    "updated": "Güncellenme"
+    "updated": "Güncellenme",
+    "create": "Oluştur",
+    "update": "Güncelle",
+    "success": "Başarılı",
+    "unsavedChanges": "Kaydedilmemiş Değişiklikler",
+    "unsavedChangesMessage": "Kaydedilmemiş değişiklikleriniz var. Bunları silmek istediğinizden emin misiniz?",
+    "discard": "Değişiklikleri Sil"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -211,6 +218,81 @@
     "friday": "Cuma",
     "saturday": "Cumartesi",
     "sunday": "Pazar"
+  },
+  "foodTypes": {
+    "dry_food": "Kuru Mama",
+    "wet_food": "Yaş Mama",
+    "raw_food": "Çiğ Mama",
+    "homemade": "Evde Hazırlanan",
+    "treats": "Ödül Maması",
+    "supplements": "Takviye",
+    "other": "Diğer"
+  },
+  "feedingSchedule": {
+    "title": "Besleme Programları",
+    "createTitle": "Besleme Programı Oluştur",
+    "editTitle": "Besleme Programı Düzenle",
+    "subtitle": "Evcil dostunuz için bir besleme programı oluşturun",
+    "forPet": "Evcil dost için",
+    "everyday": "Her Gün",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "selectedPet": "Seçili Evcil Dost",
+    "fields": {
+      "pet": "Evcil Dost",
+      "time": "Besleme Saati",
+      "foodType": "Mama Türü",
+      "amount": "Miktar",
+      "days": "Günler",
+      "isActive": "Aktif Program"
+    },
+    "placeholders": {
+      "selectPet": "Bir evcil dost seçin",
+      "selectTime": "Besleme saatini seçin",
+      "selectFoodType": "Mama türünü seçin",
+      "amount": "örn: 200g, 1 bardak, 2 yemek kaşığı"
+    },
+    "daysHelp": "Bu besleme programının aktif olacağı günleri seçin",
+    "isActiveHelp": "Bu programı aktif veya pasif hale getirmek için değiştirin",
+    "quickSelect": {
+      "all": "Tüm Günler",
+      "weekdays": "Hafta İçi",
+      "weekends": "Hafta Sonu",
+      "clear": "Temizle"
+    },
+    "suggestions": {
+      "dryFood": "Önerilen: Günde 2-3 kez. Porsiyon evcil dostunuzun kilosuna ve yaşına göre ölçülmelidir.",
+      "wetFood": "Önerilen: Günde 1-2 kez. Açılmış konserveleri buzdolabında saklayın.",
+      "rawFood": "Önerilen: Günde 1-2 kez. Doğru saklama ve işleme dikkat edin.",
+      "homemade": "Önerilen: Dengeli beslenme için veterinerinize danışın. Porsiyon tarife göre ayarlayın.",
+      "treats": "Önerilen: Günlük kalorinin %10'undan fazla olmamalı. Eğitim için kullanın.",
+      "supplements": "Önerilen: Doz ve zamanlama için veterinerinizin talimatlarına uyun.",
+      "default": "Spesifik besleme önerileri için veterinerinize danışın."
+    },
+    "errors": {
+      "submitFailed": "Besleme programı kaydedilemedi. Lütfen tekrar deneyin.",
+      "loadFailed": "Besleme programları yüklenemedi.",
+      "deleteFailed": "Besleme programı silinemedi.",
+      "toggleFailed": "Program durumu güncellenemedi."
+    },
+    "delete": {
+      "title": "Programı Sil",
+      "message": "Bu besleme programını silmek istediğinizden emin misiniz?",
+      "confirm": "Sil",
+      "cancel": "İptal"
+    },
+    "noSchedules": "Henüz besleme programı yok",
+    "addFirstSchedule": "İlk besleme programınızı oluşturun",
+    "nextFeeding": "Sıradaki Besleme",
+    "noNextFeeding": "Yaklaşan besleme yok",
+    "todaysSchedules": "Bugünkü Beslemeler",
+    "upcomingSchedules": "Yaklaşan Programlar",
+    "allSchedules": "Tüm Programlar",
+    "details": "Detaylar",
+    "status": "Durum",
+    "createSuccess": "Besleme programı başarıyla oluşturuldu",
+    "updateSuccess": "Besleme programı başarıyla güncellendi",
+    "deleteSuccess": "Besleme programı başarıyla silindi"
   },
   "forms": {
     "petForm": {

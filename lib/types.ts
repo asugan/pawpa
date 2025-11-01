@@ -71,15 +71,12 @@ export interface Event {
 export interface FeedingSchedule {
   id: string;
   petId: string;
-  name: string;
-  times: string[];
-  days: string[];
-  foodType?: string;
-  portionSize?: string;
-  notes?: string;
+  time: string; // HH:MM format (e.g., "08:00")
+  foodType: string;
+  amount: string; // Portion amount (e.g., "200g", "1 cup")
+  days: string; // Comma-separated days (e.g., "monday,tuesday,wednesday")
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
 }
 
 // Extended types with additional fields if needed
@@ -104,7 +101,7 @@ export type UpdateEventInput = Partial<CreateEventInput>;
 
 export type CreateFeedingScheduleInput = Omit<
   FeedingSchedule,
-  "id" | "createdAt" | "pet"
+  "id" | "createdAt"
 >;
 export type UpdateFeedingScheduleInput = Partial<CreateFeedingScheduleInput>;
 
