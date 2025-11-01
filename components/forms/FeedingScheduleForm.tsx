@@ -74,7 +74,7 @@ export function FeedingScheduleForm({
     formState: { isDirty, errors },
     setValue,
     watch,
-  } = useForm<FeedingScheduleFormData>({
+  } = useForm({
     resolver: zodResolver(feedingScheduleFormSchema),
     defaultValues,
     mode: 'onChange',
@@ -87,7 +87,7 @@ export function FeedingScheduleForm({
 
   // Food type options with i18n support
   const foodTypeOptions = React.useMemo(() =>
-    createFoodTypeOptions(t),
+    createFoodTypeOptions((key: string) => t(key)),
     [t]
   );
 

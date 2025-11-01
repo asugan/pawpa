@@ -222,7 +222,7 @@ export default function FeedingScheduleDetailScreen() {
               {t('feedingSchedule.fields.days')}
             </Text>
             <View style={styles.daysContainer}>
-              {schedule.days.split(',').map((day, index) => (
+              {schedule.days.split(',').map((day: string, index: number) => (
                 <View
                   key={index}
                   style={[styles.dayBadge, { backgroundColor: theme.colors.primaryContainer }]}

@@ -36,7 +36,7 @@ export default function HealthScreen() {
   // Filter records by type
   const filteredRecords = selectedType === 'all'
     ? healthRecords
-    : healthRecords.filter(record => record.type === selectedType);
+    : healthRecords.filter((record: HealthRecord) => record.type === selectedType);
 
   const handleAddHealthRecord = () => {
     if (selectedPetId) {

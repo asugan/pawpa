@@ -28,7 +28,7 @@ import {
   useCreateHealthRecord,
   useUpdateHealthRecord
 } from '../../lib/hooks/useHealthRecords';
-import type { HealthRecord } from '../../lib/types';
+import type { HealthRecord, ApiResponse } from '../../lib/types';
 import {
   HealthRecordCreateSchema,
   HealthRecordUpdateSchema,
@@ -139,7 +139,7 @@ export function HealthRecordForm({
         const result = await updateMutation.mutateAsync({
           id: initialData.id,
           data: apiData
-        });
+        }) as ApiResponse<HealthRecord>;
         if (!result.success) {
           throw new Error(result.error || 'Kayıt güncellenemedi');
         }
@@ -148,7 +148,7 @@ export function HealthRecordForm({
           ...apiData,
           updatedAt: new Date().toISOString()
         };
-        const result = await createMutation.mutateAsync(createData);
+        const result = await createMutation.mutateAsync(createData) as ApiResponse<HealthRecord>;
         if (!result.success) {
           throw new Error(result.error || 'Kayıt oluşturulamadı');
         }

@@ -16,14 +16,14 @@ export function NextFeedingWidget() {
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Fetch next feeding
-  const { data: nextFeedingSchedules = [], isLoading } = useNextFeeding();
+  const { data: nextFeedingSchedule = null, isLoading } = useNextFeeding();
 
   // Fetch pets for display
   const { data: pets = [] } = usePets();
 
   // Calculate next feeding time
-  const nextFeedingTime = getNextFeedingTime(nextFeedingSchedules);
-  const nextSchedule = nextFeedingSchedules.length > 0 ? nextFeedingSchedules[0] : null;
+  const nextFeedingTime = nextFeedingSchedule ? getNextFeedingTime([nextFeedingSchedule]) : null;
+  const nextSchedule = nextFeedingSchedule;
 
   // Get pet details
   const pet = nextSchedule ? pets.find(p => p.id === nextSchedule.petId) : null;

@@ -16,7 +16,7 @@ import { useHealthRecord, useDeleteHealthRecord } from '../../lib/hooks/useHealt
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
-import type { HealthRecord } from '../../lib/types';
+import type { HealthRecord, ApiResponse } from '../../lib/types';
 
 export default function HealthRecordDetailScreen() {
   const theme = useTheme();
@@ -53,7 +53,7 @@ export default function HealthRecordDetailScreen() {
   const confirmDelete = async () => {
     try {
       setIsDeleting(true);
-      const result = await deleteMutation.mutateAsync(id as string);
+      const result = await deleteMutation.mutateAsync(id as string) as ApiResponse<void>;
       if (!result.success) {
         throw new Error(result.error || 'Kayıt silinemedi');
       }

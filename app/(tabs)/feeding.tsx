@@ -13,7 +13,7 @@ import {
   useToggleFeedingSchedule,
 } from '@/lib/hooks/useFeedingSchedules';
 import { usePets } from '@/lib/hooks/usePets';
-import { FeedingSchedule } from '@/lib/types';
+import { FeedingSchedule, Pet } from '@/lib/types';
 
 type TabValue = 'today' | 'upcoming' | 'all';
 
@@ -51,10 +51,10 @@ export default function FeedingScreen() {
         return filterByPet(activeSchedules);
       case 'all':
         // For 'all', we need to get all schedules from all pets
-        const allSchedules = allPets.flatMap(pet => {
+        const allSchedules = allPets.flatMap((pet: Pet) => {
           // This is a workaround - ideally we'd have a hook for all schedules
           // For now, we'll use activeSchedules as a proxy
-          return activeSchedules.filter(s => s.petId === pet.id);
+          return activeSchedules.filter((s: FeedingSchedule) => s.petId === pet.id);
         });
         return filterByPet(allSchedules);
       default:

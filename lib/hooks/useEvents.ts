@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventService } from '@/lib/services/eventService';
-import { Event, CreateEventInput, UpdateEventInput } from '@/lib/types';
+import { Event, CreateEventInput, UpdateEventInput, ApiResponse } from '@/lib/types';
 
 // Query keys for events
 export const eventKeys = {
@@ -19,7 +19,7 @@ export const eventKeys = {
 export const useEvents = (petId: string) => {
   return useQuery({
     queryKey: eventKeys.list(petId),
-    queryFn: () => eventService.getEventsByPetId(petId).then(res => res.data || []),
+    queryFn: () => eventService.getEventsByPetId(petId).then((res: ApiResponse<Event[]>) => res.data || []),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!petId,
   });
@@ -28,7 +28,7 @@ export const useEvents = (petId: string) => {
 export const useEvent = (id: string) => {
   return useQuery({
     queryKey: eventKeys.detail(id),
-    queryFn: () => eventService.getEventById(id).then(res => res.data),
+    queryFn: () => eventService.getEventById(id).then((res: ApiResponse<Event>) => res.data),
     staleTime: 10 * 60 * 1000, // 10 minutes
     enabled: !!id,
   });
@@ -37,7 +37,7 @@ export const useEvent = (id: string) => {
 export const useCalendarEvents = (date: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: eventKeys.calendar(date),
-    queryFn: () => eventService.getEventsByDate(date).then(res => res.data || []),
+    queryFn: () => eventService.getEventsByDate(date).then((res: ApiResponse<Event[]>) => res.data || []),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== undefined ? (options.enabled && !!date) : !!date,
   });
@@ -46,7 +46,7 @@ export const useCalendarEvents = (date: string, options?: { enabled?: boolean })
 export const useUpcomingEvents = () => {
   return useQuery({
     queryKey: eventKeys.upcoming(),
-    queryFn: () => eventService.getUpcomingEvents().then(res => res.data || []),
+    queryFn: () => eventService.getUpcomingEvents().then((res: ApiResponse<Event[]>) => res.data || []),
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
@@ -55,7 +55,7 @@ export const useUpcomingEvents = () => {
 export const useTodayEvents = () => {
   return useQuery({
     queryKey: eventKeys.today(),
-    queryFn: () => eventService.getTodayEvents().then(res => res.data || []),
+    queryFn: () => eventService.getTodayEvents().then((res: ApiResponse<Event[]>) => res.data || []),
     staleTime: 1 * 60 * 1000, // 1 minute
     refetchInterval: 60 * 1000, // Refresh every minute
   });
@@ -64,7 +64,11 @@ export const useTodayEvents = () => {
 export const useEventsByType = (petId: string, type: string) => {
   return useQuery({
     queryKey: eventKeys.type(petId, type),
-    queryFn: () => eventService.getEventsByType(petId, type).then(res => res.data || []),
+    queryFn: async () => {
+      const response = await eventService.getEventsByPetId(petId);
+      const events = response.data || [];
+      return events.filter((event: Event) => event.type === type);
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!petId && !!type,
   });
@@ -74,15 +78,15 @@ export const useEventsByType = (petId: string, type: string) => {
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<Event | undefined, Error, CreateEventInput, { previousEvents?: Event[] }>({
     mutationFn: (eventData: CreateEventInput) =>
-      eventService.createEvent(eventData).then(res => res.data),
+      eventService.createEvent(eventData).then((res: ApiResponse<Event>) => res.data),
     onMutate: async (newEvent) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: eventKeys.lists() });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(eventKeys.list(newEvent.petId));
+      const previousEvents = queryClient.getQueryData<Event[]>(eventKeys.list(newEvent.petId));
 
       // Optimistically update to the new value
       const tempEvent = {
@@ -118,7 +122,7 @@ export const useCreateEvent = () => {
         queryClient.setQueryData(eventKeys.list(newEvent.petId), context.previousEvents);
       }
     },
-    onSettled: (newEvent) => {
+    onSettled: (newEvent?: Event) => {
       // Always refetch after error or success
       if (newEvent) {
         queryClient.invalidateQueries({ queryKey: eventKeys.list(newEvent.petId) });
@@ -139,7 +143,7 @@ export const useUpdateEvent = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateEventInput }) =>
-      eventService.updateEvent(id, data).then(res => res.data),
+      eventService.updateEvent(id, data).then((res: ApiResponse<Event>) => res.data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: eventKeys.detail(id) });
       await queryClient.cancelQueries({ queryKey: eventKeys.lists() });
