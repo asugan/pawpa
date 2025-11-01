@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useTheme, Text, IconButton, Chip, Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { FeedingSchedule } from '../../lib/types';
 import { formatTimeForDisplay } from '../../lib/schemas/feedingScheduleSchema';
 
@@ -31,7 +30,6 @@ export function FeedingScheduleCard({
 }: FeedingScheduleCardProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
 
   // Parse days string into array
   const daysArray = schedule.days.split(',').map(d => d.trim());
@@ -55,12 +53,8 @@ export function FeedingScheduleCard({
   };
 
   const handlePress = React.useCallback(() => {
-    if (onPress) {
-      onPress(schedule);
-    } else {
-      router.push(`/feeding/${schedule.id}`);
-    }
-  }, [onPress, schedule, router]);
+    onPress?.(schedule);
+  }, [onPress, schedule]);
 
   const handleEdit = React.useCallback((e: any) => {
     e.stopPropagation();

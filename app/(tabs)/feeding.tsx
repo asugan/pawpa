@@ -3,8 +3,8 @@ import { View, StyleSheet, ActivityIndicator, FlatList, ScrollView } from 'react
 import { Text, FAB, useTheme, SegmentedButtons, Menu, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
+import { FeedingScheduleModal } from '@/components/FeedingScheduleModal';
 import {
   useFeedingSchedules,
   useActiveFeedingSchedules,
@@ -20,12 +20,15 @@ type TabValue = 'today' | 'upcoming' | 'all';
 export default function FeedingScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
 
   // State management
   const [selectedTab, setSelectedTab] = useState<TabValue>('today');
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
   const [petFilterVisible, setPetFilterVisible] = useState(false);
+
+  // Modal state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<FeedingSchedule | undefined>(undefined);
 
   // Fetch data
   const { data: allPets = [], isLoading: isPetsLoading } = usePets();
@@ -73,15 +76,18 @@ export default function FeedingScreen() {
 
   // Handlers
   const handleAddSchedule = () => {
-    router.push('/feeding/create');
+    setSelectedSchedule(undefined);
+    setIsModalVisible(true);
   };
 
   const handleSchedulePress = (schedule: FeedingSchedule) => {
-    router.push(`/feeding/${schedule.id}`);
+    setSelectedSchedule(schedule);
+    setIsModalVisible(true);
   };
 
   const handleEditSchedule = (schedule: FeedingSchedule) => {
-    router.push(`/feeding/${schedule.id}`);
+    setSelectedSchedule(schedule);
+    setIsModalVisible(true);
   };
 
   const handleDeleteSchedule = async (schedule: FeedingSchedule) => {
@@ -103,6 +109,15 @@ export default function FeedingScreen() {
   const handlePetFilter = (petId: string | null) => {
     setSelectedPetId(petId);
     setPetFilterVisible(false);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedSchedule(undefined);
+  };
+
+  const handleModalSuccess = () => {
+    // Modal will close itself and trigger refetch via TanStack Query
   };
 
   // Render empty state
@@ -245,6 +260,17 @@ export default function FeedingScreen() {
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={handleAddSchedule}
         testID="add-schedule-fab"
+      />
+
+      {/* Feeding Schedule Modal */}
+      <FeedingScheduleModal
+        visible={isModalVisible}
+        schedule={selectedSchedule}
+        initialPetId={selectedPetId || undefined}
+        onClose={handleModalClose}
+        onSuccess={handleModalSuccess}
+        pets={allPets}
+        testID="feeding-schedule-modal"
       />
     </SafeAreaView>
   );

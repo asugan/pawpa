@@ -33,7 +33,8 @@ export function NextFeedingWidget() {
   };
 
   const handleAddPress = () => {
-    router.push('/feeding/create');
+    // Navigate to feeding tab where user can add via modal
+    router.push('/(tabs)/feeding');
   };
 
   // Loading state
