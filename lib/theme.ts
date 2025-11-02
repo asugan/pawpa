@@ -1,46 +1,83 @@
 import { MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 
-// Rainbow Pastel Color Palette
+// Vibrant Candy Color Palette (Light Mode)
 const lightColors = {
-  primary: "#FFB3D1", // Soft Pink
-  secondary: "#B3FFD9", // Mint Green
-  tertiary: "#C8B3FF", // Lavender
-  accent: "#FFDAB3", // Peach
-  surface: "#FFF3B3", // Light Yellow
-  background: "#ecd9d9ff", // White
-  onPrimary: "#FFFFFF", // White text on primary
-  onSecondary: "#333333", // Dark text on secondary
-  onTertiary: "#FFFFFF", // White text on tertiary
-  onAccent: "#333333", // Dark text on accent
-  onSurface: "#333333", // Dark text on surface
-  onBackground: "#333333", // Dark text on background
-  error: "#FF6B6B", // Soft Red
-  onError: "#FFFFFF", // White text on error
-  success: "#B3FFD9", // Mint Green
-  onSuccess: "#333333", // Dark text on success
-  warning: "#FFDAB3", // Peach
-  onWarning: "#333333", // Dark text on warning
+  // Ana Renkler (Candy Colors)
+  primary: "#FF6B9D",        // 🍭 Bright Pink (şeker pembe)
+  secondary: "#00E5A0",      // 🍃 Vibrant Mint (canlı nane)
+  tertiary: "#A855F7",       // 💜 Electric Lavender (elektrik mor)
+  accent: "#FFB347",         // 🍊 Orange Candy (portakal şeker)
+
+  // Durum Renkleri
+  success: "#10B981",        // ✅ Bright Green
+  warning: "#F59E0B",        // ⚠️ Golden Yellow
+  error: "#EF4444",          // ❌ Bright Red
+  info: "#3B82F6",           // ℹ️ Bright Blue
+
+  // Yüzeyler
+  background: "#FFFFFF",     // Beyaz
+  surface: "#FAFAFA",        // Çok hafif gri
+  surfaceVariant: "#F5F5F5", // Hafif gri
+
+  // Metin Renkleri
+  onPrimary: "#FFFFFF",
+  onSecondary: "#FFFFFF",
+  onTertiary: "#FFFFFF",
+  onAccent: "#FFFFFF",
+  onBackground: "#1F2937",   // Koyu gri (siyah yerine)
+  onSurface: "#374151",      // Orta koyu gri
+  onSurfaceVariant: "#6B7280", // Orta gri
+  onError: "#FFFFFF",
+  onSuccess: "#FFFFFF",
+  onWarning: "#FFFFFF",
 };
 
+// Neon/Glow Color Palette (Dark Mode)
 const darkColors = {
-  primary: "#E91E63", // Deeper Pink for dark mode
-  secondary: "#4CAF50", // Deeper Mint
-  tertiary: "#9C27B0", // Deeper Lavender
-  accent: "#FF9800", // Deeper Peach
-  surface: "#2C2C2C", // Dark surface
-  background: "#121212", // Dark background
-  onPrimary: "#FFFFFF", // White text on primary
-  onSecondary: "#FFFFFF", // White text on secondary
-  onTertiary: "#FFFFFF", // White text on tertiary
-  onAccent: "#FFFFFF", // White text on accent
-  onSurface: "#FFFFFF", // White text on surface
-  onBackground: "#FFFFFF", // White text on background
-  error: "#CF6679", // Lighter Red for dark mode
-  onError: "#000000", // Black text on error
-  success: "#81C784", // Lighter Mint
-  onSuccess: "#000000", // Black text on success
-  warning: "#FFB74D", // Lighter Peach
-  onWarning: "#000000", // Black text on warning
+  // Ana Renkler (Neon/Glow Effect)
+  primary: "#FF4A8B",        // 💗 Neon Pink (parlak pembe)
+  secondary: "#00D696",      // 💚 Bright Mint (parlak nane)
+  tertiary: "#C084FC",       // 💜 Neon Lavender (parlak mor)
+  accent: "#FB923C",         // 🟠 Orange Glow (turuncu ışık)
+
+  // Durum Renkleri (Daha parlak)
+  success: "#34D399",        // ✅ Neon Green
+  warning: "#FBBF24",        // ⚠️ Bright Gold
+  error: "#F87171",          // ❌ Bright Red
+  info: "#60A5FA",           // ℹ️ Bright Blue
+
+  // Yüzeyler (Saf siyah değil!)
+  background: "#0F1419",     // Çok koyu gri (glow için)
+  surface: "#1A1F26",        // Koyu gri (background'dan açık)
+  surfaceVariant: "#252B35", // Orta koyu gri
+
+  // Metin Renkleri (Daha parlak)
+  onPrimary: "#FFFFFF",
+  onSecondary: "#000000",
+  onTertiary: "#000000",
+  onAccent: "#000000",
+  onBackground: "#F9FAFB",   // Çok açık gri (beyaza yakın)
+  onSurface: "#E5E7EB",      // Açık gri
+  onSurfaceVariant: "#D1D5DB", // Orta açık gri
+  onError: "#FFFFFF",
+  onSuccess: "#000000",
+  onWarning: "#000000",
+};
+
+// Gradient tanımları (light mode için)
+export const gradients = {
+  primary: ["#FF6B9D", "#FF8FAB"],      // Pink gradient
+  secondary: ["#00E5A0", "#00F5AE"],    // Mint gradient
+  tertiary: ["#A855F7", "#C084FC"],     // Purple gradient
+  accent: ["#FFB347", "#FFC870"],       // Orange gradient
+};
+
+// Dark mode gradients (daha parlak)
+export const gradientsDark = {
+  primary: ["#FF4A8B", "#FF6B9D"],
+  secondary: ["#00D696", "#00E5A0"],
+  tertiary: ["#C084FC", "#D8B4FE"],
+  accent: ["#FB923C", "#FDBA74"],
 };
 
 export const lightTheme = {
@@ -49,7 +86,7 @@ export const lightTheme = {
     ...MD3LightTheme.colors,
     ...lightColors,
   },
-  roundness: 16, // Softer corners for cute look
+  roundness: 20, // Softer, more candy-like corners
   fonts: {
     ...MD3LightTheme.fonts,
     headlineLarge: {
@@ -81,7 +118,7 @@ export const darkTheme = {
     ...MD3DarkTheme.colors,
     ...darkColors,
   },
-  roundness: 16, // Softer corners for cute look
+  roundness: 20, // Softer, more candy-like corners
   fonts: {
     ...MD3DarkTheme.fonts,
     headlineLarge: {

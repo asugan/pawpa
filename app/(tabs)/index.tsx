@@ -5,11 +5,15 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Button, FAB, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Data hooks
 import { useTodayEvents } from "@/lib/hooks/useEvents";
 import { useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
+
+// Theme
+import { gradients, gradientsDark } from "@/lib/theme";
 
 // Components
 import EmptyState from "@/components/EmptyState";
@@ -76,7 +80,7 @@ export default function HomeScreen() {
               variant="headlineMedium"
               style={[styles.title, { color: theme.colors.onBackground }]}
             >
-              PawPa
+              🐾 PawPa
             </Text>
             <NetworkStatusBadge />
           </View>
@@ -199,70 +203,82 @@ export default function HomeScreen() {
           </Text>
           <View style={styles.actionButtons}>
             <Pressable
-              style={[
-                styles.quickActionButton,
-                { backgroundColor: theme.colors.primaryContainer },
-              ]}
               onPress={() => router.push("/pet/add")}
+              style={({ pressed }) => [
+                styles.quickActionPressable,
+                pressed && styles.pressed,
+              ]}
             >
-              <MaterialCommunityIcons
-                name="plus"
-                size={24}
-                color={theme.colors.onPrimaryContainer}
-              />
-              <Text
-                variant="bodyMedium"
-                style={[
-                  styles.quickActionText,
-                  { color: theme.colors.onPrimaryContainer },
-                ]}
+              <LinearGradient
+                colors={theme.dark ? gradientsDark.primary : gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.quickActionButton}
               >
-                {t("pets.addNewPet")}
-              </Text>
+                <MaterialCommunityIcons
+                  name="plus"
+                  size={32}
+                  color="#FFFFFF"
+                />
+                <Text
+                  variant="bodyMedium"
+                  style={styles.quickActionText}
+                >
+                  🐾 {t("pets.addNewPet")}
+                </Text>
+              </LinearGradient>
             </Pressable>
             <Pressable
-              style={[
-                styles.quickActionButton,
-                { backgroundColor: theme.colors.secondaryContainer },
-              ]}
               onPress={() => router.push("/health/add")}
+              style={({ pressed }) => [
+                styles.quickActionPressable,
+                pressed && styles.pressed,
+              ]}
             >
-              <MaterialCommunityIcons
-                name="medical-bag"
-                size={24}
-                color={theme.colors.onSecondaryContainer}
-              />
-              <Text
-                variant="bodyMedium"
-                style={[
-                  styles.quickActionText,
-                  { color: theme.colors.onSecondaryContainer },
-                ]}
+              <LinearGradient
+                colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.quickActionButton}
               >
-                {t("health.addRecord")}
-              </Text>
+                <MaterialCommunityIcons
+                  name="medical-bag"
+                  size={32}
+                  color="#FFFFFF"
+                />
+                <Text
+                  variant="bodyMedium"
+                  style={styles.quickActionText}
+                >
+                  💊 {t("health.addRecord")}
+                </Text>
+              </LinearGradient>
             </Pressable>
             <Pressable
-              style={[
-                styles.quickActionButton,
-                { backgroundColor: theme.colors.tertiaryContainer },
-              ]}
               onPress={() => router.push("/(tabs)/calendar")}
+              style={({ pressed }) => [
+                styles.quickActionPressable,
+                pressed && styles.pressed,
+              ]}
             >
-              <MaterialCommunityIcons
-                name="calendar-plus"
-                size={24}
-                color={theme.colors.onTertiaryContainer}
-              />
-              <Text
-                variant="bodyMedium"
-                style={[
-                  styles.quickActionText,
-                  { color: theme.colors.onTertiaryContainer },
-                ]}
+              <LinearGradient
+                colors={theme.dark ? gradientsDark.tertiary : gradients.tertiary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.quickActionButton}
               >
-                {t("events.addEvent")}
-              </Text>
+                <MaterialCommunityIcons
+                  name="calendar-plus"
+                  size={32}
+                  color="#FFFFFF"
+                />
+                <Text
+                  variant="bodyMedium"
+                  style={styles.quickActionText}
+                >
+                  📅 {t("events.addEvent")}
+                </Text>
+              </LinearGradient>
             </Pressable>
           </View>
         </View>
@@ -281,16 +297,16 @@ export default function HomeScreen() {
 // Helper functions
 const getGreetingMessage = () => {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "Good morning ☀️";
+  if (hour < 18) return "Good afternoon 🌤️";
+  return "Good evening 🌙";
 };
 
 const getDynamicSubtitle = (petsCount: number, eventsCount: number) => {
-  if (petsCount === 0) return "Start by adding your first pet";
-  if (eventsCount === 0) return "No scheduled activities for today";
-  if (eventsCount === 1) return "You have 1 activity today";
-  return `You have ${eventsCount} activities today`;
+  if (petsCount === 0) return "Start by adding your first pet 🐕";
+  if (eventsCount === 0) return "No scheduled activities for today 📅";
+  if (eventsCount === 1) return "You have 1 activity today ✨";
+  return `You have ${eventsCount} activities today 🎉`;
 };
 
 const getPetUpcomingEvents = (petId: string, events?: any[]) => {
@@ -374,20 +390,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
   },
-  quickActionButton: {
+  quickActionPressable: {
     flex: 1,
+  },
+  pressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
+  },
+  quickActionButton: {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 20,
     gap: 8,
   },
   quickActionText: {
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
+    color: "#FFFFFF",
   },
   fab: {
     position: "absolute",

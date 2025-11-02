@@ -3,6 +3,8 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gradients, gradientsDark } from '../lib/theme';
 
 interface StatCardProps {
   title: string;
@@ -25,6 +27,23 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const theme = useTheme();
 
+  // Gradient helper - detect which gradient to use based on color
+  const getGradientColors = (color: string): string[] => {
+    const isDark = theme.dark;
+    const gradientSet = isDark ? gradientsDark : gradients;
+
+    // Match color to gradient
+    if (color === theme.colors.primary) return gradientSet.primary;
+    if (color === theme.colors.secondary) return gradientSet.secondary;
+    if (color === theme.colors.tertiary) return gradientSet.tertiary;
+    if (color.toLowerCase().includes('ff') || color.toLowerCase().includes('fb')) {
+      return gradientSet.accent;
+    }
+
+    // Default: create gradient from color
+    return [color, color + 'CC'];
+  };
+
   if (loading) {
     return (
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
@@ -44,14 +63,19 @@ const StatCard: React.FC<StatCardProps> = ({
       <Pressable onPress={onPress} style={styles.pressable}>
         <Card style={[styles.card, { borderColor: theme.colors.error, borderWidth: 1 }]}>
           <Card.Content style={styles.content}>
-            <View style={[styles.iconContainer, { backgroundColor: theme.colors.errorContainer }]}>
+            <LinearGradient
+              colors={[theme.colors.error, theme.colors.error + 'CC']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.iconContainer}
+            >
               <MaterialCommunityIcons
                 name="alert-circle"
-                size={24}
-                color={theme.colors.onErrorContainer}
+                size={36}
+                color="#FFFFFF"
               />
-            </View>
-            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: 'bold' }}>
+            </LinearGradient>
+            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: '800' }}>
                 --
             </Text>
             <Text variant="bodyMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
@@ -64,17 +88,28 @@ const StatCard: React.FC<StatCardProps> = ({
   }
 
   return (
-    <Pressable onPress={onPress} style={styles.pressable}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.pressable,
+        pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+      ]}
+    >
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content style={styles.content}>
-          <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}>
+          <LinearGradient
+            colors={getGradientColors(color)}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.iconContainer}
+          >
             <MaterialCommunityIcons
               name={icon}
-              size={24}
-              color={color}
+              size={36}
+              color="#FFFFFF"
             />
-          </View>
-          <Text variant="headlineMedium" style={{ color, fontWeight: 'bold' }}>
+          </LinearGradient>
+          <Text variant="headlineMedium" style={{ color, fontWeight: '800' }}>
             {value}
           </Text>
           <Text variant="bodyMedium" style={styles.title}>
@@ -92,8 +127,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   card: {
-    elevation: 2,
-    borderRadius: 12,
+    elevation: 5,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   content: {
@@ -106,9 +141,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },
