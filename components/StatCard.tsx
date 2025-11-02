@@ -28,7 +28,7 @@ const StatCard: React.FC<StatCardProps> = ({
   const theme = useTheme();
 
   // Gradient helper - detect which gradient to use based on color
-  const getGradientColors = (color: string): string[] => {
+  const getGradientColors = (color: string): readonly [string, string] => {
     const isDark = theme.dark;
     const gradientSet = isDark ? gradientsDark : gradients;
 
@@ -41,7 +41,7 @@ const StatCard: React.FC<StatCardProps> = ({
     }
 
     // Default: create gradient from color
-    return [color, color + 'CC'];
+    return [color, color + 'CC'] as const;
   };
 
   if (loading) {

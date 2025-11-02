@@ -6,6 +6,8 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Event } from '@/lib/types';
 import { ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gradients, gradientsDark } from '@/lib/theme';
 
 interface HealthOverviewProps {
   todayEvents?: Event[];
@@ -96,25 +98,26 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
         <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons
-                name="calendar-today"
-                size={20}
-                color={theme.colors.tertiary}
-              />
+              <Text style={styles.emojiIcon}>📅</Text>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 {t('home.todaySchedule')}
               </Text>
             </View>
             {todayEvents.slice(0, 3).map((event) => (
-              <View key={event.id} style={styles.eventItem}>
-                <View style={styles.eventTimeContainer}>
-                  <Text variant="bodySmall" style={{ color: theme.colors.primary, fontWeight: '600' }}>
+              <View key={event.id} style={[styles.eventItem, { borderLeftColor: theme.colors.tertiary }]}>
+                <LinearGradient
+                  colors={theme.dark ? gradientsDark.primary : gradients.primary}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.eventTimeContainer}
+                >
+                  <Text variant="bodySmall" style={{ color: '#FFFFFF', fontWeight: '700' }}>
                     {new Date(event.startTime).toLocaleTimeString('tr-TR', {
                       hour: '2-digit',
                       minute: '2-digit'
                     })}
                   </Text>
-                </View>
+                </LinearGradient>
                 <View style={styles.eventDetails}>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                     {event.title}
@@ -149,24 +152,21 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
         <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons
-                name="needle"
-                size={20}
-                color={theme.colors.secondary}
-              />
+              <Text style={styles.emojiIcon}>💉</Text>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 {t('health.upcomingVaccinations')}
               </Text>
             </View>
             {upcomingVaccinations.slice(0, 3).map((vaccination) => (
-              <View key={vaccination.id} style={styles.eventItem}>
-                <View style={styles.vaccinationIconContainer}>
-                  <MaterialCommunityIcons
-                    name="needle"
-                    size={16}
-                    color={theme.colors.secondary}
-                  />
-                </View>
+              <View key={vaccination.id} style={[styles.eventItem, { borderLeftColor: theme.colors.secondary }]}>
+                <LinearGradient
+                  colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.vaccinationIconContainer}
+                >
+                  <Text style={styles.vaccinationEmoji}>💉</Text>
+                </LinearGradient>
                 <View style={styles.eventDetails}>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                     {vaccination.title}
@@ -200,11 +200,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
       {todayEvents.length === 0 && upcomingVaccinations.length === 0 && (
         <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
           <Card.Content style={styles.emptyContent}>
-            <MaterialCommunityIcons
-              name="check-circle"
-              size={32}
-              color={theme.colors.onSurfaceVariant}
-            />
+            <Text style={styles.bigEmoji}>✨</Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
               {t('home.noHealthActivities')}
             </Text>
@@ -238,6 +234,9 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
+  emojiIcon: {
+    fontSize: 20,
+  },
   loadingContent: {
     alignItems: 'center',
     padding: 24,
@@ -253,23 +252,34 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 8,
   },
+  bigEmoji: {
+    fontSize: 48,
+  },
   eventItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
+    paddingLeft: 12,
     gap: 12,
+    borderLeftWidth: 3,
   },
   eventTimeContainer: {
-    minWidth: 50,
-    alignItems: 'flex-start',
-  },
-  vaccinationIconContainer: {
-    width: 24,
-    height: 24,
+    minWidth: 60,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.05)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  vaccinationIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  vaccinationEmoji: {
+    fontSize: 16,
   },
   eventDetails: {
     flex: 1,

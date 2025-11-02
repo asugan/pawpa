@@ -66,18 +66,18 @@ const darkColors = {
 
 // Gradient tanımları (light mode için)
 export const gradients = {
-  primary: ["#FF6B9D", "#FF8FAB"],      // Pink gradient
-  secondary: ["#00E5A0", "#00F5AE"],    // Mint gradient
-  tertiary: ["#A855F7", "#C084FC"],     // Purple gradient
-  accent: ["#FFB347", "#FFC870"],       // Orange gradient
+  primary: ["#FF6B9D", "#FF8FAB"] as const,      // Pink gradient
+  secondary: ["#00E5A0", "#00F5AE"] as const,    // Mint gradient
+  tertiary: ["#A855F7", "#C084FC"] as const,     // Purple gradient
+  accent: ["#FFB347", "#FFC870"] as const,       // Orange gradient
 };
 
 // Dark mode gradients (daha parlak)
 export const gradientsDark = {
-  primary: ["#FF4A8B", "#FF6B9D"],
-  secondary: ["#00D696", "#00E5A0"],
-  tertiary: ["#C084FC", "#D8B4FE"],
-  accent: ["#FB923C", "#FDBA74"],
+  primary: ["#FF4A8B", "#FF6B9D"] as const,
+  secondary: ["#00D696", "#00E5A0"] as const,
+  tertiary: ["#C084FC", "#D8B4FE"] as const,
+  accent: ["#FB923C", "#FDBA74"] as const,
 };
 
 export const lightTheme = {

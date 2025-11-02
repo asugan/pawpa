@@ -4,7 +4,9 @@ import { Card, Text, useTheme, ProgressBar, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useBudgetAlerts } from '../lib/hooks/useBudgets';
+import { gradients, gradientsDark } from '../lib/theme';
 
 interface BudgetOverviewProps {
   petId?: string;
@@ -40,6 +42,16 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
     return theme.colors.secondary;
   };
 
+  const getProgressGradient = (percentage: number, threshold: number): readonly [string, string] => {
+    if (percentage >= 100) {
+      return theme.dark ? ['#F87171', '#EF4444'] as const : ['#EF4444', '#DC2626'] as const;
+    }
+    if (percentage >= threshold * 100) {
+      return theme.dark ? gradientsDark.tertiary : gradients.tertiary;
+    }
+    return theme.dark ? gradientsDark.secondary : gradients.secondary;
+  };
+
   if (isLoading) {
     return null;
   }
@@ -60,17 +72,18 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
             borderLeftColor: alerts.length > 0 ? theme.colors.error : 'transparent',
           },
         ]}
-        elevation={2}
+        elevation={4}
       >
         <Card.Content>
           <View style={styles.header}>
-            <View style={styles.iconContainer}>
-              <MaterialCommunityIcons
-                name="wallet"
-                size={24}
-                color={theme.colors.primary}
-              />
-            </View>
+            <LinearGradient
+              colors={theme.dark ? gradientsDark.tertiary : gradients.tertiary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.iconContainer}
+            >
+              <Text style={styles.emojiIcon}>📊</Text>
+            </LinearGradient>
             <View style={styles.headerText}>
               <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
                 {t('budgets.title', 'Budgets')}
@@ -115,14 +128,20 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
                   {criticalAlert.percentage.toFixed(0)}%
                 </Text>
               </View>
-              <ProgressBar
-                progress={Math.min(criticalAlert.percentage / 100, 1)}
-                color={getProgressColor(
-                  criticalAlert.percentage,
-                  criticalAlert.budgetLimit.alertThreshold
-                )}
-                style={styles.progressBar}
-              />
+              <View style={styles.progressBarContainer}>
+                <LinearGradient
+                  colors={getProgressGradient(
+                    criticalAlert.percentage,
+                    criticalAlert.budgetLimit.alertThreshold
+                  )}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={[
+                    styles.progressBarFill,
+                    { width: `${Math.min(criticalAlert.percentage, 100)}%` }
+                  ]}
+                />
+              </View>
               <View style={styles.budgetDetails}>
                 <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
                   {formatCurrency(criticalAlert.currentSpending, criticalAlert.budgetLimit.currency)} /{' '}
@@ -146,11 +165,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
             </View>
           ) : (
             <View style={styles.noBudgets}>
-              <MaterialCommunityIcons
-                name="check-circle"
-                size={32}
-                color={theme.colors.secondary}
-              />
+              <Text style={styles.bigEmoji}>✅</Text>
               <Text
                 variant="bodyMedium"
                 style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}
@@ -168,7 +183,8 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
 const styles = StyleSheet.create({
   card: {
     marginVertical: 8,
-    borderRadius: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
@@ -176,7 +192,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
+  },
+  emojiIcon: {
+    fontSize: 24,
   },
   headerText: {
     flex: 1,
@@ -190,10 +214,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
+  progressBarContainer: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 5,
   },
   budgetDetails: {
     flexDirection: 'row',
@@ -202,6 +232,10 @@ const styles = StyleSheet.create({
   noBudgets: {
     alignItems: 'center',
     paddingVertical: 16,
+    gap: 8,
+  },
+  bigEmoji: {
+    fontSize: 48,
   },
 });
 

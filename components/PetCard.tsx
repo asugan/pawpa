@@ -85,11 +85,11 @@ const PetCard: React.FC<PetCardProps> = ({
     return typeColors[type.toLowerCase() as keyof typeof typeColors] || typeColors.default;
   };
 
-  const getPetTypeGradient = (type: string): string[] => {
+  const getPetTypeGradient = (type: string): readonly [string, string] => {
     const isDark = theme.dark;
     const gradientSet = isDark ? gradientsDark : gradients;
 
-    const typeGradients: { [key: string]: string[] } = {
+    const typeGradients: { [key: string]: readonly [string, string] } = {
       cat: gradientSet.secondary,
       dog: gradientSet.tertiary,
       bird: gradientSet.primary,
