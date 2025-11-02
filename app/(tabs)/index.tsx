@@ -1,11 +1,9 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, FAB, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 
 // Data hooks
 import { useTodayEvents } from "@/lib/hooks/useEvents";
@@ -13,14 +11,10 @@ import { useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
 
-// Theme
-import { gradients, gradientsDark } from "@/lib/theme";
-
 // Components
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import NetworkStatusBadge from "@/components/NetworkStatusBadge";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
@@ -75,17 +69,8 @@ export default function HomeScreen() {
         style={[styles.scrollView, { padding: scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Enhanced Header */}
+        {/* Greeting Section */}
         <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Text
-              variant="headlineMedium"
-              style={[styles.title, { color: theme.colors.onBackground }]}
-            >
-              🐾 PawPa
-            </Text>
-            <NetworkStatusBadge />
-          </View>
           <Text
             variant="bodyLarge"
             style={[styles.greeting, { color: theme.colors.onBackground }]}
@@ -194,96 +179,6 @@ export default function HomeScreen() {
             <BudgetOverview />
           </View>
         )}
-
-        {/* Quick Actions */}
-        <View style={styles.quickActionsContainer}>
-          <Text
-            variant="titleLarge"
-            style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
-          >
-            {t("home.quickActions")}
-          </Text>
-          <View style={styles.actionButtons}>
-            <Pressable
-              onPress={() => router.push("/pet/add")}
-              style={({ pressed }) => [
-                styles.quickActionPressable,
-                pressed && styles.pressed,
-              ]}
-            >
-              <LinearGradient
-                colors={theme.dark ? gradientsDark.primary : gradients.primary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.quickActionButton}
-              >
-                <MaterialCommunityIcons
-                  name="plus"
-                  size={32}
-                  color="#FFFFFF"
-                />
-                <Text
-                  variant="bodyMedium"
-                  style={styles.quickActionText}
-                >
-                  🐾 {t("pets.addNewPet")}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push("/health/add")}
-              style={({ pressed }) => [
-                styles.quickActionPressable,
-                pressed && styles.pressed,
-              ]}
-            >
-              <LinearGradient
-                colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.quickActionButton}
-              >
-                <MaterialCommunityIcons
-                  name="medical-bag"
-                  size={32}
-                  color="#FFFFFF"
-                />
-                <Text
-                  variant="bodyMedium"
-                  style={styles.quickActionText}
-                >
-                  💊 {t("health.addRecord")}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push("/(tabs)/calendar")}
-              style={({ pressed }) => [
-                styles.quickActionPressable,
-                pressed && styles.pressed,
-              ]}
-            >
-              <LinearGradient
-                colors={theme.dark ? gradientsDark.tertiary : gradients.tertiary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.quickActionButton}
-              >
-                <MaterialCommunityIcons
-                  name="calendar-plus"
-                  size={32}
-                  color="#FFFFFF"
-                />
-                <Text
-                  variant="bodyMedium"
-                  style={styles.quickActionText}
-                >
-                  📅 {t("events.addEvent")}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
-        </View>
       </ScrollView>
 
       {/* Floating Action Button */}
@@ -331,17 +226,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 24,
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 8,
-  },
-  title: {
-    fontWeight: "bold",
+    marginBottom: 16,
   },
   greeting: {
     textAlign: "center",
@@ -367,7 +252,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   financialSection: {
-    marginBottom: 24,
+    marginBottom: 80, // Space for FAB
   },
   sectionHeader: {
     flexDirection: "row",
@@ -390,36 +275,6 @@ const styles = StyleSheet.create({
   },
   petCardWrapperMobile: {
     width: "100%",
-  },
-  quickActionsContainer: {
-    marginBottom: 80, // Space for FAB
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  quickActionPressable: {
-    flex: 1,
-  },
-  pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.98 }],
-  },
-  quickActionButton: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    gap: 8,
-  },
-  quickActionText: {
-    fontSize: 12,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#FFFFFF",
   },
   fab: {
     position: "absolute",

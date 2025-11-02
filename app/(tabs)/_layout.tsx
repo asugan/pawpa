@@ -3,6 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore } from '../../stores/themeStore';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import CustomTabHeader from '@/components/CustomTabHeader';
 
 export default function TabLayout() {
   const { themeMode } = useThemeStore();
@@ -35,7 +36,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
-          headerTitle: 'PawPa',
+          headerTitle: () => <CustomTabHeader pageTitle="Home" />,
         }}
       />
       <Tabs.Screen
@@ -45,7 +46,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="paw" size={size} color={color} />
           ),
-          headerTitle: t('pets.myPets'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('pets.myPets')} />,
         }}
       />
       <Tabs.Screen
@@ -55,7 +56,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="heart" size={size} color={color} />
           ),
-          headerTitle: t('health.healthRecords'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('health.healthRecords')} />,
         }}
       />
       <Tabs.Screen
@@ -65,7 +66,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="calendar" size={size} color={color} />
           ),
-          headerTitle: t('calendar.calendar'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('calendar.calendar')} />,
         }}
       />
       <Tabs.Screen
@@ -75,7 +76,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bowl" size={size} color={color} />
           ),
-          headerTitle: t('feedingSchedule.title'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('feedingSchedule.title')} />,
         }}
       />
       <Tabs.Screen
@@ -85,7 +86,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cash-multiple" size={size} color={color} />
           ),
-          headerTitle: t('expenses.title'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('expenses.title')} />,
         }}
       />
       <Tabs.Screen
@@ -95,7 +96,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="wallet" size={size} color={color} />
           ),
-          headerTitle: t('budgets.title'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('budgets.title')} />,
         }}
       />
       <Tabs.Screen
@@ -105,7 +106,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cog" size={size} color={color} />
           ),
-          headerTitle: t('settings.settings'),
+          headerTitle: () => <CustomTabHeader pageTitle={t('settings.settings')} />,
         }}
       />
     </Tabs>
