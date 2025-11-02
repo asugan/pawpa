@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradients, gradientsDark } from '../lib/theme';
+import { useResponsiveSize } from '../lib/hooks';
 
 interface StatCardProps {
   title: string;
@@ -26,6 +27,7 @@ const StatCard: React.FC<StatCardProps> = ({
   error
 }) => {
   const theme = useTheme();
+  const { isMobile, cardPadding, iconSize } = useResponsiveSize();
 
   // Gradient helper - detect which gradient to use based on color
   const getGradientColors = (color: string): readonly [string, string] => {
@@ -47,7 +49,7 @@ const StatCard: React.FC<StatCardProps> = ({
   if (loading) {
     return (
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <View style={[styles.content, styles.loadingContent]}>
+        <View style={[styles.content, styles.loadingContent, { padding: cardPadding }]}>
           <ActivityIndicator size="small" color={color} />
           <View style={styles.loadingPlaceholder}>
             <View style={[styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant }]} />
@@ -62,20 +64,20 @@ const StatCard: React.FC<StatCardProps> = ({
     return (
       <Pressable onPress={onPress} style={styles.pressable}>
         <Card style={[styles.card, { borderColor: theme.colors.error, borderWidth: 1 }]}>
-          <Card.Content style={styles.content}>
+          <Card.Content style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
             <LinearGradient
               colors={[theme.colors.error, theme.colors.error + 'CC']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.iconContainer}
+              style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
             >
               <MaterialCommunityIcons
                 name="alert-circle"
-                size={36}
+                size={isMobile ? iconSize * 0.6 : 36}
                 color="#FFFFFF"
               />
             </LinearGradient>
-            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: '800' }}>
+            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
                 --
             </Text>
             <Text variant="bodyMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
@@ -92,24 +94,25 @@ const StatCard: React.FC<StatCardProps> = ({
       onPress={onPress}
       style={({ pressed }) => [
         styles.pressable,
+        { marginHorizontal: isMobile ? 2 : 4, minWidth: isMobile ? 100 : 120 },
         pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
       ]}
     >
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.content}>
+        <Card.Content style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
           <LinearGradient
             colors={getGradientColors(color)}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.iconContainer}
+            style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
           >
             <MaterialCommunityIcons
               name={icon}
-              size={36}
+              size={isMobile ? iconSize * 0.6 : 36}
               color="#FFFFFF"
             />
           </LinearGradient>
-          <Text variant="headlineMedium" style={{ color, fontWeight: '800' }}>
+          <Text variant="headlineMedium" style={{ color, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
             {value}
           </Text>
           <Text variant="bodyMedium" style={styles.title}>
@@ -124,7 +127,6 @@ const StatCard: React.FC<StatCardProps> = ({
 const styles = StyleSheet.create({
   pressable: {
     flex: 1,
-    marginHorizontal: 4,
   },
   card: {
     elevation: 5,
@@ -133,17 +135,12 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    padding: 16,
-    gap: 8,
   },
   loadingContent: {
     justifyContent: 'center',
     gap: 12,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },

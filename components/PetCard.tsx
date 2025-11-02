@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradients, gradientsDark } from '../lib/theme';
+import { useResponsiveSize } from '../lib/hooks';
 
 interface PetCardProps {
   pet: Pet;
@@ -28,6 +29,7 @@ const PetCard: React.FC<PetCardProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { isMobile, cardPadding, avatarSize } = useResponsiveSize();
 
   const getPetIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -124,7 +126,7 @@ const PetCard: React.FC<PetCardProps> = ({
         ]}
         elevation={5}
       >
-        <View style={styles.content}>
+        <View style={[styles.content, { padding: cardPadding }]}>
           {/* Header with avatar and basic info */}
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
@@ -132,26 +134,31 @@ const PetCard: React.FC<PetCardProps> = ({
                 colors={getPetTypeGradient(pet.type)}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.avatarRing}
+                style={[styles.avatarRing, { padding: isMobile ? 2 : 3 }]}
               >
                 {pet.profilePhoto ? (
                   <Avatar.Image
-                    size={85}
+                    size={avatarSize}
                     source={{ uri: pet.profilePhoto }}
                     style={styles.avatar}
                   />
                 ) : (
                   <Avatar.Text
-                    size={85}
+                    size={avatarSize}
                     label={getInitials(pet.name)}
                     style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
-                    labelStyle={{ color: theme.colors.onPrimary, fontSize: 28, fontWeight: 'bold' }}
+                    labelStyle={{ color: theme.colors.onPrimary, fontSize: isMobile ? 20 : 28, fontWeight: 'bold' }}
                   />
                 )}
               </LinearGradient>
             </View>
             <View style={styles.textContainer}>
-              <Text variant="titleLarge" style={[styles.name, { color: theme.colors.onSurface }]}>
+              <Text
+                variant={isMobile ? "titleMedium" : "titleLarge"}
+                style={[styles.name, { color: theme.colors.onSurface }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {pet.name}
               </Text>
               <View style={styles.typeContainer}>
@@ -166,7 +173,12 @@ const PetCard: React.FC<PetCardProps> = ({
                   </Text>
                 </LinearGradient>
                 {pet.breed && (
-                  <Text variant="bodyMedium" style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     • {pet.breed}
                   </Text>
                 )}
@@ -182,7 +194,14 @@ const PetCard: React.FC<PetCardProps> = ({
             {(upcomingEvents > 0 || upcomingVaccinations > 0) && (
               <View style={styles.badgesRow}>
                 {upcomingEvents > 0 && (
-                  <View style={[styles.miniBadge, { backgroundColor: theme.colors.tertiaryContainer }]}>
+                  <View style={[
+                    styles.miniBadge,
+                    {
+                      backgroundColor: theme.colors.tertiaryContainer,
+                      paddingHorizontal: isMobile ? 6 : 8,
+                      paddingVertical: isMobile ? 3 : 4,
+                    }
+                  ]}>
                     <Text style={styles.emoji}>📅</Text>
                     <Text style={[styles.miniBadgeText, { color: theme.colors.onTertiaryContainer }]}>
                       {upcomingEvents}
@@ -190,7 +209,14 @@ const PetCard: React.FC<PetCardProps> = ({
                   </View>
                 )}
                 {upcomingVaccinations > 0 && (
-                  <View style={[styles.miniBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+                  <View style={[
+                    styles.miniBadge,
+                    {
+                      backgroundColor: theme.colors.secondaryContainer,
+                      paddingHorizontal: isMobile ? 6 : 8,
+                      paddingVertical: isMobile ? 3 : 4,
+                    }
+                  ]}>
                     <Text style={styles.emoji}>💉</Text>
                     <Text style={[styles.miniBadgeText, { color: theme.colors.onSecondaryContainer }]}>
                       {upcomingVaccinations}
@@ -247,7 +273,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
-    padding: 16,
+    // padding is now dynamic via useResponsiveSize
   },
   header: {
     flexDirection: 'row',
@@ -258,7 +284,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarRing: {
-    padding: 3,
+    // padding is now dynamic via useResponsiveSize
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
@@ -319,8 +345,7 @@ const styles = StyleSheet.create({
   miniBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    // padding is now dynamic via useResponsiveSize
     borderRadius: 14,
     gap: 4,
   },

@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTodayEvents } from "@/lib/hooks/useEvents";
 import { useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
+import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
 
 // Theme
 import { gradients, gradientsDark } from "@/lib/theme";
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const { isMobile, scrollPadding } = useResponsiveSize();
 
   // Data fetching with hooks
   const { data: pets, isLoading: petsLoading, error: petsError } = usePets();
@@ -70,7 +72,7 @@ export default function HomeScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { padding: scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Enhanced Header */}
@@ -99,7 +101,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Statistics Dashboard */}
-        <View style={styles.statsContainer}>
+        <View style={[styles.statsContainer, isMobile && styles.statsContainerMobile]}>
           <StatCard
             title={t("home.totalPets")}
             value={pets?.length || 0}
@@ -148,7 +150,7 @@ export default function HomeScreen() {
           {pets && pets.length > 0 ? (
             <View style={styles.petGrid}>
               {pets.map((pet) => (
-                <View key={pet.id} style={styles.petCardWrapper}>
+                <View key={pet.id} style={[styles.petCardWrapper, isMobile && styles.petCardWrapperMobile]}>
                   <PetCard
                     pet={pet}
                     onPress={() => router.push(`/pet/${pet.id}`)}
@@ -326,7 +328,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    padding: 16,
   },
   header: {
     alignItems: "center",
@@ -353,6 +354,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 24,
+    gap: 8,
+  },
+  statsContainerMobile: {
+    flexDirection: "column",
+    gap: 12,
   },
   petsSection: {
     marginBottom: 24,
@@ -381,6 +387,9 @@ const styles = StyleSheet.create({
   petCardWrapper: {
     width: "48%",
     marginBottom: 12,
+  },
+  petCardWrapperMobile: {
+    width: "100%",
   },
   quickActionsContainer: {
     marginBottom: 80, // Space for FAB

@@ -14,6 +14,9 @@ export * from './useRealtimeUpdates';
 // Device integration hooks
 export * from './useDeviceLanguage';
 
+// Responsive design hooks
+export * from './useResponsiveSize';
+
 // Re-export commonly used query keys for external use
 export { petKeys } from './usePets';
 export { healthRecordKeys } from './useHealthRecords';
