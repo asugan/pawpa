@@ -11,6 +11,7 @@ import { DayView } from '@/components/calendar/DayView';
 import { EventModal } from '@/components/EventModal';
 import { useUpcomingEvents, useCalendarEvents } from '@/lib/hooks/useEvents';
 import { Event } from '@/lib/types';
+import { LAYOUT } from '@/constants';
 
 export default function CalendarScreen() {
   const theme = useTheme();
@@ -218,6 +219,7 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     flex: 1,
+    paddingBottom: LAYOUT.FAB_OFFSET,
   },
   loadingContainer: {
     flex: 1,

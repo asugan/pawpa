@@ -14,6 +14,7 @@ import {
 } from '@/lib/hooks/useFeedingSchedules';
 import { usePets } from '@/lib/hooks/usePets';
 import { FeedingSchedule, Pet } from '@/lib/types';
+import { LAYOUT } from '@/constants';
 
 type TabValue = 'today' | 'upcoming' | 'all';
 
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   loadingContainer: {
     flex: 1,

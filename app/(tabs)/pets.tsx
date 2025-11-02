@@ -13,6 +13,7 @@ import PetModal from '../../components/PetModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
+import { LAYOUT } from '../../constants';
 
 export default function PetsScreen() {
   const theme = useTheme();
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingTop: 8,
-    minHeight: '100%',
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   emptyState: {
     marginTop: 40,

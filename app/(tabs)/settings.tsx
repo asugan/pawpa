@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '../../stores/themeStore';
 import { useLanguageStore } from '../../stores/languageStore';
 import { useTranslation } from 'react-i18next';
+import { LAYOUT } from '../../constants';
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
   },
   logoutContainer: {
     marginTop: 24,
-    marginBottom: 32,
+    marginBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   logoutButton: {
     borderWidth: 1,

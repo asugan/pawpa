@@ -12,6 +12,7 @@ import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateExpenseInput, Expense } from '../../lib/types';
+import { LAYOUT } from '../../constants';
 
 export default function ExpensesScreen() {
   const theme = useTheme();
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
   },
   expenseList: {
     padding: 16,
+    paddingBottom: LAYOUT.FAB_OFFSET,
   },
   fab: {
     position: 'absolute',

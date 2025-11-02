@@ -9,7 +9,7 @@ import { useHealthRecords, useCreateHealthRecord } from '../../lib/hooks/useHeal
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
-import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
+import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, LAYOUT } from '../../constants';
 import type { HealthRecord } from '../../lib/types';
 
 export default function HealthScreen() {
@@ -291,6 +291,7 @@ const styles = StyleSheet.create({
   healthList: {
     padding: 16,
     paddingTop: 0,
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   healthCard: {
     margin: 4,

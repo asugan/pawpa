@@ -12,14 +12,15 @@ import { usePets } from "@/lib/hooks/usePets";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
 
 // Components
+import BudgetOverview from "@/components/BudgetOverview";
 import EmptyState from "@/components/EmptyState";
+import ExpenseOverview from "@/components/ExpenseOverview";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
-import ExpenseOverview from "@/components/ExpenseOverview";
-import BudgetOverview from "@/components/BudgetOverview";
+import { LAYOUT } from "@/constants";
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -86,7 +87,12 @@ export default function HomeScreen() {
         </View>
 
         {/* Statistics Dashboard */}
-        <View style={[styles.statsContainer, isMobile && styles.statsContainerMobile]}>
+        <View
+          style={[
+            styles.statsContainer,
+            isMobile && styles.statsContainerMobile,
+          ]}
+        >
           <StatCard
             title={t("home.totalPets")}
             value={pets?.length || 0}
@@ -135,7 +141,13 @@ export default function HomeScreen() {
           {pets && pets.length > 0 ? (
             <View style={styles.petGrid}>
               {pets.map((pet) => (
-                <View key={pet.id} style={[styles.petCardWrapper, isMobile && styles.petCardWrapperMobile]}>
+                <View
+                  key={pet.id}
+                  style={[
+                    styles.petCardWrapper,
+                    isMobile && styles.petCardWrapperMobile,
+                  ]}
+                >
                   <PetCard
                     pet={pet}
                     onPress={() => router.push(`/pet/${pet.id}`)}
@@ -252,7 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   financialSection: {
-    marginBottom: 80, // Space for FAB
+    marginBottom: LAYOUT.FAB_OFFSET, // Space for FAB and tab bar
   },
   sectionHeader: {
     flexDirection: "row",

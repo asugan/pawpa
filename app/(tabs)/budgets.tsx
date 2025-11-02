@@ -12,6 +12,7 @@ import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
+import { LAYOUT } from '../../constants';
 
 export default function BudgetsScreen() {
   const theme = useTheme();
@@ -277,6 +278,7 @@ const styles = StyleSheet.create({
   },
   budgetList: {
     padding: 16,
+    paddingBottom: LAYOUT.FAB_OFFSET,
   },
   fab: {
     position: 'absolute',
