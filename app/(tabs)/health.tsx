@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Button, FAB, useTheme, Chip, IconButton, Divider } from 'react-native-paper';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator, Pressable } from 'react-native';
+import { Text, Card, Button, FAB, Chip, IconButton, Divider } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -13,12 +15,14 @@ import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD
 import type { HealthRecord } from '../../lib/types';
 
 export default function HealthScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const [selectedPetId, setSelectedPetId] = useState<string>();
   const [selectedType, setSelectedType] = useState<string>('all');
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<HealthRecord | undefined>();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Get pets for selection
   const { data: pets = [], isLoading: petsLoading } = usePets();
@@ -46,11 +50,13 @@ export default function HealthScreen() {
 
   const handleFormSuccess = () => {
     setIsFormVisible(false);
+    setEditingRecord(undefined);
     refetch();
   };
 
   const handleFormCancel = () => {
     setIsFormVisible(false);
+    setEditingRecord(undefined);
   };
 
   const handleHealthRecordPress = (record: HealthRecord) => {
@@ -58,15 +64,34 @@ export default function HealthScreen() {
   };
 
   const handleEditRecord = (record: HealthRecord) => {
-    router.push(`/health/edit/${record.id}`);
+    setEditingRecord(record);
+    setIsFormVisible(true);
   };
 
+  // Simulate loading more (for smooth UX even though all data is loaded)
+  const handleEndReached = useCallback(() => {
+    if (!isLoading && !isLoadingMore && filteredRecords.length > 10) {
+      setIsLoadingMore(true);
+      // Simulate a small delay for smooth UX
+      setTimeout(() => {
+        setIsLoadingMore(false);
+      }, 300);
+    }
+  }, [isLoading, isLoadingMore, filteredRecords.length]);
+
+  const renderFooter = useCallback(() => {
+    if (!isLoadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={theme.colors.primary} />
+      </View>
+    );
+  }, [isLoadingMore, theme.colors.primary]);
+
   const renderHealthRecord = ({ item }: { item: HealthRecord }) => (
-    <Card
-      style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}
-      onPress={() => handleHealthRecordPress(item)}
-    >
-      <Card.Content style={styles.healthContent}>
+    <Pressable onPress={() => handleHealthRecordPress(item)}>
+      <Card style={StyleSheet.flatten([styles.healthCard, { backgroundColor: theme.colors.surface }])}>
+        <View style={styles.healthContent}>
         <View style={styles.healthInfo}>
           <View style={styles.titleRow}>
             <View style={[styles.typeIndicator, { backgroundColor: HEALTH_RECORD_COLORS[item.type as keyof typeof HEALTH_RECORD_COLORS] || '#A8A8A8' }]} />
@@ -104,8 +129,9 @@ export default function HealthScreen() {
             onPress={() => handleEditRecord(item)}
           />
         </View>
-      </Card.Content>
-    </Card>
+      </View>
+      </Card>
+    </Pressable>
   );
 
   const renderPetSelector = () => {
@@ -169,7 +195,13 @@ export default function HealthScreen() {
             key={key}
             selected={selectedType === value}
             onPress={() => setSelectedType(value)}
-            icon={HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS]}
+            icon={({ size, color }: { size: number, color: string }) => (
+              <MaterialCommunityIcons
+                name={HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS] as any}
+                size={size}
+                color={color}
+              />
+            )}
             textStyle={{ fontSize: 12 }}
           >
             {TURKCE_LABELS.HEALTH_RECORD_TYPES[value as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES]}
@@ -181,14 +213,14 @@ export default function HealthScreen() {
 
   if (petsLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
         <LoadingSpinner />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
           {t('health.healthRecords')}
@@ -230,6 +262,9 @@ export default function HealthScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.healthList}
           showsVerticalScrollIndicator={false}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}
@@ -242,8 +277,8 @@ export default function HealthScreen() {
       )}
 
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.secondary }]}
+        icon="add"
+        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.secondary }])}
         onPress={handleAddHealthRecord}
         disabled={!selectedPetId}
       />
@@ -255,6 +290,7 @@ export default function HealthScreen() {
           visible={isFormVisible}
           onSuccess={handleFormSuccess}
           onCancel={handleFormCancel}
+          initialData={editingRecord}
         />
       )}
     </SafeAreaView>
@@ -322,6 +358,11 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     marginLeft: 8,
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fab: {
     position: 'absolute',

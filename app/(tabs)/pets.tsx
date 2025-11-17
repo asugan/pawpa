@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import { Text, FAB, useTheme, Portal, Snackbar } from 'react-native-paper';
+import { Text, FAB, Portal, Snackbar, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
 import { usePetUIStore } from '../../stores/petStore';
-import { usePets, useCreatePet, useDeletePet } from '../../lib/hooks/usePets';
+import { usePets, useCreatePet, useDeletePet, petKeys } from '../../lib/hooks/usePets';
+import { useQueryClient } from '@tanstack/react-query';
 import PetCard from '../../components/PetCard';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
 import { Grid } from '../../components/Grid';
 import PetModal from '../../components/PetModal';
+import PetDetailModal from '../../components/PetDetailModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { LAYOUT } from '../../constants';
+import { ENV } from '../../lib/config/env';
 
 export default function PetsScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  // ✅ React Query hooks for server state
-  const { data: pets = [], isLoading, error, refetch } = usePets();
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [allPets, setAllPets] = useState<Pet[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  // ✅ React Query hooks for server state with pagination
+  const { data: pets = [], isLoading, error, refetch, isFetching } = usePets({
+    page,
+    limit: ENV.DEFAULT_LIMIT,
+  });
   const createPetMutation = useCreatePet();
   const deletePetMutation = useDeletePet();
 
@@ -39,8 +52,33 @@ export default function PetsScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPetState] = useState<Pet | undefined>();
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedPetIdForDetail, setSelectedPetIdForDetail] = useState<string>('');
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Accumulate pets when new data is loaded
+  useEffect(() => {
+    if (pets && pets.length > 0) {
+      if (page === 1) {
+        // First page - replace all pets
+        setAllPets(pets);
+      } else {
+        // Subsequent pages - append new pets
+        setAllPets(prev => {
+          // Avoid duplicates
+          const newPets = pets.filter(p => !prev.some(existing => existing.id === p.id));
+          return [...prev, ...newPets];
+        });
+      }
+      // Check if there are more pets to load
+      setHasMore(pets.length === ENV.DEFAULT_LIMIT);
+    } else if (page === 1) {
+      // No pets on first page
+      setAllPets([]);
+      setHasMore(false);
+    }
+  }, [pets, page]);
 
   useEffect(() => {
     if (error) {
@@ -100,7 +138,24 @@ export default function PetsScreen() {
   };
 
   const handleViewPet = (pet: Pet) => {
-    router.push(`/pet/${pet.id}`);
+    setSelectedPetIdForDetail(pet.id);
+    setDetailModalVisible(true);
+  };
+
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setPage(1);
+    setHasMore(true);
+    // Invalidate all pet list queries to force fresh data from server
+    await queryClient.invalidateQueries({
+      queryKey: petKeys.lists(),
+      refetchType: 'active'
+    });
   };
 
   const renderPetCard = (pet: Pet) => (
@@ -124,9 +179,9 @@ export default function PetsScreen() {
   };
 
   // Show loading spinner on initial load
-  if (isLoading && (!pets || pets.length === 0)) {
+  if (isLoading && allPets.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
         <View style={styles.header}>
           <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
             {t('pets.myPets')}
@@ -140,7 +195,7 @@ export default function PetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
           {t('pets.myPets')}
@@ -153,14 +208,14 @@ export default function PetsScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
-            onRefresh={refetch}
+            refreshing={isFetching && page === 1}
+            onRefresh={handleRefresh}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
           />
         }
       >
-        {(!pets || pets.length === 0) ? (
+        {allPets.length === 0 ? (
           !isLoading && (
             <EmptyState
               title={t('pets.noPetsYet')}
@@ -175,11 +230,25 @@ export default function PetsScreen() {
         ) : (
           <>
             <Grid maxColumns={2}>
-              {pets.map(renderPetCard)}
+              {allPets.map(renderPetCard)}
             </Grid>
 
-            {/* Loading indicator at bottom when refreshing */}
-            {isLoading && pets.length > 0 && (
+            {/* Load More Button */}
+            {hasMore && (
+              <View style={styles.loadMoreContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLoadMore}
+                  disabled={isFetching}
+                  style={styles.loadMoreButton}
+                >
+                  {isFetching ? t('common.loading') : t('common.loadMore')}
+                </Button>
+              </View>
+            )}
+
+            {/* Loading indicator at bottom when fetching next page */}
+            {isFetching && page > 1 && (
               <View style={styles.loadingFooter}>
                 <LoadingSpinner size="small" />
               </View>
@@ -189,8 +258,8 @@ export default function PetsScreen() {
       </ScrollView>
 
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        icon="add"
+        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
         onPress={handleAddPet}
       />
 
@@ -202,18 +271,27 @@ export default function PetsScreen() {
         testID="pet-modal"
       />
 
+      {selectedPetIdForDetail && (
+        <PetDetailModal
+          visible={detailModalVisible}
+          petId={selectedPetIdForDetail}
+          onClose={() => {
+            setDetailModalVisible(false);
+            setSelectedPetIdForDetail('');
+          }}
+        />
+      )}
+
       <Portal>
         <Snackbar
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
+          style={StyleSheet.flatten([
             styles.snackbar,
             { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          ])}
+         message={snackbarMessage} />
       </Portal>
     </SafeAreaView>
   );
@@ -243,6 +321,13 @@ const styles = StyleSheet.create({
   loadingFooter: {
     paddingVertical: 20,
     alignItems: 'center',
+  },
+  loadMoreContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  loadMoreButton: {
+    minWidth: 200,
   },
   fab: {
     position: 'absolute',

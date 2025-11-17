@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { Text, FAB } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from 'date-fns';
@@ -14,7 +15,7 @@ import { Event } from '@/lib/types';
 import { LAYOUT } from '@/constants';
 
 export default function CalendarScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   // State management
@@ -114,7 +115,7 @@ export default function CalendarScreen() {
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text
             variant="bodyMedium"
-            style={[styles.loadingText, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.loadingText, { color: theme.colors.onSurface }])}
           >
             {t('common.loading')}
           </Text>
@@ -127,13 +128,13 @@ export default function CalendarScreen() {
         <View style={styles.errorContainer}>
           <Text
             variant="bodyLarge"
-            style={[styles.errorText, { color: theme.colors.error }]}
+            style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}
           >
             {t('errors.loadingFailed')}
           </Text>
           <Text
             variant="bodySmall"
-            style={[styles.errorMessage, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.errorMessage, { color: theme.colors.onSurfaceVariant }])}
           >
             {error.message}
           </Text>
@@ -177,7 +178,7 @@ export default function CalendarScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
     >
       {/* Calendar Header */}
       <CalendarHeader
@@ -195,10 +196,9 @@ export default function CalendarScreen() {
 
       {/* Add Event FAB */}
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.tertiary }]}
+        icon="add"
+        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.tertiary }])}
         onPress={handleAddEvent}
-        label={t('calendar.addEvent')}
         testID="calendar-add-event-fab"
       />
 

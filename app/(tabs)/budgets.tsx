@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
-import { Text, FAB, useTheme, Snackbar, Chip, Banner } from 'react-native-paper';
+import { Text, FAB, Snackbar, Chip, Banner, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
-import { useBudgets, useBudgetAlerts, useBudgetStatuses, useCreateBudget, useUpdateBudget, useDeleteBudget } from '../../lib/hooks/useBudgets';
+import { useBudgets, useBudgetAlerts, useBudgetStatuses, useCreateBudget, useUpdateBudget, useDeleteBudget, budgetKeys } from '../../lib/hooks/useBudgets';
+import { useQueryClient } from '@tanstack/react-query';
 import BudgetCard from '../../components/BudgetCard';
 import BudgetFormModal from '../../components/BudgetFormModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -13,11 +15,13 @@ import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
 import { LAYOUT } from '../../constants';
+import { ENV } from '../../lib/config/env';
 
 export default function BudgetsScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -25,11 +29,19 @@ export default function BudgetsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBudget, setEditingBudget] = useState<BudgetLimit | undefined>();
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [allBudgets, setAllBudgets] = useState<BudgetLimit[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
   // Fetch pets
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
-  // Fetch budgets for selected pet
-  const { data: budgetsData, isLoading: budgetsLoading, refetch } = useBudgets(selectedPetId);
+  // Fetch budgets for selected pet with pagination
+  const { data: budgetsData, isLoading: budgetsLoading, refetch, isFetching } = useBudgets(selectedPetId, {
+    page,
+    limit: ENV.DEFAULT_LIMIT,
+  });
 
   // Fetch budget alerts
   const { data: alerts = [] } = useBudgetAlerts(selectedPetId);
@@ -43,6 +55,36 @@ export default function BudgetsScreen() {
   const deleteBudget = useDeleteBudget();
 
   const budgets = budgetsData?.budgetLimits || [];
+
+  // Reset pagination when selected pet changes
+  useEffect(() => {
+    setPage(1);
+    setAllBudgets([]);
+    setHasMore(true);
+  }, [selectedPetId]);
+
+  // Accumulate budgets when new data is loaded
+  useEffect(() => {
+    if (budgets && budgets.length > 0) {
+      if (page === 1) {
+        // First page - replace all budgets
+        setAllBudgets(budgets);
+      } else {
+        // Subsequent pages - append new budgets
+        setAllBudgets(prev => {
+          // Avoid duplicates
+          const newBudgets = budgets.filter(b => !prev.some(existing => existing.id === b.id));
+          return [...prev, ...newBudgets];
+        });
+      }
+      // Check if there are more budgets to load
+      setHasMore(budgets.length === ENV.DEFAULT_LIMIT);
+    } else if (page === 1 && selectedPetId) {
+      // No budgets on first page
+      setAllBudgets([]);
+      setHasMore(false);
+    }
+  }, [budgets, page, selectedPetId]);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -108,13 +150,29 @@ export default function BudgetsScreen() {
     }
   };
 
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setPage(1);
+    setHasMore(true);
+    // Invalidate all budget list queries to force fresh data from server
+    await queryClient.invalidateQueries({
+      queryKey: budgetKeys.lists(),
+      refetchType: 'active'
+    });
+  };
+
   if (petsLoading) {
     return <LoadingSpinner />;
   }
 
   if (pets.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
         <EmptyState
           icon="wallet"
           title={t('budgets.noPets', 'No pets found')}
@@ -125,7 +183,7 @@ export default function BudgetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           {t('budgets.title', 'Budgets')}
@@ -144,7 +202,6 @@ export default function BudgetsScreen() {
               selected={selectedPetId === pet.id}
               onPress={() => setSelectedPetId(pet.id)}
               style={styles.petChip}
-              showSelectedCheck
             >
               {pet.name}
             </Chip>
@@ -155,14 +212,14 @@ export default function BudgetsScreen() {
         {selectedPetId && alerts.length > 0 && (
           <Banner
             visible={true}
-            icon={({ size }) => (
+            icon={
               <MaterialCommunityIcons
                 name="alert-circle"
-                size={size}
+                size={24}
                 color={theme.colors.error}
               />
-            )}
-            style={[styles.alertBanner, { backgroundColor: theme.colors.errorContainer }]}
+            }
+            style={StyleSheet.flatten([styles.alertBanner, { backgroundColor: theme.colors.errorContainer }])}
           >
             <Text variant="bodyMedium" style={{ color: theme.colors.error, fontWeight: '600' }}>
               {t('budgets.alertsFound', {
@@ -178,8 +235,8 @@ export default function BudgetsScreen() {
         style={styles.content}
         refreshControl={
           <RefreshControl
-            refreshing={budgetsLoading}
-            onRefresh={refetch}
+            refreshing={isFetching && page === 1}
+            onRefresh={handleRefresh}
             colors={[theme.colors.primary]}
           />
         }
@@ -190,15 +247,17 @@ export default function BudgetsScreen() {
             title={t('budgets.selectPet', 'Select a pet')}
             description={t('budgets.selectPetMessage', 'Choose a pet to view budgets')}
           />
-        ) : budgets.length === 0 ? (
-          <EmptyState
-            icon="wallet-outline"
-            title={t('budgets.noBudgets', 'No budgets yet')}
-            description={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
-          />
+        ) : allBudgets.length === 0 ? (
+          !budgetsLoading && (
+            <EmptyState
+              icon="wallet-outline"
+              title={t('budgets.noBudgets', 'No budgets yet')}
+              description={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
+            />
+          )
         ) : (
           <View style={styles.budgetList}>
-            {budgets.map((budget) => {
+            {allBudgets.map((budget) => {
               // Find budget status from statuses array
               const status = statuses.find((s) => s.budgetLimit.id === budget.id) || null;
 
@@ -212,15 +271,35 @@ export default function BudgetsScreen() {
                 />
               );
             })}
+
+            {/* Load More Button */}
+            {hasMore && (
+              <View style={styles.loadMoreContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLoadMore}
+                  disabled={isFetching}
+                  style={styles.loadMoreButton}
+                >
+                  {isFetching ? t('common.loading') : t('common.loadMore')}
+                </Button>
+              </View>
+            )}
+
+            {/* Loading indicator */}
+            {isFetching && page > 1 && (
+              <View style={styles.loadingFooter}>
+                <LoadingSpinner size="small" />
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
 
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        icon="add"
+        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
         onPress={handleAddBudget}
-        label={t('budgets.addBudget', 'Add Budget')}
       />
 
       {selectedPetId && (
@@ -241,9 +320,8 @@ export default function BudgetsScreen() {
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
         duration={3000}
-      >
-        {snackbarMessage}
-      </Snackbar>
+        message={snackbarMessage}
+      />
     </SafeAreaView>
   );
 }
@@ -279,6 +357,17 @@ const styles = StyleSheet.create({
   budgetList: {
     padding: 16,
     paddingBottom: LAYOUT.FAB_OFFSET,
+  },
+  loadMoreContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  loadMoreButton: {
+    minWidth: 200,
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',

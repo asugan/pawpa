@@ -1,13 +1,13 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore } from '../../stores/themeStore';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import CustomTabHeader from '@/components/CustomTabHeader';
 
 export default function TabLayout() {
   const { themeMode } = useThemeStore();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   return (

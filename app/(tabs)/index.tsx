@@ -2,7 +2,8 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, FAB, Text, useTheme } from "react-native-paper";
+import { Button, Text } from "@/components/ui";
+import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Data hooks
@@ -20,10 +21,9 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
-import { LAYOUT } from "@/constants";
 
 export default function HomeScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const { isMobile, scrollPadding } = useResponsiveSize();
@@ -38,7 +38,7 @@ export default function HomeScreen() {
   if (petsLoading || eventsLoading || vaccinationsLoading) {
     return (
       <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       >
         <LoadingSpinner />
       </SafeAreaView>
@@ -49,7 +49,7 @@ export default function HomeScreen() {
   if (petsError) {
     return (
       <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       >
         <EmptyState
           icon="alert-circle"
@@ -64,23 +64,23 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
     >
       <ScrollView
-        style={[styles.scrollView, { padding: scrollPadding }]}
+        style={StyleSheet.flatten([styles.scrollView, { padding: scrollPadding }])}
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting Section */}
         <View style={styles.header}>
           <Text
             variant="bodyLarge"
-            style={[styles.greeting, { color: theme.colors.onBackground }]}
+            style={StyleSheet.flatten([styles.greeting, { color: theme.colors.onBackground }])}
           >
             {getGreetingMessage()}!
           </Text>
           <Text
             variant="bodyMedium"
-            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}
           >
             {getDynamicSubtitle(pets?.length || 0, todayEvents?.length || 0)}
           </Text>
@@ -88,10 +88,10 @@ export default function HomeScreen() {
 
         {/* Statistics Dashboard */}
         <View
-          style={[
+          style={StyleSheet.flatten([
             styles.statsContainer,
             isMobile && styles.statsContainerMobile,
-          ]}
+          ])}
         >
           <StatCard
             title={t("home.totalPets")}
@@ -121,47 +121,58 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <Text
               variant="titleLarge"
-              style={[
+              style={StyleSheet.flatten([
                 styles.sectionTitle,
                 { color: theme.colors.onBackground },
-              ]}
+              ])}
             >
               {t("home.myPets")}
             </Text>
             <Button
               mode="text"
-              onPress={() => router.push("/pet/add")}
+              onPress={() => router.push("/(tabs)/pets")}
               compact
               textColor={theme.colors.primary}
             >
-              {t("pets.add")}
+              {pets && pets.length > 4 ? t("common.viewAll") : t("pets.add")}
             </Button>
           </View>
 
           {pets && pets.length > 0 ? (
-            <View style={styles.petGrid}>
-              {pets.map((pet) => (
-                <View
-                  key={pet.id}
-                  style={[
-                    styles.petCardWrapper,
-                    isMobile && styles.petCardWrapperMobile,
-                  ]}
+            <>
+              <View style={styles.petGrid}>
+                {pets.slice(0, 4).map((pet) => (
+                  <View
+                    key={pet.id}
+                    style={StyleSheet.flatten([
+                      styles.petCardWrapper,
+                      isMobile && styles.petCardWrapperMobile,
+                    ])}
+                  >
+                    <PetCard
+                      pet={pet}
+                      onPress={() => router.push(`/pet/${pet.id}`)}
+                      onEdit={() => router.push(`/pet/${pet.id}/edit`)}
+                      upcomingEvents={getPetUpcomingEvents(pet.id, todayEvents)}
+                      upcomingVaccinations={getPetUpcomingVaccinations(
+                        pet.id,
+                        upcomingVaccinations
+                      )}
+                      showActions={false}
+                    />
+                  </View>
+                ))}
+              </View>
+              {pets.length > 4 && (
+                <Button
+                  mode="outlined"
+                  onPress={() => router.push("/(tabs)/pets")}
+                  style={styles.viewAllButton}
                 >
-                  <PetCard
-                    pet={pet}
-                    onPress={() => router.push(`/pet/${pet.id}`)}
-                    onEdit={() => router.push(`/pet/${pet.id}/edit`)}
-                    upcomingEvents={getPetUpcomingEvents(pet.id, todayEvents)}
-                    upcomingVaccinations={getPetUpcomingVaccinations(
-                      pet.id,
-                      upcomingVaccinations
-                    )}
-                    showActions={false}
-                  />
-                </View>
-              ))}
-            </View>
+                  {t("common.viewAll")} ({pets.length - 4} {t("common.more")})
+                </Button>
+              )}
+            </>
           ) : (
             <EmptyState
               icon="paw"
@@ -192,13 +203,6 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/pet/add")}
-      />
     </SafeAreaView>
   );
 }
@@ -264,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   financialSection: {
-    marginBottom: LAYOUT.FAB_OFFSET, // Space for FAB and tab bar
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -288,10 +292,7 @@ const styles = StyleSheet.create({
   petCardWrapperMobile: {
     width: "100%",
   },
-  fab: {
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    bottom: 0,
+  viewAllButton: {
+    marginTop: 12,
   },
 });
