@@ -1,22 +1,23 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export function NetworkStatusBadge() {
   const netInfo = useNetInfo();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   if (netInfo.isConnected === false) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.errorContainer }]}>
+      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.errorContainer }])}>
         <MaterialCommunityIcons
           name="wifi-off"
           size={16}
           color={theme.colors.onErrorContainer}
         />
-        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onErrorContainer }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onErrorContainer }])}>
           Çevrimdışı
         </Text>
       </View>
@@ -25,13 +26,13 @@ export function NetworkStatusBadge() {
 
   if (netInfo.type === 'wifi') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.primaryContainer }]}>
+      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.primaryContainer }])}>
         <MaterialCommunityIcons
           name="wifi"
           size={16}
           color={theme.colors.onPrimaryContainer}
         />
-        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onPrimaryContainer }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onPrimaryContainer }])}>
           Wi-Fi
         </Text>
       </View>
@@ -40,13 +41,13 @@ export function NetworkStatusBadge() {
 
   if (netInfo.type === 'cellular') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.secondaryContainer }]}>
+      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.secondaryContainer }])}>
         <MaterialCommunityIcons
           name="signal-cellular-1"
           size={16}
           color={theme.colors.onSecondaryContainer}
         />
-        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onSecondaryContainer }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onSecondaryContainer }])}>
           Mobil
         </Text>
       </View>

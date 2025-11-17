@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Modal as RNModal } from 'react-native';
-import { useTheme, Portal, Snackbar, Text, Button } from 'react-native-paper';
+import { Portal, Snackbar, Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { FeedingSchedule, Pet } from '../lib/types';
 import { FeedingScheduleForm } from './forms/FeedingScheduleForm';
@@ -28,7 +29,7 @@ export function FeedingScheduleModal({
   pets = [],
   testID,
 }: FeedingScheduleModalProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
@@ -90,9 +91,9 @@ export function FeedingScheduleModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
           <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
               {schedule ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
             </Text>
             <Button
@@ -109,7 +110,6 @@ export function FeedingScheduleModal({
             schedule={schedule}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            loading={loading}
             initialPetId={initialPetId}
             pets={pets}
             testID="feeding-schedule-form-in-modal"
@@ -122,13 +122,11 @@ export function FeedingScheduleModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
+          style={StyleSheet.flatten([
             styles.snackbar,
             { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          ])}
+         message={snackbarMessage} />
       </Portal>
     </>
   );

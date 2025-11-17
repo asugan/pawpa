@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, IconButton, Chip } from 'react-native-paper';
+import { Card, Text, IconButton, Chip } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { Expense, ExpenseCategory } from '../lib/types';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,7 +23,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   onDelete,
   showActions = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
 
   const getCategoryIcon = (category: ExpenseCategory): string => {
@@ -88,11 +89,11 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   }, [expense.date, i18n.language]);
 
   const cardContent = (
-    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={2}>
-      <Card.Content>
+    <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])} elevation={2}>
+      <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: getCategoryColor(expense.category) }]}>
+            <View style={StyleSheet.flatten([styles.iconContainer, { backgroundColor: getCategoryColor(expense.category) }])}>
               <MaterialCommunityIcons
                 name={getCategoryIcon(expense.category) as any}
                 size={24}
@@ -108,7 +109,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
               </Text>
             </View>
           </View>
-          <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
+          <Text variant="titleLarge" style={StyleSheet.flatten([styles.amount, { color: theme.colors.primary }])}>
             {formatCurrency(expense.amount, expense.currency)}
           </Text>
         </View>
@@ -116,7 +117,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
         {expense.description && (
           <Text
             variant="bodyMedium"
-            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}
             numberOfLines={2}
           >
             {expense.description}
@@ -169,7 +170,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
             </View>
           )}
         </View>
-      </Card.Content>
+      </View>
     </Card>
   );
 
@@ -191,6 +192,9 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 6,
     borderRadius: 12,
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',

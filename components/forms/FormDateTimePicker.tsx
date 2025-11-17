@@ -2,7 +2,8 @@ import React from 'react';
 import { Control, Controller, FieldValues, Path, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { format, isAfter, addMinutes } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { FormDatePicker } from './FormDatePicker';
@@ -12,7 +13,7 @@ interface FormDateTimePickerProps<T extends FieldValues> {
   control: Control<T>;
   dateName: Path<T>;
   timeName: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   disabled?: boolean;
   testID?: string;
@@ -32,7 +33,7 @@ export function FormDateTimePicker<T extends FieldValues>({
   mode = 'future',
 }: FormDateTimePickerProps<T>) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   // Watch both date and time values
   const dateValue = useWatch({ control, name: dateName });
@@ -64,12 +65,12 @@ export function FormDateTimePicker<T extends FieldValues>({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.headerText, { color: theme.colors.onSurface }]}>
+        <Text style={StyleSheet.flatten([styles.headerText, { color: theme.colors.onSurface }])}>
           {label}
           {required && ' *'}
         </Text>
         {dateValue && timeValue && (
-          <Text style={[styles.combinedDisplay, { color: theme.colors.primary }]}>
+          <Text style={StyleSheet.flatten([styles.combinedDisplay, { color: theme.colors.primary }])}>
             {formatDateTimeDisplay()}
           </Text>
         )}
@@ -80,7 +81,6 @@ export function FormDateTimePicker<T extends FieldValues>({
           <FormDatePicker
             control={control}
             name={dateName}
-            label={t('forms.dateTimePicker.date')}
             required={required}
             disabled={disabled}
             testID={`${testID}-date`}
@@ -92,7 +92,6 @@ export function FormDateTimePicker<T extends FieldValues>({
           <FormTimePicker
             control={control}
             name={timeName}
-            label={t('forms.dateTimePicker.time')}
             required={required}
             disabled={disabled}
             testID={`${testID}-time`}
@@ -103,8 +102,8 @@ export function FormDateTimePicker<T extends FieldValues>({
 
       {/* Validation hint */}
       {dateValue && timeValue && (
-        <View style={[styles.validationHint, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <Text style={[styles.hintText, { color: theme.colors.onSurfaceVariant }]}>
+        <View style={StyleSheet.flatten([styles.validationHint, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <Text style={StyleSheet.flatten([styles.hintText, { color: theme.colors.onSurfaceVariant }])}>
             {(() => {
               const combinedDateTime = getCombinedDateTime();
               if (!combinedDateTime) return '';

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { useTheme, Text, Searchbar, Chip, Button } from 'react-native-paper';
+import { Text, Searchbar, Chip, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { format, startOfDay, endOfDay, isToday, isTomorrow, isYesterday, addDays } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
@@ -42,7 +43,7 @@ export function EventList({
   testID,
 }: EventListProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // State for search and filtering
@@ -193,16 +194,16 @@ export function EventList({
 
   // Render section header
   const renderSectionHeader = useCallback(({ section: { title } }: { section: { title: string } }) => (
-    <View style={[styles.sectionHeader, { backgroundColor: theme.colors.background }]}>
+    <View style={StyleSheet.flatten([styles.sectionHeader, { backgroundColor: theme.colors.background }])}>
       <Text
         variant="labelLarge"
-        style={[styles.sectionHeaderText, { color: theme.colors.onSurface }]}
+        style={StyleSheet.flatten([styles.sectionHeaderText, { color: theme.colors.onSurface }])}
       >
         {formatSectionDate(title)}
       </Text>
       <Text
         variant="labelSmall"
-        style={[styles.sectionCountText, { color: theme.colors.onSurfaceVariant }]}
+        style={StyleSheet.flatten([styles.sectionCountText, { color: theme.colors.onSurfaceVariant }])}
       >
         {groupedEvents[title].length} {t('eventList.events')}
       </Text>
@@ -220,8 +221,8 @@ export function EventList({
   // Empty state
   if (!loading && filteredEvents.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { backgroundColor: theme.colors.background }]} testID={testID}>
-        <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+      <View style={StyleSheet.flatten([styles.emptyContainer, { backgroundColor: theme.colors.background }])} testID={testID}>
+        <Text style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}>
           {emptyMessage || t('eventList.noEvents')}
         </Text>
         {hasActiveFilters && (
@@ -238,7 +239,7 @@ export function EventList({
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
       {/* Search Bar */}
       {searchEnabled && (
         <View style={styles.searchContainer}>
@@ -259,7 +260,7 @@ export function EventList({
           <View style={styles.filterRow}>
             <Text
               variant="labelMedium"
-              style={[styles.filterLabel, { color: theme.colors.onSurface }]}
+              style={StyleSheet.flatten([styles.filterLabel, { color: theme.colors.onSurface }])}
             >
               {t('eventList.dateFilter')}
             </Text>
@@ -283,7 +284,7 @@ export function EventList({
           <View style={styles.filterRow}>
             <Text
               variant="labelMedium"
-              style={[styles.filterLabel, { color: theme.colors.onSurface }]}
+              style={StyleSheet.flatten([styles.filterLabel, { color: theme.colors.onSurface }])}
             >
               {t('eventList.typeFilter')}
             </Text>

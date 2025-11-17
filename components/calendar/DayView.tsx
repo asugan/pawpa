@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { useTheme, Text, Divider } from 'react-native-paper';
+import { Text, Divider } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
   format,
@@ -28,7 +29,7 @@ export function DayView({
   testID,
 }: DayViewProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -127,30 +128,30 @@ export function DayView({
 
     return (
       <View
-        style={[
+        style={StyleSheet.flatten([
           styles.currentTimeLine,
           {
             top,
             backgroundColor: theme.colors.error,
           },
-        ]}
+        ])}
       >
         <View
-          style={[
+          style={StyleSheet.flatten([
             styles.currentTimeDot,
             {
               backgroundColor: theme.colors.error,
             },
-          ]}
+          ])}
         />
         <Text
           variant="labelSmall"
-          style={[
+          style={StyleSheet.flatten([
             styles.currentTimeText,
             {
               color: theme.colors.error,
             },
-          ]}
+          ])}
         >
           {format(now, 'HH:mm')}
         </Text>
@@ -165,21 +166,21 @@ export function DayView({
       hours.push(
         <View
           key={hour}
-          style={[
+          style={StyleSheet.flatten([
             styles.hourRow,
             {
               height: HOUR_HEIGHT,
               borderBottomColor: theme.colors.outlineVariant,
             },
-          ]}
+          ])}
         >
           <View style={styles.timeLabel}>
             <Text
               variant="labelMedium"
-              style={[
+              style={StyleSheet.flatten([
                 styles.timeLabelText,
                 { color: theme.colors.onSurfaceVariant },
-              ]}
+              ])}
             >
               {format(new Date().setHours(hour, 0, 0, 0), 'HH:mm')}
             </Text>
@@ -193,7 +194,7 @@ export function DayView({
 
   return (
     <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       testID={testID}
     >
       <ScrollView
@@ -214,7 +215,7 @@ export function DayView({
               return (
                 <Pressable
                   key={event.id}
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.eventBlock,
                     {
                       top: style.top,
@@ -222,7 +223,7 @@ export function DayView({
                       backgroundColor: eventColor,
                       borderLeftColor: darkenColor(eventColor, 20),
                     },
-                  ]}
+                  ])}
                   onPress={() => onEventPress?.(event)}
                   testID={`${testID}-event-${event.id}`}
                 >
@@ -286,10 +287,10 @@ export function DayView({
           <View style={styles.emptyState}>
             <Text
               variant="bodyLarge"
-              style={[
+              style={StyleSheet.flatten([
                 styles.emptyStateText,
                 { color: theme.colors.onSurfaceVariant },
-              ]}
+              ])}
             >
               {t('calendar.noEventsToday')}
             </Text>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, IconButton, ProgressBar, Chip, Badge } from 'react-native-paper';
+import { Card, Text, IconButton, ProgressBar, Chip, Badge } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { BudgetLimit, BudgetStatus } from '../lib/types';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,7 +23,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   onDelete,
   showActions = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
 
   const formatCurrency = (amount: number, currency: string): string => {
@@ -61,17 +62,17 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
   const cardContent = (
     <Card
-      style={[
+      style={StyleSheet.flatten([
         styles.card,
         {
           backgroundColor: theme.colors.surface,
           borderLeftWidth: 4,
           borderLeftColor: budget.isActive ? getProgressColor(percentage) : theme.colors.surfaceDisabled,
         },
-      ]}
+      ])}
       elevation={2}
     >
-      <Card.Content>
+      <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <MaterialCommunityIcons
@@ -152,13 +153,13 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
         {percentage >= budget.alertThreshold * 100 && budget.isActive && (
           <View
-            style={[
+            style={StyleSheet.flatten([
               styles.alertBanner,
               {
                 backgroundColor:
                   percentage >= 100 ? theme.colors.errorContainer : theme.colors.tertiaryContainer,
               },
-            ]}
+            ])}
           >
             <MaterialCommunityIcons
               name="alert"
@@ -200,7 +201,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
             )}
           </View>
         )}
-      </Card.Content>
+      </View>
     </Card>
   );
 
@@ -222,6 +223,9 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 6,
     borderRadius: 12,
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',

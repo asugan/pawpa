@@ -1,12 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card } from 'react-native-paper';
-import { useTheme } from 'react-native-paper';
+import { Card } from '@/components/ui';
+import {  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 export const PetCardSkeleton: React.FC = () => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
     card: {
       marginHorizontal: 0,
       marginVertical: 0,
@@ -64,7 +68,7 @@ export const PetCardSkeleton: React.FC = () => {
 
   return (
     <Card style={styles.card}>
-      <Card.Content style={styles.content}>
+      <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.avatar} />
           <View style={styles.textContainer}>
@@ -82,7 +86,7 @@ export const PetCardSkeleton: React.FC = () => {
           <View style={styles.infoSkeleton} />
           <View style={styles.badgeSkeleton} />
         </View>
-      </Card.Content>
+      </View>
     </Card>
   );
 };

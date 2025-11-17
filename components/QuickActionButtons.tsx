@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, useTheme } from 'react-native-paper';
+import { Button,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 
 interface QuickActionButtonsProps {
@@ -16,17 +17,16 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
   onAddFeedingSchedule,
   style,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={StyleSheet.flatten([styles.container, style])}>
       <Button
         mode="contained"
         buttonColor={theme.colors.primary}
         textColor={theme.colors.onPrimary}
         style={styles.button}
-        contentStyle={styles.buttonContent}
         onPress={onAddPet}
         icon="plus"
       >
@@ -38,7 +38,6 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         buttonColor={theme.colors.secondary}
         textColor={theme.colors.onSecondary}
         style={styles.button}
-        contentStyle={styles.buttonContent}
         onPress={onAddHealthRecord}
         icon="heart-plus"
       >
@@ -50,7 +49,6 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         buttonColor={theme.colors.tertiary}
         textColor={theme.colors.onTertiary}
         style={styles.button}
-        contentStyle={styles.buttonContent}
         onPress={onAddFeedingSchedule}
         icon="clock-plus"
       >

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { useTheme, Text, Button, Switch, Divider, Chip } from 'react-native-paper';
+import { Text, Button, Switch, Divider, Chip } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +36,7 @@ export function FeedingScheduleForm({
   testID,
 }: FeedingScheduleFormProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   // Form setup
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -226,7 +227,7 @@ export function FeedingScheduleForm({
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="always"
       removeClippedSubviews={false}
@@ -235,10 +236,10 @@ export function FeedingScheduleForm({
       <View style={styles.formContent}>
         {/* Form Header */}
         <View style={styles.header}>
-          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
             {isEditMode ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
           </Text>
-          <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
             {t('feedingSchedule.subtitle')}
           </Text>
         </View>
@@ -247,7 +248,6 @@ export function FeedingScheduleForm({
         <FormDropdown
           control={control}
           name="petId"
-          label={t('feedingSchedule.fields.pet')}
           required
           options={petOptions}
           placeholder={t('feedingSchedule.placeholders.selectPet')}
@@ -255,7 +255,7 @@ export function FeedingScheduleForm({
         />
 
         {selectedPet && (
-          <View style={[styles.infoBox, { backgroundColor: theme.colors.primaryContainer }]}>
+          <View style={StyleSheet.flatten([styles.infoBox, { backgroundColor: theme.colors.primaryContainer }])}>
             <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
               {t('feedingSchedule.selectedPet')}: {selectedPet.label}
             </Text>
@@ -268,7 +268,6 @@ export function FeedingScheduleForm({
         <FormTimePicker
           control={control}
           name="time"
-          label={t('feedingSchedule.fields.time')}
           required
           placeholder={t('feedingSchedule.placeholders.selectTime')}
           minuteInterval={15}
@@ -279,7 +278,6 @@ export function FeedingScheduleForm({
         <FormDropdown
           control={control}
           name="foodType"
-          label={t('feedingSchedule.fields.foodType')}
           required
           options={foodTypeOptions}
           placeholder={t('feedingSchedule.placeholders.selectFoodType')}
@@ -287,9 +285,9 @@ export function FeedingScheduleForm({
         />
 
         {/* Food type suggestion */}
-        <View style={[styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }]}>
+        <View style={StyleSheet.flatten([styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }])}>
           <Text style={styles.suggestionIcon}>💡</Text>
-          <Text variant="bodySmall" style={[styles.suggestionText, { color: theme.colors.onSecondaryContainer }]}>
+          <Text variant="bodySmall" style={StyleSheet.flatten([styles.suggestionText, { color: theme.colors.onSecondaryContainer }])}>
             {getFoodTypeSuggestion()}
           </Text>
         </View>
@@ -298,7 +296,6 @@ export function FeedingScheduleForm({
         <FormInput
           control={control}
           name="amount"
-          label={t('feedingSchedule.fields.amount')}
           required
           placeholder={t('feedingSchedule.placeholders.amount')}
           testID={`${testID}-amount`}
@@ -308,10 +305,10 @@ export function FeedingScheduleForm({
 
         {/* Days Selection */}
         <View style={styles.daysSection}>
-          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
             {t('feedingSchedule.fields.days')} *
           </Text>
-          <Text variant="bodySmall" style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={StyleSheet.flatten([styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }])}>
             {t('feedingSchedule.daysHelp')}
           </Text>
 
@@ -366,12 +363,12 @@ export function FeedingScheduleForm({
                         mode={isSelected ? 'flat' : 'outlined'}
                         selected={isSelected}
                         onPress={() => toggleDay(day.value)}
-                        style={[
+                        style={StyleSheet.flatten([
                           styles.dayChip,
                           isSelected && {
                             backgroundColor: theme.colors.primaryContainer,
                           }
-                        ]}
+                        ])}
                         textStyle={[
                           styles.dayChipText,
                           isSelected && { color: theme.colors.onPrimaryContainer }
@@ -385,7 +382,7 @@ export function FeedingScheduleForm({
                 </View>
 
                 {fieldState.error && (
-                  <Text style={[styles.errorText, { color: theme.colors.error }]}>
+                  <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
                     {fieldState.error.message}
                   </Text>
                 )}
@@ -435,7 +432,6 @@ export function FeedingScheduleForm({
           <Button
             mode="contained"
             onPress={handleSubmit(onFormSubmit)}
-            loading={loading || isSubmitting}
             disabled={loading || isSubmitting}
             style={styles.submitButton}
             testID={`${testID}-submit`}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import NetworkStatusBadge from './NetworkStatusBadge';
 
 interface CustomTabHeaderProps {
@@ -9,7 +10,7 @@ interface CustomTabHeaderProps {
 }
 
 export default function CustomTabHeader({ showNetworkBadge = true, pageTitle }: CustomTabHeaderProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -32,7 +33,7 @@ export default function CustomTabHeader({ showNetworkBadge = true, pageTitle }: 
         {pageTitle && (
           <Text
             variant="titleMedium"
-            style={[styles.pageTitle, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.pageTitle, { color: theme.colors.onSurface }])}
             numberOfLines={1}
           >
             {pageTitle}

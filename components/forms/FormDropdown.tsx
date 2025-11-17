@@ -2,7 +2,8 @@ import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, ScrollView, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
-import { useTheme, IconButton, TextInput } from 'react-native-paper';
+import { IconButton, TextInput } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface DropdownOption {
   value: string;
@@ -12,7 +13,7 @@ interface DropdownOption {
 interface FormDropdownProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  label: string;
+  label?: string;
   options: DropdownOption[];
   required?: boolean;
   disabled?: boolean;
@@ -33,7 +34,7 @@ export function FormDropdown<T extends FieldValues>({
   testID,
 }: FormDropdownProps<T>) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const filteredOptions = React.useMemo(() => {
@@ -63,7 +64,7 @@ export function FormDropdown<T extends FieldValues>({
             <Pressable
               onPress={openDropdown}
               disabled={disabled}
-              style={[
+              style={StyleSheet.flatten([
                 styles.dropdown,
                 {
                   borderColor: fieldState.error
@@ -75,18 +76,18 @@ export function FormDropdown<T extends FieldValues>({
                     ? theme.colors.surfaceDisabled
                     : theme.colors.surface,
                 }
-              ]}
+              ])}
               testID={testID}
             >
               <Text
-                style={[
+                style={StyleSheet.flatten([
                   styles.dropdownText,
                   {
                     color: field.value
                       ? theme.colors.onSurface
                       : theme.colors.onSurfaceVariant,
                   }
-                ]}
+                ])}
                 numberOfLines={1}
               >
                 {selectedOption?.label || placeholder || `${label}${required ? ' *' : ''}`}
@@ -101,7 +102,7 @@ export function FormDropdown<T extends FieldValues>({
             </Pressable>
 
             {fieldState.error && (
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
+              <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
                 {fieldState.error.message}
               </Text>
             )}
@@ -120,11 +121,11 @@ export function FormDropdown<T extends FieldValues>({
                 setModalVisible(false);
                 setSearchQuery('');
               }}>
-                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                <View style={StyleSheet.flatten([styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }])}>
                   <TouchableWithoutFeedback onPress={() => {}}>
-                    <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+                    <View style={StyleSheet.flatten([styles.modal, { backgroundColor: theme.colors.surface }])}>
                       <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                        <Text style={StyleSheet.flatten([styles.modalTitle, { color: theme.colors.onSurface }])}>
                           {label}
                         </Text>
                         <IconButton
@@ -142,13 +143,13 @@ export function FormDropdown<T extends FieldValues>({
                             placeholder={t('forms.dropdown.searchPlaceholder')}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            style={[
+                            style={StyleSheet.flatten([
                               styles.searchInput,
                               {
                                 borderColor: theme.colors.outline,
                                 color: theme.colors.onSurface,
                               }
-                            ]}
+                            ])}
                             placeholderTextColor={theme.colors.onSurfaceVariant}
                           />
                         </View>
@@ -169,24 +170,24 @@ export function FormDropdown<T extends FieldValues>({
                               setModalVisible(false);
                               setSearchQuery('');
                             }}
-                            style={[
+                            style={StyleSheet.flatten([
                               styles.option,
                               {
                                 backgroundColor: field.value === option.value
                                   ? theme.colors.primaryContainer
                                   : 'transparent',
                               }
-                            ]}
+                            ])}
                           >
                             <Text
-                              style={[
+                              style={StyleSheet.flatten([
                                 styles.optionText,
                                 {
                                   color: field.value === option.value
                                     ? theme.colors.onPrimaryContainer
                                     : theme.colors.onSurface,
                                 }
-                              ]}
+                              ])}
                             >
                               {option.label}
                             </Text>
@@ -202,14 +203,14 @@ export function FormDropdown<T extends FieldValues>({
                         ))
                         ) : (
                           <View style={styles.emptyContainer}>
-                            <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+                            <Text style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}>
                               {searchable && searchQuery
                                 ? t('forms.dropdown.noMatchingOptions')
                                 : t('forms.dropdown.noOptionsAvailable')}
                             </Text>
                             {searchable && searchQuery && (
                               <Pressable onPress={() => setSearchQuery('')}>
-                                <Text style={[styles.clearSearchText, { color: theme.colors.primary }]}>
+                                <Text style={StyleSheet.flatten([styles.clearSearchText, { color: theme.colors.primary }])}>
                                   {t('forms.dropdown.clearSearch')}
                                 </Text>
                               </Pressable>

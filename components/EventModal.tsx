@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Modal as RNModal } from 'react-native';
-import { useTheme, Portal, Snackbar, Text, Button } from 'react-native-paper';
+import { Portal, Snackbar, Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { Event, CreateEventInput } from '../lib/types';
 import EventForm from './forms/EventForm';
 import { useCreateEvent, useUpdateEvent } from '../lib/hooks/useEvents';
@@ -23,7 +24,7 @@ export function EventModal({
   onSuccess,
   testID,
 }: EventModalProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
@@ -95,9 +96,9 @@ export function EventModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
           <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
               {event ? 'Etkinliği Düzenle' : 'Yeni Etkinlik Ekle'}
             </Text>
             <Button
@@ -114,7 +115,6 @@ export function EventModal({
             event={event}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            loading={loading}
             initialPetId={initialPetId}
             pets={pets}
             testID="event-form-in-modal"
@@ -127,13 +127,11 @@ export function EventModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
+          style={StyleSheet.flatten([
             styles.snackbar,
             { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          ])}
+         message={snackbarMessage} />
       </Portal>
     </>
   );

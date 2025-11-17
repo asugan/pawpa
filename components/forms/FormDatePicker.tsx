@@ -2,14 +2,15 @@ import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback } from 'react-native';
-import { useTheme, IconButton, Button } from 'react-native-paper';
+import { IconButton, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { format } from 'date-fns';
 import { tr , enUS } from 'date-fns/locale';
 
 interface FormDatePickerProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
@@ -28,7 +29,7 @@ export function FormDatePicker<T extends FieldValues>({
   mode = 'past',
 }: FormDatePickerProps<T>) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [tempDate, setTempDate] = React.useState(new Date());
 
@@ -90,7 +91,7 @@ export function FormDatePicker<T extends FieldValues>({
             <Pressable
               onPress={openDatePicker}
               disabled={disabled}
-              style={[
+              style={StyleSheet.flatten([
                 styles.datePicker,
                 {
                   borderColor: fieldState.error
@@ -102,18 +103,18 @@ export function FormDatePicker<T extends FieldValues>({
                     ? theme.colors.surfaceDisabled
                     : theme.colors.surface,
                 }
-              ]}
+              ])}
               testID={testID}
             >
               <Text
-                style={[
+                style={StyleSheet.flatten([
                   styles.dateText,
                   {
                     color: field.value
                       ? theme.colors.onSurface
                       : theme.colors.onSurfaceVariant,
                   }
-                ]}
+                ])}
               >
                 {field.value ? formatDate(field.value) : (placeholder || `${label}${required ? ' *' : ''}`)}
               </Text>
@@ -127,7 +128,7 @@ export function FormDatePicker<T extends FieldValues>({
             </Pressable>
 
             {fieldState.error && (
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
+              <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
                 {fieldState.error.message}
               </Text>
             )}
@@ -143,11 +144,11 @@ export function FormDatePicker<T extends FieldValues>({
               transparent={false}
             >
               <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                <View style={StyleSheet.flatten([styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }])}>
                   <TouchableWithoutFeedback onPress={() => {}}>
-                    <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+                    <View style={StyleSheet.flatten([styles.modal, { backgroundColor: theme.colors.surface }])}>
                       <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                        <Text style={StyleSheet.flatten([styles.modalTitle, { color: theme.colors.onSurface }])}>
                           {label}
                         </Text>
                         <IconButton
@@ -157,8 +158,8 @@ export function FormDatePicker<T extends FieldValues>({
                       </View>
 
                       <View style={styles.modalContent}>
-                        <View style={[styles.dateDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
-                          <Text style={[styles.dateDisplayText, { color: theme.colors.onSurface }]}>
+                        <View style={StyleSheet.flatten([styles.dateDisplay, { backgroundColor: theme.colors.surfaceVariant }])}>
+                          <Text style={StyleSheet.flatten([styles.dateDisplayText, { color: theme.colors.onSurface }])}>
                             {formatDate(tempDate)}
                           </Text>
                         </View>

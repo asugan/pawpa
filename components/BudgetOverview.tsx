@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, ProgressBar, Badge } from 'react-native-paper';
+import { Card, Text, ProgressBar, Badge } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -13,7 +14,7 @@ interface BudgetOverviewProps {
 }
 
 const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
@@ -64,17 +65,17 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
   return (
     <Pressable onPress={() => router.push('/budgets')}>
       <Card
-        style={[
+        style={StyleSheet.flatten([
           styles.card,
           {
             backgroundColor: theme.colors.surface,
             borderLeftWidth: alerts.length > 0 ? 4 : 0,
             borderLeftColor: alerts.length > 0 ? theme.colors.error : 'transparent',
           },
-        ]}
+        ])}
         elevation={4}
       >
-        <Card.Content>
+        <View style={styles.cardContent}>
           <View style={styles.header}>
             <LinearGradient
               colors={theme.dark ? gradientsDark.tertiary : gradients.tertiary}
@@ -136,10 +137,10 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
                   )}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.progressBarFill,
                     { width: `${Math.min(criticalAlert.percentage, 100)}%` }
-                  ]}
+                  ])}
                 />
               </View>
               <View style={styles.budgetDetails}>
@@ -174,7 +175,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
               </Text>
             </View>
           )}
-        </Card.Content>
+        </View>
       </Card>
     </Pressable>
   );
@@ -185,6 +186,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 20,
     overflow: 'hidden',
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',

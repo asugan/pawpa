@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, useTheme, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ExpenseCreateSchema, ExpenseCreateInput } from '../lib/schemas/expenseSchema';
@@ -26,7 +27,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   const defaultValues = {
@@ -59,7 +60,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <ScrollView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
       <View style={styles.form}>
         {/* Category Picker */}
         <Controller
@@ -69,7 +70,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <CategoryPicker
               selectedCategory={value}
               onSelect={onChange}
-              label={t('expenses.category', 'Category')}
               error={errors.category?.message}
             />
           )}
@@ -82,7 +82,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('expenses.amount', 'Amount')}
                 value={value?.toString() || ''}
                 onChangeText={(text) => {
                   const num = parseFloat(text.replace(',', '.'));
@@ -92,7 +91,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 keyboardType="decimal-pad"
                 mode="outlined"
                 error={!!errors.amount}
-                left={<TextInput.Icon icon="currency-usd" />}
+                left={<TextInput.Icon icon="cash-outline" />}
               />
               {errors.amount && (
                 <HelperText type="error" visible={!!errors.amount}>
@@ -111,7 +110,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <CurrencyPicker
               selectedCurrency={value}
               onSelect={onChange}
-              label={t('expenses.currency', 'Currency')}
               error={errors.currency?.message}
             />
           )}
@@ -125,7 +123,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <PaymentMethodPicker
               selectedMethod={value || null}
               onSelect={onChange}
-              label={t('expenses.paymentMethod', 'Payment Method')}
               error={errors.paymentMethod?.message}
               optional
             />
@@ -143,7 +140,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 onChange={(date: Date) => onChange(date.toISOString().split('T')[0])}
                 mode="date"
                 maximumDate={new Date()}
-                label={t('expenses.date', 'Date')}
                 error={!!errors.date}
                 errorText={errors.date?.message}
               />
@@ -158,7 +154,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('expenses.description', 'Description (Optional)')}
                 value={value || ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -184,13 +179,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('expenses.vendor', 'Vendor (Optional)')}
                 value={value || ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 mode="outlined"
                 error={!!errors.vendor}
-                left={<TextInput.Icon icon="store" />}
+                left={<TextInput.Icon icon="storefront-outline" />}
               />
               {errors.vendor && (
                 <HelperText type="error" visible={!!errors.vendor}>
@@ -208,7 +202,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('expenses.notes', 'Notes (Optional)')}
                 value={value || ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -216,7 +209,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 error={!!errors.notes}
                 multiline
                 numberOfLines={3}
-                left={<TextInput.Icon icon="note-text" />}
+                left={<TextInput.Icon icon="document-text-outline" />}
               />
               {errors.notes && (
                 <HelperText type="error" visible={!!errors.notes}>
@@ -243,7 +236,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             mode="contained"
             onPress={handleSubmit(handleFormSubmit)}
             style={styles.button}
-            loading={isSubmitting}
             disabled={isSubmitting}
           >
             {initialData ? t('common.update', 'Update') : t('common.create', 'Create')}

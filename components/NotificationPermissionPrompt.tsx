@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Linking, Platform } from 'react-native';
-import { Text, Button, Card, useTheme, Portal, Dialog } from 'react-native-paper';
+import { Text, Button, Card, Portal, Dialog } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNotifications } from '@/lib/hooks/useNotifications';
@@ -18,7 +19,7 @@ export default function NotificationPermissionPrompt({
   onPermissionGranted,
   onPermissionDenied,
 }: NotificationPermissionPromptProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const { requestPermission, isLoading } = useNotifications();
 
@@ -54,11 +55,11 @@ export default function NotificationPermissionPrompt({
             />
           </View>
 
-          <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text variant="headlineSmall" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
             {t('notifications.enableTitle')}
           </Text>
 
-          <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}>
             {t('notifications.enableDescription')}
           </Text>
 
@@ -108,7 +109,6 @@ export default function NotificationPermissionPrompt({
           <Button
             mode="contained"
             onPress={handleRequestPermission}
-            loading={isLoading}
             disabled={isLoading}
           >
             {t('notifications.enable')}
@@ -123,7 +123,7 @@ export default function NotificationPermissionPrompt({
  * Inline notification permission card (for settings page)
  */
 export function NotificationPermissionCard() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const { permissionStatus, requestPermission, isLoading } = useNotifications();
 
@@ -137,8 +137,8 @@ export function NotificationPermissionCard() {
 
   if (permissionStatus === 'granted') {
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.primaryContainer }]}>
-        <Card.Content>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.primaryContainer }])}>
+        <View style={styles.cardContent}>
           <View style={styles.cardContent}>
             <MaterialCommunityIcons
               name="check-circle"
@@ -154,15 +154,15 @@ export function NotificationPermissionCard() {
               </Text>
             </View>
           </View>
-        </Card.Content>
+        </View>
       </Card>
     );
   }
 
   if (permissionStatus === 'denied') {
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.errorContainer }]}>
-        <Card.Content>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.errorContainer }])}>
+        <View style={styles.cardContent}>
           <View style={styles.cardContent}>
             <MaterialCommunityIcons
               name="bell-off"
@@ -186,14 +186,14 @@ export function NotificationPermissionCard() {
           >
             {t('notifications.openSettings')}
           </Button>
-        </Card.Content>
+        </View>
       </Card>
     );
   }
 
   return (
-    <Card style={[styles.card, { backgroundColor: theme.colors.secondaryContainer }]}>
-      <Card.Content>
+    <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.secondaryContainer }])}>
+      <View style={styles.cardContent}>
         <View style={styles.cardContent}>
           <MaterialCommunityIcons
             name="bell-ring"
@@ -212,13 +212,12 @@ export function NotificationPermissionCard() {
         <Button
           mode="contained"
           onPress={requestPermission}
-          loading={isLoading}
           disabled={isLoading}
           style={styles.settingsButton}
         >
           {t('notifications.enable')}
         </Button>
-      </Card.Content>
+      </View>
     </Card>
   );
 }

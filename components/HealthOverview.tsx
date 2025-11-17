@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button, useTheme } from 'react-native-paper';
+import { Card, Text, Button,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
   loading,
   error
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -30,17 +31,17 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+          <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onBackground }])}>
             {t('home.healthOverview')}
           </Text>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content style={styles.loadingContent}>
+        <Card style={StyleSheet.flatten([styles.section, { backgroundColor: theme.colors.surface }])}>
+          <View style={styles.loadingContent}>
             <ActivityIndicator size="small" color={theme.colors.primary} />
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
               {t('common.loading')}
             </Text>
-          </Card.Content>
+          </View>
         </Card>
       </View>
     );
@@ -50,7 +51,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+          <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onBackground }])}>
             {t('home.healthOverview')}
           </Text>
           <Button
@@ -62,8 +63,8 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
             {t('common.viewAll')}
           </Button>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <Card.Content style={styles.errorContent}>
+        <Card style={StyleSheet.flatten([styles.section, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <View style={styles.errorContent}>
             <MaterialCommunityIcons
               name="alert-circle"
               size={24}
@@ -72,7 +73,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
             <Text variant="bodyMedium" style={{ color: theme.colors.error, marginTop: 8 }}>
               {error}
             </Text>
-          </Card.Content>
+          </View>
         </Card>
       </View>
     );
@@ -81,7 +82,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+        <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onBackground }])}>
           {t('home.healthOverview')}
         </Text>
         <Button
@@ -95,16 +96,16 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
       </View>
 
       {todayEvents.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+        <Card style={StyleSheet.flatten([styles.section, { backgroundColor: theme.colors.surface }])}>
+          <View style={styles.cardContent}>
             <View style={styles.sectionHeader}>
               <Text style={styles.emojiIcon}>📅</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
                 {t('home.todaySchedule')}
               </Text>
             </View>
             {todayEvents.slice(0, 3).map((event) => (
-              <View key={event.id} style={[styles.eventItem, { borderLeftColor: theme.colors.tertiary }]}>
+              <View key={event.id} style={StyleSheet.flatten([styles.eventItem, { borderLeftColor: theme.colors.tertiary }])}>
                 <LinearGradient
                   colors={theme.dark ? gradientsDark.primary : gradients.primary}
                   start={{ x: 0, y: 0 }}
@@ -144,21 +145,21 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
                 {t('home.viewMoreEvents', { count: todayEvents.length - 3 })}
               </Button>
             )}
-          </Card.Content>
+          </View>
         </Card>
       )}
 
       {upcomingVaccinations.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+        <Card style={StyleSheet.flatten([styles.section, { backgroundColor: theme.colors.surface }])}>
+          <View style={styles.cardContent}>
             <View style={styles.sectionHeader}>
               <Text style={styles.emojiIcon}>💉</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
                 {t('health.upcomingVaccinations')}
               </Text>
             </View>
             {upcomingVaccinations.slice(0, 3).map((vaccination) => (
-              <View key={vaccination.id} style={[styles.eventItem, { borderLeftColor: theme.colors.secondary }]}>
+              <View key={vaccination.id} style={StyleSheet.flatten([styles.eventItem, { borderLeftColor: theme.colors.secondary }])}>
                 <LinearGradient
                   colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
                   start={{ x: 0, y: 0 }}
@@ -193,18 +194,18 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
                 {t('home.viewMoreVaccinations', { count: upcomingVaccinations.length - 3 })}
               </Button>
             )}
-          </Card.Content>
+          </View>
         </Card>
       )}
 
       {todayEvents.length === 0 && upcomingVaccinations.length === 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <Card.Content style={styles.emptyContent}>
+        <Card style={StyleSheet.flatten([styles.section, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <View style={styles.emptyContent}>
             <Text style={styles.bigEmoji}>✨</Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
               {t('home.noHealthActivities')}
             </Text>
-          </Card.Content>
+          </View>
         </Card>
       )}
     </View>
@@ -212,6 +213,9 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
 };
 
 const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
   container: {
     marginBottom: 24,
   },

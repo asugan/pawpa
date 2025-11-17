@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
   startOfMonth,
@@ -34,7 +35,7 @@ export function MonthView({
   testID,
 }: MonthViewProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Get all days to display in the calendar grid
@@ -84,18 +85,18 @@ export function MonthView({
     return (
       <Pressable
         key={day.toISOString()}
-        style={[
+        style={StyleSheet.flatten([
           styles.dayCell,
           {
             width: DAY_SIZE,
             height: DAY_SIZE,
           },
-        ]}
+        ])}
         onPress={() => onDayPress(day)}
         testID={`${testID}-day-${format(day, 'yyyy-MM-dd')}`}
       >
         <View
-          style={[
+          style={StyleSheet.flatten([
             styles.dayContent,
             isTodayDate && { backgroundColor: theme.colors.primaryContainer },
             isSelected && {
@@ -103,12 +104,12 @@ export function MonthView({
               borderWidth: 2,
               borderColor: theme.colors.tertiary,
             },
-          ]}
+          ])}
         >
           {/* Day Number */}
           <Text
             variant="bodyMedium"
-            style={[
+            style={StyleSheet.flatten([
               styles.dayNumber,
               {
                 color: isCurrentMonth
@@ -117,7 +118,7 @@ export function MonthView({
                 opacity: isCurrentMonth ? 1 : 0.4,
                 fontWeight: isTodayDate || isSelected ? '700' : '400',
               },
-            ]}
+            ])}
           >
             {dayNumber}
           </Text>
@@ -128,21 +129,21 @@ export function MonthView({
               {dayEvents.slice(0, 3).map((event, index) => (
                 <View
                   key={event.id}
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.eventDot,
                     {
                       backgroundColor: getEventColor(event.type),
                       marginLeft: index > 0 ? 2 : 0,
                     },
-                  ]}
+                  ])}
                 />
               ))}
               {dayEvents.length > 3 && (
                 <Text
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.eventCount,
                     { color: theme.colors.onSurfaceVariant },
-                  ]}
+                  ])}
                 >
                   +{dayEvents.length - 3}
                 </Text>
@@ -155,25 +156,25 @@ export function MonthView({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
       {/* Weekday Headers */}
       <View style={styles.weekRow}>
         {weekDays.map((day) => (
           <View
             key={day}
-            style={[
+            style={StyleSheet.flatten([
               styles.weekDayCell,
               {
                 width: DAY_SIZE,
               },
-            ]}
+            ])}
           >
             <Text
               variant="labelSmall"
-              style={[
+              style={StyleSheet.flatten([
                 styles.weekDayText,
                 { color: theme.colors.onSurfaceVariant },
-              ]}
+              ])}
             >
               {day}
             </Text>

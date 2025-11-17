@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, Chip } from 'react-native-paper';
+import { Card, Text, Chip } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -13,7 +14,7 @@ interface ExpenseOverviewProps {
 }
 
 const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
@@ -46,8 +47,8 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
 
   return (
     <Pressable onPress={() => router.push('/expenses')}>
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={4}>
-        <Card.Content>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])} elevation={4}>
+        <View style={styles.cardContent}>
           <View style={styles.header}>
             <LinearGradient
               colors={theme.dark ? gradientsDark.accent : gradients.accent}
@@ -80,7 +81,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
                 end={{ x: 1, y: 1 }}
                 style={styles.amountContainer}
               >
-                <Text variant="headlineSmall" style={[styles.statValue, { color: '#FFFFFF', fontWeight: '800' }]}>
+                <Text variant="headlineSmall" style={StyleSheet.flatten([styles.statValue, { color: '#FFFFFF', fontWeight: '800' }])}>
                   {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(' + ')}
                 </Text>
                 <Text variant="bodySmall" style={{ color: '#FFFFFF', opacity: 0.9, fontWeight: '600' }}>
@@ -103,7 +104,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
               <Chip
                 mode="flat"
                 compact
-                style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}
+                style={StyleSheet.flatten([styles.chip, { backgroundColor: theme.colors.secondaryContainer }])}
                 textStyle={{ fontWeight: '600' }}
               >
                 🏷️ {t(`expenses.categories.${topCategory.category}`, topCategory.category)} •{' '}
@@ -111,13 +112,16 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
               </Chip>
             </View>
           )}
-        </Card.Content>
+        </View>
       </Card>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
   card: {
     marginVertical: 8,
     borderRadius: 20,

@@ -1,6 +1,7 @@
 import React from 'react';
-import { TextInput } from 'react-native-paper';
-import { useTheme } from 'react-native-paper';
+import { TextInput } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/lib/theme';
 
 interface CurrencyInputProps {
   value?: number;
@@ -23,7 +24,7 @@ export function CurrencyInput({
   placeholder,
   testID,
 }: CurrencyInputProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const formatValue = (num?: number) => {
     if (num === undefined || num === null) return '';
@@ -54,7 +55,7 @@ export function CurrencyInput({
       error={error}
       placeholder={placeholder}
       testID={testID}
-      left={<TextInput.Icon icon="currency-try" />}
+      left={<MaterialCommunityIcons name="currency-try" size={24} color={theme.colors.onSurfaceVariant} />}
       style={{
         backgroundColor: disabled
           ? theme.colors.surfaceDisabled

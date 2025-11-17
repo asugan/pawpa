@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button, useTheme } from 'react-native-paper';
+import { Card, Text, Button,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface EmptyStateProps {
@@ -26,12 +27,12 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   actionLabel,
   onAction,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={[styles.container, style]}>
-      <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
-        <Card.Content style={styles.content}>
+    <View style={StyleSheet.flatten([styles.container, style])}>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
+        <View style={styles.content}>
           <MaterialCommunityIcons
             name={icon}
             size={64}
@@ -41,7 +42,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
           <Text
             variant="headlineSmall"
-            style={[styles.title, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurfaceVariant }])}
           >
             {title}
           </Text>
@@ -49,7 +50,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {description && (
             <Text
               variant="bodyMedium"
-              style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
+              style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}
             >
               {description}
             </Text>
@@ -66,7 +67,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
               {buttonText || actionLabel}
             </Button>
           ) : null}
-        </Card.Content>
+        </View>
       </Card>
     </View>
   );

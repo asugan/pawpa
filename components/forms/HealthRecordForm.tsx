@@ -7,23 +7,15 @@ import {
   Modal as RNModal,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {
-  TextInput,
-  Button,
-  SegmentedButtons,
-  Text,
-  Card,
-  Divider,
-  Switch,
-  Portal,
-  useTheme,
-} from 'react-native-paper';
+import { TextInput, Button, SegmentedButtons, Text, Card, Divider, Switch, Portal } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/lib/theme';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DateTimePicker } from '../../components/DateTimePicker';
 import { CurrencyInput } from '../../components/CurrencyInput';
-import { HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../constants';
+import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_ICONS } from '../../constants';
 import {
   useCreateHealthRecord,
   useUpdateHealthRecord
@@ -54,7 +46,7 @@ export function HealthRecordForm({
   onCancel,
   initialData
 }: HealthRecordFormProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const styles = getStyles(theme);
   const [isLoading, setIsLoading] = useState(false);
   const createMutation = useCreateHealthRecord();
@@ -68,7 +60,7 @@ export function HealthRecordForm({
     return getHealthRecordSchema(type as any);
   };
 
-  const { control, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm<any>({
+  const { control, handleSubmit, setValue, watch, reset, formState: { errors, isValid } } = useForm<any>({
     mode: 'onChange', // Enable validation onChange
     defaultValues: {
       petId,
@@ -96,6 +88,56 @@ export function HealthRecordForm({
 
   const watchedType = watch('type');
   const hasNextDueDate = watchedType === 'vaccination';
+
+  // Reset form when initialData changes (for editing)
+  React.useEffect(() => {
+    if (visible && initialData) {
+      reset({
+        petId,
+        type: initialData.type,
+        title: initialData.title || '',
+        description: initialData.description || '',
+        date: initialData.date,
+        veterinarian: initialData.veterinarian || '',
+        clinic: initialData.clinic || '',
+        cost: initialData.cost || undefined,
+        notes: initialData.notes || '',
+        nextDueDate: initialData.nextDueDate || undefined,
+        vaccineName: initialData.vaccineName || '',
+        vaccineManufacturer: initialData.vaccineManufacturer || '',
+        batchNumber: initialData.batchNumber || '',
+        medicationName: initialData.medicationName || '',
+        dosage: initialData.dosage || '',
+        frequency: initialData.frequency || '',
+        startDate: initialData.startDate || undefined,
+        endDate: initialData.endDate || undefined,
+      });
+      setSelectedType(initialData.type);
+    } else if (visible && !initialData) {
+      // Reset to empty form for creating new record
+      reset({
+        petId,
+        type: 'checkup',
+        title: '',
+        description: '',
+        date: new Date().toISOString(),
+        veterinarian: '',
+        clinic: '',
+        cost: undefined,
+        notes: '',
+        nextDueDate: undefined,
+        vaccineName: '',
+        vaccineManufacturer: '',
+        batchNumber: '',
+        medicationName: '',
+        dosage: '',
+        frequency: '',
+        startDate: undefined,
+        endDate: undefined,
+      });
+      setSelectedType('checkup');
+    }
+  }, [visible, initialData, reset, petId]);
 
   // Update selectedType when form type changes
   React.useEffect(() => {
@@ -192,7 +234,7 @@ export function HealthRecordForm({
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             <Card style={styles.card}>
-              <Card.Content>
+              <View style={styles.cardContent}>
                 {/* Record Type */}
                 <View style={styles.field}>
                   <Text style={styles.label}>Kayıt Türü</Text>
@@ -206,10 +248,7 @@ export function HealthRecordForm({
                         buttons={Object.entries(HEALTH_RECORD_TYPES).map(([key, value]) => ({
                           value,
                           label: TURKCE_LABELS.HEALTH_RECORD_TYPES[key as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES],
-                          style: {
-                            minWidth: 80,
-                          },
-                          textColor: theme.colors.onSurface,
+                          icon: HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS],
                         }))}
                         style={styles.segmentedButtons}
                         density="small"
@@ -223,12 +262,14 @@ export function HealthRecordForm({
 
                 {/* Title */}
                 <View style={styles.field}>
+                  <Text style={styles.label}>Başlık</Text>
                   <Controller
                     control={control}
                     name="title"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        label="Başlık *"
+                        label="Başlık"
+                        placeholder="Örn: Kuduz Aşısı"
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -244,12 +285,14 @@ export function HealthRecordForm({
 
                 {/* Description */}
                 <View style={styles.field}>
+                  <Text style={styles.label}>Açıklama</Text>
                   <Controller
                     control={control}
                     name="description"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
                         label="Açıklama"
+                        placeholder="Detaylı açıklama..."
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -268,10 +311,10 @@ export function HealthRecordForm({
                     name="date"
                     render={({ field: { onChange, value } }) => (
                       <DateTimePicker
+                        label="Tarih"
                         value={value ? new Date(value) : new Date()}
                         onChange={(date) => onChange(date.toISOString())}
                         mode="date"
-                        label="Tarih *"
                         error={!!errors.date}
                         errorText={errors.date?.message as string}
                         maximumDate={new Date()}
@@ -284,13 +327,15 @@ export function HealthRecordForm({
 
                 {/* Veterinarian & Clinic */}
                 <View style={styles.row}>
-                  <View style={[styles.field, styles.halfField]}>
+                  <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
+                    <Text style={styles.label}>Veteriner</Text>
                     <Controller
                       control={control}
                       name="veterinarian"
                       render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                           label="Veteriner"
+                          placeholder="Dr. İsim"
                           value={value}
                           onChangeText={onChange}
                           onBlur={onBlur}
@@ -299,13 +344,15 @@ export function HealthRecordForm({
                       )}
                     />
                   </View>
-                  <View style={[styles.field, styles.halfField]}>
+                  <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
+                    <Text style={styles.label}>Klinik</Text>
                     <Controller
                       control={control}
                       name="clinic"
                       render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                           label="Klinik"
+                          placeholder="Klinik Adı"
                           value={value}
                           onChangeText={onChange}
                           onBlur={onBlur}
@@ -318,12 +365,13 @@ export function HealthRecordForm({
 
                 {/* Cost */}
                 <View style={styles.field}>
+                  <Text style={styles.label}>Maliyet</Text>
                   <Controller
                     control={control}
                     name="cost"
                     render={({ field: { onChange, value } }) => (
                       <CurrencyInput
-                        label="Maliyet (₺)"
+                        label="Maliyet"
                         value={value}
                         onChange={onChange}
                       />
@@ -341,12 +389,14 @@ export function HealthRecordForm({
 
                     {/* Vaccine Name */}
                     <View style={styles.field}>
+                      <Text style={styles.label}>Aşı Adı</Text>
                       <Controller
                         control={control}
                         name="vaccineName"
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
-                            label="Aşı Adı *"
+                            label="Aşı Adı"
+                            placeholder="Örn: Kuduz Aşısı"
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -362,12 +412,14 @@ export function HealthRecordForm({
 
                     {/* Vaccine Manufacturer */}
                     <View style={styles.field}>
+                      <Text style={styles.label}>Aşı Üreticisi</Text>
                       <Controller
                         control={control}
                         name="vaccineManufacturer"
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
                             label="Aşı Üreticisi"
+                            placeholder="Üretici firma"
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -379,12 +431,14 @@ export function HealthRecordForm({
 
                     {/* Batch Number */}
                     <View style={styles.field}>
+                      <Text style={styles.label}>Parti Numarası</Text>
                       <Controller
                         control={control}
                         name="batchNumber"
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
                             label="Parti Numarası"
+                            placeholder="Örn: ABC123"
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -401,10 +455,10 @@ export function HealthRecordForm({
                         name="nextDueDate"
                         render={({ field: { onChange, value } }) => (
                           <DateTimePicker
+                            label="Sonraki Aşı Tarihi"
                             value={value ? new Date(value) : new Date()}
                             onChange={(date) => onChange(date.toISOString())}
                             mode="date"
-                            label="Sonraki Aşı Tarihi *"
                             error={!!errors.nextDueDate}
                             errorText={errors.nextDueDate?.message as string}
                             minimumDate={new Date()}
@@ -425,12 +479,14 @@ export function HealthRecordForm({
 
                     {/* Medication Name */}
                     <View style={styles.field}>
+                      <Text style={styles.label}>İlaç Adı</Text>
                       <Controller
                         control={control}
                         name="medicationName"
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
-                            label="İlaç Adı *"
+                            label="İlaç Adı"
+                            placeholder="Örn: Antibiyotik"
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -446,13 +502,15 @@ export function HealthRecordForm({
 
                     {/* Dosage and Frequency */}
                     <View style={styles.row}>
-                      <View style={[styles.field, styles.halfField]}>
+                      <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
+                        <Text style={styles.label}>Doz</Text>
                         <Controller
                           control={control}
                           name="dosage"
                           render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                              label="Doz *"
+                              label="Doz"
+                              placeholder="Örn: 10mg"
                               value={value}
                               onChangeText={onChange}
                               onBlur={onBlur}
@@ -465,13 +523,15 @@ export function HealthRecordForm({
                           <Text style={styles.errorText}>{errors.dosage.message as string}</Text>
                         )}
                       </View>
-                      <View style={[styles.field, styles.halfField]}>
+                      <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
+                        <Text style={styles.label}>Sıklık</Text>
                         <Controller
                           control={control}
                           name="frequency"
                           render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                              label="Sıklık *"
+                              label="Sıklık"
+                              placeholder="Örn: Günde 2 kez"
                               value={value}
                               onChangeText={onChange}
                               onBlur={onBlur}
@@ -488,13 +548,13 @@ export function HealthRecordForm({
 
                     {/* Treatment Period */}
                     <View style={styles.row}>
-                      <View style={[styles.field, styles.halfField]}>
-                        <Text style={styles.label}>Başlangıç Tarihi</Text>
+                      <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
                         <Controller
                           control={control}
                           name="startDate"
                           render={({ field: { onChange, value } }) => (
                             <DateTimePicker
+                              label="Başlangıç Tarihi"
                               value={value ? new Date(value) : new Date()}
                               onChange={(date) => onChange(date.toISOString())}
                               mode="date"
@@ -503,13 +563,13 @@ export function HealthRecordForm({
                           )}
                         />
                       </View>
-                      <View style={[styles.field, styles.halfField]}>
-                        <Text style={styles.label}>Bitiş Tarihi</Text>
+                      <View style={StyleSheet.flatten([styles.field, styles.halfField])}>
                         <Controller
                           control={control}
                           name="endDate"
                           render={({ field: { onChange, value } }) => (
                             <DateTimePicker
+                              label="Bitiş Tarihi"
                               value={value ? new Date(value) : new Date()}
                               onChange={(date) => onChange(date.toISOString())}
                               mode="date"
@@ -526,12 +586,12 @@ export function HealthRecordForm({
                 {/* Next Due Date for non-vaccination types (optional) */}
                 {watchedType !== 'vaccination' && hasNextDueDate && (
                   <View style={styles.field}>
-                    <Text style={styles.label}>Sonraki Kontrol Tarihi</Text>
                     <Controller
                       control={control}
                       name="nextDueDate"
                       render={({ field: { onChange, value } }) => (
                         <DateTimePicker
+                          label="Sonraki Kontrol Tarihi"
                           value={value ? new Date(value) : new Date()}
                           onChange={(date) => onChange(date.toISOString())}
                           mode="date"
@@ -546,12 +606,14 @@ export function HealthRecordForm({
 
                 {/* Notes */}
                 <View style={styles.field}>
+                  <Text style={styles.label}>Notlar</Text>
                   <Controller
                     control={control}
                     name="notes"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
                         label="Notlar"
+                        placeholder="Ek notlar..."
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -562,7 +624,7 @@ export function HealthRecordForm({
                     )}
                   />
                 </View>
-              </Card.Content>
+              </View>
             </Card>
 
             {/* Action Buttons */}
@@ -570,7 +632,7 @@ export function HealthRecordForm({
               <Button
                 mode="outlined"
                 onPress={handleClose}
-                style={[styles.button, styles.cancelButton]}
+                style={StyleSheet.flatten([styles.button, styles.cancelButton])}
                 disabled={isLoading}
               >
                 İptal
@@ -578,8 +640,7 @@ export function HealthRecordForm({
               <Button
                 mode="contained"
                 onPress={handleSubmit(onSubmit)}
-                style={[styles.button, styles.submitButton]}
-                loading={isLoading}
+                style={StyleSheet.flatten([styles.button, styles.submitButton])}
                 disabled={isLoading}
               >
                 {isEditing ? 'Güncelle' : 'Kaydet'}
@@ -616,6 +677,9 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   card: {
     marginBottom: 16,
+  },
+  cardContent: {
+    padding: 16,
   },
   field: {
     marginBottom: 16,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface LoadingSpinnerProps {
   size?: 'small' | 'large' | number;
@@ -13,10 +14,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   text,
   overlay = false,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const spinner = (
-    <View style={[styles.container, overlay && styles.overlay]}>
+    <View style={StyleSheet.flatten([styles.container, overlay && styles.overlay])}>
       <ActivityIndicator
         size={size}
         animating={true}
@@ -26,7 +27,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {text && (
         <Text
           variant="bodyMedium"
-          style={[styles.text, { color: theme.colors.onSurface }]}
+          style={StyleSheet.flatten([styles.text, { color: theme.colors.onSurface }])}
         >
           {text}
         </Text>
@@ -36,7 +37,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (overlay) {
     return (
-      <View style={[styles.overlayContainer, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
+      <View style={StyleSheet.flatten([styles.overlayContainer, { backgroundColor: 'rgba(0,0,0,0.3)' }])}>
         {spinner}
       </View>
     );

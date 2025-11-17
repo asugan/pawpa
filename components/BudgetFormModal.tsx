@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal as RNModal, View, StyleSheet } from 'react-native';
-import { useTheme, Text, Button } from 'react-native-paper';
+import { Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import BudgetForm from './BudgetForm';
 import { CreateBudgetLimitInput, BudgetLimit } from '../lib/types';
 
@@ -21,7 +22,7 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <RNModal
@@ -30,9 +31,9 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onDismiss}
     >
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
             {budget ? 'Edit Budget' : 'Add Budget'}
           </Text>
           <Button

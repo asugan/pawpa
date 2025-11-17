@@ -1,12 +1,13 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { Text, View, StyleSheet } from 'react-native';
-import { useTheme, TextInput } from 'react-native-paper';
+import { TextInput } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface FormInputProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   multiline?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'decimal-pad';
@@ -32,7 +33,7 @@ export function FormInput<T extends FieldValues>({
   autoCorrect = true,
   testID,
 }: FormInputProps<T>) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <Controller
@@ -55,15 +56,15 @@ export function FormInput<T extends FieldValues>({
             autoCorrect={autoCorrect}
             testID={testID}
             mode="outlined"
-            style={[
+            style={StyleSheet.flatten([
               multiline && styles.multilineInput
-            ]}
+            ])}
             error={!!fieldState.error}
             editable={!disabled}
           />
 
           {fieldState.error && (
-            <Text style={[styles.errorText, { color: theme.colors.error }]}>
+            <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
               {fieldState.error.message}
             </Text>
           )}

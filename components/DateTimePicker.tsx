@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface DateTimePickerProps {
   value: Date;
@@ -27,7 +28,7 @@ export function DateTimePicker({
   errorText,
 }: DateTimePickerProps) {
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const showPicker = () => {
     if (!disabled) {
@@ -70,10 +71,10 @@ export function DateTimePicker({
   return (
     <View style={styles.container}>
       {label && (
-        <Text style={[
+        <Text style={StyleSheet.flatten([
           styles.label,
           { color: error ? theme.colors.error : theme.colors.onSurface }
-        ]}>
+        ])}>
           {label}
         </Text>
       )}
@@ -81,7 +82,7 @@ export function DateTimePicker({
       <TouchableOpacity
         onPress={showPicker}
         disabled={disabled}
-        style={[
+        style={StyleSheet.flatten([
           styles.datePicker,
           {
             borderColor: error
@@ -91,22 +92,22 @@ export function DateTimePicker({
               ? theme.colors.surfaceDisabled
               : theme.colors.surface,
           }
-        ]}
+        ])}
       >
-        <PaperText style={[
+        <PaperText style={StyleSheet.flatten([
           styles.dateText,
           {
             color: value
               ? theme.colors.onSurface
               : theme.colors.onSurfaceVariant,
           }
-        ]}>
+        ])}>
           {formatDate(value)}
         </PaperText>
       </TouchableOpacity>
 
       {error && errorText && (
-        <Text style={[styles.errorText, { color: theme.colors.error }]}>
+        <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
           {errorText}
         </Text>
       )}

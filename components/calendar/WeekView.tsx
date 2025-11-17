@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
   startOfWeek,
@@ -35,7 +36,7 @@ export function WeekView({
   testID,
 }: WeekViewProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -112,20 +113,20 @@ export function WeekView({
       hours.push(
         <View
           key={hour}
-          style={[
+          style={StyleSheet.flatten([
             styles.timeLabel,
             {
               height: HOUR_HEIGHT,
               borderBottomColor: theme.colors.outlineVariant,
             },
-          ]}
+          ])}
         >
           <Text
             variant="labelSmall"
-            style={[
+            style={StyleSheet.flatten([
               styles.timeLabelText,
               { color: theme.colors.onSurfaceVariant },
-            ]}
+            ])}
           >
             {format(new Date().setHours(hour, 0, 0, 0), 'HH:mm')}
           </Text>
@@ -150,37 +151,37 @@ export function WeekView({
 
     return (
       <View
-        style={[
+        style={StyleSheet.flatten([
           styles.currentTimeLine,
           {
             top,
             backgroundColor: theme.colors.error,
           },
-        ]}
+        ])}
       >
         <View
-          style={[
+          style={StyleSheet.flatten([
             styles.currentTimeDot,
             {
               backgroundColor: theme.colors.error,
             },
-          ]}
+          ])}
         />
       </View>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
       {/* Week Day Headers */}
       <View style={styles.headerRow}>
-        <View style={[styles.timeLabelsHeader, { width: TIME_LABEL_WIDTH }]} />
+        <View style={StyleSheet.flatten([styles.timeLabelsHeader, { width: TIME_LABEL_WIDTH }])} />
         {weekDays.map((day) => {
           const isTodayDate = isToday(day);
           return (
             <View
               key={day.toISOString()}
-              style={[
+              style={StyleSheet.flatten([
                 styles.dayHeaderCell,
                 {
                   width: DAY_WIDTH,
@@ -188,24 +189,24 @@ export function WeekView({
                     ? theme.colors.primaryContainer
                     : theme.colors.surface,
                 },
-              ]}
+              ])}
             >
               <Text
                 variant="labelSmall"
-                style={[
+                style={StyleSheet.flatten([
                   styles.dayName,
                   {
                     color: isTodayDate
                       ? theme.colors.primary
                       : theme.colors.onSurfaceVariant,
                   },
-                ]}
+                ])}
               >
                 {format(day, 'EEE', { locale }).toUpperCase()}
               </Text>
               <Text
                 variant="titleSmall"
-                style={[
+                style={StyleSheet.flatten([
                   styles.dayNumber,
                   {
                     color: isTodayDate
@@ -213,7 +214,7 @@ export function WeekView({
                       : theme.colors.onSurface,
                     fontWeight: isTodayDate ? '700' : '600',
                   },
-                ]}
+                ])}
               >
                 {format(day, 'd')}
               </Text>
@@ -230,7 +231,7 @@ export function WeekView({
       >
         <View style={styles.weekContent}>
           {/* Time Labels Column */}
-          <View style={[styles.timeLabelsColumn, { width: TIME_LABEL_WIDTH }]}>
+          <View style={StyleSheet.flatten([styles.timeLabelsColumn, { width: TIME_LABEL_WIDTH }])}>
             {renderTimeLabels()}
           </View>
 
@@ -241,21 +242,21 @@ export function WeekView({
               const isTodayDate = isToday(day);
 
               return (
-                <View key={day.toISOString()} style={[styles.dayColumn, { width: DAY_WIDTH }]}>
+                <View key={day.toISOString()} style={StyleSheet.flatten([styles.dayColumn, { width: DAY_WIDTH }])}>
                   {/* Time Grid */}
                   <View style={styles.timeGrid}>
                     {/* Hour Lines */}
                     {Array.from({ length: TOTAL_HOURS }).map((_, index) => (
                       <View
                         key={index}
-                        style={[
+                        style={StyleSheet.flatten([
                           styles.hourLine,
                           {
                             height: HOUR_HEIGHT,
                             borderBottomWidth: 1,
                             borderBottomColor: theme.colors.outlineVariant,
                           },
-                        ]}
+                        ])}
                       />
                     ))}
 
@@ -267,7 +268,7 @@ export function WeekView({
                       return (
                         <Pressable
                           key={event.id}
-                          style={[
+                          style={StyleSheet.flatten([
                             styles.eventBlock,
                             {
                               top: style.top,
@@ -275,7 +276,7 @@ export function WeekView({
                               backgroundColor: eventColor,
                               borderLeftColor: darkenColor(eventColor, 20),
                             },
-                          ]}
+                          ])}
                           onPress={() => onEventPress?.(event)}
                           testID={`${testID}-event-${event.id}`}
                         >

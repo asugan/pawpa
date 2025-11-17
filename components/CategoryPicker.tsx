@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Chip, Text, useTheme } from 'react-native-paper';
+import { Chip, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { ExpenseCategory } from '../lib/types';
 import { EXPENSE_CATEGORIES } from '../lib/schemas/expenseSchema';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +20,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
   label,
   error,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   const getCategoryIcon = (category: ExpenseCategory): string => {
@@ -61,7 +62,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
+        <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
           {label}
         </Text>
       )}
@@ -75,13 +76,13 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
             key={category}
             selected={selectedCategory === category}
             onPress={() => onSelect(category)}
-            style={[
+            style={StyleSheet.flatten([
               styles.chip,
               selectedCategory === category && {
                 backgroundColor: getCategoryColor(category),
               },
-            ]}
-            icon={({ size }) => (
+            ])}
+            icon={({ size }: { size: number }) => (
               <MaterialCommunityIcons
                 name={getCategoryIcon(category) as any}
                 size={size}
@@ -105,7 +106,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
         ))}
       </ScrollView>
       {error && (
-        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.error, { color: theme.colors.error }])}>
           {error}
         </Text>
       )}

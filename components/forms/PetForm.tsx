@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { useTheme, Text, Button } from 'react-native-paper';
+import { Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Pet } from '../../lib/types';
@@ -29,7 +30,7 @@ export function PetForm({
   testID,
 }: PetFormProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { control, handleSubmit, errors, isSubmitting, isValid, watch, trigger } = usePetForm(pet);
 
   // Watch the pet type for the PetPhotoPicker
@@ -56,7 +57,7 @@ export function PetForm({
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="always"
       removeClippedSubviews={false}
@@ -65,10 +66,10 @@ export function PetForm({
       <View style={styles.formContent}>
         {/* Form Header */}
         <View style={styles.header}>
-          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
             {isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
           </Text>
-          <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
             {t('forms.petForm.subtitle')}
           </Text>
         </View>
@@ -77,7 +78,6 @@ export function PetForm({
         <FormInput
           control={control}
           name="name"
-          label={t('forms.petForm.petName')}
           required
           placeholder={t('forms.petForm.petNamePlaceholder')}
           maxLength={50}
@@ -89,7 +89,6 @@ export function PetForm({
         <FormDropdown
           control={control}
           name="type"
-          label={t('forms.petForm.type')}
           required
           options={petTypeOptions}
           placeholder={t('forms.petForm.typePlaceholder')}
@@ -101,7 +100,6 @@ export function PetForm({
         <FormInput
           control={control}
           name="breed"
-          label={t('forms.petForm.breed')}
           placeholder={t('forms.petForm.breedPlaceholder')}
           maxLength={100}
           autoCapitalize="words"
@@ -112,7 +110,6 @@ export function PetForm({
         <FormDropdown
           control={control}
           name="gender"
-          label={t('forms.petForm.gender')}
           options={genderOptions}
           placeholder={t('forms.petForm.genderPlaceholder')}
           testID="pet-gender-dropdown"
@@ -122,7 +119,6 @@ export function PetForm({
         <FormDatePicker
           control={control}
           name="birthDate"
-          label={t('forms.petForm.birthDate')}
           placeholder={t('forms.petForm.birthDatePlaceholder')}
           testID="pet-birthdate-picker"
         />
@@ -131,7 +127,6 @@ export function PetForm({
         <FormWeightInput
           control={control}
           name="weight"
-          label={t('forms.petForm.weight')}
           placeholder={t('forms.petForm.weightPlaceholder')}
           min={0.1}
           max={200}
@@ -159,8 +154,7 @@ export function PetForm({
             mode="outlined"
             onPress={onCancel}
             disabled={loading}
-            style={[styles.actionButton, styles.cancelButton]}
-            contentStyle={styles.buttonContent}
+            style={StyleSheet.flatten([styles.actionButton, styles.cancelButton])}
             testID="cancel-button"
           >
             {t('pets.cancel')}
@@ -174,10 +168,8 @@ export function PetForm({
               setHasAttemptedSubmit(true);
               handleSubmit(onFormSubmit)();
             }}
-            loading={loading}
             disabled={loading}
             style={styles.actionButton}
-            contentStyle={styles.buttonContent}
             testID="submit-button"
           >
             {isEditMode ? t('pets.update') : t('pets.add')}
@@ -186,8 +178,8 @@ export function PetForm({
 
         {/* Form Status */}
         {!isValid && hasAttemptedSubmit && (
-          <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
-            <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+          <View style={StyleSheet.flatten([styles.statusContainer, { backgroundColor: theme.colors.errorContainer }])}>
+            <Text style={StyleSheet.flatten([styles.statusText, { color: theme.colors.onErrorContainer }])}>
               {t('pets.pleaseFillRequiredFields')}
             </Text>
           </View>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, Card, IconButton } from 'react-native-paper';
+import { Text, Card, IconButton } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -12,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { gradients, gradientsDark } from '@/lib/theme';
 
 export function NextFeedingWidget() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const locale = i18n.language === 'tr' ? tr : enUS;
@@ -42,12 +43,12 @@ export function NextFeedingWidget() {
   // Loading state
   if (isLoading) {
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.content}>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+        <View style={styles.content}>
           <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
             {t('common.loading')}
           </Text>
-        </Card.Content>
+        </View>
       </Card>
     );
   }
@@ -55,7 +56,7 @@ export function NextFeedingWidget() {
   // No feeding schedules
   if (!nextSchedule || !nextFeedingTime) {
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
         <Pressable onPress={handleAddPress}>
           <LinearGradient
             colors={theme.dark ? ['#1A1F26', '#252B35'] : ['#FFFFFF', '#FAFAFA']}
@@ -63,9 +64,9 @@ export function NextFeedingWidget() {
             end={{ x: 1, y: 1 }}
             style={styles.cardGradient}
           >
-            <Card.Content style={styles.content}>
+            <View style={styles.content}>
               <View style={styles.header}>
-                <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+                <Text variant="titleMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
                   🍽️ {t('feedingSchedule.nextFeeding')}
                 </Text>
               </View>
@@ -74,18 +75,18 @@ export function NextFeedingWidget() {
                 <Text style={styles.bigEmoji}>🍖</Text>
                 <Text
                   variant="bodyMedium"
-                  style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
+                  style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}
                 >
                   {t('feedingSchedule.noNextFeeding')}
                 </Text>
                 <Text
                   variant="bodySmall"
-                  style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}
+                  style={StyleSheet.flatten([styles.emptySubtext, { color: theme.colors.onSurfaceVariant }])}
                 >
                   {t('feedingSchedule.addFirstSchedule')}
                 </Text>
               </View>
-            </Card.Content>
+            </View>
           </LinearGradient>
         </Pressable>
       </Card>
@@ -96,7 +97,7 @@ export function NextFeedingWidget() {
   const timeUntil = formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale });
 
   return (
-    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
       <Pressable onPress={handlePress}>
         <LinearGradient
           colors={theme.dark ? ['#1A1F26', '#252B35'] : ['#FFFFFF', '#FAFAFA']}
@@ -104,14 +105,14 @@ export function NextFeedingWidget() {
           end={{ x: 1, y: 1 }}
           style={styles.cardGradient}
         >
-          <Card.Content style={styles.content}>
+          <View style={styles.content}>
             {/* Header */}
             <View style={styles.header}>
-              <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              <Text variant="titleMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
                 🍽️ {t('feedingSchedule.nextFeeding')}
               </Text>
               <IconButton
-                icon="arrow-right"
+                icon="arrow-forward"
                 size={20}
                 iconColor={theme.colors.onSurfaceVariant}
                 onPress={handlePress}
@@ -127,10 +128,10 @@ export function NextFeedingWidget() {
                 end={{ x: 1, y: 1 }}
                 style={styles.timeContainer}
               >
-                <Text variant="headlineSmall" style={[styles.time, { color: '#FFFFFF' }]}>
+                <Text variant="headlineSmall" style={StyleSheet.flatten([styles.time, { color: '#FFFFFF' }])}>
                   {formatTimeForDisplay(nextSchedule.time)}
                 </Text>
-                <Text variant="bodySmall" style={[styles.timeUntil, { color: '#FFFFFF' }]}>
+                <Text variant="bodySmall" style={StyleSheet.flatten([styles.timeUntil, { color: '#FFFFFF' }])}>
                   {timeUntil}
                 </Text>
               </LinearGradient>
@@ -141,7 +142,7 @@ export function NextFeedingWidget() {
                 {pet && (
                   <View style={styles.detailRow}>
                     <Text style={styles.detailIcon}>🐾</Text>
-                    <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
+                    <Text variant="bodyMedium" style={StyleSheet.flatten([styles.detailText, { color: theme.colors.onSurface }])}>
                       {pet.name}
                     </Text>
                   </View>
@@ -150,7 +151,7 @@ export function NextFeedingWidget() {
                 {/* Food Type */}
                 <View style={styles.detailRow}>
                   <Text style={styles.detailIcon}>🥘</Text>
-                  <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
+                  <Text variant="bodyMedium" style={StyleSheet.flatten([styles.detailText, { color: theme.colors.onSurface }])}>
                     {t(`foodTypes.${nextSchedule.foodType}`)}
                   </Text>
                 </View>
@@ -158,13 +159,13 @@ export function NextFeedingWidget() {
                 {/* Amount */}
                 <View style={styles.detailRow}>
                   <Text style={styles.detailIcon}>📏</Text>
-                  <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
+                  <Text variant="bodyMedium" style={StyleSheet.flatten([styles.detailText, { color: theme.colors.onSurface }])}>
                     {nextSchedule.amount}
                   </Text>
                 </View>
               </View>
             </View>
-          </Card.Content>
+          </View>
         </LinearGradient>
       </Pressable>
     </Card>
@@ -172,6 +173,9 @@ export function NextFeedingWidget() {
 }
 
 const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
   card: {
     marginBottom: 16,
     marginHorizontal: 4,

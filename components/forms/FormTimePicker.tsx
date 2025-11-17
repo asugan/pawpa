@@ -2,12 +2,13 @@ import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, StyleSheet, Modal as RNModal, TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { useTheme, IconButton, Button } from 'react-native-paper';
+import { IconButton, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface FormTimePickerProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
@@ -26,7 +27,7 @@ export function FormTimePicker<T extends FieldValues>({
   minuteInterval = 15,
 }: FormTimePickerProps<T>) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [tempHour, setTempHour] = React.useState(12);
   const [tempMinute, setTempMinute] = React.useState(0);
@@ -100,7 +101,7 @@ export function FormTimePicker<T extends FieldValues>({
             <Pressable
               onPress={openTimePicker}
               disabled={disabled}
-              style={[
+              style={StyleSheet.flatten([
                 styles.timePicker,
                 {
                   borderColor: fieldState.error
@@ -112,18 +113,18 @@ export function FormTimePicker<T extends FieldValues>({
                     ? theme.colors.surfaceDisabled
                     : theme.colors.surface,
                 }
-              ]}
+              ])}
               testID={testID}
             >
               <Text
-                style={[
+                style={StyleSheet.flatten([
                   styles.timeText,
                   {
                     color: field.value
                       ? theme.colors.onSurface
                       : theme.colors.onSurfaceVariant,
                   }
-                ]}
+                ])}
               >
                 {getTimeDisplay()}
               </Text>
@@ -137,7 +138,7 @@ export function FormTimePicker<T extends FieldValues>({
             </Pressable>
 
             {fieldState.error && (
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
+              <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
                 {fieldState.error.message}
               </Text>
             )}
@@ -150,11 +151,11 @@ export function FormTimePicker<T extends FieldValues>({
               transparent={false}
             >
               <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                <View style={StyleSheet.flatten([styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }])}>
                   <TouchableWithoutFeedback onPress={() => {}}>
-                    <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+                    <View style={StyleSheet.flatten([styles.modal, { backgroundColor: theme.colors.surface }])}>
                       <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                        <Text style={StyleSheet.flatten([styles.modalTitle, { color: theme.colors.onSurface }])}>
                           {label}
                         </Text>
                         <IconButton
@@ -164,15 +165,15 @@ export function FormTimePicker<T extends FieldValues>({
                       </View>
 
                       <View style={styles.modalContent}>
-                        <View style={[styles.timeDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
-                          <Text style={[styles.timeDisplayText, { color: theme.colors.onSurface }]}>
+                        <View style={StyleSheet.flatten([styles.timeDisplay, { backgroundColor: theme.colors.surfaceVariant }])}>
+                          <Text style={StyleSheet.flatten([styles.timeDisplayText, { color: theme.colors.onSurface }])}>
                             {formatTime(tempHour, tempMinute)}
                           </Text>
                         </View>
 
                         {/* Quick Time Selections */}
                         <View style={styles.quickSelections}>
-                          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                          <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
                             {t('forms.timePicker.quickSelect')}
                           </Text>
                           <View style={styles.quickButtonRow}>
@@ -201,7 +202,7 @@ export function FormTimePicker<T extends FieldValues>({
 
                         {/* Hour Selection */}
                         <View style={styles.selectionSection}>
-                          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                          <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
                             {t('forms.timePicker.hour')}
                           </Text>
                           <ScrollView
@@ -214,23 +215,23 @@ export function FormTimePicker<T extends FieldValues>({
                                 <Pressable
                                   key={hour}
                                   onPress={() => setTempHour(hour)}
-                                  style={[
+                                  style={StyleSheet.flatten([
                                     styles.pickerItem,
                                     {
                                       backgroundColor: tempHour === hour
                                         ? theme.colors.primary
                                         : theme.colors.surfaceVariant,
                                     }
-                                  ]}
+                                  ])}
                                 >
-                                  <Text style={[
+                                  <Text style={StyleSheet.flatten([
                                     styles.pickerItemText,
                                     {
                                       color: tempHour === hour
                                         ? theme.colors.onPrimary
                                         : theme.colors.onSurfaceVariant,
                                     }
-                                  ]}>
+                                  ])}>
                                     {hour.toString().padStart(2, '0')}
                                   </Text>
                                 </Pressable>
@@ -241,7 +242,7 @@ export function FormTimePicker<T extends FieldValues>({
 
                         {/* Minute Selection */}
                         <View style={styles.selectionSection}>
-                          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                          <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
                             {t('forms.timePicker.minute')}
                           </Text>
                           <ScrollView
@@ -254,23 +255,23 @@ export function FormTimePicker<T extends FieldValues>({
                                 <Pressable
                                   key={minute}
                                   onPress={() => setTempMinute(minute)}
-                                  style={[
+                                  style={StyleSheet.flatten([
                                     styles.pickerItem,
                                     {
                                       backgroundColor: tempMinute === minute
                                         ? theme.colors.primary
                                         : theme.colors.surfaceVariant,
                                     }
-                                  ]}
+                                  ])}
                                 >
-                                  <Text style={[
+                                  <Text style={StyleSheet.flatten([
                                     styles.pickerItemText,
                                     {
                                       color: tempMinute === minute
                                         ? theme.colors.onPrimary
                                         : theme.colors.onSurfaceVariant,
                                     }
-                                  ]}>
+                                  ])}>
                                     {minute.toString().padStart(2, '0')}
                                   </Text>
                                 </Pressable>

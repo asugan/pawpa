@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme, Text, IconButton, SegmentedButtons } from 'react-native-paper';
+import { Text, IconButton, SegmentedButtons } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
@@ -27,7 +28,7 @@ export function CalendarHeader({
   testID,
 }: CalendarHeaderProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Format title based on view type
@@ -73,7 +74,7 @@ export function CalendarHeader({
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]} testID={testID}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])} testID={testID}>
       {/* Navigation Controls */}
       <View style={styles.navigationRow}>
         {/* Previous Button */}
@@ -90,7 +91,7 @@ export function CalendarHeader({
         <View style={styles.titleContainer}>
           <Text
             variant="titleMedium"
-            style={[styles.title, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}
             numberOfLines={1}
           >
             {getTitle()}
@@ -127,7 +128,7 @@ export function CalendarHeader({
           size={20}
           iconColor={theme.colors.tertiary}
           onPress={onToday}
-          style={[styles.todayButton, { backgroundColor: theme.colors.tertiaryContainer }]}
+          style={StyleSheet.flatten([styles.todayButton, { backgroundColor: theme.colors.tertiaryContainer }])}
           testID={`${testID}-today`}
         />
       </View>

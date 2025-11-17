@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, IconButton, Chip } from 'react-native-paper';
+import { Text, IconButton, Chip } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { format, isToday, isTomorrow, isYesterday, formatDistanceToNow } from 'date-fns';
@@ -30,7 +31,7 @@ export function EventCard({
   testID,
 }: EventCardProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const router = useRouter();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
@@ -98,14 +99,14 @@ export function EventCard({
   return (
     <Pressable
       onPress={handlePress}
-      style={[
+      style={StyleSheet.flatten([
         cardStyle,
         {
           backgroundColor: theme.colors.surface,
           borderColor: eventTypeColor,
           borderWidth: 2,
         }
-      ]}
+      ])}
       testID={testID}
     >
       <View style={contentStyle}>
@@ -113,10 +114,10 @@ export function EventCard({
         <View style={styles.header}>
           <View style={styles.eventTypeContainer}>
             <View
-              style={[
+              style={StyleSheet.flatten([
                 styles.eventTypeIcon,
                 { backgroundColor: eventTypeColor }
-              ]}
+              ])}
             >
               <Text style={styles.eventTypeIconText}>
                 {eventTypeIcon}
@@ -125,13 +126,13 @@ export function EventCard({
             <View style={styles.eventTypeInfo}>
               <Text
                 variant="labelMedium"
-                style={[styles.eventTypeLabel, { color: eventTypeColor }]}
+                style={StyleSheet.flatten([styles.eventTypeLabel, { color: eventTypeColor }])}
               >
                 {eventTypeLabel}
               </Text>
               <Text
                 variant="bodySmall"
-                style={[styles.relativeTime, { color: theme.colors.onSurfaceVariant }]}
+                style={StyleSheet.flatten([styles.relativeTime, { color: theme.colors.onSurfaceVariant }])}
               >
                 {getRelativeTime()}
               </Text>
@@ -141,13 +142,13 @@ export function EventCard({
           <View style={styles.timeContainer}>
             <Text
               variant="labelMedium"
-              style={[styles.dateTime, { color: theme.colors.onSurface }]}
+              style={StyleSheet.flatten([styles.dateTime, { color: theme.colors.onSurface }])}
             >
               {formatEventDateTime()}
             </Text>
             <Text
               variant="bodyMedium"
-              style={[styles.time, { color: theme.colors.onSurface }]}
+              style={StyleSheet.flatten([styles.time, { color: theme.colors.onSurface }])}
             >
               {formatEventTime()}
             </Text>
@@ -157,7 +158,7 @@ export function EventCard({
         {/* Event Title */}
         <Text
           variant="titleMedium"
-          style={[styles.title, { color: theme.colors.onSurface }]}
+          style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}
           numberOfLines={compact ? 1 : 2}
         >
           {event.title}
@@ -167,7 +168,7 @@ export function EventCard({
         {!compact && event.description && (
           <Text
             variant="bodyMedium"
-            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}
             numberOfLines={2}
           >
             {event.description}
@@ -177,12 +178,12 @@ export function EventCard({
         {/* Location (if provided) */}
         {event.location && !compact && (
           <View style={styles.locationContainer}>
-            <Text style={[styles.locationIcon, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style={StyleSheet.flatten([styles.locationIcon, { color: theme.colors.onSurfaceVariant }])}>
               📍
             </Text>
             <Text
               variant="bodySmall"
-              style={[styles.location, { color: theme.colors.onSurfaceVariant }]}
+              style={StyleSheet.flatten([styles.location, { color: theme.colors.onSurfaceVariant }])}
               numberOfLines={1}
             >
               {event.location}
@@ -199,10 +200,10 @@ export function EventCard({
                 styles.petChipText,
                 { color: theme.colors.onSurfaceVariant }
               ]}
-              style={[
+              style={StyleSheet.flatten([
                 styles.petChip,
                 { backgroundColor: theme.colors.surfaceVariant }
-              ]}
+              ])}
             >
               🐾 {t('eventCard.forPet')}
             </Chip>
@@ -217,7 +218,7 @@ export function EventCard({
               <Text style={styles.reminderIcon}>🔔</Text>
               <Text
                 variant="labelSmall"
-                style={[styles.reminderText, { color: theme.colors.onSurfaceVariant }]}
+                style={StyleSheet.flatten([styles.reminderText, { color: theme.colors.onSurfaceVariant }])}
               >
                 {t('eventCard.reminderSet')}
               </Text>

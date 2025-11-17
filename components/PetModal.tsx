@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Modal as RNModal, Text } from 'react-native';
-import { useTheme, Portal, Snackbar } from 'react-native-paper';
+import { Portal, Snackbar } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { Pet } from '../lib/types';
 import { PetCreateInput } from '../lib/schemas/petSchema';
 import PetForm from './forms/PetForm';
@@ -21,7 +22,7 @@ export function PetModal({
   onSuccess,
   testID,
 }: PetModalProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
@@ -95,9 +96,9 @@ export function PetModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
           <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
               {pet ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
             </Text>
           </View>
@@ -106,7 +107,6 @@ export function PetModal({
             pet={pet}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            loading={loading}
             testID="pet-form-in-modal"
           />
         </View>
@@ -117,13 +117,11 @@ export function PetModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
+          style={StyleSheet.flatten([
             styles.snackbar,
             { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          ])}
+         message={snackbarMessage} />
       </Portal>
     </>
   );

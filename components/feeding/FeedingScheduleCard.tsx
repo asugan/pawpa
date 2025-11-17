@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, IconButton, Chip, Switch } from 'react-native-paper';
+import { Text, IconButton, Chip, Switch } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { FeedingSchedule } from '../../lib/types';
 import { formatTimeForDisplay } from '../../lib/schemas/feedingScheduleSchema';
@@ -29,7 +30,7 @@ export function FeedingScheduleCard({
   testID,
 }: FeedingScheduleCardProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   // Parse days string into array
   const daysArray = schedule.days.split(',').map(d => d.trim());
@@ -93,7 +94,7 @@ export function FeedingScheduleCard({
   return (
     <Pressable
       onPress={handlePress}
-      style={[
+      style={StyleSheet.flatten([
         cardStyle,
         {
           backgroundColor: theme.colors.surface,
@@ -101,7 +102,7 @@ export function FeedingScheduleCard({
           borderWidth: 2,
           opacity: schedule.isActive ? 1 : 0.6,
         }
-      ]}
+      ])}
       testID={testID}
     >
       <View style={contentStyle}>
@@ -109,23 +110,23 @@ export function FeedingScheduleCard({
         <View style={styles.header}>
           <View style={styles.timeContainer}>
             <View
-              style={[
+              style={StyleSheet.flatten([
                 styles.timeIcon,
                 { backgroundColor: foodTypeColor }
-              ]}
+              ])}
             >
               <Text style={styles.timeIconText}>🍽️</Text>
             </View>
             <View style={styles.timeInfo}>
               <Text
                 variant="headlineSmall"
-                style={[styles.time, { color: theme.colors.onSurface }]}
+                style={StyleSheet.flatten([styles.time, { color: theme.colors.onSurface }])}
               >
                 {formatTimeForDisplay(schedule.time)}
               </Text>
               <Text
                 variant="labelMedium"
-                style={[styles.foodTypeLabel, { color: foodTypeColor }]}
+                style={StyleSheet.flatten([styles.foodTypeLabel, { color: foodTypeColor }])}
               >
                 {t(`foodTypes.${schedule.foodType}`)}
               </Text>
@@ -150,7 +151,7 @@ export function FeedingScheduleCard({
           <Text style={styles.amountIcon}>📏</Text>
           <Text
             variant="bodyLarge"
-            style={[styles.amount, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.amount, { color: theme.colors.onSurface }])}
           >
             {schedule.amount}
           </Text>
@@ -168,10 +169,10 @@ export function FeedingScheduleCard({
                   styles.dayChipText,
                   { color: theme.colors.onSurfaceVariant }
                 ]}
-                style={[
+                style={StyleSheet.flatten([
                   styles.dayChip,
                   { backgroundColor: theme.colors.surfaceVariant }
-                ]}
+                ])}
               >
                 {t(`days.${day.toLowerCase()}`).substring(0, 3)}
               </Chip>
@@ -183,7 +184,7 @@ export function FeedingScheduleCard({
         {compact && (
           <Text
             variant="bodySmall"
-            style={[styles.daysText, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.daysText, { color: theme.colors.onSurfaceVariant }])}
           >
             {formatDays()}
           </Text>
@@ -199,10 +200,10 @@ export function FeedingScheduleCard({
                 styles.petChipText,
                 { color: theme.colors.onSurfaceVariant }
               ]}
-              style={[
+              style={StyleSheet.flatten([
                 styles.petChip,
                 { backgroundColor: theme.colors.surfaceVariant }
-              ]}
+              ])}
             >
               🐾 {t('feedingSchedule.forPet')}
             </Chip>
@@ -214,25 +215,25 @@ export function FeedingScheduleCard({
           {/* Status indicator */}
           <View style={styles.statusContainer}>
             <View
-              style={[
+              style={StyleSheet.flatten([
                 styles.statusDot,
                 {
                   backgroundColor: schedule.isActive
                     ? theme.colors.primary
                     : theme.colors.surfaceDisabled
                 }
-              ]}
+              ])}
             />
             <Text
               variant="labelSmall"
-              style={[
+              style={StyleSheet.flatten([
                 styles.statusText,
                 {
                   color: schedule.isActive
                     ? theme.colors.primary
-                    : theme.colors.onSurfaceDisabled
+                    : theme.colors.surfaceDisabled
                 }
-              ]}
+              ])}
             >
               {schedule.isActive
                 ? t('feedingSchedule.active')

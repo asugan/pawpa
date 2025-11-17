@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, Text, useTheme } from 'react-native-paper';
+import { Chip, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { PaymentMethod } from '../lib/types';
 import { PAYMENT_METHODS } from '../lib/schemas/expenseSchema';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +22,7 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   error,
   optional = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   const getMethodIcon = (method: PaymentMethod): string => {
@@ -45,7 +46,7 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
+        <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
           {label} {optional && <Text style={{ opacity: 0.6 }}>(Optional)</Text>}
         </Text>
       )}
@@ -56,7 +57,7 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
             selected={selectedMethod === method}
             onPress={() => handleSelect(method)}
             style={styles.chip}
-            icon={({ size, color }) => (
+            icon={({ size, color }: { size: number, color: string }) => (
               <MaterialCommunityIcons
                 name={getMethodIcon(method) as any}
                 size={size}
@@ -71,7 +72,7 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
         ))}
       </View>
       {error && (
-        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.error, { color: theme.colors.error }])}>
           {error}
         </Text>
       )}

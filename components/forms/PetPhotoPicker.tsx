@@ -7,16 +7,11 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {
-  Avatar,
-  Button,
-  Surface,
-  Text,
-  Modal,
-  List,
-} from 'react-native-paper';
+import { Avatar, Button, Surface, Text, Modal, ListItem } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/lib/theme';
 import { Pet } from '../../lib/types';
 
 interface PetPhotoPickerProps {
@@ -75,6 +70,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
   disabled = false,
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -182,7 +178,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
       <View style={styles.container} pointerEvents="box-none">
         <TouchableOpacity
           onPress={openPicker}
-          style={[styles.photoContainer, disabled && styles.disabled]}
+          style={StyleSheet.flatten([styles.photoContainer, disabled && styles.disabled])}
           disabled={disabled}
           activeOpacity={0.8}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
@@ -200,7 +196,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
             <Avatar.Icon
               size={100}
               icon={defaultIcon}
-              style={[styles.defaultAvatar, { backgroundColor: defaultColor }]}
+              style={StyleSheet.flatten([styles.defaultAvatar, { backgroundColor: defaultColor }])}
             />
           )}
           {loading && (
@@ -258,29 +254,29 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
           </Text>
 
           <Surface style={styles.modalContent}>
-            <List.Item
+            <ListItem
               title={t('forms.photoPicker.selectFromGallery')}
               description={t('forms.photoPicker.selectFromGalleryDescription')}
-              left={(props) => <List.Icon {...props} icon="image" />}
+              left={<MaterialCommunityIcons name="image" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={pickFromGallery}
               style={styles.modalItem}
             />
 
-            <List.Item
+            <ListItem
               title={t('forms.photoPicker.takePhoto')}
               description={t('forms.photoPicker.takePhotoDescription')}
-              left={(props) => <List.Icon {...props} icon="camera" />}
+              left={<MaterialCommunityIcons name="camera" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={takePhoto}
               style={styles.modalItem}
             />
 
             {value && (
-              <List.Item
+              <ListItem
                 title={t('forms.photoPicker.removePhotoTitle')}
                 description={t('forms.photoPicker.removePhotoDescription')}
-                left={(props) => <List.Icon {...props} icon="delete" />}
+                left={<MaterialCommunityIcons name="delete" size={24} color={theme.colors.onSurfaceVariant} />}
                 onPress={removePhoto}
-                style={[styles.modalItem, styles.dangerItem]}
+                style={StyleSheet.flatten([styles.modalItem, styles.dangerItem])}
                 titleStyle={{ color: '#FF6B6B' }}
               />
             )}

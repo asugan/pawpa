@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button, useTheme } from 'react-native-paper';
+import { Card, Text, Button,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface Props {
   children: ReactNode;
@@ -54,22 +55,22 @@ interface ErrorBoundaryDisplayProps {
 }
 
 const ErrorBoundaryDisplay: React.FC<ErrorBoundaryDisplayProps> = ({ error, onRetry }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Card style={[styles.errorCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.content}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <Card style={StyleSheet.flatten([styles.errorCard, { backgroundColor: theme.colors.surface }])}>
+        <View style={styles.content}>
           <Text
             variant="headlineMedium"
-            style={[styles.title, { color: theme.colors.error }]}
+            style={StyleSheet.flatten([styles.title, { color: theme.colors.error }])}
           >
             Ops! Bir hata oluştu
           </Text>
 
           <Text
             variant="bodyMedium"
-            style={[styles.message, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.message, { color: theme.colors.onSurface }])}
           >
             {error?.message || 'Beklenmedik bir hata meydana geldi. Lütfen tekrar deneyin.'}
           </Text>
@@ -78,7 +79,7 @@ const ErrorBoundaryDisplay: React.FC<ErrorBoundaryDisplayProps> = ({ error, onRe
             <View style={styles.debugContainer}>
               <Text
                 variant="bodySmall"
-                style={[styles.debugText, { color: theme.colors.onSurfaceVariant }]}
+                style={StyleSheet.flatten([styles.debugText, { color: theme.colors.onSurfaceVariant }])}
               >
                 {error.stack}
               </Text>
@@ -93,7 +94,7 @@ const ErrorBoundaryDisplay: React.FC<ErrorBoundaryDisplayProps> = ({ error, onRe
           >
             Tekrar Dene
           </Button>
-        </Card.Content>
+        </View>
       </Card>
     </View>
   );

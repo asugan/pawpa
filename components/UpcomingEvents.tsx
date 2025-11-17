@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { useTheme, Text, Button, IconButton } from 'react-native-paper';
+import { Text, Button, IconButton } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, isAfter, addHours } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
@@ -45,7 +46,7 @@ export function UpcomingEvents({
   testID,
 }: UpcomingEventsProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Filter and sort upcoming events
@@ -135,13 +136,13 @@ export function UpcomingEvents({
         <View style={styles.sectionHeader}>
           <Text
             variant="labelMedium"
-            style={[styles.sectionTitle, { color: theme.colors.primary }]}
+            style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}
           >
             {formatGroupTitle(title)}
           </Text>
           <Text
             variant="labelSmall"
-            style={[styles.sectionCount, { color: theme.colors.onSurfaceVariant }]}
+            style={StyleSheet.flatten([styles.sectionCount, { color: theme.colors.onSurfaceVariant }])}
           >
             {events.length}
           </Text>
@@ -164,7 +165,7 @@ export function UpcomingEvents({
         {title && (
           <Text
             variant="titleLarge"
-            style={[styles.headerTitle, { color: theme.colors.onSurface }]}
+            style={StyleSheet.flatten([styles.headerTitle, { color: theme.colors.onSurface }])}
           >
             {title}
           </Text>
@@ -186,17 +187,17 @@ export function UpcomingEvents({
   // Empty state
   if (!loading && upcomingEvents.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { backgroundColor: theme.colors.surface }]} testID={testID}>
-        <Text style={[styles.emptyIcon, { fontSize: 48 }]}>📅</Text>
+      <View style={StyleSheet.flatten([styles.emptyContainer, { backgroundColor: theme.colors.surface }])} testID={testID}>
+        <Text style={StyleSheet.flatten([styles.emptyIcon, { fontSize: 48 }])}>📅</Text>
         <Text
           variant="titleMedium"
-          style={[styles.emptyTitle, { color: theme.colors.onSurface }]}
+          style={StyleSheet.flatten([styles.emptyTitle, { color: theme.colors.onSurface }])}
         >
           {title || t('upcomingEvents.noUpcomingTitle')}
         </Text>
         <Text
           variant="bodyMedium"
-          style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
+          style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}
         >
           {emptyMessage || t('upcomingEvents.noUpcomingMessage')}
         </Text>
@@ -214,7 +215,7 @@ export function UpcomingEvents({
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
+    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
       {/* Header */}
       {renderHeader()}
 
@@ -243,7 +244,7 @@ export function UpcomingEvents({
               />
               <Text
                 variant="labelSmall"
-                style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}
+                style={StyleSheet.flatten([styles.loadingText, { color: theme.colors.onSurfaceVariant }])}
               >
                 {t('upcomingEvents.loading')}
               </Text>

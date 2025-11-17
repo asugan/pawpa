@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { SegmentedButtons, Text, useTheme } from 'react-native-paper';
+import { SegmentedButtons, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { Currency } from '../lib/types';
 import { CURRENCIES } from '../lib/schemas/expenseSchema';
 
@@ -17,7 +18,7 @@ const CurrencyPicker: React.FC<CurrencyPickerProps> = ({
   label,
   error,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const currencyButtons = CURRENCIES.map((currency) => {
     const symbols: Record<string, string> = {
@@ -37,7 +38,7 @@ const CurrencyPicker: React.FC<CurrencyPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
+        <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
           {label}
         </Text>
       )}
@@ -48,7 +49,7 @@ const CurrencyPicker: React.FC<CurrencyPickerProps> = ({
         style={styles.segmentedButtons}
       />
       {error && (
-        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+        <Text variant="bodySmall" style={StyleSheet.flatten([styles.error, { color: theme.colors.error }])}>
           {error}
         </Text>
       )}

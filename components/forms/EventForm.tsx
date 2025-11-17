@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { useTheme, Text, Button, Switch, Divider } from 'react-native-paper';
+import { Text, Button, Switch, Divider } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +37,7 @@ export function EventForm({
   testID,
 }: EventFormProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   // Form setup
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -175,7 +176,7 @@ export function EventForm({
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="always"
       removeClippedSubviews={false}
@@ -184,10 +185,10 @@ export function EventForm({
       <View style={styles.formContent}>
         {/* Form Header */}
         <View style={styles.header}>
-          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
             {isEditMode ? 'Etkinliği Düzenle' : 'Yeni Etkinlik Ekle'}
           </Text>
-          <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
             Evcil hayvanınız için yeni bir etkinlik oluşturun
           </Text>
         </View>
@@ -196,7 +197,6 @@ export function EventForm({
         <FormDropdown
           control={control}
           name="petId"
-          label="Evcil Hayvan Seçin"
           required
           options={petOptions}
           placeholder="Evcil hayvan seçiniz"
@@ -206,8 +206,8 @@ export function EventForm({
 
         {/* Selected Pet Display */}
         {selectedPet && (
-          <View style={[styles.selectedPetDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Text style={[styles.selectedPetText, { color: theme.colors.onSurface }]}>
+          <View style={StyleSheet.flatten([styles.selectedPetDisplay, { backgroundColor: theme.colors.surfaceVariant }])}>
+            <Text style={StyleSheet.flatten([styles.selectedPetText, { color: theme.colors.onSurface }])}>
               Bu etkinlik: {selectedPet.label} için
             </Text>
           </View>
@@ -217,7 +217,6 @@ export function EventForm({
         <FormDropdown
           control={control}
           name="type"
-          label="Etkinlik Türü"
           required
           options={eventTypeOptions}
           placeholder="Etkinlik türü seçiniz"
@@ -226,11 +225,11 @@ export function EventForm({
 
         {/* Event Type Suggestions */}
         {eventType && eventType !== 'other' && (
-          <View style={[styles.suggestionsBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Text style={[styles.suggestionsTitle, { color: theme.colors.onSurface }]}>
+          <View style={StyleSheet.flatten([styles.suggestionsBox, { backgroundColor: theme.colors.surfaceVariant }])}>
+            <Text style={StyleSheet.flatten([styles.suggestionsTitle, { color: theme.colors.onSurface }])}>
               Öneriler
             </Text>
-            <Text style={[styles.suggestionsText, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style={StyleSheet.flatten([styles.suggestionsText, { color: theme.colors.onSurfaceVariant }])}>
               {getEventTypeSuggestions()}
             </Text>
           </View>
@@ -240,7 +239,6 @@ export function EventForm({
         <FormInput
           control={control}
           name="title"
-          label="Etkinlik Başlığı"
           required
           placeholder="Etkinlik başlığını girin"
           maxLength={100}
@@ -253,7 +251,6 @@ export function EventForm({
           control={control}
           dateName="startDate"
           timeName="startTime"
-          label="Başlangıç Tarihi ve Saati"
           required
           testID="event-start-datetime"
         />
@@ -263,7 +260,6 @@ export function EventForm({
           control={control}
           dateName="endDate"
           timeName="endTime"
-          label="Bitiş Tarihi ve Saati"
           testID="event-end-datetime"
         />
 
@@ -271,7 +267,6 @@ export function EventForm({
         <FormInput
           control={control}
           name="location"
-          label="Konum"
           placeholder="Konum bilgisini girin"
           maxLength={200}
           testID="event-location-input"
@@ -281,7 +276,6 @@ export function EventForm({
         <FormInput
           control={control}
           name="description"
-          label="Açıklama"
           placeholder="Etkinlik açıklamasını girin"
           multiline
           maxLength={500}
@@ -291,10 +285,10 @@ export function EventForm({
         {/* Reminder Toggle */}
         <View style={styles.switchContainer}>
           <View style={styles.switchContent}>
-            <Text style={[styles.switchLabel, { color: theme.colors.onSurface }]}>
+            <Text style={StyleSheet.flatten([styles.switchLabel, { color: theme.colors.onSurface }])}>
               Hatırlatıcı Etkinleştir
             </Text>
-            <Text style={[styles.switchDescription, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style={StyleSheet.flatten([styles.switchDescription, { color: theme.colors.onSurfaceVariant }])}>
               Etkinlikten önce bildirim alın
             </Text>
           </View>
@@ -315,7 +309,6 @@ export function EventForm({
         <FormInput
           control={control}
           name="notes"
-          label="Notlar"
           placeholder="Ek notlarınızı buraya yazın"
           multiline
           maxLength={1000}
@@ -339,7 +332,6 @@ export function EventForm({
             mode="contained"
             onPress={handleSubmit(onFormSubmit)}
             disabled={loading || isSubmitting}
-            loading={isSubmitting}
             style={styles.submitButton}
             testID="event-submit-button"
           >

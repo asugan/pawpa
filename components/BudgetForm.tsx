@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, useTheme, Text, HelperText, Switch, SegmentedButtons } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Switch, SegmentedButtons } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BudgetCreateSchema, BUDGET_PERIODS, BudgetCreateInput } from '../lib/schemas/budgetSchema';
@@ -24,7 +25,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   const defaultValues = {
@@ -60,16 +61,16 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   }));
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <ScrollView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
       <View style={styles.form}>
-        <Text variant="bodyMedium" style={[styles.helperText, { color: theme.colors.onSurfaceVariant }]}>
+        <Text variant="bodyMedium" style={StyleSheet.flatten([styles.helperText, { color: theme.colors.onSurfaceVariant }])}>
           {t('budgets.formHelp', 'Set a budget limit for your pet expenses. Leave category empty for overall budget.')}
         </Text>
 
         {/* Category Picker (Optional) */}
         <View style={styles.inputContainer}>
           <View style={styles.categoryHeader}>
-            <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
+            <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
               {t('budgets.category', 'Category (Optional)')}
             </Text>
             {selectedCategory && (
@@ -107,7 +108,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('budgets.amount', 'Budget Amount')}
                 value={value?.toString() || ''}
                 onChangeText={(text) => {
                   const num = parseFloat(text.replace(',', '.'));
@@ -136,7 +136,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             <CurrencyPicker
               selectedCurrency={value}
               onSelect={onChange}
-              label={t('budgets.currency', 'Currency')}
               error={errors.currency?.message}
             />
           )}
@@ -148,7 +147,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           name="period"
           render={({ field: { value, onChange } }) => (
             <View style={styles.inputContainer}>
-              <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
+              <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
                 {t('budgets.period', 'Period')}
               </Text>
               <SegmentedButtons
@@ -172,7 +171,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           render={({ field: { value, onChange, onBlur } }) => (
             <View style={styles.inputContainer}>
               <TextInput
-                label={t('budgets.alertThreshold', 'Alert Threshold (%)')}
                 value={((value || 0.8) * 100).toString()}
                 onChangeText={(text) => {
                   const num = parseFloat(text.replace(',', '.'));
@@ -202,7 +200,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           control={control}
           name="isActive"
           render={({ field: { value, onChange } }) => (
-            <View style={[styles.inputContainer, styles.switchContainer]}>
+            <View style={StyleSheet.flatten([styles.inputContainer, styles.switchContainer])}>
               <View style={styles.switchLabel}>
                 <Text variant="labelLarge" style={{ color: theme.colors.onSurface }}>
                   {t('budgets.isActive', 'Active Budget')}
@@ -236,7 +234,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             mode="contained"
             onPress={handleSubmit(handleFormSubmit)}
             style={styles.button}
-            loading={isSubmitting}
             disabled={isSubmitting}
           >
             {initialData ? t('common.update', 'Update') : t('common.create', 'Create')}
