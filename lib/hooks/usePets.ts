@@ -8,8 +8,8 @@ interface PetFilters {
   type?: string;
   sortBy?: 'name' | 'createdAt' | 'updatedAt' | 'type';
   sortOrder?: 'asc' | 'desc';
+  page?: number;
   limit?: number;
-  offset?: number;
 }
 
 // Query keys
@@ -43,7 +43,12 @@ export function usePets(filters: PetFilters = {}) {
         }
         return result.data || [];
       }
-      const result = await petService.getPets();
+      // Pass pagination parameters to service
+      const paginationParams = {
+        page: filters.page,
+        limit: filters.limit,
+      };
+      const result = await petService.getPets(paginationParams);
       if (!result.success) {
         throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
       }

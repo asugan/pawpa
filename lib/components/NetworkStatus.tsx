@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@/lib/theme';
 
 interface NetworkStatusProps {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ interface NetworkStatusProps {
 
 export function NetworkStatus({ children }: NetworkStatusProps) {
   const netInfo = useNetInfo();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   if (netInfo.isConnected === false) {
     return (

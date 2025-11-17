@@ -1,7 +1,7 @@
 // Environment configuration for PawPa app
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
-  API_BASE_URL: __DEV__ ? 'https://50e2542ad0b0.ngrok-free.app' : 'https://your-production-api.com',
+  API_BASE_URL: __DEV__ ? 'https://8e0889ce3277.ngrok-free.app' : 'https://your-production-api.com',
 
   // API Endpoints
   ENDPOINTS: {

@@ -76,9 +76,16 @@ export class PetService {
   /**
    * Tüm petleri listeler (en yeni başa)
    */
-  async getPets(): Promise<ApiResponse<Pet[]>> {
+  async getPets(params?: { page?: number; limit?: number }): Promise<ApiResponse<Pet[]>> {
     try {
-      const response = await api.get<Pet[]>(ENV.ENDPOINTS.PETS);
+      const queryParams: Record<string, any> = {};
+      if (params?.page !== undefined) queryParams.page = params.page;
+      if (params?.limit !== undefined) queryParams.limit = params.limit;
+
+      const response = await api.get<Pet[]>(
+        ENV.ENDPOINTS.PETS,
+        Object.keys(queryParams).length > 0 ? queryParams : undefined
+      );
 
       console.log(`✅ ${response.data?.length || 0} pets loaded successfully`);
       return {

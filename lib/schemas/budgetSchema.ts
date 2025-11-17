@@ -98,7 +98,7 @@ export const BudgetUpdateSchema = BaseBudgetSchema.partial().omit({ petId: true 
 // Query params schema for filtering budgets
 export const BudgetQuerySchema = z.object({
   page: z.number().int().positive().optional().default(1),
-  limit: z.number().int().positive().max(100).optional().default(10),
+  limit: z.number().int().positive().max(100).optional().default(20),
   period: z.enum(BUDGET_PERIODS).optional(),
   isActive: z.boolean().optional(),
   category: z.enum(EXPENSE_CATEGORIES).optional()

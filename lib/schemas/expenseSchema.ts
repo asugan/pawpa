@@ -109,7 +109,7 @@ export const ExpenseUpdateSchema = BaseExpenseSchema.partial().omit({ petId: tru
 // Query params schema for filtering expenses
 export const ExpenseQuerySchema = z.object({
   page: z.number().int().positive().optional().default(1),
-  limit: z.number().int().positive().max(100).optional().default(10),
+  limit: z.number().int().positive().max(100).optional().default(20),
   category: z.enum(EXPENSE_CATEGORIES).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
