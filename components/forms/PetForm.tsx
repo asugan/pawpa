@@ -1,16 +1,16 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Button } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import React from 'react';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Pet } from '../../lib/types';
-import { PetCreateInput } from '../../lib/schemas/petSchema';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { createGenderOptions, createPetTypeOptions } from '../../constants';
 import { usePetForm } from '../../hooks/usePetForm';
-import { createPetTypeOptions, createGenderOptions } from '../../constants';
-import FormInput from './FormInput';
-import FormDropdown from './FormDropdown';
+import { PetCreateInput } from '../../lib/schemas/petSchema';
+import { Pet } from '../../lib/types';
 import FormDatePicker from './FormDatePicker';
+import FormDropdown from './FormDropdown';
+import FormInput from './FormInput';
 import FormWeightInput from './FormWeightInput';
 import { PetPhotoPicker } from './PetPhotoPicker';
 
@@ -92,6 +92,7 @@ export function PetForm({
           required
           options={petTypeOptions}
           placeholder={t('forms.petForm.typePlaceholder')}
+          label={t('forms.petForm.type')}
           searchable
           testID="pet-type-dropdown"
         />
@@ -112,6 +113,7 @@ export function PetForm({
           name="gender"
           options={genderOptions}
           placeholder={t('forms.petForm.genderPlaceholder')}
+          label={t('forms.petForm.gender')}
           testID="pet-gender-dropdown"
         />
 
@@ -120,6 +122,7 @@ export function PetForm({
           control={control}
           name="birthDate"
           placeholder={t('forms.petForm.birthDatePlaceholder')}
+          label={t('forms.petForm.birthDate')}
           testID="pet-birthdate-picker"
         />
 

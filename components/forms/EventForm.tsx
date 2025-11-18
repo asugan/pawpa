@@ -1,21 +1,21 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Button, Switch, Divider } from '@/components/ui';
+import { Button, Divider, Switch, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Event, Pet } from '../../lib/types';
-import {
-  eventFormSchema,
-  transformFormDataToAPI,
-  getMinimumEventDateTime,
-  type EventFormData
-} from '../../lib/schemas/eventSchema';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createEventTypeOptions } from '../../constants';
-import FormInput from './FormInput';
-import FormDropdown from './FormDropdown';
+import {
+    eventFormSchema,
+    getMinimumEventDateTime,
+    transformFormDataToAPI,
+    type EventFormData
+} from '../../lib/schemas/eventSchema';
+import { Event, Pet } from '../../lib/types';
 import FormDateTimePicker from './FormDateTimePicker';
+import FormDropdown from './FormDropdown';
+import FormInput from './FormInput';
 
 interface EventFormProps {
   event?: Event;
@@ -200,6 +200,7 @@ export function EventForm({
           required
           options={petOptions}
           placeholder="Evcil hayvan seçiniz"
+          label={t('events.pet')}
           searchable
           testID="event-pet-dropdown"
         />
@@ -220,6 +221,7 @@ export function EventForm({
           required
           options={eventTypeOptions}
           placeholder="Etkinlik türü seçiniz"
+          label={t('pets.type')}
           testID="event-type-dropdown"
         />
 

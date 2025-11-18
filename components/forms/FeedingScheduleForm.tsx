@@ -1,19 +1,19 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Button, Switch, Divider, Chip } from '@/components/ui';
+import { Button, Chip, Divider, Switch, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { FeedingSchedule, Pet } from '../../lib/types';
-import {
-  feedingScheduleFormSchema,
-  transformFormDataToAPI,
-  type FeedingScheduleFormData
-} from '../../lib/schemas/feedingScheduleSchema';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createFoodTypeOptions, DAYS_OF_WEEK } from '../../constants';
-import FormInput from './FormInput';
+import {
+    feedingScheduleFormSchema,
+    transformFormDataToAPI,
+    type FeedingScheduleFormData
+} from '../../lib/schemas/feedingScheduleSchema';
+import { FeedingSchedule, Pet } from '../../lib/types';
 import FormDropdown from './FormDropdown';
+import FormInput from './FormInput';
 import FormTimePicker from './FormTimePicker';
 
 interface FeedingScheduleFormProps {
@@ -251,6 +251,7 @@ export function FeedingScheduleForm({
           required
           options={petOptions}
           placeholder={t('feedingSchedule.placeholders.selectPet')}
+          label={t('feedingSchedule.fields.pet')}
           testID={`${testID}-pet`}
         />
 
@@ -270,6 +271,7 @@ export function FeedingScheduleForm({
           name="time"
           required
           placeholder={t('feedingSchedule.placeholders.selectTime')}
+          label={t('feedingSchedule.fields.time')}
           minuteInterval={15}
           testID={`${testID}-time`}
         />
@@ -281,6 +283,7 @@ export function FeedingScheduleForm({
           required
           options={foodTypeOptions}
           placeholder={t('feedingSchedule.placeholders.selectFoodType')}
+          label={t('feedingSchedule.fields.foodType')}
           testID={`${testID}-food-type`}
         />
 

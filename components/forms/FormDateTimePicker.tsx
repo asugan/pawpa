@@ -1,11 +1,11 @@
-import React from 'react';
-import { Control, Controller, FieldValues, Path, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { format, isAfter, addMinutes } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import { format, isAfter } from 'date-fns';
+import { enUS, tr } from 'date-fns/locale';
+import React from 'react';
+import { Control, FieldValues, Path, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View } from 'react-native';
 import { FormDatePicker } from './FormDatePicker';
 import { FormTimePicker } from './FormTimePicker';
 
@@ -84,6 +84,7 @@ export function FormDateTimePicker<T extends FieldValues>({
             required={required}
             disabled={disabled}
             testID={`${testID}-date`}
+            label={t('forms.dateTimePicker.date')}
             mode={mode}
           />
         </View>
@@ -95,6 +96,7 @@ export function FormDateTimePicker<T extends FieldValues>({
             required={required}
             disabled={disabled}
             testID={`${testID}-time`}
+            label={t('forms.dateTimePicker.time')}
             minuteInterval={minuteInterval}
           />
         </View>
