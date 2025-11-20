@@ -16,6 +16,8 @@ export const EXPENSE_CATEGORIES = [
   'other'
 ] as const;
 
+export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number];
+
 // Payment methods enum
 export const PAYMENT_METHODS = [
   'cash',
@@ -24,8 +26,12 @@ export const PAYMENT_METHODS = [
   'bank_transfer'
 ] as const;
 
+export type PaymentMethod = typeof PAYMENT_METHODS[number];
+
 // Currencies enum
 export const CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
+
+export type Currency = typeof CURRENCIES[number];
 
 // Custom validation functions
 const validateExpenseDate = (date: Date) => {
@@ -89,7 +95,13 @@ const BaseExpenseSchema = z.object({
     .string()
     .max(1000, 'Notes are too long')
     .optional()
-    .transform(val => val?.trim() || undefined)
+    .transform(val => val?.trim() || undefined),
+});
+
+// Full Expense schema including server-side fields
+export const ExpenseSchema = BaseExpenseSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
 });
 
 // Schema for creating a new expense
@@ -120,6 +132,7 @@ export const ExpenseQuerySchema = z.object({
 });
 
 // Type exports for TypeScript
+export type Expense = z.infer<typeof ExpenseSchema>;
 export type ExpenseCreateInput = z.infer<typeof ExpenseCreateSchema>;
 export type ExpenseUpdateInput = z.infer<typeof ExpenseUpdateSchema>;
 export type ExpenseQueryParams = z.infer<typeof ExpenseQuerySchema>;

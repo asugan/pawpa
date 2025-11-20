@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { HEALTH_RECORD_TYPES } from '../../constants/index';
 // import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
@@ -120,6 +119,22 @@ const BaseHealthRecordSchema = z.object({
       }
       return date;
     }),
+});
+
+// Full HealthRecord schema including server-side fields
+export const HealthRecordSchema = BaseHealthRecordSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  // Add specific fields as optional to match the broad HealthRecord type
+  vaccineName: z.string().optional(),
+  vaccineManufacturer: z.string().optional(),
+  batchNumber: z.string().optional(),
+  medicationName: z.string().optional(),
+  dosage: z.string().optional(),
+  frequency: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 // Schema for creating a new health record
@@ -275,6 +290,7 @@ export const MedicationSchema = BaseHealthRecordSchema.extend({
 });
 
 // Type exports for TypeScript
+export type HealthRecord = z.infer<typeof HealthRecordSchema>;
 export type HealthRecordCreateInput = z.infer<typeof HealthRecordCreateSchema>;
 export type HealthRecordUpdateInput = z.infer<typeof HealthRecordUpdateSchema>;
 export type VaccinationInput = z.infer<typeof VaccinationSchema>;

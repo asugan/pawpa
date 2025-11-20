@@ -371,7 +371,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
   );
 }
 
-function getDaysUntilDue(dueDate: string): number {
+function getDaysUntilDue(dueDate: string | Date): number {
   const due = new Date(dueDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);

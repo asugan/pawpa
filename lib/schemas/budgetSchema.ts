@@ -1,8 +1,10 @@
 import { z } from 'zod';
-import { EXPENSE_CATEGORIES, CURRENCIES } from './expenseSchema';
+import { CURRENCIES, EXPENSE_CATEGORIES } from './expenseSchema';
 
 // Budget period enum
 export const BUDGET_PERIODS = ['monthly', 'yearly'] as const;
+
+export type BudgetPeriod = typeof BUDGET_PERIODS[number];
 
 // Custom validation functions
 const validateAlertThreshold = (threshold: number) => {
@@ -45,6 +47,12 @@ const BaseBudgetSchema = z.object({
     }),
 
   isActive: z.boolean()
+});
+
+// Full BudgetLimit schema including server-side fields
+export const BudgetLimitSchema = BaseBudgetSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
 });
 
 // Schema for creating a new budget limit
@@ -105,6 +113,7 @@ export const BudgetQuerySchema = z.object({
 });
 
 // Type exports for TypeScript
+export type BudgetLimit = z.infer<typeof BudgetLimitSchema>;
 export type BudgetCreateInput = z.infer<typeof BudgetCreateSchema>;
 export type BudgetUpdateInput = z.infer<typeof BudgetUpdateSchema>;
 export type BudgetQueryParams = z.infer<typeof BudgetQuerySchema>;

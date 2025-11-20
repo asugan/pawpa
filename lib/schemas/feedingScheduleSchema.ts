@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FOOD_TYPES, DAYS_OF_WEEK } from '../../constants';
+import { DAYS_OF_WEEK, FOOD_TYPES } from '../../constants';
 
 // Valid day names for validation
 const VALID_DAYS = Object.values(DAYS_OF_WEEK);
@@ -102,8 +102,15 @@ export const feedingScheduleSchema = z.object({
     .default(true),
 });
 
+// Full FeedingSchedule schema including server-side fields
+export const FeedingScheduleSchema = feedingScheduleSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+});
+
 // Type inference from the API schema
 export type FeedingScheduleData = z.infer<typeof feedingScheduleSchema>;
+export type FeedingSchedule = z.infer<typeof FeedingScheduleSchema>;
 
 // Schema for feeding schedule updates (all fields optional)
 export const updateFeedingScheduleSchema = z.object({
@@ -137,6 +144,8 @@ export const updateFeedingScheduleSchema = z.object({
 });
 
 export type UpdateFeedingScheduleFormData = z.infer<typeof updateFeedingScheduleSchema>;
+export type CreateFeedingScheduleInput = FeedingScheduleData;
+export type UpdateFeedingScheduleInput = z.infer<typeof updateFeedingScheduleSchema>;
 
 // Helper function to transform form data to API format
 export const transformFormDataToAPI = (formData: FeedingScheduleFormData): FeedingScheduleData => {

@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Share,
-  Platform,
-} from 'react-native';
-import { Text, Button, Card, Divider, Portal, Snackbar, IconButton, Chip, ActivityIndicator } from '@/components/ui';
+import { Button, Card, Chip, Divider, IconButton, Portal, Snackbar, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import { enUS, tr } from 'date-fns/locale';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+    Alert,
+    ScrollView,
+    Share,
+    StyleSheet,
+    View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Hooks and Services
-import { useEvent, useDeleteEvent, useCreateEvent, useUpdateEvent } from '@/lib/hooks/useEvents';
+import { useCreateEvent, useDeleteEvent, useEvent, useUpdateEvent } from '@/lib/hooks/useEvents';
 import { usePet } from '@/lib/hooks/usePets';
 
 // Components
-import LoadingSpinner from '@/components/LoadingSpinner';
 import EventActions from '@/components/EventActions';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Utils
-import { getEventTypeIcon, getEventTypeColor, getEventTypeLabel } from '@/constants/eventIcons';
-import { Event } from '@/lib/types';
+import { getEventTypeColor, getEventTypeIcon, getEventTypeLabel } from '@/constants/eventIcons';
 
 export default function EventDetailScreen() {
   const { theme } = useTheme();
@@ -111,12 +109,11 @@ export default function EventDetailScreen() {
         title: `${event.title} (${t('events.copy')})`,
         description: event.description,
         startTime: newStartTime.toISOString(),
-        endTime: newEndTime?.toISOString() || null,
+        endTime: newEndTime?.toISOString() || undefined,
         location: event.location,
         reminder: event.reminder,
         notes: event.notes,
       };
-
       await createEventMutation.mutateAsync(duplicatedEvent);
       showSnackbar(t('events.eventDuplicated'));
     } catch (error) {
