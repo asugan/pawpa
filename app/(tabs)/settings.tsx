@@ -16,12 +16,12 @@ export default function SettingsScreen() {
   const isDarkMode = themeMode === 'dark';
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Theme Settings */}
-        <Card style={StyleSheet.flatten([styles.sectionCard, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.appearance')}
             </Text>
             <ListItem
@@ -40,9 +40,9 @@ export default function SettingsScreen() {
         </Card>
 
         {/* App Settings */}
-        <Card style={StyleSheet.flatten([styles.sectionCard, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.appSettings')}
             </Text>
             <ListItem
@@ -67,7 +67,7 @@ export default function SettingsScreen() {
               }}
               right={
                 <View style={styles.languageIndicator}>
-                  <Text style={StyleSheet.flatten([styles.languageText, { color: theme.colors.onSurface }])}>
+                  <Text style={[styles.languageText, { color: theme.colors.onSurface }]}>
                     {language === 'en' ? 'EN' : 'TR'}
                   </Text>
                 </View>
@@ -77,9 +77,9 @@ export default function SettingsScreen() {
         </Card>
 
         {/* Data & Privacy */}
-        <Card style={StyleSheet.flatten([styles.sectionCard, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.dataPrivacy')}
             </Text>
             <ListItem
@@ -98,9 +98,9 @@ export default function SettingsScreen() {
         </Card>
 
         {/* About */}
-        <Card style={StyleSheet.flatten([styles.sectionCard, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.about')}
             </Text>
             <ListItem
@@ -122,7 +122,7 @@ export default function SettingsScreen() {
           <Button
             mode="outlined"
             textColor={theme.colors.error}
-            style={StyleSheet.flatten([styles.logoutButton, { borderColor: theme.colors.error }])}
+            style={[styles.logoutButton, { borderColor: theme.colors.error }]}
             onPress={() => console.log('Logout')}
           >
             {t('settings.logout')}

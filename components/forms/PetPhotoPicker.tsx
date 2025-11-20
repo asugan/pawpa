@@ -178,7 +178,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
       <View style={styles.container} pointerEvents="box-none">
         <TouchableOpacity
           onPress={openPicker}
-          style={StyleSheet.flatten([styles.photoContainer, disabled && styles.disabled])}
+          style={[styles.photoContainer, disabled && styles.disabled]}
           disabled={disabled}
           activeOpacity={0.8}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
@@ -196,7 +196,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
             <Avatar.Icon
               size={100}
               icon={defaultIcon}
-              style={StyleSheet.flatten([styles.defaultAvatar, { backgroundColor: defaultColor }])}
+              style={[styles.defaultAvatar, { backgroundColor: defaultColor }]}
             />
           )}
           {loading && (
@@ -276,7 +276,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
                 description={t('forms.photoPicker.removePhotoDescription')}
                 left={<MaterialCommunityIcons name="delete" size={24} color={theme.colors.onSurfaceVariant} />}
                 onPress={removePhoto}
-                style={StyleSheet.flatten([styles.modalItem, styles.dangerItem])}
+                style={{ ...styles.modalItem, ...styles.dangerItem }}
                 titleStyle={{ color: '#FF6B6B' }}
               />
             )}

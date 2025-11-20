@@ -65,14 +65,14 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
   return (
     <Pressable onPress={() => router.push('/budgets')}>
       <Card
-        style={StyleSheet.flatten([
+        style={[
           styles.card,
           {
             backgroundColor: theme.colors.surface,
             borderLeftWidth: alerts.length > 0 ? 4 : 0,
             borderLeftColor: alerts.length > 0 ? theme.colors.error : 'transparent',
           },
-        ])}
+        ]}
         elevation={4}
       >
         <View style={styles.cardContent}>
@@ -137,10 +137,10 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
                   )}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={StyleSheet.flatten([
+                  style={[
                     styles.progressBarFill,
                     { width: `${Math.min(criticalAlert.percentage, 100)}%` }
-                  ])}
+                  ]}
                 />
               </View>
               <View style={styles.budgetDetails}>

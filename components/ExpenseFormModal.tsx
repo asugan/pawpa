@@ -31,9 +31,9 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onDismiss}
     >
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.header}>
-          <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
             {expense ? 'Edit Expense' : 'Add Expense'}
           </Text>
           <Button

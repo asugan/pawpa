@@ -22,7 +22,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.badge,
         {
           backgroundColor: theme.colors.error,
@@ -31,7 +31,7 @@ export const Badge: React.FC<BadgeProps> = ({
           borderRadius: size / 2,
         },
         style,
-      ])}
+      ]}
     >
       {typeof children === "string" || typeof children === "number" ? (
         <Text

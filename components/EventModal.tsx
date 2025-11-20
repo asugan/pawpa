@@ -96,9 +96,9 @@ export function EventModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
-            <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
               {event ? 'Etkinliği Düzenle' : 'Yeni Etkinlik Ekle'}
             </Text>
             <Button
@@ -127,11 +127,12 @@ export function EventModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={StyleSheet.flatten([
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ])}
-         message={snackbarMessage} />
+          message={snackbarMessage}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
+        />
       </Portal>
     </>
   );

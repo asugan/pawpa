@@ -55,11 +55,11 @@ export default function NotificationPermissionPrompt({
             />
           </View>
 
-          <Text variant="headlineSmall" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+          <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
             {t('notifications.enableTitle')}
           </Text>
 
-          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}>
+          <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
             {t('notifications.enableDescription')}
           </Text>
 
@@ -137,7 +137,7 @@ export function NotificationPermissionCard() {
 
   if (permissionStatus === 'granted') {
     return (
-      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.primaryContainer }])}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.primaryContainer }]}>
         <View style={styles.cardContent}>
           <View style={styles.cardContent}>
             <MaterialCommunityIcons
@@ -161,7 +161,7 @@ export function NotificationPermissionCard() {
 
   if (permissionStatus === 'denied') {
     return (
-      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.errorContainer }])}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.errorContainer }]}>
         <View style={styles.cardContent}>
           <View style={styles.cardContent}>
             <MaterialCommunityIcons
@@ -192,7 +192,7 @@ export function NotificationPermissionCard() {
   }
 
   return (
-    <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.secondaryContainer }])}>
+    <Card style={[styles.card, { backgroundColor: theme.colors.secondaryContainer }]}>
       <View style={styles.cardContent}>
         <View style={styles.cardContent}>
           <MaterialCommunityIcons

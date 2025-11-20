@@ -19,7 +19,7 @@ export const Divider: React.FC<DividerProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.divider,
         {
           backgroundColor: theme.colors.onSurfaceVariant,
@@ -29,7 +29,7 @@ export const Divider: React.FC<DividerProps> = ({
           marginLeft: leftInset ? 16 : horizontalInset ? 16 : 0,
         },
         style,
-      ])}
+      ]}
       {...rest}
     />
   );

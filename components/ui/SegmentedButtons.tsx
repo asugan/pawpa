@@ -45,7 +45,7 @@ export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.container,
         {
           borderRadius: theme.roundness,
@@ -53,7 +53,7 @@ export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({
           borderWidth: 1,
         },
         style,
-      ])}
+      ]}
     >
       {buttons.map((button, index) => {
         const isSelected = value === button.value;
@@ -63,7 +63,7 @@ export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({
         return (
           <TouchableOpacity
             key={button.value}
-            style={StyleSheet.flatten([
+            style={[
               styles.button,
               {
                 backgroundColor: isSelected
@@ -78,7 +78,7 @@ export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({
                 paddingVertical: padding,
                 paddingHorizontal: padding * 1.5,
               },
-            ])}
+            ]}
             onPress={() => !button.disabled && onValueChange(button.value)}
             disabled={button.disabled}
             activeOpacity={0.7}

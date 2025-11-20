@@ -38,7 +38,7 @@ const CurrencyPicker: React.FC<CurrencyPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
+        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
           {label}
         </Text>
       )}
@@ -49,7 +49,7 @@ const CurrencyPicker: React.FC<CurrencyPickerProps> = ({
         style={styles.segmentedButtons}
       />
       {error && (
-        <Text variant="bodySmall" style={StyleSheet.flatten([styles.error, { color: theme.colors.error }])}>
+        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
           {error}
         </Text>
       )}

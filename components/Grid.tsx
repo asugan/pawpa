@@ -48,13 +48,13 @@ export const Grid: React.FC<GridProps> = ({
           return (
             <View
               key={index}
-              style={StyleSheet.flatten([
+              style={[
                 styles.item,
                 isTabletItem && {
                   width: itemWidth as any,
                   maxWidth: `${100 / columns}%` as any,
                 },
-              ])}
+              ]}
             >
               {child}
             </View>

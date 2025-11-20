@@ -31,14 +31,14 @@ export const Banner: React.FC<BannerProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.banner,
         {
           backgroundColor: theme.colors.surface,
           borderBottomColor: theme.colors.surfaceVariant,
         },
         style,
-      ])}
+      ]}
     >
       <View style={styles.content}>
         {icon && <View style={styles.icon}>{icon}</View>}

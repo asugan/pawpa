@@ -128,30 +128,30 @@ export function DayView({
 
     return (
       <View
-        style={StyleSheet.flatten([
+        style={[
           styles.currentTimeLine,
           {
             top,
             backgroundColor: theme.colors.error,
           },
-        ])}
+        ]}
       >
         <View
-          style={StyleSheet.flatten([
+          style={[
             styles.currentTimeDot,
             {
               backgroundColor: theme.colors.error,
             },
-          ])}
+          ]}
         />
         <Text
           variant="labelSmall"
-          style={StyleSheet.flatten([
+          style={[
             styles.currentTimeText,
             {
               color: theme.colors.error,
             },
-          ])}
+          ]}
         >
           {format(now, 'HH:mm')}
         </Text>
@@ -166,21 +166,21 @@ export function DayView({
       hours.push(
         <View
           key={hour}
-          style={StyleSheet.flatten([
+          style={[
             styles.hourRow,
             {
               height: HOUR_HEIGHT,
               borderBottomColor: theme.colors.outlineVariant,
             },
-          ])}
+          ]}
         >
           <View style={styles.timeLabel}>
             <Text
               variant="labelMedium"
-              style={StyleSheet.flatten([
+              style={[
                 styles.timeLabelText,
                 { color: theme.colors.onSurfaceVariant },
-              ])}
+              ]}
             >
               {format(new Date().setHours(hour, 0, 0, 0), 'HH:mm')}
             </Text>
@@ -194,7 +194,7 @@ export function DayView({
 
   return (
     <View
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       testID={testID}
     >
       <ScrollView
@@ -215,7 +215,7 @@ export function DayView({
               return (
                 <Pressable
                   key={event.id}
-                  style={StyleSheet.flatten([
+                  style={[
                     styles.eventBlock,
                     {
                       top: style.top,
@@ -223,7 +223,7 @@ export function DayView({
                       backgroundColor: eventColor,
                       borderLeftColor: darkenColor(eventColor, 20),
                     },
-                  ])}
+                  ]}
                   onPress={() => onEventPress?.(event)}
                   testID={`${testID}-event-${event.id}`}
                 >
@@ -287,10 +287,10 @@ export function DayView({
           <View style={styles.emptyState}>
             <Text
               variant="bodyLarge"
-              style={StyleSheet.flatten([
+              style={[
                 styles.emptyStateText,
                 { color: theme.colors.onSurfaceVariant },
-              ])}
+              ]}
             >
               {t('calendar.noEventsToday')}
             </Text>

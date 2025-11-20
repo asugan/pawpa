@@ -58,19 +58,19 @@ const ErrorBoundaryDisplay: React.FC<ErrorBoundaryDisplayProps> = ({ error, onRe
   const { theme } = useTheme();
 
   return (
-    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
-      <Card style={StyleSheet.flatten([styles.errorCard, { backgroundColor: theme.colors.surface }])}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Card style={[styles.errorCard, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.content}>
           <Text
             variant="headlineMedium"
-            style={StyleSheet.flatten([styles.title, { color: theme.colors.error }])}
+            style={[styles.title, { color: theme.colors.error }]}
           >
             Ops! Bir hata oluştu
           </Text>
 
           <Text
             variant="bodyMedium"
-            style={StyleSheet.flatten([styles.message, { color: theme.colors.onSurface }])}
+            style={[styles.message, { color: theme.colors.onSurface }]}
           >
             {error?.message || 'Beklenmedik bir hata meydana geldi. Lütfen tekrar deneyin.'}
           </Text>
@@ -79,7 +79,7 @@ const ErrorBoundaryDisplay: React.FC<ErrorBoundaryDisplayProps> = ({ error, onRe
             <View style={styles.debugContainer}>
               <Text
                 variant="bodySmall"
-                style={StyleSheet.flatten([styles.debugText, { color: theme.colors.onSurfaceVariant }])}
+                style={[styles.debugText, { color: theme.colors.onSurfaceVariant }]}
               >
                 {error.stack}
               </Text>

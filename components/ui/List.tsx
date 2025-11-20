@@ -32,7 +32,7 @@ export const ListItem: React.FC<ListItemProps> = ({
 
   return (
     <Container
-      style={StyleSheet.flatten([styles.listItem, style])}
+      style={[styles.listItem, style]}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
@@ -63,11 +63,11 @@ export const ListSection: React.FC<ListSectionProps> = ({ title, children, style
   const { theme } = useTheme();
 
   return (
-    <View style={StyleSheet.flatten([styles.section, style])}>
+    <View style={[styles.section, style]}>
       {title && (
         <Text
           variant="titleSmall"
-          style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}
+          style={[styles.sectionTitle, { color: theme.colors.primary }]}
         >
           {title}
         </Text>

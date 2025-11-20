@@ -21,7 +21,7 @@ export const Searchbar: React.FC<SearchbarProps> = ({
   const { theme } = useTheme();
 
   return (
-    <View style={StyleSheet.flatten([styles.container, containerStyle])}>
+    <View style={[styles.container, containerStyle]}>
       <TextInput
         value={value}
         mode="outlined"

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import {  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useDeviceLanguage } from '@/lib/hooks/useDeviceLanguage';
 import { useLanguageStore, getLanguageNativeName, getSupportedLanguages, isLanguageSupported, SupportedLanguage } from '@/stores/languageStore';
@@ -42,8 +41,8 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
 
   if (isLoading) {
     return (
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
-        <Text style={StyleSheet.flatten([styles.loadingText, { color: theme.colors.onSurface }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
           {t('common.loading')}
         </Text>
       </View>
@@ -51,17 +50,17 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
   }
 
   return (
-    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       {/* Current Language Info */}
       <View style={styles.section}>
-        <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>
           {t('settings.currentLanguage')}
         </Text>
-        <Text style={StyleSheet.flatten([styles.currentLanguage, { color: theme.colors.onSurface }])}>
+        <Text style={[styles.currentLanguage, { color: theme.colors.onSurface }]}>
           {getLanguageNativeName(currentLanguage)}
         </Text>
         {hasUserExplicitlySetLanguage && (
-          <Text style={StyleSheet.flatten([styles.explicitIndicator, { color: theme.colors.secondary }])}>
+          <Text style={[styles.explicitIndicator, { color: theme.colors.secondary }]}>
             {t('settings.languageExplicitlySet')}
           </Text>
         )}
@@ -70,15 +69,15 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
       {/* Device Language Info */}
       {showDeviceInfo && (
         <View style={styles.section}>
-          <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>
             {t('settings.deviceLanguage')}
           </Text>
-          <Text style={StyleSheet.flatten([styles.deviceLanguage, { color: theme.colors.onSurface }])}>
+          <Text style={[styles.deviceLanguage, { color: theme.colors.onSurface }]}>
             {getLanguageNativeName(deviceLanguage)}
             {!isDeviceLanguageSupported && ` (${t('settings.notSupported')})`}
           </Text>
           {shouldAutoDetect && isDeviceLanguageSupported && (
-            <Text style={StyleSheet.flatten([styles.autoDetectIndicator, { color: theme.colors.secondary }])}>
+            <Text style={[styles.autoDetectIndicator, { color: theme.colors.secondary }]}>
               {t('settings.willAutoDetect')}
             </Text>
           )}
@@ -87,33 +86,33 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
 
       {/* Language Selection */}
       <View style={styles.section}>
-        <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>
           {t('settings.selectLanguage')}
         </Text>
         {supportedLanguages.map((language) => (
           <TouchableOpacity
             key={language}
-            style={StyleSheet.flatten([
+            style={[
               styles.languageOption,
               {
                 backgroundColor: currentLanguage === language ? theme.colors.primaryContainer : 'transparent',
                 borderColor: theme.colors.outline,
               },
-            ])}
+            ]}
             onPress={() => handleLanguageSelect(language)}
           >
             <Text
-              style={StyleSheet.flatten([
+              style={[
                 styles.languageText,
                 {
                   color: currentLanguage === language ? theme.colors.onPrimaryContainer : theme.colors.onSurface,
                 },
-              ])}
+              ]}
             >
               {getLanguageNativeName(language)}
             </Text>
             {currentLanguage === language && (
-              <Text style={StyleSheet.flatten([styles.checkmark, { color: theme.colors.primary }])}>✓</Text>
+              <Text style={[styles.checkmark, { color: theme.colors.primary }]}>✓</Text>
             )}
           </TouchableOpacity>
         ))}
@@ -123,20 +122,20 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
       {isDeviceLanguageSupported && deviceLanguage !== currentLanguage && (
         <View style={styles.section}>
           <TouchableOpacity
-            style={StyleSheet.flatten([styles.actionButton, { backgroundColor: theme.colors.secondaryContainer }])}
+            style={[styles.actionButton, { backgroundColor: theme.colors.secondaryContainer }]}
             onPress={handleUseDeviceLanguage}
           >
-            <Text style={StyleSheet.flatten([styles.actionButtonText, { color: theme.colors.onSecondaryContainer }])}>
+            <Text style={[styles.actionButtonText, { color: theme.colors.onSecondaryContainer }]}>
               {t('settings.useDeviceLanguage')}
             </Text>
           </TouchableOpacity>
 
           {hasUserExplicitlySetLanguage && (
             <TouchableOpacity
-              style={StyleSheet.flatten([styles.actionButton, { backgroundColor: theme.colors.surfaceVariant }])}
+              style={[styles.actionButton, { backgroundColor: theme.colors.surfaceVariant }]}
               onPress={handleResetToDeviceLanguage}
             >
-              <Text style={StyleSheet.flatten([styles.actionButtonText, { color: theme.colors.onSurfaceVariant }])}>
+              <Text style={[styles.actionButtonText, { color: theme.colors.onSurfaceVariant }]}>
                 {t('settings.resetToDeviceLanguage')}
               </Text>
             </TouchableOpacity>
@@ -147,10 +146,10 @@ export function LanguageSettings({ showDeviceInfo = false }: LanguageSettingsPro
       {/* Quick Toggle */}
       <View style={styles.section}>
         <TouchableOpacity
-          style={StyleSheet.flatten([styles.toggleButton, { backgroundColor: theme.colors.primary }])}
+          style={[styles.toggleButton, { backgroundColor: theme.colors.primary }]}
           onPress={toggleLanguage}
         >
-          <Text style={StyleSheet.flatten([styles.toggleButtonText, { color: theme.colors.onPrimary }])}>
+          <Text style={[styles.toggleButtonText, { color: theme.colors.onPrimary }]}>
             {t('settings.toggleLanguage')}
           </Text>
         </TouchableOpacity>

@@ -17,7 +17,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const { theme } = useTheme();
 
   const spinner = (
-    <View style={StyleSheet.flatten([styles.container, overlay && styles.overlay])}>
+    <View style={[styles.container, overlay && styles.overlay]}>
       <ActivityIndicator
         size={size}
         animating={true}
@@ -27,7 +27,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {text && (
         <Text
           variant="bodyMedium"
-          style={StyleSheet.flatten([styles.text, { color: theme.colors.onSurface }])}
+          style={[styles.text, { color: theme.colors.onSurface }]}
         >
           {text}
         </Text>
@@ -37,7 +37,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (overlay) {
     return (
-      <View style={StyleSheet.flatten([styles.overlayContainer, { backgroundColor: 'rgba(0,0,0,0.3)' }])}>
+      <View style={[styles.overlayContainer, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
         {spinner}
       </View>
     );

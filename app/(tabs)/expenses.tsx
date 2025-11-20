@@ -184,7 +184,7 @@ export default function ExpensesScreen() {
 
   if (pets.length === 0) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <EmptyState
           icon="cash-multiple"
           title={t('expenses.noPets', 'No pets found')}
@@ -195,7 +195,7 @@ export default function ExpensesScreen() {
   }
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           {t('expenses.title', 'Expenses')}
@@ -222,13 +222,13 @@ export default function ExpensesScreen() {
 
         {/* Stats Summary */}
         {selectedPetId && stats && (
-          <View style={StyleSheet.flatten([styles.statsCard, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <View style={[styles.statsCard, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.statItem}>
               <MaterialCommunityIcons name="cash-multiple" size={20} color={theme.colors.primary} />
               <Text variant="bodySmall" style={styles.statLabel}>
                 {t('expenses.totalSpent', 'Total Spent')}
               </Text>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.statValue, { color: theme.colors.primary }])}>
+              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
                 {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(', ')}
               </Text>
             </View>
@@ -237,7 +237,7 @@ export default function ExpensesScreen() {
               <Text variant="bodySmall" style={styles.statLabel}>
                 {t('expenses.totalExpenses', 'Total Expenses')}
               </Text>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.statValue, { color: theme.colors.secondary }])}>
+              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.secondary }]}>
                 {stats.count}
               </Text>
             </View>
@@ -246,7 +246,7 @@ export default function ExpensesScreen() {
               <Text variant="bodySmall" style={styles.statLabel}>
                 {t('expenses.average', 'Average')}
               </Text>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.statValue, { color: theme.colors.tertiary }])}>
+              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.tertiary }]}>
                 {formatCurrency(stats.average, stats.byCurrency[0]?.currency || 'TRY')}
               </Text>
             </View>
@@ -315,7 +315,7 @@ export default function ExpensesScreen() {
 
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddExpense}
       />
 

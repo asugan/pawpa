@@ -1,7 +1,6 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path, useWatch } from 'react-hook-form';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import {  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
 // Custom hook for managing weight input state
@@ -107,7 +106,7 @@ export function FormWeightInput<T extends FieldValues>({
                 keyboardType="decimal-pad"
                 editable={!disabled}
                 maxLength={6} // Max like 999.9 kg
-                style={StyleSheet.flatten([
+                style={[
                   styles.weightInput,
                   {
                     borderColor: fieldState.error
@@ -120,26 +119,26 @@ export function FormWeightInput<T extends FieldValues>({
                       : theme.colors.surface,
                     color: theme.colors.onSurface,
                   }
-                ])}
+                ]}
                 placeholderTextColor={theme.colors.onSurfaceVariant}
                 testID={testID}
               />
 
-              <View style={StyleSheet.flatten([styles.unitContainer, { backgroundColor: theme.colors.surfaceVariant }])}>
-                <Text style={StyleSheet.flatten([styles.unitText, { color: theme.colors.onSurfaceVariant }])}>
+              <View style={[styles.unitContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Text style={[styles.unitText, { color: theme.colors.onSurfaceVariant }]}>
                   {unit}
                 </Text>
               </View>
             </View>
 
             {fieldState.error && (
-              <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
+              <Text style={[styles.errorText, { color: theme.colors.error }]}>
                 {fieldState.error.message}
               </Text>
             )}
 
             <View style={styles.helperContainer}>
-              <Text style={StyleSheet.flatten([styles.helperText, { color: theme.colors.onSurfaceVariant }])}>
+              <Text style={[styles.helperText, { color: theme.colors.onSurfaceVariant }]}>
                 Min: {min}{unit} - Max: {max}{unit}
               </Text>
             </View>

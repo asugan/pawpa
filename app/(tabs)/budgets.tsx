@@ -172,7 +172,7 @@ export default function BudgetsScreen() {
 
   if (pets.length === 0) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <EmptyState
           icon="wallet"
           title={t('budgets.noPets', 'No pets found')}
@@ -183,7 +183,7 @@ export default function BudgetsScreen() {
   }
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           {t('budgets.title', 'Budgets')}
@@ -219,7 +219,7 @@ export default function BudgetsScreen() {
                 color={theme.colors.error}
               />
             }
-            style={StyleSheet.flatten([styles.alertBanner, { backgroundColor: theme.colors.errorContainer }])}
+            style={{ ...styles.alertBanner, backgroundColor: theme.colors.errorContainer }}
           >
             <Text variant="bodyMedium" style={{ color: theme.colors.error, fontWeight: '600' }}>
               {t('budgets.alertsFound', {
@@ -298,7 +298,7 @@ export default function BudgetsScreen() {
 
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddBudget}
       />
 

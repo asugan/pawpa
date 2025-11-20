@@ -38,7 +38,7 @@ export default function HomeScreen() {
   if (petsLoading || eventsLoading || vaccinationsLoading) {
     return (
       <SafeAreaView
-        style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <LoadingSpinner />
       </SafeAreaView>
@@ -49,7 +49,7 @@ export default function HomeScreen() {
   if (petsError) {
     return (
       <SafeAreaView
-        style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <EmptyState
           icon="alert-circle"
@@ -64,23 +64,23 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
-        style={StyleSheet.flatten([styles.scrollView, { padding: scrollPadding }])}
+        style={[styles.scrollView, { padding: scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting Section */}
         <View style={styles.header}>
           <Text
             variant="bodyLarge"
-            style={StyleSheet.flatten([styles.greeting, { color: theme.colors.onBackground }])}
+            style={[styles.greeting, { color: theme.colors.onBackground }]}
           >
             {getGreetingMessage()}!
           </Text>
           <Text
             variant="bodyMedium"
-            style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
           >
             {getDynamicSubtitle(pets?.length || 0, todayEvents?.length || 0)}
           </Text>
@@ -88,10 +88,10 @@ export default function HomeScreen() {
 
         {/* Statistics Dashboard */}
         <View
-          style={StyleSheet.flatten([
+          style={[
             styles.statsContainer,
             isMobile && styles.statsContainerMobile,
-          ])}
+          ]}
         >
           <StatCard
             title={t("home.totalPets")}
@@ -121,10 +121,10 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <Text
               variant="titleLarge"
-              style={StyleSheet.flatten([
+              style={[
                 styles.sectionTitle,
                 { color: theme.colors.onBackground },
-              ])}
+              ]}
             >
               {t("home.myPets")}
             </Text>
@@ -144,10 +144,10 @@ export default function HomeScreen() {
                 {pets.slice(0, 4).map((pet) => (
                   <View
                     key={pet.id}
-                    style={StyleSheet.flatten([
+                    style={[
                       styles.petCardWrapper,
                       isMobile && styles.petCardWrapperMobile,
-                    ])}
+                    ]}
                   >
                     <PetCard
                       pet={pet}

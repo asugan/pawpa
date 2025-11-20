@@ -47,11 +47,11 @@ export const HelperText: React.FC<HelperTextProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.container,
         padding === "normal" && styles.paddingNormal,
         style,
-      ])}
+      ]}
     >
       <Ionicons name={getIcon()} size={14} color={color} />
       {typeof children === "string" ? (

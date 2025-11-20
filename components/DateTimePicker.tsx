@@ -71,10 +71,10 @@ export function DateTimePicker({
   return (
     <View style={styles.container}>
       {label && (
-        <Text style={StyleSheet.flatten([
+        <Text style={[
           styles.label,
           { color: error ? theme.colors.error : theme.colors.onSurface }
-        ])}>
+        ]}>
           {label}
         </Text>
       )}
@@ -82,7 +82,7 @@ export function DateTimePicker({
       <TouchableOpacity
         onPress={showPicker}
         disabled={disabled}
-        style={StyleSheet.flatten([
+        style={[
           styles.datePicker,
           {
             borderColor: error
@@ -92,22 +92,22 @@ export function DateTimePicker({
               ? theme.colors.surfaceDisabled
               : theme.colors.surface,
           }
-        ])}
+        ]}
       >
-        <PaperText style={StyleSheet.flatten([
+        <PaperText style={[
           styles.dateText,
           {
             color: value
               ? theme.colors.onSurface
               : theme.colors.onSurfaceVariant,
           }
-        ])}>
+        ]}>
           {formatDate(value)}
         </PaperText>
       </TouchableOpacity>
 
       {error && errorText && (
-        <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
+        <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {errorText}
         </Text>
       )}

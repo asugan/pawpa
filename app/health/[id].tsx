@@ -91,7 +91,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
 
   if (isLoading) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <LoadingSpinner />
       </SafeAreaView>
     );
@@ -99,7 +99,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
 
   if (!healthRecord) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <EmptyState
           title="Kayıt Bulunamadı"
           description="Sağlık kaydı bulunamadı veya silinmiş"
@@ -115,9 +115,9 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
   const typeIcon = HEALTH_RECORD_ICONS[healthRecord.type as keyof typeof HEALTH_RECORD_ICONS] || 'medical-bag';
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header Actions */}
-      <View style={StyleSheet.flatten([styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outline }])}>
+      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outline }]}>
         <IconButton
           icon="arrow-left"
           onPress={() => router.back()}
@@ -143,7 +143,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
         <Card style={styles.card}>
           <View style={styles.cardContent}>
             <View style={styles.titleRow}>
-              <View style={StyleSheet.flatten([styles.typeIndicator, { backgroundColor: typeColor }])} />
+              <View style={[styles.typeIndicator, { backgroundColor: typeColor }]} />
               <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, flex: 1 }}>
                 {healthRecord.title}
               </Text>

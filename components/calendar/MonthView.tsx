@@ -85,18 +85,18 @@ export function MonthView({
     return (
       <Pressable
         key={day.toISOString()}
-        style={StyleSheet.flatten([
+        style={[
           styles.dayCell,
           {
             width: DAY_SIZE,
             height: DAY_SIZE,
           },
-        ])}
+        ]}
         onPress={() => onDayPress(day)}
         testID={`${testID}-day-${format(day, 'yyyy-MM-dd')}`}
       >
         <View
-          style={StyleSheet.flatten([
+          style={[
             styles.dayContent,
             isTodayDate && { backgroundColor: theme.colors.primaryContainer },
             isSelected && {
@@ -104,12 +104,12 @@ export function MonthView({
               borderWidth: 2,
               borderColor: theme.colors.tertiary,
             },
-          ])}
+          ]}
         >
           {/* Day Number */}
           <Text
             variant="bodyMedium"
-            style={StyleSheet.flatten([
+            style={[
               styles.dayNumber,
               {
                 color: isCurrentMonth
@@ -118,7 +118,7 @@ export function MonthView({
                 opacity: isCurrentMonth ? 1 : 0.4,
                 fontWeight: isTodayDate || isSelected ? '700' : '400',
               },
-            ])}
+            ]}
           >
             {dayNumber}
           </Text>
@@ -129,21 +129,21 @@ export function MonthView({
               {dayEvents.slice(0, 3).map((event, index) => (
                 <View
                   key={event.id}
-                  style={StyleSheet.flatten([
+                  style={[
                     styles.eventDot,
                     {
                       backgroundColor: getEventColor(event.type),
                       marginLeft: index > 0 ? 2 : 0,
                     },
-                  ])}
+                  ]}
                 />
               ))}
               {dayEvents.length > 3 && (
                 <Text
-                  style={StyleSheet.flatten([
+                  style={[
                     styles.eventCount,
                     { color: theme.colors.onSurfaceVariant },
-                  ])}
+                  ]}
                 >
                   +{dayEvents.length - 3}
                 </Text>
@@ -156,25 +156,25 @@ export function MonthView({
   };
 
   return (
-    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
       {/* Weekday Headers */}
       <View style={styles.weekRow}>
         {weekDays.map((day) => (
           <View
             key={day}
-            style={StyleSheet.flatten([
+            style={[
               styles.weekDayCell,
               {
                 width: DAY_SIZE,
               },
-            ])}
+            ]}
           >
             <Text
               variant="labelSmall"
-              style={StyleSheet.flatten([
+              style={[
                 styles.weekDayText,
                 { color: theme.colors.onSurfaceVariant },
-              ])}
+              ]}
             >
               {day}
             </Text>

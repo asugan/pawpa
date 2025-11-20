@@ -90,7 +90,7 @@ export default function HealthScreen() {
 
   const renderHealthRecord = ({ item }: { item: HealthRecord }) => (
     <Pressable onPress={() => handleHealthRecordPress(item)}>
-      <Card style={StyleSheet.flatten([styles.healthCard, { backgroundColor: theme.colors.surface }])}>
+      <Card style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.healthContent}>
         <View style={styles.healthInfo}>
           <View style={styles.titleRow}>
@@ -213,14 +213,14 @@ export default function HealthScreen() {
 
   if (petsLoading) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <LoadingSpinner />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
           {t('health.healthRecords')}
@@ -278,7 +278,7 @@ export default function HealthScreen() {
 
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.secondary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.secondary }}
         onPress={handleAddHealthRecord}
         disabled={!selectedPetId}
       />

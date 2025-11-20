@@ -1,6 +1,5 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import {  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
 interface Props {

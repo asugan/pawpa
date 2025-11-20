@@ -74,7 +74,7 @@ export function CalendarHeader({
   ];
 
   return (
-    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])} testID={testID}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]} testID={testID}>
       {/* Navigation Controls */}
       <View style={styles.navigationRow}>
         {/* Previous Button */}
@@ -91,7 +91,7 @@ export function CalendarHeader({
         <View style={styles.titleContainer}>
           <Text
             variant="titleMedium"
-            style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}
+            style={[styles.title, { color: theme.colors.onSurface }]}
             numberOfLines={1}
           >
             {getTitle()}
@@ -128,7 +128,7 @@ export function CalendarHeader({
           size={20}
           iconColor={theme.colors.tertiary}
           onPress={onToday}
-          style={StyleSheet.flatten([styles.todayButton, { backgroundColor: theme.colors.tertiaryContainer }])}
+          style={{ ...styles.todayButton, backgroundColor: theme.colors.tertiaryContainer }}
           testID={`${testID}-today`}
         />
       </View>

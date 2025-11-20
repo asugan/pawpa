@@ -62,14 +62,14 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
   const cardContent = (
     <Card
-      style={StyleSheet.flatten([
+      style={[
         styles.card,
         {
           backgroundColor: theme.colors.surface,
           borderLeftWidth: 4,
           borderLeftColor: budget.isActive ? getProgressColor(percentage) : theme.colors.surfaceDisabled,
         },
-      ])}
+      ]}
       elevation={2}
     >
       <View style={styles.cardContent}>
@@ -153,13 +153,13 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
         {percentage >= budget.alertThreshold * 100 && budget.isActive && (
           <View
-            style={StyleSheet.flatten([
+            style={[
               styles.alertBanner,
               {
                 backgroundColor:
                   percentage >= 100 ? theme.colors.errorContainer : theme.colors.tertiaryContainer,
               },
-            ])}
+            ]}
           >
             <MaterialCommunityIcons
               name="alert"

@@ -31,9 +31,9 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onDismiss}
     >
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.header}>
-          <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
             {budget ? 'Edit Budget' : 'Add Budget'}
           </Text>
           <Button

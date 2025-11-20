@@ -47,7 +47,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
 
   return (
     <Pressable onPress={() => router.push('/expenses')}>
-      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])} elevation={4}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={4}>
         <View style={styles.cardContent}>
           <View style={styles.header}>
             <LinearGradient
@@ -81,7 +81,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
                 end={{ x: 1, y: 1 }}
                 style={styles.amountContainer}
               >
-                <Text variant="headlineSmall" style={StyleSheet.flatten([styles.statValue, { color: '#FFFFFF', fontWeight: '800' }])}>
+                <Text variant="headlineSmall" style={[styles.statValue, { color: '#FFFFFF', fontWeight: '800' }]}>
                   {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(' + ')}
                 </Text>
                 <Text variant="bodySmall" style={{ color: '#FFFFFF', opacity: 0.9, fontWeight: '600' }}>
@@ -104,7 +104,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
               <Chip
                 mode="flat"
                 compact
-                style={StyleSheet.flatten([styles.chip, { backgroundColor: theme.colors.secondaryContainer }])}
+                style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}
                 textStyle={{ fontWeight: '600' }}
               >
                 🏷️ {t(`expenses.categories.${topCategory.category}`, topCategory.category)} •{' '}

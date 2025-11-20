@@ -22,14 +22,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.container,
         {
           backgroundColor: theme.colors.surfaceVariant,
           borderRadius: theme.roundness / 4,
         },
         style,
-      ])}
+      ]}
     >
       <View
         style={[

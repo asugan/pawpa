@@ -21,7 +21,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <View style={StyleSheet.flatten([styles.container, style])}>
+    <View style={[styles.container, style]}>
       <Button
         mode="contained"
         buttonColor={theme.colors.primary}

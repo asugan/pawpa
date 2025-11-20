@@ -160,7 +160,7 @@ ${t('events.sharedFrom')} PawPa
 
   if (isLoading) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <LoadingSpinner />
       </SafeAreaView>
     );
@@ -168,7 +168,7 @@ ${t('events.sharedFrom')} PawPa
 
   if (!event || error) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.errorContainer}>
           <Text variant="headlineMedium" style={{ color: theme.colors.onBackground, textAlign: 'center' }}>
             {t('events.eventNotFound')}
@@ -203,7 +203,7 @@ ${t('events.sharedFrom')} PawPa
   };
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <IconButton
@@ -212,7 +212,7 @@ ${t('events.sharedFrom')} PawPa
           onPress={() => router.back()}
           style={styles.headerButton}
         />
-        <Text variant="headlineSmall" style={StyleSheet.flatten([styles.title, { color: theme.colors.onBackground }])}>
+        <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onBackground }]}>
           {t('events.eventDetails')}
         </Text>
         <View style={styles.headerActions}>
@@ -227,10 +227,10 @@ ${t('events.sharedFrom')} PawPa
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Event Type and Title Card */}
-        <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface, borderColor: eventTypeColor, borderWidth: 2 }])}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: eventTypeColor, borderWidth: 2 }]}>
           <View style={styles.cardContent}>
             <View style={styles.eventTypeContainer}>
-              <View style={StyleSheet.flatten([styles.eventTypeIconLarge, { backgroundColor: eventTypeColor }])}>
+              <View style={[styles.eventTypeIconLarge, { backgroundColor: eventTypeColor }]}>
                 <Text style={styles.eventTypeIconText}>
                   {eventTypeIcon === 'food' ? '🍽️' :
                    eventTypeIcon === 'run' ? '🏃' :
@@ -243,25 +243,25 @@ ${t('events.sharedFrom')} PawPa
                 </Text>
               </View>
               <View style={styles.eventTypeInfo}>
-                <Text variant="labelLarge" style={StyleSheet.flatten([styles.eventTypeLabel, { color: eventTypeColor }])}>
+                <Text variant="labelLarge" style={[styles.eventTypeLabel, { color: eventTypeColor }]}>
                   {eventTypeLabel}
                 </Text>
                 <Chip
                   mode="flat"
                   textStyle={{ color: theme.colors.onSurfaceVariant, fontSize: 12 }}
-                  style={StyleSheet.flatten([styles.statusChip, { backgroundColor: theme.colors.surfaceVariant }])}
+                  style={[styles.statusChip, { backgroundColor: theme.colors.surfaceVariant }]}
                 >
                   {t(`events.status${eventStatus.charAt(0).toUpperCase()}${eventStatus.slice(1)}`)}
                 </Chip>
               </View>
             </View>
 
-            <Text variant="headlineSmall" style={StyleSheet.flatten([styles.eventTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="headlineSmall" style={[styles.eventTitle, { color: theme.colors.onSurface }]}>
               {event.title}
             </Text>
 
             {event.description && (
-              <Text variant="bodyMedium" style={StyleSheet.flatten([styles.eventDescription, { color: theme.colors.onSurfaceVariant }])}>
+              <Text variant="bodyMedium" style={[styles.eventDescription, { color: theme.colors.onSurfaceVariant }]}>
                 {event.description}
               </Text>
             )}
@@ -269,17 +269,17 @@ ${t('events.sharedFrom')} PawPa
         </Card>
 
         {/* Date and Time Card */}
-        <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               📅 {t('events.dateAndTime')}
             </Text>
 
             <View style={styles.infoRow}>
-              <Text variant="bodyLarge" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+              <Text variant="bodyLarge" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                 {t('events.date')}:
               </Text>
-              <Text variant="bodyLarge" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+              <Text variant="bodyLarge" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                 {formatEventDate()}
               </Text>
             </View>
@@ -287,10 +287,10 @@ ${t('events.sharedFrom')} PawPa
             <Divider style={styles.divider} />
 
             <View style={styles.infoRow}>
-              <Text variant="bodyLarge" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+              <Text variant="bodyLarge" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                 {t('events.time')}:
               </Text>
-              <Text variant="bodyLarge" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+              <Text variant="bodyLarge" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                 {formatEventTime()}
               </Text>
             </View>
@@ -299,14 +299,14 @@ ${t('events.sharedFrom')} PawPa
 
         {/* Pet Information Card */}
         {pet && (
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 🐾 {t('events.pet')}
               </Text>
 
               <View style={styles.petInfoRow}>
-                <Text variant="bodyLarge" style={StyleSheet.flatten([styles.petName, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyLarge" style={[styles.petName, { color: theme.colors.onSurface }]}>
                   {pet.name}
                 </Text>
                 <Chip
@@ -332,13 +332,13 @@ ${t('events.sharedFrom')} PawPa
 
         {/* Location Card */}
         {event.location && (
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 📍 {t('events.location')}
               </Text>
 
-              <Text variant="bodyLarge" style={StyleSheet.flatten([styles.locationText, { color: theme.colors.onSurface }])}>
+              <Text variant="bodyLarge" style={[styles.locationText, { color: theme.colors.onSurface }]}>
                 {event.location}
               </Text>
             </View>
@@ -347,13 +347,13 @@ ${t('events.sharedFrom')} PawPa
 
         {/* Reminder Card */}
         {event.reminder && (
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 🔔 {t('events.reminder')}
               </Text>
 
-              <Text variant="bodyMedium" style={StyleSheet.flatten([styles.reminderText, { color: theme.colors.onSurfaceVariant }])}>
+              <Text variant="bodyMedium" style={[styles.reminderText, { color: theme.colors.onSurfaceVariant }]}>
                 {t('events.reminderEnabled')}
               </Text>
             </View>
@@ -362,13 +362,13 @@ ${t('events.sharedFrom')} PawPa
 
         {/* Notes Card */}
         {event.notes && (
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 📝 {t('events.notes')}
               </Text>
 
-              <Text variant="bodyMedium" style={StyleSheet.flatten([styles.notesText, { color: theme.colors.onSurface }])}>
+              <Text variant="bodyMedium" style={[styles.notesText, { color: theme.colors.onSurface }]}>
                 {event.notes}
               </Text>
             </View>
@@ -376,9 +376,9 @@ ${t('events.sharedFrom')} PawPa
         )}
 
         {/* Status Management Card */}
-        <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
-            <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               🔄 {t('events.status')}
             </Text>
 
@@ -410,10 +410,10 @@ ${t('events.sharedFrom')} PawPa
 
         {/* Timestamps */}
         <View style={styles.timestampsContainer}>
-          <Text variant="bodySmall" style={StyleSheet.flatten([styles.timestamp, { color: theme.colors.onSurfaceVariant }])}>
+          <Text variant="bodySmall" style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}>
             {t('common.created')}: {format(new Date(event.createdAt), 'dd MMM yyyy HH:mm', { locale })}
           </Text>
-          <Text variant="bodySmall" style={StyleSheet.flatten([styles.timestamp, { color: theme.colors.onSurfaceVariant }])}>
+          <Text variant="bodySmall" style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}>
             {t('common.updated')}: {format(new Date(event.updatedAt), 'dd MMM yyyy HH:mm', { locale })}
           </Text>
         </View>
@@ -424,10 +424,10 @@ ${t('events.sharedFrom')} PawPa
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
           duration={3000}
-          style={StyleSheet.flatten([
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes(t('common.error')) ? theme.colors.error : theme.colors.primary }
-          ])}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes(t('common.error')) ? theme.colors.error : theme.colors.primary
+          }}
           message={snackbarMessage}
         />
       </Portal>

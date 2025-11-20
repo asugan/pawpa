@@ -11,13 +11,13 @@ export function NetworkStatusBadge() {
 
   if (netInfo.isConnected === false) {
     return (
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.errorContainer }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.errorContainer }]}>
         <MaterialCommunityIcons
           name="wifi-off"
           size={16}
           color={theme.colors.onErrorContainer}
         />
-        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onErrorContainer }])}>
+        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onErrorContainer }]}>
           Çevrimdışı
         </Text>
       </View>
@@ -26,13 +26,13 @@ export function NetworkStatusBadge() {
 
   if (netInfo.type === 'wifi') {
     return (
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.primaryContainer }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.primaryContainer }]}>
         <MaterialCommunityIcons
           name="wifi"
           size={16}
           color={theme.colors.onPrimaryContainer}
         />
-        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onPrimaryContainer }])}>
+        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onPrimaryContainer }]}>
           Wi-Fi
         </Text>
       </View>
@@ -41,13 +41,13 @@ export function NetworkStatusBadge() {
 
   if (netInfo.type === 'cellular') {
     return (
-      <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.secondaryContainer }])}>
+      <View style={[styles.container, { backgroundColor: theme.colors.secondaryContainer }]}>
         <MaterialCommunityIcons
           name="signal-cellular-1"
           size={16}
           color={theme.colors.onSecondaryContainer}
         />
-        <Text variant="bodySmall" style={StyleSheet.flatten([styles.text, { color: theme.colors.onSecondaryContainer }])}>
+        <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onSecondaryContainer }]}>
           Mobil
         </Text>
       </View>

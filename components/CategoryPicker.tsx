@@ -62,7 +62,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={StyleSheet.flatten([styles.label, { color: theme.colors.onSurface }])}>
+        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
           {label}
         </Text>
       )}
@@ -76,12 +76,12 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
             key={category}
             selected={selectedCategory === category}
             onPress={() => onSelect(category)}
-            style={StyleSheet.flatten([
+            style={[
               styles.chip,
               selectedCategory === category && {
                 backgroundColor: getCategoryColor(category),
               },
-            ])}
+            ]}
             icon={({ size }: { size: number }) => (
               <MaterialCommunityIcons
                 name={getCategoryIcon(category) as any}
@@ -106,7 +106,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
         ))}
       </ScrollView>
       {error && (
-        <Text variant="bodySmall" style={StyleSheet.flatten([styles.error, { color: theme.colors.error }])}>
+        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
           {error}
         </Text>
       )}

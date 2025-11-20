@@ -149,13 +149,13 @@ export default function FeedingScreen() {
     <View style={styles.emptyContainer}>
       <Text
         variant="headlineSmall"
-        style={StyleSheet.flatten([styles.emptyTitle, { color: theme.colors.onSurface }])}
+        style={[styles.emptyTitle, { color: theme.colors.onSurface }]}
       >
         🍽️
       </Text>
       <Text
         variant="titleMedium"
-        style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}
+        style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
       >
         {selectedTab === 'today'
           ? t('feedingSchedule.noSchedules')
@@ -166,7 +166,7 @@ export default function FeedingScreen() {
       </Text>
       <Text
         variant="bodyMedium"
-        style={StyleSheet.flatten([styles.emptySubtext, { color: theme.colors.onSurfaceVariant }])}
+        style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}
       >
         {t('feedingSchedule.addFirstSchedule')}
       </Text>
@@ -176,7 +176,7 @@ export default function FeedingScreen() {
   // Render loading state
   if (isLoading || isPetsLoading) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
@@ -188,10 +188,10 @@ export default function FeedingScreen() {
   }
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
           {t('feedingSchedule.title')}
         </Text>
       </View>
@@ -291,7 +291,7 @@ export default function FeedingScreen() {
       {/* FAB for adding new schedule */}
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddSchedule}
         testID="add-schedule-fab"
       />

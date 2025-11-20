@@ -32,7 +32,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
 
   return (
     <TouchableOpacity
-      style={StyleSheet.flatten([
+      style={[
         styles.iconButton,
         {
           backgroundColor: bgColor,
@@ -41,7 +41,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
           borderRadius: (size * 1.75) / 2,
         },
         style,
-      ])}
+      ]}
       disabled={disabled}
       activeOpacity={0.7}
       {...rest}

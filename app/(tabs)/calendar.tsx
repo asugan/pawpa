@@ -115,7 +115,7 @@ export default function CalendarScreen() {
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text
             variant="bodyMedium"
-            style={StyleSheet.flatten([styles.loadingText, { color: theme.colors.onSurface }])}
+            style={[styles.loadingText, { color: theme.colors.onSurface }]}
           >
             {t('common.loading')}
           </Text>
@@ -128,13 +128,13 @@ export default function CalendarScreen() {
         <View style={styles.errorContainer}>
           <Text
             variant="bodyLarge"
-            style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}
+            style={[styles.errorText, { color: theme.colors.error }]}
           >
             {t('errors.loadingFailed')}
           </Text>
           <Text
             variant="bodySmall"
-            style={StyleSheet.flatten([styles.errorMessage, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.errorMessage, { color: theme.colors.onSurfaceVariant }]}
           >
             {error.message}
           </Text>
@@ -178,7 +178,7 @@ export default function CalendarScreen() {
 
   return (
     <SafeAreaView
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       {/* Calendar Header */}
       <CalendarHeader
@@ -197,7 +197,7 @@ export default function CalendarScreen() {
       {/* Add Event FAB */}
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.tertiary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.tertiary }}
         onPress={handleAddEvent}
         testID="calendar-add-event-fab"
       />

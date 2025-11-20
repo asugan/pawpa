@@ -33,7 +33,7 @@ export default function CustomTabHeader({ showNetworkBadge = true, pageTitle }: 
         {pageTitle && (
           <Text
             variant="titleMedium"
-            style={StyleSheet.flatten([styles.pageTitle, { color: theme.colors.onSurface }])}
+            style={[styles.pageTitle, { color: theme.colors.onSurface }]}
             numberOfLines={1}
           >
             {pageTitle}

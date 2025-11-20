@@ -181,7 +181,7 @@ export default function PetsScreen() {
   // Show loading spinner on initial load
   if (isLoading && allPets.length === 0) {
     return (
-      <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
           <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
             {t('pets.myPets')}
@@ -195,7 +195,7 @@ export default function PetsScreen() {
   }
 
   return (
-    <SafeAreaView style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
           {t('pets.myPets')}
@@ -259,7 +259,7 @@ export default function PetsScreen() {
 
       <FAB
         icon="add"
-        style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.colors.primary }])}
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddPet}
       />
 
@@ -287,11 +287,12 @@ export default function PetsScreen() {
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={StyleSheet.flatten([
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ])}
-         message={snackbarMessage} />
+          message={snackbarMessage}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
+        />
       </Portal>
     </SafeAreaView>
   );

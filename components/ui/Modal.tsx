@@ -40,14 +40,14 @@ export const Modal: React.FC<ModalProps> = ({
           onPress={dismissable ? onDismiss : undefined}
         />
         <View
-          style={StyleSheet.flatten([
+          style={[
             styles.contentContainer,
             {
               backgroundColor: theme.colors.surface,
               borderRadius: theme.roundness * 2,
             },
             contentContainerStyle,
-          ])}
+          ]}
         >
           {children}
         </View>

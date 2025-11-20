@@ -30,8 +30,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   const { theme } = useTheme();
 
   return (
-    <View style={StyleSheet.flatten([styles.container, style])}>
-      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
+    <View style={[styles.container, style]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
         <View style={styles.content}>
           <MaterialCommunityIcons
             name={icon}
@@ -42,7 +42,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
           <Text
             variant="headlineSmall"
-            style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.title, { color: theme.colors.onSurfaceVariant }]}
           >
             {title}
           </Text>
@@ -50,7 +50,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {description && (
             <Text
               variant="bodyMedium"
-              style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}
+              style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
             >
               {description}
             </Text>

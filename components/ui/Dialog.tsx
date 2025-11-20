@@ -31,14 +31,14 @@ const DialogBase: React.FC<DialogProps> = ({
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
             <View
-              style={StyleSheet.flatten([
+              style={[
                 styles.dialog,
                 {
                   backgroundColor: theme.colors.surface,
                   borderRadius: theme.roundness,
                 },
                 style,
-              ])}
+              ]}
             >
               {children}
             </View>
@@ -52,7 +52,7 @@ const DialogBase: React.FC<DialogProps> = ({
 export const DialogTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { theme } = useTheme();
   return (
-    <Text variant="headlineSmall" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+    <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
       {children}
     </Text>
   );

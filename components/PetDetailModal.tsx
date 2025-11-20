@@ -178,7 +178,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
             onPress={onClose}
             style={styles.closeButton}
           />
-          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {pet.name}
           </Text>
           <View style={styles.headerActions}>
@@ -199,8 +199,8 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* Pet Photo and Basic Info */}
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
-            <View style={StyleSheet.flatten([styles.cardContent, styles.profileSection])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <View style={[styles.cardContent, styles.profileSection]}>
               <View style={styles.profileHeader}>
                 {pet.profilePhoto ? (
                   <Avatar.Image
@@ -212,17 +212,17 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                   <Avatar.Icon
                     size={80}
                     icon={getPetIcon(pet.type)}
-                    style={StyleSheet.flatten([styles.avatar, { backgroundColor: theme.colors.primary }])}
+                    style={[styles.avatar, { backgroundColor: theme.colors.primary }]}
                   />
                 )}
                 <View style={styles.profileInfo}>
-                  <Text variant="headlineSmall" style={StyleSheet.flatten([styles.petName, { color: theme.colors.onSurface }])}>
+                  <Text variant="headlineSmall" style={[styles.petName, { color: theme.colors.onSurface }]}>
                     {pet.name}
                   </Text>
-                  <Text variant="titleMedium" style={StyleSheet.flatten([styles.petType, { color: theme.colors.onSurfaceVariant }])}>
+                  <Text variant="titleMedium" style={[styles.petType, { color: theme.colors.onSurfaceVariant }]}>
                     {getPetTypeLabel(pet.type)}
                   </Text>
-                  <Text variant="bodyMedium" style={StyleSheet.flatten([styles.petBreed, { color: theme.colors.onSurfaceVariant }])}>
+                  <Text variant="bodyMedium" style={[styles.petBreed, { color: theme.colors.onSurfaceVariant }]}>
                     {pet.breed || 'Cinsi belirtilmemiş'}
                   </Text>
                 </View>
@@ -231,17 +231,17 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           </Card>
 
           {/* Detailed Information */}
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 Detaylı Bilgiler
               </Text>
 
               <View style={styles.infoRow}>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Cinsiyet:
                 </Text>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {pet.gender === 'male' ? 'Erkek' : pet.gender === 'female' ? 'Dişi' : 'Belirtilmemiş'}
                 </Text>
               </View>
@@ -249,10 +249,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
               <Divider style={styles.divider} />
 
               <View style={styles.infoRow}>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Doğum Tarihi:
                 </Text>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {formatDate(pet.birthDate)}
                 </Text>
               </View>
@@ -260,10 +260,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
               <Divider style={styles.divider} />
 
               <View style={styles.infoRow}>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Yaş:
                 </Text>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {getAgeText(pet.birthDate)}
                 </Text>
               </View>
@@ -271,10 +271,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
               <Divider style={styles.divider} />
 
               <View style={styles.infoRow}>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Kilo:
                 </Text>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {pet.weight ? `${pet.weight} kg` : 'Belirtilmemiş'}
                 </Text>
               </View>
@@ -282,10 +282,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
               <Divider style={styles.divider} />
 
               <View style={styles.infoRow}>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoLabel, { color: theme.colors.onSurfaceVariant }])}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Eklenme Tarihi:
                 </Text>
-                <Text variant="bodyMedium" style={StyleSheet.flatten([styles.infoValue, { color: theme.colors.onSurface }])}>
+                <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {formatDate(pet.createdAt)}
                 </Text>
               </View>
@@ -294,10 +294,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
           {/* Upcoming Events Section */}
           {!eventsLoading && events && events.length > 0 && (
-            <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
+            <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
               <View style={styles.cardContent}>
                 <View style={styles.sectionHeader}>
-                  <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+                  <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                     📅 Yaklaşan Etkinlikler
                   </Text>
                   <Button
@@ -329,7 +329,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                   ))}
 
                 {events.filter((event: Event) => new Date(event.startTime) >= new Date()).length === 0 && (
-                  <Text variant="bodyMedium" style={StyleSheet.flatten([styles.noEventsText, { color: theme.colors.onSurfaceVariant }])}>
+                  <Text variant="bodyMedium" style={[styles.noEventsText, { color: theme.colors.onSurfaceVariant }]}>
                     {t('events.noUpcomingEvents')}
                   </Text>
                 )}
@@ -338,9 +338,9 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           )}
 
           {/* Quick Actions */}
-          <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surfaceVariant }])}>
+          <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.cardContent}>
-              <Text variant="titleLarge" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
+              <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 Hızlı İşlemler
               </Text>
 
@@ -408,7 +408,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
         onDismiss={onClose}
         onRequestClose={onClose}
       >
-        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           {renderContent()}
         </View>
       </RNModal>
@@ -418,10 +418,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
           duration={3000}
-          style={StyleSheet.flatten([
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ])}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
           message={snackbarMessage}
         />
       </Portal>

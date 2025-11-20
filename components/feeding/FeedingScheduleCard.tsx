@@ -94,7 +94,7 @@ export function FeedingScheduleCard({
   return (
     <Pressable
       onPress={handlePress}
-      style={StyleSheet.flatten([
+      style={[
         cardStyle,
         {
           backgroundColor: theme.colors.surface,
@@ -102,7 +102,7 @@ export function FeedingScheduleCard({
           borderWidth: 2,
           opacity: schedule.isActive ? 1 : 0.6,
         }
-      ])}
+      ]}
       testID={testID}
     >
       <View style={contentStyle}>
@@ -110,23 +110,23 @@ export function FeedingScheduleCard({
         <View style={styles.header}>
           <View style={styles.timeContainer}>
             <View
-              style={StyleSheet.flatten([
+              style={[
                 styles.timeIcon,
                 { backgroundColor: foodTypeColor }
-              ])}
+              ]}
             >
               <Text style={styles.timeIconText}>🍽️</Text>
             </View>
             <View style={styles.timeInfo}>
               <Text
                 variant="headlineSmall"
-                style={StyleSheet.flatten([styles.time, { color: theme.colors.onSurface }])}
+                style={[styles.time, { color: theme.colors.onSurface }]}
               >
                 {formatTimeForDisplay(schedule.time)}
               </Text>
               <Text
                 variant="labelMedium"
-                style={StyleSheet.flatten([styles.foodTypeLabel, { color: foodTypeColor }])}
+                style={[styles.foodTypeLabel, { color: foodTypeColor }]}
               >
                 {t(`foodTypes.${schedule.foodType}`)}
               </Text>
@@ -151,7 +151,7 @@ export function FeedingScheduleCard({
           <Text style={styles.amountIcon}>📏</Text>
           <Text
             variant="bodyLarge"
-            style={StyleSheet.flatten([styles.amount, { color: theme.colors.onSurface }])}
+            style={[styles.amount, { color: theme.colors.onSurface }]}
           >
             {schedule.amount}
           </Text>
@@ -169,10 +169,10 @@ export function FeedingScheduleCard({
                   styles.dayChipText,
                   { color: theme.colors.onSurfaceVariant }
                 ]}
-                style={StyleSheet.flatten([
+                style={[
                   styles.dayChip,
                   { backgroundColor: theme.colors.surfaceVariant }
-                ])}
+                ]}
               >
                 {t(`days.${day.toLowerCase()}`).substring(0, 3)}
               </Chip>
@@ -184,7 +184,7 @@ export function FeedingScheduleCard({
         {compact && (
           <Text
             variant="bodySmall"
-            style={StyleSheet.flatten([styles.daysText, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.daysText, { color: theme.colors.onSurfaceVariant }]}
           >
             {formatDays()}
           </Text>
@@ -200,10 +200,10 @@ export function FeedingScheduleCard({
                 styles.petChipText,
                 { color: theme.colors.onSurfaceVariant }
               ]}
-              style={StyleSheet.flatten([
+              style={[
                 styles.petChip,
                 { backgroundColor: theme.colors.surfaceVariant }
-              ])}
+              ]}
             >
               🐾 {t('feedingSchedule.forPet')}
             </Chip>
@@ -215,25 +215,25 @@ export function FeedingScheduleCard({
           {/* Status indicator */}
           <View style={styles.statusContainer}>
             <View
-              style={StyleSheet.flatten([
+              style={[
                 styles.statusDot,
                 {
                   backgroundColor: schedule.isActive
                     ? theme.colors.primary
                     : theme.colors.surfaceDisabled
                 }
-              ])}
+              ]}
             />
             <Text
               variant="labelSmall"
-              style={StyleSheet.flatten([
+              style={[
                 styles.statusText,
                 {
                   color: schedule.isActive
                     ? theme.colors.primary
                     : theme.colors.surfaceDisabled
                 }
-              ])}
+              ]}
             >
               {schedule.isActive
                 ? t('feedingSchedule.active')

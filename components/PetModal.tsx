@@ -96,9 +96,9 @@ export function PetModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.surface }])}>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
-            <Text style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+            <Text style={[styles.title, { color: theme.colors.onSurface }]}>
               {pet ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
             </Text>
           </View>
@@ -117,11 +117,12 @@ export function PetModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={StyleSheet.flatten([
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ])}
-         message={snackbarMessage} />
+          message={snackbarMessage}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
+        />
       </Portal>
     </>
   );

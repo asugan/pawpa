@@ -51,7 +51,7 @@ export const FAB: React.FC<FABProps> = ({
 
   return (
     <TouchableOpacity
-      style={StyleSheet.flatten([
+      style={[
         styles.fab,
         {
           width: fabSize,
@@ -65,7 +65,7 @@ export const FAB: React.FC<FABProps> = ({
           elevation: 8,
         },
         style,
-      ])}
+      ]}
       activeOpacity={0.8}
       {...rest}
     >

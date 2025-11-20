@@ -110,14 +110,14 @@ export const Snackbar: React.FC<SnackbarProps> = ({
 
   return (
     <Animated.View
-      style={StyleSheet.flatten([
+      style={[
         styles.snackbar,
         {
           backgroundColor: theme.colors.onSurface,
           opacity,
         },
         style,
-      ])}
+      ]}
     >
       <Text variant="bodyMedium" style={{ color: theme.colors.surface, flex: 1 }}>
         {message}

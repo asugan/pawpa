@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card } from '@/components/ui';
-import {  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
 export const PetCardSkeleton: React.FC = () => {
