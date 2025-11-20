@@ -1,73 +1,80 @@
 import { feedingScheduleService } from '@/lib/services/feedingScheduleService';
 import { ApiResponse, CreateFeedingScheduleInput, FeedingSchedule, UpdateFeedingScheduleInput } from '@/lib/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CACHE_TIMES } from '@/lib/config/queryConfig';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useResources } from './core/useResources';
+import { useConditionalQuery } from './core/useConditionalQuery';
 
-// Query keys for feeding schedules
+// Query keys factory
+const baseFeedingScheduleKeys = createQueryKeys('feeding-schedules');
+
+// Extended query keys with custom keys
 export const feedingScheduleKeys = {
-  all: ['feeding-schedules'] as const,
-  lists: () => [...feedingScheduleKeys.all, 'list'] as const,
-  list: (petId: string) => [...feedingScheduleKeys.lists(), petId] as const,
-  details: () => [...feedingScheduleKeys.all, 'detail'] as const,
-  detail: (id: string) => [...feedingScheduleKeys.details(), id] as const,
-  active: () => [...feedingScheduleKeys.all, 'active'] as const,
-  today: () => [...feedingScheduleKeys.all, 'today'] as const,
-  next: () => [...feedingScheduleKeys.all, 'next'] as const,
-  activeByPet: (petId: string) => [...feedingScheduleKeys.lists(), petId, 'active'] as const,
+  ...baseFeedingScheduleKeys,
+  active: () => [...baseFeedingScheduleKeys.all, 'active'] as const,
+  today: () => [...baseFeedingScheduleKeys.all, 'today'] as const,
+  next: () => [...baseFeedingScheduleKeys.all, 'next'] as const,
+  activeByPet: (petId: string) => [...baseFeedingScheduleKeys.all, 'active', petId] as const,
 };
 
 // Hooks
 export const useFeedingSchedules = (petId: string) => {
-  return useQuery({
+  return useConditionalQuery<FeedingSchedule[]>({
     queryKey: feedingScheduleKeys.list(petId),
-    queryFn: () => feedingScheduleService.getFeedingSchedulesByPetId(petId).then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => feedingScheduleService.getFeedingSchedulesByPetId(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
+    defaultValue: [],
   });
 };
 
 export const useFeedingSchedule = (id: string) => {
-  return useQuery({
+  return useResource<FeedingSchedule>({
     queryKey: feedingScheduleKeys.detail(id),
-    queryFn: () => feedingScheduleService.getFeedingScheduleById(id).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => feedingScheduleService.getFeedingScheduleById(id),
+    staleTime: CACHE_TIMES.LONG,
     enabled: !!id,
   });
 };
 
 export const useActiveFeedingSchedules = () => {
-  return useQuery({
+  return useResources<FeedingSchedule>({
     queryKey: feedingScheduleKeys.active(),
-    queryFn: () => feedingScheduleService.getActiveFeedingSchedules().then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    queryFn: () => feedingScheduleService.getActiveFeedingSchedules(),
+    staleTime: CACHE_TIMES.SHORT,
+    refetchInterval: CACHE_TIMES.MEDIUM,
   });
 };
 
 export const useTodayFeedingSchedules = () => {
-  return useQuery({
+  return useResources<FeedingSchedule>({
     queryKey: feedingScheduleKeys.today(),
-    queryFn: () => feedingScheduleService.getTodayFeedingSchedules().then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 30 * 1000, // Refresh every 30 seconds
+    queryFn: () => feedingScheduleService.getTodayFeedingSchedules(),
+    staleTime: CACHE_TIMES.VERY_SHORT,
+    refetchInterval: CACHE_TIMES.VERY_SHORT,
   });
 };
 
 export const useNextFeeding = () => {
-  return useQuery({
+  return useConditionalQuery<FeedingSchedule | null>({
     queryKey: feedingScheduleKeys.next(),
-    queryFn: () => feedingScheduleService.getNextFeeding().then((res: ApiResponse<FeedingSchedule | null>) => res.data || null),
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000, // Refresh every minute
+    queryFn: () => feedingScheduleService.getNextFeeding(),
+    staleTime: CACHE_TIMES.VERY_SHORT,
+    refetchInterval: CACHE_TIMES.VERY_SHORT * 2, // Refresh every minute
+    defaultValue: null,
   });
 };
 
 export const useActiveFeedingSchedulesByPet = (petId: string) => {
-  return useQuery({
+  return useConditionalQuery<FeedingSchedule[]>({
     queryKey: feedingScheduleKeys.activeByPet(petId),
-    queryFn: () => feedingScheduleService.getActiveFeedingSchedulesByPet(petId).then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    queryFn: () => feedingScheduleService.getActiveFeedingSchedulesByPet(petId),
+    staleTime: CACHE_TIMES.SHORT,
     enabled: !!petId,
+    defaultValue: [],
   });
 };
 

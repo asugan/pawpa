@@ -1,7 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
 import type { CreateHealthRecordInput, HealthRecord, UpdateHealthRecordInput } from '../types';
+import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useResources } from './core/useResources';
+import { useConditionalQuery } from './core/useConditionalQuery';
 
 // Type-safe filters for health records
 interface HealthRecordFilters {
@@ -13,22 +18,24 @@ interface HealthRecordFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-// Query keys
+// Query keys factory
+const baseHealthRecordKeys = createQueryKeys('health-records');
+
+// Extended query keys with custom keys
 export const healthRecordKeys = {
-  all: ['health-records'] as const,
-  lists: () => [...healthRecordKeys.all, 'list'] as const,
+  ...baseHealthRecordKeys,
   list: (petId: string, filters?: HealthRecordFilters) =>
-    [...healthRecordKeys.lists(), petId, filters] as const,
-  details: () => [...healthRecordKeys.all, 'detail'] as const,
-  detail: (id: string) => [...healthRecordKeys.details(), id] as const,
-  vaccinations: (petId: string) => [...healthRecordKeys.all, 'vaccinations', petId] as const,
-  upcoming: () => [...healthRecordKeys.all, 'upcoming'] as const,
-  byType: (petId: string, type: string) => [...healthRecordKeys.lists(), petId, 'type', type] as const,
+    [...baseHealthRecordKeys.lists(), petId, filters] as const,
+  vaccinations: (petId: string) => [...baseHealthRecordKeys.all, 'vaccinations', petId] as const,
+  upcoming: () => [...baseHealthRecordKeys.all, 'upcoming'] as const,
+  byType: (petId: string, type: string) => [...baseHealthRecordKeys.all, 'type', petId, type] as const,
   byDateRange: (petId: string, dateFrom: string, dateTo: string) =>
-    [...healthRecordKeys.lists(), petId, 'date-range', dateFrom, dateTo] as const,
+    [...baseHealthRecordKeys.all, 'date-range', petId, dateFrom, dateTo] as const,
 };
 
 // Get all health records for a pet with type-safe filters
+// Note: This hook has complex client-side sorting logic,
+// so it uses useQuery directly instead of generic hooks
 export function useHealthRecords(petId: string, filters: HealthRecordFilters = {}) {
   return useQuery({
     queryKey: healthRecordKeys.list(petId, filters),
@@ -39,7 +46,7 @@ export function useHealthRecords(petId: string, filters: HealthRecordFilters = {
       }
       return result.data || [];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
     select: (data) => {
       // Apply client-side sorting if specified
@@ -61,81 +68,62 @@ export function useHealthRecords(petId: string, filters: HealthRecordFilters = {
   });
 }
 
-// Get a single health record by ID (renamed from useHealthRecordById for consistency)
+// Get a single health record by ID
 export function useHealthRecord(id: string) {
-  return useQuery({
+  return useResource<HealthRecord>({
     queryKey: healthRecordKeys.detail(id),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordById(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kaydı yüklenemedi');
-      }
-      return result.data;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => healthRecordService.getHealthRecordById(id),
+    staleTime: CACHE_TIMES.LONG,
     enabled: !!id,
+    errorMessage: 'Sağlık kaydı yüklenemedi',
   });
 }
 
 // Get vaccinations only
 export function useVaccinations(petId: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.vaccinations(petId),
-    queryFn: async () => {
-      const result = await healthRecordService.getVaccinations(petId);
-      if (!result.success) {
-        throw new Error(result.error || 'Aşı kayıtları yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => healthRecordService.getVaccinations(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
+    defaultValue: [],
+    errorMessage: 'Aşı kayıtları yüklenemedi',
   });
 }
 
 // Get upcoming vaccinations
 export function useUpcomingVaccinations() {
-  return useQuery({
+  return useResources<HealthRecord>({
     queryKey: healthRecordKeys.upcoming(),
-    queryFn: async () => {
-      const result = await healthRecordService.getUpcomingRecords();
-      if (!result.success) {
-        throw new Error(result.error || 'Yaklaşan kayıtlar yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => healthRecordService.getUpcomingRecords(),
+    staleTime: CACHE_TIMES.LONG,
     refetchInterval: 60 * 60 * 1000, // Refresh every hour
   });
 }
 
 // Get health records by type
 export function useHealthRecordsByType(petId: string, type: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.byType(petId, type),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordsByType(petId, type);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => healthRecordService.getHealthRecordsByType(petId, type),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId && !!type,
+    defaultValue: [],
+    errorMessage: 'Sağlık kayıtları yüklenemedi',
   });
 }
 
 // Get health records by date range (using existing service method)
 export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dateTo: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.byDateRange(petId, dateFrom, dateTo),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordsByPetId(petId);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
-      }
+    queryFn: () => healthRecordService.getHealthRecordsByPetId(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
+    enabled: !!petId && !!dateFrom && !!dateTo,
+    defaultValue: [],
+    errorMessage: 'Sağlık kayıtları yüklenemedi',
+    select: (allRecords) => {
       // Filter by date range on client side
-      const allRecords = result.data || [];
       return allRecords.filter((record: HealthRecord) => {
         const recordDate = new Date(record.date);
         const fromDate = new Date(dateFrom);
@@ -143,8 +131,6 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
         return recordDate >= fromDate && recordDate <= toDate;
       });
     },
-    staleTime: 5 * 60 * 1000,
-    enabled: !!petId && !!dateFrom && !!dateTo,
   });
 }
 

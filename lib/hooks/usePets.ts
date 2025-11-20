@@ -1,7 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { petService } from '../services/petService';
 import type { CreatePetInput, Pet, UpdatePetInput } from '../types';
+import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useConditionalQuery } from './core/useConditionalQuery';
 
 // Type-safe filters for pets
 interface PetFilters {
@@ -13,19 +17,19 @@ interface PetFilters {
   limit?: number;
 }
 
-// Query keys
+// Query keys factory
+const basePetKeys = createQueryKeys('pets');
+
+// Extended query keys with custom keys
 export const petKeys = {
-  all: ['pets'] as const,
-  lists: () => [...petKeys.all, 'list'] as const,
-  list: (filters: PetFilters) => [...petKeys.lists(), filters] as const,
-  details: () => [...petKeys.all, 'detail'] as const,
-  detail: (id: string) => [...petKeys.details(), id] as const,
-  stats: () => [...petKeys.all, 'stats'] as const,
-  search: (query: string) => [...petKeys.all, 'search', query] as const,
-  byType: (type: string) => [...petKeys.all, 'type', type] as const,
+  ...basePetKeys,
+  stats: () => [...basePetKeys.all, 'stats'] as const,
+  byType: (type: string) => [...basePetKeys.all, 'type', type] as const,
 };
 
 // Hook for fetching all pets with type-safe filters
+// Note: This hook has complex conditional logic and client-side sorting,
+// so it uses useQuery directly instead of generic hooks
 export function usePets(filters: PetFilters = {}) {
   return useQuery<Pet[]>({
     queryKey: petKeys.list(filters),
@@ -55,7 +59,7 @@ export function usePets(filters: PetFilters = {}) {
       }
       return result.data || [];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: CACHE_TIMES.MEDIUM,
     select: (data) => {
       // Apply client-side sorting if specified
       if (filters.sortBy) {
@@ -76,51 +80,36 @@ export function usePets(filters: PetFilters = {}) {
 
 // Hook for searching pets
 export function useSearchPets(query: string) {
-  return useQuery<Pet[]>({
+  return useConditionalQuery<Pet[]>({
     queryKey: petKeys.search(query),
-    queryFn: async () => {
-      if (!query.trim()) return [];
-      const result = await petService.searchPets(query);
-      if (!result.success) {
-        throw new Error(result.error || 'Arama yapılamadı');
-      }
-      return result.data || [];
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    queryFn: () => petService.searchPets(query),
+    staleTime: CACHE_TIMES.SHORT,
     enabled: !!query && query.trim().length > 0,
+    defaultValue: [],
+    errorMessage: 'Arama yapılamadı',
   });
 }
 
 // Hook for pets by type
 export function usePetsByType(type: string) {
-  return useQuery<Pet[]>({
+  return useConditionalQuery<Pet[]>({
     queryKey: petKeys.byType(type),
-    queryFn: async () => {
-      if (!type) return [];
-      const result = await petService.getPetsByType(type);
-      if (!result.success) {
-        throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => petService.getPetsByType(type),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!type,
+    defaultValue: [],
+    errorMessage: 'Evcil hayvanlar yüklenemedi',
   });
 }
 
 // Hook for fetching a single pet
 export function usePet(id: string) {
-  return useQuery<Pet>({
+  return useResource<Pet>({
     queryKey: petKeys.detail(id),
-    queryFn: async () => {
-      const result = await petService.getPetById(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Pet yüklenemedi');
-      }
-      return result.data!;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    enabled: !!id, // Only fetch if id exists
+    queryFn: () => petService.getPetById(id),
+    staleTime: CACHE_TIMES.LONG,
+    enabled: !!id,
+    errorMessage: 'Pet yüklenemedi',
   });
 }
 
@@ -129,8 +118,8 @@ export function usePetStats() {
   return useQuery({
     queryKey: petKeys.stats(),
     queryFn: () => petService.getPetStats(),
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    staleTime: CACHE_TIMES.LONG,
+    refetchInterval: CACHE_TIMES.MEDIUM,
   });
 }
 
