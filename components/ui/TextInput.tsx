@@ -1,14 +1,15 @@
+import { useTheme } from "@/lib/theme";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-  TextInput as RNTextInput,
-  TextInputProps as RNTextInputProps,
-  View,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
+    TextInput as RNTextInput,
+    TextInputProps as RNTextInputProps,
+    StyleProp,
+    StyleSheet,
+    TextStyle,
+    View,
+    ViewStyle,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
 
 export interface TextInputProps extends RNTextInputProps {
@@ -18,8 +19,8 @@ export interface TextInputProps extends RNTextInputProps {
   mode?: "flat" | "outlined";
   left?: React.ReactNode;
   right?: React.ReactNode;
-  containerStyle?: ViewStyle;
-  inputStyle?: TextStyle;
+  containerStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
 }
 
 export interface TextInputIconProps {
@@ -67,20 +68,20 @@ const TextInputBase: React.FC<TextInputProps> = ({
   };
 
   return (
-    <View style={StyleSheet.flatten([styles.container, containerStyle])}>
+    <View style={[styles.container, containerStyle]}>
       {label && (
         <Text
           variant="bodySmall"
-          style={StyleSheet.flatten([
+          style={[
             styles.label,
             { color: error ? theme.colors.error : theme.colors.onSurfaceVariant },
-          ])}
+          ]}
         >
           {label}
         </Text>
       )}
       <View
-        style={StyleSheet.flatten([
+        style={[
           styles.inputContainer,
           {
             backgroundColor: getBackgroundColor(),
@@ -89,18 +90,18 @@ const TextInputBase: React.FC<TextInputProps> = ({
             borderRadius: theme.roundness / 2,
             borderBottomWidth: mode === "flat" ? 2 : mode === "outlined" ? 1 : 0,
           },
-        ])}
+        ]}
       >
         {left && <View style={styles.leftElement}>{left}</View>}
         <RNTextInput
-          style={StyleSheet.flatten([
+          style={[
             styles.input,
             {
               color: disabled ? theme.colors.onSurfaceVariant : theme.colors.onSurface,
             },
             inputStyle,
             style,
-          ])}
+          ]}
           placeholderTextColor={theme.colors.onSurfaceVariant}
           editable={!disabled}
           onFocus={() => setIsFocused(true)}

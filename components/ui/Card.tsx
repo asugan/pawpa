@@ -1,11 +1,11 @@
-import React from "react";
-import { View, ViewProps, StyleSheet, ViewStyle } from "react-native";
 import { useTheme } from "@/lib/theme";
+import React from "react";
+import { StyleProp, StyleSheet, View, ViewProps, ViewStyle } from "react-native";
 
 export interface CardProps extends ViewProps {
   elevation?: number;
   children?: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -29,7 +29,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.card,
         {
           backgroundColor: theme.colors.surface,
@@ -37,7 +37,7 @@ export const Card: React.FC<CardProps> = ({
         },
         elevationStyle,
         style,
-      ])}
+      ]}
       {...rest}
     >
       {children}

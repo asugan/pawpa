@@ -1,33 +1,33 @@
-import React from "react";
-import { View, Image, ImageSourcePropType, StyleSheet, ViewStyle, TextStyle } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/lib/theme";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Image, ImageSourcePropType, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from "react-native";
 import { Text } from "./Text";
 
 export interface AvatarProps {
   source?: ImageSourcePropType;
   label?: string;
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export interface AvatarImageProps {
   source: ImageSourcePropType;
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export interface AvatarTextProps {
   label: string;
   size?: number;
-  style?: ViewStyle;
-  labelStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
 }
 
 export interface AvatarIconProps {
   icon: string;
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   color?: string;
 }
 
@@ -35,7 +35,7 @@ export interface AvatarIconProps {
 const AvatarImage: React.FC<AvatarImageProps> = ({ source, size = 40, style }) => {
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.avatar,
         {
           width: size,
@@ -43,7 +43,7 @@ const AvatarImage: React.FC<AvatarImageProps> = ({ source, size = 40, style }) =
           borderRadius: size / 2,
         },
         style,
-      ])}
+      ]}
     >
       <Image
         source={source}
@@ -60,7 +60,7 @@ const AvatarText: React.FC<AvatarTextProps> = ({ label, size = 40, style, labelS
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.avatar,
         {
           width: size,
@@ -69,17 +69,17 @@ const AvatarText: React.FC<AvatarTextProps> = ({ label, size = 40, style, labelS
           backgroundColor: theme.colors.primary,
         },
         style,
-      ])}
+      ]}
     >
       <Text
         variant="labelLarge"
-        style={StyleSheet.flatten([
+        style={[
           {
             color: theme.colors.onPrimary,
             fontSize: size * 0.4,
           },
           labelStyle,
-        ])}
+        ]}
       >
         {label.charAt(0).toUpperCase()}
       </Text>
@@ -93,7 +93,7 @@ const AvatarIcon: React.FC<AvatarIconProps> = ({ icon, size = 40, style, color }
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.avatar,
         {
           width: size,
@@ -102,7 +102,7 @@ const AvatarIcon: React.FC<AvatarIconProps> = ({ icon, size = 40, style, color }
           backgroundColor: theme.colors.primary,
         },
         style,
-      ])}
+      ]}
     >
       <Ionicons
         name={icon as any}
@@ -124,7 +124,7 @@ const AvatarBase: React.FC<AvatarProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         styles.avatar,
         {
           width: size,
@@ -133,7 +133,7 @@ const AvatarBase: React.FC<AvatarProps> = ({
           backgroundColor: theme.colors.primary,
         },
         style,
-      ])}
+      ]}
     >
       {source ? (
         <Image

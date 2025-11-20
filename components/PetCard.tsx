@@ -1,13 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, Button, Avatar, Badge, Surface,  } from '@/components/ui';
+import { Avatar, Button, Surface, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { Pet } from '../lib/types';
-import { useTranslation } from 'react-i18next';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { gradients, gradientsDark } from '../lib/theme';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useResponsiveSize } from '../lib/hooks';
+import { gradients, gradientsDark } from '../lib/theme';
+import { Pet } from '../lib/types';
 
 interface PetCardProps {
   pet: Pet;
@@ -117,17 +116,17 @@ const PetCard: React.FC<PetCardProps> = ({
   return (
     <Pressable onPress={onPress} style={styles.pressable}>
       <Surface
-        style={StyleSheet.flatten([
+        style={[
           styles.card,
           {
             backgroundColor: theme.colors.surface,
             borderColor: getPetTypeColor(pet.type),
             borderWidth: 2,
           },
-        ])}
+        ]}
         elevation={5}
       >
-        <View style={StyleSheet.flatten([styles.content, { padding: cardPadding }])}>
+        <View style={[styles.content, { padding: cardPadding }]}>
           {/* Header with avatar and basic info */}
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
@@ -135,7 +134,7 @@ const PetCard: React.FC<PetCardProps> = ({
                 colors={getPetTypeGradient(pet.type)}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={StyleSheet.flatten([styles.avatarRing, { padding: isMobile ? 2 : 3 }])}
+                style={[styles.avatarRing, { padding: isMobile ? 2 : 3 }]}
               >
                 {pet.profilePhoto ? (
                   <Avatar.Image
@@ -147,7 +146,7 @@ const PetCard: React.FC<PetCardProps> = ({
                   <Avatar.Text
                     label={pet.name.charAt(0).toUpperCase()}
                     size={avatarSize}
-                    style={StyleSheet.flatten([styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }])}
+                    style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
                     labelStyle={{ color: theme.colors.onPrimary, fontSize: isMobile ? 20 : 28, fontWeight: 'bold' }}
                   />
                 )}
@@ -156,7 +155,7 @@ const PetCard: React.FC<PetCardProps> = ({
             <View style={styles.textContainer}>
               <Text
                 variant={isMobile ? "titleMedium" : "titleLarge"}
-                style={StyleSheet.flatten([styles.name, { color: theme.colors.onSurface }])}
+                style={[styles.name, { color: theme.colors.onSurface }]}
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
@@ -169,14 +168,14 @@ const PetCard: React.FC<PetCardProps> = ({
                   end={{ x: 1, y: 0 }}
                   style={styles.typeBadge}
                 >
-                  <Text variant="bodyMedium" style={StyleSheet.flatten([styles.type, { color: '#FFFFFF' }])}>
+                  <Text variant="bodyMedium" style={[styles.type, { color: '#FFFFFF' }]}>
                     {getPetTypeLabel(pet.type)}
                   </Text>
                 </LinearGradient>
                 {pet.breed && (
                   <Text
                     variant="bodyMedium"
-                    style={StyleSheet.flatten([styles.breed, { color: theme.colors.onSurfaceVariant }])}
+                    style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
@@ -184,7 +183,7 @@ const PetCard: React.FC<PetCardProps> = ({
                   </Text>
                 )}
               </View>
-              <Text variant="bodyMedium" style={StyleSheet.flatten([styles.age, { color: theme.colors.onSurfaceVariant }])}>
+              <Text variant="bodyMedium" style={[styles.age, { color: theme.colors.onSurfaceVariant }]}>
                 {getAgeText(pet.birthDate)}
               </Text>
             </View>
@@ -195,31 +194,31 @@ const PetCard: React.FC<PetCardProps> = ({
             {(upcomingEvents > 0 || upcomingVaccinations > 0) && (
               <View style={styles.badgesRow}>
                 {upcomingEvents > 0 && (
-                  <View style={StyleSheet.flatten([
+                  <View style={[
                     styles.miniBadge,
                     {
                       backgroundColor: theme.colors.tertiaryContainer,
                       paddingHorizontal: isMobile ? 6 : 8,
                       paddingVertical: isMobile ? 3 : 4,
                     }
-                  ])}>
+                  ]}>
                     <Text style={styles.emoji}>📅</Text>
-                    <Text style={StyleSheet.flatten([styles.miniBadgeText, { color: theme.colors.onTertiaryContainer }])}>
+                    <Text style={[styles.miniBadgeText, { color: theme.colors.onTertiaryContainer }]}>
                       {upcomingEvents}
                     </Text>
                   </View>
                 )}
                 {upcomingVaccinations > 0 && (
-                  <View style={StyleSheet.flatten([
+                  <View style={[
                     styles.miniBadge,
                     {
                       backgroundColor: theme.colors.secondaryContainer,
                       paddingHorizontal: isMobile ? 6 : 8,
                       paddingVertical: isMobile ? 3 : 4,
                     }
-                  ])}>
+                  ]}>
                     <Text style={styles.emoji}>💉</Text>
-                    <Text style={StyleSheet.flatten([styles.miniBadgeText, { color: theme.colors.onSecondaryContainer }])}>
+                    <Text style={[styles.miniBadgeText, { color: theme.colors.onSecondaryContainer }]}>
                       {upcomingVaccinations}
                     </Text>
                   </View>
@@ -249,7 +248,7 @@ const PetCard: React.FC<PetCardProps> = ({
                   compact
                   icon="delete"
                   textColor={theme.colors.error}
-                  style={StyleSheet.flatten([styles.actionButton, { borderColor: theme.colors.error }])}
+                  style={[styles.actionButton, { borderColor: theme.colors.error }]}
                   onPress={onDelete}
                 >
                   {t('pets.delete')}

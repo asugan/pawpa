@@ -1,6 +1,6 @@
+import { useTheme } from "@/lib/theme";
 import React from "react";
 import { Text as RNText, TextProps as RNTextProps, StyleSheet } from "react-native";
-import { useTheme } from "@/lib/theme";
 
 type TextVariant =
   | "headlineLarge"
@@ -33,7 +33,7 @@ export const Text: React.FC<TextProps> = ({
 
   return (
     <RNText
-      style={StyleSheet.flatten([
+      style={[
         {
           fontSize: fontStyle.fontSize,
           fontWeight: fontStyle.fontWeight,
@@ -41,7 +41,7 @@ export const Text: React.FC<TextProps> = ({
           color: color || theme.colors.onBackground,
         },
         style,
-      ])}
+      ]}
       {...rest}
     >
       {children}

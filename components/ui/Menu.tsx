@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-  ViewStyle,
-  TouchableWithoutFeedback,
-} from "react-native";
 import { useTheme } from "@/lib/theme";
+import React from "react";
+import {
+    Modal,
+    StyleProp,
+    StyleSheet,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+    ViewStyle,
+} from "react-native";
 import { Text } from "./Text";
 
 export interface MenuItem {
@@ -29,7 +30,7 @@ export interface MenuProps {
   onDismiss: () => void;
   anchor: React.ReactNode;
   children?: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 const MenuItemComponent: React.FC<MenuItemProps> = (props) => {
@@ -67,25 +68,25 @@ export const Menu: React.FC<MenuProps> & { Item: typeof MenuItemComponent } = ({
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
               <View
-                style={StyleSheet.flatten([
+                style={[
                   styles.menu,
                   {
                     backgroundColor: theme.colors.surface,
                     borderRadius: theme.roundness / 2,
                   },
                   style,
-                ])}
+                ]}
               >
                 {menuItems.map((item, index) => (
                   <TouchableOpacity
                     key={index}
-                    style={StyleSheet.flatten([
+                    style={[
                       styles.menuItem,
                       {
                         borderBottomWidth: index < menuItems.length - 1 ? 1 : 0,
                         borderBottomColor: theme.colors.surfaceVariant,
                       },
-                    ])}
+                    ]}
                     onPress={() => {
                       item.onPress();
                       onDismiss();

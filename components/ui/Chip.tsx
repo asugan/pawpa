@@ -1,13 +1,15 @@
+import { useTheme } from "@/lib/theme";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  TouchableOpacity,
-  TouchableOpacityProps,
-  StyleSheet,
-  ViewStyle,
+    StyleProp,
+    StyleSheet,
+    TextStyle,
+    TouchableOpacity,
+    TouchableOpacityProps,
+    ViewStyle,
 } from "react-native";
-import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
-import { Ionicons } from "@expo/vector-icons";
 
 export interface ChipProps extends Omit<TouchableOpacityProps, "style"> {
   children?: React.ReactNode;
@@ -15,9 +17,9 @@ export interface ChipProps extends Omit<TouchableOpacityProps, "style"> {
   icon?: keyof typeof Ionicons.glyphMap | React.ReactNode | ((props: { size: number; color: string }) => React.ReactNode);
   onClose?: () => void;
   mode?: "flat" | "outlined";
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   textColor?: string;
-  textStyle?: any;
+  textStyle?: StyleProp<TextStyle>;
   selectedColor?: string;
   compact?: boolean;
 }
@@ -64,7 +66,7 @@ export const Chip: React.FC<ChipProps> = ({
 
   return (
     <TouchableOpacity
-      style={StyleSheet.flatten([
+      style={[
         styles.chip,
         {
           backgroundColor: getBackgroundColor(),
@@ -74,7 +76,7 @@ export const Chip: React.FC<ChipProps> = ({
         },
         getBorderStyle(),
         style,
-      ])}
+      ]}
       disabled={disabled}
       activeOpacity={0.7}
       {...rest}
@@ -91,7 +93,7 @@ export const Chip: React.FC<ChipProps> = ({
       {children && (
         <Text
           variant={compact ? "labelSmall" : "labelMedium"}
-          style={StyleSheet.flatten([{ color: getTextColor() }, textStyle])}
+          style={[{ color: getTextColor() }, textStyle]}
         >
           {children}
         </Text>

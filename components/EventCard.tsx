@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, IconButton, Chip } from '@/components/ui';
+import { Chip, IconButton, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { useTranslation } from 'react-i18next';
+import { format, formatDistanceToNow, isToday, isTomorrow, isYesterday } from 'date-fns';
+import { enUS, tr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
-import { format, isToday, isTomorrow, isYesterday, formatDistanceToNow } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { getEventTypeColor, getEventTypeIcon, getEventTypeLabel } from '../constants/eventIcons';
 import { Event } from '../lib/types';
-import { getEventTypeIcon, getEventTypeColor, getEventTypeLabel } from '../constants/eventIcons';
 
 interface EventCardProps {
   event: Event;
@@ -99,14 +99,14 @@ export function EventCard({
   return (
     <Pressable
       onPress={handlePress}
-      style={StyleSheet.flatten([
+      style={[
         cardStyle,
         {
           backgroundColor: theme.colors.surface,
           borderColor: eventTypeColor,
           borderWidth: 2,
         }
-      ])}
+      ]}
       testID={testID}
     >
       <View style={contentStyle}>
@@ -114,10 +114,10 @@ export function EventCard({
         <View style={styles.header}>
           <View style={styles.eventTypeContainer}>
             <View
-              style={StyleSheet.flatten([
+              style={[
                 styles.eventTypeIcon,
                 { backgroundColor: eventTypeColor }
-              ])}
+              ]}
             >
               <Text style={styles.eventTypeIconText}>
                 {eventTypeIcon}
@@ -126,13 +126,13 @@ export function EventCard({
             <View style={styles.eventTypeInfo}>
               <Text
                 variant="labelMedium"
-                style={StyleSheet.flatten([styles.eventTypeLabel, { color: eventTypeColor }])}
+                style={[styles.eventTypeLabel, { color: eventTypeColor }]}
               >
                 {eventTypeLabel}
               </Text>
               <Text
                 variant="bodySmall"
-                style={StyleSheet.flatten([styles.relativeTime, { color: theme.colors.onSurfaceVariant }])}
+                style={[styles.relativeTime, { color: theme.colors.onSurfaceVariant }]}
               >
                 {getRelativeTime()}
               </Text>
@@ -142,13 +142,13 @@ export function EventCard({
           <View style={styles.timeContainer}>
             <Text
               variant="labelMedium"
-              style={StyleSheet.flatten([styles.dateTime, { color: theme.colors.onSurface }])}
+              style={[styles.dateTime, { color: theme.colors.onSurface }]}
             >
               {formatEventDateTime()}
             </Text>
             <Text
               variant="bodyMedium"
-              style={StyleSheet.flatten([styles.time, { color: theme.colors.onSurface }])}
+              style={[styles.time, { color: theme.colors.onSurface }]}
             >
               {formatEventTime()}
             </Text>
@@ -158,7 +158,7 @@ export function EventCard({
         {/* Event Title */}
         <Text
           variant="titleMedium"
-          style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}
+          style={[styles.title, { color: theme.colors.onSurface }]}
           numberOfLines={compact ? 1 : 2}
         >
           {event.title}
@@ -168,7 +168,7 @@ export function EventCard({
         {!compact && event.description && (
           <Text
             variant="bodyMedium"
-            style={StyleSheet.flatten([styles.description, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
             numberOfLines={2}
           >
             {event.description}
@@ -178,12 +178,12 @@ export function EventCard({
         {/* Location (if provided) */}
         {event.location && !compact && (
           <View style={styles.locationContainer}>
-            <Text style={StyleSheet.flatten([styles.locationIcon, { color: theme.colors.onSurfaceVariant }])}>
+            <Text style={[styles.locationIcon, { color: theme.colors.onSurfaceVariant }]}>
               📍
             </Text>
             <Text
               variant="bodySmall"
-              style={StyleSheet.flatten([styles.location, { color: theme.colors.onSurfaceVariant }])}
+              style={[styles.location, { color: theme.colors.onSurfaceVariant }]}
               numberOfLines={1}
             >
               {event.location}
@@ -200,10 +200,10 @@ export function EventCard({
                 styles.petChipText,
                 { color: theme.colors.onSurfaceVariant }
               ]}
-              style={StyleSheet.flatten([
+              style={[
                 styles.petChip,
                 { backgroundColor: theme.colors.surfaceVariant }
-              ])}
+              ]}
             >
               🐾 {t('eventCard.forPet')}
             </Chip>
@@ -218,7 +218,7 @@ export function EventCard({
               <Text style={styles.reminderIcon}>🔔</Text>
               <Text
                 variant="labelSmall"
-                style={StyleSheet.flatten([styles.reminderText, { color: theme.colors.onSurfaceVariant }])}
+                style={[styles.reminderText, { color: theme.colors.onSurfaceVariant }]}
               >
                 {t('eventCard.reminderSet')}
               </Text>

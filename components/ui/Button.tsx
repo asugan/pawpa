@@ -1,14 +1,15 @@
+import { useTheme } from "@/lib/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
-  TouchableOpacity,
-  TouchableOpacityProps,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
+    StyleProp,
+    StyleSheet,
+    TextStyle,
+    TouchableOpacity,
+    TouchableOpacityProps,
+    ViewStyle,
 } from "react-native";
-import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type ButtonMode = "contained" | "outlined" | "text";
 
@@ -19,8 +20,8 @@ export interface ButtonProps extends Omit<TouchableOpacityProps, "style"> {
   icon?: keyof typeof MaterialCommunityIcons.glyphMap | React.ReactNode;
   textColor?: string;
   buttonColor?: string;
-  style?: ViewStyle;
-  labelStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
   uppercase?: boolean;
 }
 
@@ -67,7 +68,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      style={StyleSheet.flatten([
+      style={[
         styles.button,
         {
           backgroundColor: getBackgroundColor(),
@@ -77,7 +78,7 @@ export const Button: React.FC<ButtonProps> = ({
         },
         getBorderStyle(),
         style,
-      ])}
+      ]}
       disabled={disabled}
       activeOpacity={0.7}
       {...rest}
@@ -88,13 +89,13 @@ export const Button: React.FC<ButtonProps> = ({
       {typeof children === "string" ? (
         <Text
           variant={compact ? "labelMedium" : "labelLarge"}
-          style={StyleSheet.flatten([
+          style={[
             {
               color: getTextColor(),
               textTransform: uppercase ? "uppercase" : "none",
             },
             labelStyle,
-          ])}
+          ]}
         >
           {children}
         </Text>

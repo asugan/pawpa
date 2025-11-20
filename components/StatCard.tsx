@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { Card, Text } from '@/components/ui';
-import { useTheme, gradients, gradientsDark } from '@/lib/theme';
+import { gradients, gradientsDark, useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useResponsiveSize } from '../lib/hooks';
 
 interface StatCardProps {
@@ -47,12 +47,12 @@ const StatCard: React.FC<StatCardProps> = ({
 
   if (loading) {
     return (
-      <View style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
-        <View style={StyleSheet.flatten([styles.content, styles.loadingContent, { padding: cardPadding }])}>
+      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <View style={[styles.content, styles.loadingContent, { padding: cardPadding }]}>
           <ActivityIndicator size="small" color={color} />
           <View style={styles.loadingPlaceholder}>
-            <View style={StyleSheet.flatten([styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant }])} />
-            <View style={StyleSheet.flatten([styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant, width: '60%' }])} />
+            <View style={[styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant }]} />
+            <View style={[styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant, width: '60%' }]} />
           </View>
         </View>
       </View>
@@ -62,13 +62,13 @@ const StatCard: React.FC<StatCardProps> = ({
   if (error) {
     return (
       <Pressable onPress={onPress} style={styles.pressable}>
-        <Card style={StyleSheet.flatten([styles.card, { borderColor: theme.colors.error, borderWidth: 1 }])}>
-          <View style={StyleSheet.flatten([styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }])}>
+        <Card style={[styles.card, { borderColor: theme.colors.error, borderWidth: 1 }]}>
+          <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
             <LinearGradient
               colors={[theme.colors.error, theme.colors.error + 'CC']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={StyleSheet.flatten([styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }])}
+              style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
             >
               <MaterialCommunityIcons
                 name="alert-circle"
@@ -79,7 +79,7 @@ const StatCard: React.FC<StatCardProps> = ({
             <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
                 --
             </Text>
-            <Text variant="bodyMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
+            <Text variant="bodyMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
               {title}
             </Text>
           </View>
@@ -97,13 +97,13 @@ const StatCard: React.FC<StatCardProps> = ({
         pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
       ]}
     >
-      <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.colors.surface }])}>
-        <View style={StyleSheet.flatten([styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }])}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
           <LinearGradient
             colors={getGradientColors(color)}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={StyleSheet.flatten([styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }])}
+            style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
           >
             <MaterialCommunityIcons
               name={icon}

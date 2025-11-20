@@ -1,6 +1,6 @@
-import React from "react";
-import { View, ViewProps, StyleSheet } from "react-native";
 import { useTheme } from "@/lib/theme";
+import React from "react";
+import { StyleSheet, View, ViewProps } from "react-native";
 
 export interface SurfaceProps extends ViewProps {
   elevation?: number;
@@ -27,13 +27,13 @@ export const Surface: React.FC<SurfaceProps> = ({
 
   return (
     <View
-      style={StyleSheet.flatten([
+      style={[
         {
           backgroundColor: theme.colors.surface,
         },
         elevationStyle,
         style,
-      ])}
+      ]}
       {...rest}
     >
       {children}
