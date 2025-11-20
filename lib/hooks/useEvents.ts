@@ -7,6 +7,8 @@ import { createQueryKeys } from './core/createQueryKeys';
 import { useResource } from './core/useResource';
 import { useResources } from './core/useResources';
 import { useConditionalQuery } from './core/useConditionalQuery';
+import { useMemo } from 'react';
+import { filterUpcomingEvents, groupEventsByTime, EventGroups } from '@/lib/utils/events';
 
 // Query keys factory
 const baseEventKeys = createQueryKeys('events');
@@ -65,6 +67,37 @@ export const useTodayEvents = () => {
     staleTime: CACHE_TIMES.VERY_SHORT,
     refetchInterval: CACHE_TIMES.VERY_SHORT,
   });
+};
+
+/**
+ * Combined hook that provides filtered and grouped upcoming events
+ * Combines useUpcomingEvents with filtering and grouping logic
+ *
+ * @param daysToShow - Number of days to show from now (default: 7)
+ * @param maxEvents - Maximum number of events to return (default: 5)
+ * @returns Object containing:
+ *   - upcomingEvents: Filtered array of events
+ *   - eventGroups: Events grouped by time categories (now, today, tomorrow, thisWeek)
+ *   - isLoading: Loading state
+ *   - refetch: Function to refetch the data
+ */
+export const useGroupedUpcomingEvents = (daysToShow: number = 7, maxEvents: number = 5) => {
+  const { data: allEvents = [], isLoading, refetch } = useUpcomingEvents();
+
+  const upcomingEvents = useMemo(() => {
+    return filterUpcomingEvents(allEvents, daysToShow, maxEvents);
+  }, [allEvents, daysToShow, maxEvents]);
+
+  const eventGroups = useMemo(() => {
+    return groupEventsByTime(upcomingEvents);
+  }, [upcomingEvents]);
+
+  return {
+    upcomingEvents,
+    eventGroups,
+    isLoading,
+    refetch,
+  };
 };
 
 export const useEventsByType = (petId: string, type: string) => {

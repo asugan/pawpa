@@ -4,11 +4,8 @@ import { Text, Card, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { formatDistanceToNow } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
-import { useNextFeeding } from '@/lib/hooks/useFeedingSchedules';
-import { usePets } from '@/lib/hooks/usePets';
-import { formatTimeForDisplay, getNextFeedingTime } from '@/lib/schemas/feedingScheduleSchema';
+import { useNextFeedingWithDetails } from '@/lib/hooks/useFeedingSchedules';
+import { formatTimeForDisplay } from '@/lib/schemas/feedingScheduleSchema';
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradients, gradientsDark } from '@/lib/theme';
 
@@ -16,20 +13,15 @@ export function NextFeedingWidget() {
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const locale = i18n.language === 'tr' ? tr : enUS;
 
-  // Fetch next feeding
-  const { data: nextFeedingSchedule = null, isLoading } = useNextFeeding();
-
-  // Fetch pets for display
-  const { data: pets = [] } = usePets();
-
-  // Calculate next feeding time
-  const nextFeedingTime = nextFeedingSchedule ? getNextFeedingTime([nextFeedingSchedule]) : null;
-  const nextSchedule = nextFeedingSchedule;
-
-  // Get pet details
-  const pet = nextSchedule ? pets.find(p => p.id === nextSchedule.petId) : null;
+  // Use combined hook for all feeding details
+  const {
+    schedule: nextSchedule,
+    pet,
+    nextFeedingTime,
+    timeUntil,
+    isLoading,
+  } = useNextFeedingWithDetails(i18n.language);
 
   const handlePress = () => {
     router.push('/(tabs)/feeding');
@@ -92,9 +84,6 @@ export function NextFeedingWidget() {
       </Card>
     );
   }
-
-  // Calculate time until next feeding
-  const timeUntil = formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale });
 
   return (
     <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>

@@ -1,5 +1,5 @@
 import { feedingScheduleService } from '@/lib/services/feedingScheduleService';
-import { ApiResponse, CreateFeedingScheduleInput, FeedingSchedule, UpdateFeedingScheduleInput } from '@/lib/types';
+import { ApiResponse, CreateFeedingScheduleInput, FeedingSchedule, Pet, UpdateFeedingScheduleInput } from '@/lib/types';
 import { CACHE_TIMES } from '@/lib/config/queryConfig';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
@@ -7,6 +7,11 @@ import { createQueryKeys } from './core/createQueryKeys';
 import { useResource } from './core/useResource';
 import { useResources } from './core/useResources';
 import { useConditionalQuery } from './core/useConditionalQuery';
+import { useMemo } from 'react';
+import { getNextFeedingTime } from '@/lib/schemas/feedingScheduleSchema';
+import { usePets } from './usePets';
+import { formatDistanceToNow } from 'date-fns';
+import { tr, enUS } from 'date-fns/locale';
 
 // Query keys factory
 const baseFeedingScheduleKeys = createQueryKeys('feeding-schedules');
@@ -76,6 +81,52 @@ export const useActiveFeedingSchedulesByPet = (petId: string) => {
     enabled: !!petId,
     defaultValue: [],
   });
+};
+
+/**
+ * Combined hook that provides next feeding schedule with all related details
+ * Combines data from useNextFeeding and usePets, and calculates derived values
+ *
+ * @param language - Optional language code for date formatting (default: 'en')
+ * @returns Object containing:
+ *   - schedule: The next feeding schedule
+ *   - pet: The pet associated with the schedule
+ *   - nextFeedingTime: Calculated next feeding time
+ *   - timeUntil: Human-readable time until next feeding
+ *   - isLoading: Loading state
+ */
+export const useNextFeedingWithDetails = (language: string = 'en') => {
+  const { data: nextFeedingSchedule = null, isLoading: isLoadingSchedule } = useNextFeeding();
+  const { data: pets = [], isLoading: isLoadingPets } = usePets();
+
+  return useMemo(() => {
+    const isLoading = isLoadingSchedule || isLoadingPets;
+
+    if (!nextFeedingSchedule) {
+      return {
+        schedule: null,
+        pet: null,
+        nextFeedingTime: null,
+        timeUntil: null,
+        isLoading,
+      };
+    }
+
+    const nextFeedingTime = getNextFeedingTime([nextFeedingSchedule]);
+    const pet = pets.find(p => p.id === nextFeedingSchedule.petId) || null;
+    const locale = language === 'tr' ? tr : enUS;
+    const timeUntil = nextFeedingTime
+      ? formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale })
+      : null;
+
+    return {
+      schedule: nextFeedingSchedule,
+      pet,
+      nextFeedingTime,
+      timeUntil,
+      isLoading,
+    };
+  }, [nextFeedingSchedule, pets, isLoadingSchedule, isLoadingPets, language]);
 };
 
 // Mutations
