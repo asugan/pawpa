@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { feedingScheduleService } from '@/lib/services/feedingScheduleService';
-import { FeedingSchedule, CreateFeedingScheduleInput, UpdateFeedingScheduleInput, ApiResponse } from '@/lib/types';
+import { ApiResponse, CreateFeedingScheduleInput, FeedingSchedule, UpdateFeedingScheduleInput } from '@/lib/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 
 // Query keys for feeding schedules
 export const feedingScheduleKeys = {
@@ -74,141 +75,83 @@ export const useActiveFeedingSchedulesByPet = (petId: string) => {
 export const useCreateFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<FeedingSchedule | undefined, Error, CreateFeedingScheduleInput, { previousSchedules?: FeedingSchedule[] }>({
-    mutationFn: (scheduleData: CreateFeedingScheduleInput) =>
-      feedingScheduleService.createFeedingSchedule(scheduleData).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    onMutate: async (newSchedule) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
+  return useCreateResource<FeedingSchedule, CreateFeedingScheduleInput>(
+    (data) => feedingScheduleService.createFeedingSchedule(data).then(res => res.data!),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      onSuccess: (newSchedule) => {
+        // Update active schedules if it's active
+        if (newSchedule.isActive) {
+          queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
+            old ? [...old, newSchedule] : [newSchedule]
+          );
 
-      // Snapshot the previous value
-      const previousSchedules = queryClient.getQueryData<FeedingSchedule[]>(feedingScheduleKeys.list(newSchedule.petId));
-
-      // Optimistically update to the new value
-      const tempSchedule = {
-        ...newSchedule,
-        id: `temp-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isActive: newSchedule.isActive !== undefined ? newSchedule.isActive : true
-      } as FeedingSchedule;
-
-      queryClient.setQueryData(feedingScheduleKeys.list(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
-        old ? [...old, tempSchedule] : [tempSchedule]
-      );
-
-      // Update active schedules if it's active
-      if (tempSchedule.isActive) {
-        queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-          old ? [...old, tempSchedule] : [tempSchedule]
-        );
-
-        queryClient.setQueryData(feedingScheduleKeys.activeByPet(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
-          old ? [...old, tempSchedule] : [tempSchedule]
-        );
-      }
-
-      return { previousSchedules };
-    },
-    onError: (err, newSchedule, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousSchedules) {
-        queryClient.setQueryData(feedingScheduleKeys.list(newSchedule.petId), context.previousSchedules);
-      }
-    },
-    onSettled: (newSchedule?: FeedingSchedule) => {
-      // Always refetch after error or success
-      if (newSchedule) {
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list(newSchedule.petId) });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-      }
-    },
-  });
+          queryClient.setQueryData(feedingScheduleKeys.activeByPet(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
+            old ? [...old, newSchedule] : [newSchedule]
+          );
+        }
+      },
+      onSettled: (newSchedule) => {
+        if (newSchedule) {
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list(newSchedule.petId) });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+        }
+      },
+    }
+  );
 };
 
 export const useUpdateFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateFeedingScheduleInput }) =>
-      feedingScheduleService.updateFeedingSchedule(id, data).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.detail(id) });
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
-
-      const previousSchedule = queryClient.getQueryData(feedingScheduleKeys.detail(id));
-
-      // Update the schedule in cache with new data
-      queryClient.setQueryData(feedingScheduleKeys.detail(id), (old: FeedingSchedule | undefined) =>
-        old ? { ...old, ...data, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the schedule in all lists
-      queryClient.setQueriesData({ queryKey: feedingScheduleKeys.lists() }, (old: FeedingSchedule[] | undefined) => {
-        if (!old) return old;
-        return old.map(schedule =>
-          schedule.id === id ? { ...schedule, ...data, updatedAt: new Date().toISOString() } : schedule
-        );
-      });
-
-      return { previousSchedule };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSchedule) {
-        queryClient.setQueryData(feedingScheduleKeys.detail(variables.id), context.previousSchedule);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-    },
-  });
+  return useUpdateResource<FeedingSchedule, UpdateFeedingScheduleInput>(
+    ({ id, data }) => feedingScheduleService.updateFeedingSchedule(id, data).then(res => res.data!),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      detailQueryKey: feedingScheduleKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+      },
+    }
+  );
 };
 
 export const useDeleteFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => feedingScheduleService.deleteFeedingSchedule(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
+  return useDeleteResource<FeedingSchedule>(
+    (id) => feedingScheduleService.deleteFeedingSchedule(id).then(res => res.data),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      detailQueryKey: feedingScheduleKeys.detail,
+      onSuccess: (data, id) => {
+        // Remove from active schedules
+        queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
 
-      // Remove the deleted schedule from all lists
-      queryClient.setQueriesData({ queryKey: feedingScheduleKeys.lists() }, (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
+        queryClient.setQueryData(feedingScheduleKeys.today(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
 
-      // Remove from active schedules
-      queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      queryClient.setQueryData(feedingScheduleKeys.today(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      queryClient.setQueryData(feedingScheduleKeys.next(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      return { deletedId: id };
-    },
-    onSuccess: (_, deletedId) => {
-      // Remove the deleted schedule from cache
-      queryClient.removeQueries({ queryKey: feedingScheduleKeys.detail(deletedId) });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-    },
-  });
+        queryClient.setQueryData(feedingScheduleKeys.next(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+      },
+    }
+  );
 };
 
 export const useToggleFeedingSchedule = () => {

@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Alert, Share, StyleSheet } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Card, Text, Button, IconButton, Divider, Chip, ListItem } from '@/components/ui';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Card, Chip, IconButton, ListItem, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHealthRecord, useDeleteHealthRecord } from '../../lib/hooks/useHealthRecords';
-import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
-import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
-import type { HealthRecord, ApiResponse } from '../../lib/types';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import { HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, TURKCE_LABELS } from '../../constants';
+import { useDeleteHealthRecord, useHealthRecord } from '../../lib/hooks/useHealthRecords';
 
 export default function HealthRecordDetailScreen() {
   const { theme } = useTheme();
@@ -57,10 +56,7 @@ export default function HealthRecordDetailScreen() {
   const confirmDelete = async () => {
     try {
       setIsDeleting(true);
-      const result = await deleteMutation.mutateAsync(id as string) as ApiResponse<void>;
-      if (!result.success) {
-        throw new Error(result.error || 'Kayıt silinemedi');
-      }
+      await deleteMutation.mutateAsync(id as string);
       router.back();
     } catch (error) {
       Alert.alert('Hata', error instanceof Error ? error.message : 'Sağlık kaydı silinirken bir hata oluştu');

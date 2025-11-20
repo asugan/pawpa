@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { petService } from '../services/petService';
-import type { Pet, CreatePetInput, UpdatePetInput } from '../types';
+import type { CreatePetInput, Pet, UpdatePetInput } from '../types';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 
 // Type-safe filters for pets
 interface PetFilters {
@@ -136,156 +137,61 @@ export function usePetStats() {
 // Hook for creating a pet with optimistic updates
 export function useCreatePet() {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreatePetInput) => petService.createPet(data).then(res => res.data),
-    onMutate: async (newPet) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: petKeys.lists() });
-
-      // Snapshot the previous value
-      const previousPets = queryClient.getQueryData(petKeys.list({}));
-
-      // Optimistically update to the new value
-      const tempPet = {
-        ...newPet,
-        id: `temp-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      } as Pet;
-
-      queryClient.setQueryData(petKeys.list({}), (old: Pet[] | undefined) =>
-        old ? [...old, tempPet] : [tempPet]
-      );
-
-      return { previousPets };
-    },
-    onError: (err, newPet, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousPets) {
-        queryClient.setQueryData(petKeys.list({}), context.previousPets);
+  
+  return useCreateResource<Pet, CreatePetInput>(
+    (data) => petService.createPet(data).then(res => res.data!),
+    {
+      listQueryKey: petKeys.lists(),
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: petKeys.stats() });
       }
-    },
-    onSettled: () => {
-      // Always refetch after error or success
-      queryClient.invalidateQueries({ queryKey: petKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: petKeys.stats() });
-    },
-  });
+    }
+  );
 }
 
 // Hook for updating a pet with optimistic updates
 export function useUpdatePet() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdatePetInput }) =>
-      petService.updatePet(id, data).then(res => res.data),
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: petKeys.detail(id) });
-      await queryClient.cancelQueries({ queryKey: petKeys.lists() });
-
-      const previousPet = queryClient.getQueryData(petKeys.detail(id));
-
-      // Update the pet in cache with new data
-      queryClient.setQueryData(petKeys.detail(id), (old: Pet | undefined) =>
-        old ? { ...old, ...data, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the pet in the list
-      queryClient.setQueriesData({ queryKey: petKeys.lists() }, (old: Pet[] | undefined) => {
-        if (!old) return old;
-        return old.map(pet =>
-          pet.id === id ? { ...pet, ...data, updatedAt: new Date().toISOString() } : pet
-        );
-      });
-
-      return { previousPet };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousPet) {
-        queryClient.setQueryData(petKeys.detail(variables.id), context.previousPet);
+  return useUpdateResource<Pet, UpdatePetInput>(
+    ({ id, data }) => petService.updatePet(id, data).then(res => res.data!),
+    {
+      listQueryKey: petKeys.lists(),
+      detailQueryKey: petKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: petKeys.stats() });
       }
-    },
-    onSettled: (_, __, variables) => {
-      queryClient.invalidateQueries({ queryKey: petKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: petKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: petKeys.stats() });
-    },
-  });
+    }
+  );
 }
 
 // Hook for deleting a pet with optimistic updates
 export function useDeletePet() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => petService.deletePet(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: petKeys.lists() });
-
-      const previousPets = queryClient.getQueryData(petKeys.list({}));
-
-      // Remove the deleted pet from cache
-      queryClient.setQueryData(petKeys.list({}), (old: Pet[] | undefined) =>
-        old?.filter(pet => pet.id !== id)
-      );
-
-      return { previousPets };
-    },
-    onError: (err, id, context) => {
-      if (context?.previousPets) {
-        queryClient.setQueryData(petKeys.list({}), context.previousPets);
+  return useDeleteResource<Pet>(
+    (id) => petService.deletePet(id).then(res => res.data),
+    {
+      listQueryKey: petKeys.lists(),
+      detailQueryKey: petKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: petKeys.stats() });
       }
-    },
-    onSuccess: (_, deletedId) => {
-      // Remove the deleted pet from cache
-      queryClient.removeQueries({ queryKey: petKeys.detail(deletedId) });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: petKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: petKeys.stats() });
-    },
-  });
+    }
+  );
 }
 
 // Hook for uploading pet photo with optimistic updates
 export function useUploadPetPhoto() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, photoUri }: { id: string; photoUri: string }) =>
-      petService.uploadPetPhoto(id, photoUri).then(res => res.data),
-    onMutate: async ({ id, photoUri }) => {
-      await queryClient.cancelQueries({ queryKey: petKeys.detail(id) });
-
-      const previousPet = queryClient.getQueryData(petKeys.detail(id));
-
-      // Update the pet with new photo URL
-      queryClient.setQueryData(petKeys.detail(id), (old: Pet | undefined) =>
-        old ? { ...old, profilePhoto: photoUri, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the pet in the list
-      queryClient.setQueriesData({ queryKey: petKeys.lists() }, (old: Pet[] | undefined) => {
-        if (!old) return old;
-        return old.map(pet =>
-          pet.id === id ? { ...pet, profilePhoto: photoUri, updatedAt: new Date().toISOString() } : pet
-        );
-      });
-
-      return { previousPet };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousPet) {
-        queryClient.setQueryData(petKeys.detail(variables.id), context.previousPet);
-      }
-    },
-    onSettled: (_, __, variables) => {
-      queryClient.invalidateQueries({ queryKey: petKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: petKeys.lists() });
-    },
-  });
+  return useUpdateResource<Pet, { profilePhoto: string }>(
+    ({ id, data }) => petService.uploadPetPhoto(id, data.profilePhoto).then(res => res.data!),
+    {
+      listQueryKey: petKeys.lists(),
+      detailQueryKey: petKeys.detail,
+    }
+  );
 }
 
 // Export type for external use

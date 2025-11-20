@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { expenseService } from '../services/expenseService';
-import type { Expense, CreateExpenseInput, UpdateExpenseInput, ExpenseStats } from '../types';
+import type { CreateExpenseInput, Expense, UpdateExpenseInput } from '../types';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 
 // Type-safe filters for expenses
 interface ExpenseFilters {
@@ -164,60 +165,56 @@ export function useExpensesByDateRange(params: {
 export function useCreateExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: CreateExpenseInput) => {
-      const result = await expenseService.createExpense(data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to create expense');
+  return useCreateResource<Expense, CreateExpenseInput>(
+    (data) => expenseService.createExpense(data).then(res => res.data!),
+    {
+      listQueryKey: expenseKeys.all, // Ideally should be more specific but existing code invalidated 'all'
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for updating an expense
 export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateExpenseInput }) => {
-      const result = await expenseService.updateExpense(id, data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update expense');
+  return useUpdateResource<Expense, UpdateExpenseInput>(
+    ({ id, data }) => expenseService.updateExpense(id, data).then(res => res.data!),
+    {
+      listQueryKey: expenseKeys.all,
+      detailQueryKey: expenseKeys.detail,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+      },
+      onSettled: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+        if (data) {
+             queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data.id) });
+        }
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data.id) });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for deleting an expense
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const result = await expenseService.deleteExpense(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete expense');
+  return useDeleteResource<Expense>(
+    (id) => expenseService.deleteExpense(id).then(res => res.data), // Assuming delete returns the ID or void
+    {
+      listQueryKey: expenseKeys.all,
+      detailQueryKey: expenseKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       }
-      return id;
-    },
-    onSuccess: () => {
-      // Invalidate and refetch all expense queries
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for exporting expenses as CSV

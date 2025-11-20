@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { budgetService } from '../services/budgetService';
-import type { BudgetLimit, CreateBudgetLimitInput, UpdateBudgetLimitInput, BudgetAlert, BudgetStatus } from '../types';
+import type { BudgetLimit, CreateBudgetLimitInput, UpdateBudgetLimitInput } from '../types';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 
 // Type-safe filters for budgets
 interface BudgetFilters {
@@ -127,61 +128,57 @@ export function useBudgetStatuses(petId?: string) {
 export function useCreateBudget() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: CreateBudgetLimitInput) => {
-      const result = await budgetService.createBudgetLimit(data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to create budget limit');
+  return useCreateResource<BudgetLimit, CreateBudgetLimitInput>(
+    (data) => budgetService.createBudgetLimit(data).then(res => res.data!),
+    {
+      listQueryKey: budgetKeys.all,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: budgetKeys.byPet(data.petId) });
+        queryClient.invalidateQueries({ queryKey: budgetKeys.active(data.petId) });
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: budgetKeys.all });
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: budgetKeys.all });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.byPet(data.petId) });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.active(data.petId) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for updating a budget limit
 export function useUpdateBudget() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateBudgetLimitInput }) => {
-      const result = await budgetService.updateBudgetLimit(id, data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update budget limit');
+  return useUpdateResource<BudgetLimit, UpdateBudgetLimitInput>(
+    ({ id, data }) => budgetService.updateBudgetLimit(id, data).then(res => res.data!),
+    {
+      listQueryKey: budgetKeys.all,
+      detailQueryKey: budgetKeys.detail,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: budgetKeys.byPet(data.petId) });
+        queryClient.invalidateQueries({ queryKey: budgetKeys.active(data.petId) });
+        queryClient.invalidateQueries({ queryKey: budgetKeys.status(data.id) });
+      },
+      onSettled: (data) => {
+        queryClient.invalidateQueries({ queryKey: budgetKeys.all });
+        if (data) {
+            queryClient.invalidateQueries({ queryKey: budgetKeys.detail(data.id) });
+        }
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: budgetKeys.all });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.detail(data.id) });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.byPet(data.petId) });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.active(data.petId) });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.status(data.id) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for deleting a budget limit
 export function useDeleteBudget() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const result = await budgetService.deleteBudgetLimit(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete budget limit');
+  return useDeleteResource<BudgetLimit>(
+    (id) => budgetService.deleteBudgetLimit(id).then(res => res.data),
+    {
+      listQueryKey: budgetKeys.all,
+      detailQueryKey: budgetKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: budgetKeys.all });
       }
-      return id;
-    },
-    onSuccess: () => {
-      // Invalidate and refetch all budget queries
-      queryClient.invalidateQueries({ queryKey: budgetKeys.all });
-    },
-  });
+    }
+  );
 }

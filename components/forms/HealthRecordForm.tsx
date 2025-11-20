@@ -19,7 +19,7 @@ import {
     getHealthRecordSchema,
     type HealthRecordCreateInput,
 } from '../../lib/schemas/healthRecordSchema';
-import type { ApiResponse, HealthRecord } from '../../lib/types';
+import type { HealthRecord } from '../../lib/types';
 import { SmartCurrencyInput } from './SmartCurrencyInput';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartInput } from './SmartInput';
@@ -168,22 +168,16 @@ export function HealthRecordForm({
       }
 
       if (isEditing && initialData) {
-        const result = await updateMutation.mutateAsync({
+        await updateMutation.mutateAsync({
           id: initialData.id,
           data: apiData
-        }) as ApiResponse<HealthRecord>;
-        if (!result.success) {
-          throw new Error(result.error || 'Kayıt güncellenemedi');
-        }
+        });
       } else {
         const createData = {
           ...apiData,
           updatedAt: new Date().toISOString()
         };
-        const result = await createMutation.mutateAsync(createData) as ApiResponse<HealthRecord>;
-        if (!result.success) {
-          throw new Error(result.error || 'Kayıt oluşturulamadı');
-        }
+        await createMutation.mutateAsync(createData);
       }
 
       onSuccess?.();

@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
-import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput, ApiResponse } from '../types';
+import type { CreateHealthRecordInput, HealthRecord, UpdateHealthRecordInput } from '../types';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 
 // Type-safe filters for health records
 interface HealthRecordFilters {
@@ -151,152 +152,84 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
 export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation<ApiResponse<HealthRecord>, Error, CreateHealthRecordInput, { previousRecords?: HealthRecord[] }>({
-    mutationFn: (data: CreateHealthRecordInput) =>
-      healthRecordService.createHealthRecord(data),
-    onMutate: async (newRecord) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      // Snapshot the previous value
-      const previousRecords = queryClient.getQueryData<HealthRecord[]>(healthRecordKeys.list(newRecord.petId, {}));
-
-      // Optimistically update to the new value
-      const tempRecord = {
-        ...newRecord,
-        id: `temp-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      } as HealthRecord;
-
-      queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), (old: HealthRecord[] | undefined) =>
-        old ? [...old, tempRecord] : [tempRecord]
-      );
-
-      // Update vaccinations if it's a vaccination
-      if (tempRecord.type === 'vaccination') {
-        queryClient.setQueryData(healthRecordKeys.vaccinations(newRecord.petId), (old: HealthRecord[] | undefined) =>
-          old ? [...old, tempRecord] : [tempRecord]
-        );
-      }
-
-      return { previousRecords };
-    },
-    onError: (err, newRecord, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousRecords) {
-        queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), context.previousRecords);
-      }
-    },
-    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: CreateHealthRecordInput) => {
-      // Always refetch after error or success
-      if (result?.data) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(result.data.petId) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-
-        if (result.data.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+  return useCreateResource<HealthRecord, CreateHealthRecordInput>(
+    (data) => healthRecordService.createHealthRecord(data).then(res => res.data!),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      onSuccess: (newRecord) => {
+        // Update vaccinations if it's a vaccination
+        if (newRecord.type === 'vaccination') {
+          queryClient.setQueryData(healthRecordKeys.vaccinations(newRecord.petId), (old: HealthRecord[] | undefined) =>
+            old ? [...old, newRecord] : [newRecord]
+          );
         }
-      } else if (variables && !error) {
-        // Fallback to using input variables if no error and no data returned
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(variables.petId) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      }
-    },
-  });
+      },
+      onSettled: (newRecord) => {
+        if (newRecord) {
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(newRecord.petId) });
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
+
+          if (newRecord.type === 'vaccination') {
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(newRecord.petId) });
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+          }
+        }
+      },
+    }
+  );
 }
 
 // Update health record mutation with optimistic updates
 export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation<ApiResponse<HealthRecord>, Error, { id: string; data: UpdateHealthRecordInput }, { previousRecord?: HealthRecord }>({
-    mutationFn: ({ id, data }: { id: string; data: UpdateHealthRecordInput }) =>
-      healthRecordService.updateHealthRecord(id, data),
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.detail(id) });
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      const previousRecord = queryClient.getQueryData<HealthRecord>(healthRecordKeys.detail(id));
-
-      // Update the record in cache with new data
-      queryClient.setQueryData(healthRecordKeys.detail(id), (old: HealthRecord | undefined) =>
-        old ? { ...old, ...data, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the record in all lists
-      queryClient.setQueriesData({ queryKey: healthRecordKeys.lists() }, (old: HealthRecord[] | undefined) => {
-        if (!old) return old;
-        return old.map(record =>
-          record.id === id ? { ...record, ...data, updatedAt: new Date().toISOString() } : record
-        );
-      });
-
-      return { previousRecord };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousRecord) {
-        queryClient.setQueryData(healthRecordKeys.detail(variables.id), context.previousRecord);
-      }
-    },
-    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: { id: string; data: UpdateHealthRecordInput }) => {
-      if (result?.data) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(result.data.id) });
+  return useUpdateResource<HealthRecord, UpdateHealthRecordInput>(
+    ({ id, data }) => healthRecordService.updateHealthRecord(id, data).then(res => res.data!),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      detailQueryKey: healthRecordKeys.detail,
+      onSettled: (data) => {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-
-        if (result.data.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+        if (data) {
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(data.id) });
+            if (data.type === 'vaccination') {
+                queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(data.petId) });
+                queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+            }
         }
-      } else if (variables && !error) {
-        // Fallback to using input variables if no error and no data returned
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(variables.id) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      }
-    },
-  });
+      },
+    }
+  );
 }
 
 // Delete health record mutation with optimistic updates
 export function useDeleteHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => healthRecordService.deleteHealthRecord(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      // Get the record to be deleted for cache updates
-      const recordToDelete = queryClient.getQueryData(healthRecordKeys.detail(id)) as HealthRecord;
-
-      // Remove the deleted record from all lists
-      queryClient.setQueriesData({ queryKey: healthRecordKeys.lists() }, (old: HealthRecord[] | undefined) =>
-        old?.filter(record => record.id !== id)
-      );
-
-      // Remove from vaccinations if it was a vaccination
-      if (recordToDelete?.type === 'vaccination') {
-        queryClient.setQueriesData({ queryKey: healthRecordKeys.vaccinations('') }, (old: HealthRecord[] | undefined) =>
-          old?.filter(record => record.id !== id)
-        );
-      }
-
-      queryClient.setQueryData(healthRecordKeys.upcoming(), (old: HealthRecord[] | undefined) =>
-        old?.filter(record => record.id !== id)
-      );
-
-      return { recordToDelete };
-    },
-    onSuccess: (_, deletedId) => {
-      // Remove the deleted record from cache
-      queryClient.removeQueries({ queryKey: healthRecordKeys.detail(deletedId) });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
-    },
-  });
+  return useDeleteResource<HealthRecord>(
+    (id) => healthRecordService.deleteHealthRecord(id).then(res => res.data),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      detailQueryKey: healthRecordKeys.detail,
+      onSuccess: (data, id) => {
+         // Remove from vaccinations if it was a vaccination
+         // Note: Hard to know if it was vaccination without fetching, but we can invalidate.
+         // Or if we had the object. useDeleteResource doesn't return the object usually unless we fetch it first.
+         // The original code fetched it in onMutate.
+         // The generic hook fetches list in onMutate but not detail unless we provide detailQueryKey.
+         // But we can't easily access the deleted item in onSuccess unless the mutation returns it.
+         // The generic hook returns what mutationFn returns.
+         // So if deleteHealthRecord returns the deleted record, we are good.
+         // If it returns ID, we can't check type.
+         // So we should just invalidate vaccinations and upcoming.
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations('') }); // Invalidate all vaccinations potentially
+      },
+    }
+  );
 }
 
 // Export type for external use
