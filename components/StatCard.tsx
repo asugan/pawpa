@@ -1,5 +1,6 @@
 import { Card, Text } from '@/components/ui';
-import { gradients, gradientsDark, useTheme } from '@/lib/theme';
+import { getGradientColors } from '@/constants/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -27,23 +28,6 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const { theme, isDark } = useTheme();
   const { isMobile, cardPadding, iconSize } = useResponsiveSize();
-
-  // Gradient helper - detect which gradient to use based on color
-  const getGradientColors = (color: string): readonly [string, string] => {
-    const isDark = theme.dark;
-    const gradientSet = isDark ? gradientsDark : gradients;
-
-    // Match color to gradient
-    if (color === theme.colors.primary) return gradientSet.primary;
-    if (color === theme.colors.secondary) return gradientSet.secondary;
-    if (color === theme.colors.tertiary) return gradientSet.tertiary;
-    if (color.toLowerCase().includes('ff') || color.toLowerCase().includes('fb')) {
-      return gradientSet.accent;
-    }
-
-    // Default: create gradient from color
-    return [color, color + 'CC'] as const;
-  };
 
   if (loading) {
     return (
@@ -100,7 +84,7 @@ const StatCard: React.FC<StatCardProps> = ({
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
           <LinearGradient
-            colors={getGradientColors(color)}
+            colors={getGradientColors(color, isDark, theme)}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}

@@ -1,10 +1,9 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { Text, Button, IconButton } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import { dateUtils } from '@/lib/utils/date';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, isAfter, addHours } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Event } from '../lib/types';
 import EventCard from './EventCard';
 
@@ -45,14 +44,13 @@ export function UpcomingEvents({
   emptyMessage,
   testID,
 }: UpcomingEventsProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { theme } = useTheme();
-  const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Filter and sort upcoming events
   const upcomingEvents = useMemo(() => {
     const now = new Date();
-    const endDate = endOfDay(addDays(now, daysToShow));
+    const endDate = dateUtils.endOfDay(dateUtils.addDays(now, daysToShow));
 
     return events
       .filter(event => {
@@ -70,8 +68,8 @@ export function UpcomingEvents({
   // Group events by time categories
   const eventGroups = useMemo(() => {
     const now = new Date();
-    const inOneHour = addHours(now, 1);
-    const tomorrow = startOfDay(addDays(now, 1));
+    const inOneHour = dateUtils.addHours(now, 1);
+    const tomorrow = dateUtils.startOfDay(dateUtils.addDays(now, 1));
 
     const groups = {
       now: [] as Event[],
@@ -83,11 +81,11 @@ export function UpcomingEvents({
     upcomingEvents.forEach(event => {
       const eventDate = new Date(event.startTime);
 
-      if (isAfter(eventDate, now) && eventDate <= inOneHour) {
+      if (dateUtils.isAfter(eventDate, now) && eventDate <= inOneHour) {
         groups.now.push(event);
-      } else if (isToday(eventDate)) {
+      } else if (dateUtils.isToday(eventDate)) {
         groups.today.push(event);
-      } else if (isTomorrow(eventDate)) {
+      } else if (dateUtils.isTomorrow(eventDate)) {
         groups.tomorrow.push(event);
       } else {
         groups.thisWeek.push(event);
@@ -136,13 +134,13 @@ export function UpcomingEvents({
         <View style={styles.sectionHeader}>
           <Text
             variant="labelMedium"
-            style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.primary }])}
+            style={[styles.sectionTitle, { color: theme.colors.primary }]}
           >
             {formatGroupTitle(title)}
           </Text>
           <Text
             variant="labelSmall"
-            style={StyleSheet.flatten([styles.sectionCount, { color: theme.colors.onSurfaceVariant }])}
+            style={[styles.sectionCount, { color: theme.colors.onSurfaceVariant }]}
           >
             {events.length}
           </Text>
@@ -165,7 +163,7 @@ export function UpcomingEvents({
         {title && (
           <Text
             variant="titleLarge"
-            style={StyleSheet.flatten([styles.headerTitle, { color: theme.colors.onSurface }])}
+            style={[styles.headerTitle, { color: theme.colors.onSurface }]}
           >
             {title}
           </Text>
@@ -187,17 +185,17 @@ export function UpcomingEvents({
   // Empty state
   if (!loading && upcomingEvents.length === 0) {
     return (
-      <View style={StyleSheet.flatten([styles.emptyContainer, { backgroundColor: theme.colors.surface }])} testID={testID}>
-        <Text style={StyleSheet.flatten([styles.emptyIcon, { fontSize: 48 }])}>📅</Text>
+      <View style={[styles.emptyContainer, { backgroundColor: theme.colors.surface }]} testID={testID}>
+        <Text style={[styles.emptyIcon, { fontSize: 48 }]}>📅</Text>
         <Text
           variant="titleMedium"
-          style={StyleSheet.flatten([styles.emptyTitle, { color: theme.colors.onSurface }])}
+          style={[styles.emptyTitle, { color: theme.colors.onSurface }]}
         >
           {title || t('upcomingEvents.noUpcomingTitle')}
         </Text>
         <Text
           variant="bodyMedium"
-          style={StyleSheet.flatten([styles.emptyText, { color: theme.colors.onSurfaceVariant }])}
+          style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
         >
           {emptyMessage || t('upcomingEvents.noUpcomingMessage')}
         </Text>
@@ -215,7 +213,7 @@ export function UpcomingEvents({
   }
 
   return (
-    <View style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])} testID={testID}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
       {/* Header */}
       {renderHeader()}
 
@@ -244,7 +242,7 @@ export function UpcomingEvents({
               />
               <Text
                 variant="labelSmall"
-                style={StyleSheet.flatten([styles.loadingText, { color: theme.colors.onSurfaceVariant }])}
+                style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}
               >
                 {t('upcomingEvents.loading')}
               </Text>
