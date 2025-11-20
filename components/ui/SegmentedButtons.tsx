@@ -17,6 +17,7 @@ export interface SegmentedButtonsProps {
   buttons: SegmentedButton[];
   style?: ViewStyle;
   density?: "regular" | "small" | "medium" | "high";
+  testID?: string;
 }
 
 export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({

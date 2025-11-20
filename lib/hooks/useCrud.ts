@@ -13,6 +13,13 @@ interface CrudOptions<T, Context = unknown> {
   onSettled?: (data: T | undefined, error: Error | null, variables: any, context: Context | undefined) => void;
 }
 
+interface DeleteCrudOptions<T, Context = unknown> {
+  listQueryKey: QueryKey;
+  detailQueryKey?: (id: string) => QueryKey;
+  onSuccess?: (data: void | string, variables: string, context: Context) => void;
+  onSettled?: (data: void | string | undefined, error: Error | null, variables: string, context: Context | undefined) => void;
+}
+
 export function useCreateResource<T extends BaseResource, Input>(
   mutationFn: (data: Input) => Promise<T>,
   options: CrudOptions<T, { previousList: T[] | undefined }>
@@ -121,7 +128,7 @@ export function useUpdateResource<T extends BaseResource, Input>(
 
 export function useDeleteResource<T extends BaseResource>(
   mutationFn: (id: string) => Promise<void | string>,
-  options: CrudOptions<T, { previousList: T[] | undefined }>
+  options: DeleteCrudOptions<T, { previousList: T[] | undefined }>
 ) {
   const queryClient = useQueryClient();
 
@@ -149,16 +156,12 @@ export function useDeleteResource<T extends BaseResource>(
          queryClient.removeQueries({ queryKey: options.detailQueryKey(variables) });
        }
        if (options.onSuccess) {
-         // @ts-ignore - data might be void or string, but T is expected in signature. 
-         // In delete case, we might not have the full object back.
-         // Adjusting types might be needed if strictness is required.
-         options.onSuccess(data as unknown as T, variables, context);
+         options.onSuccess(data, variables, context);
        }
     },
     onSettled: (data, error, variables, context) => {
       queryClient.invalidateQueries({ queryKey: options.listQueryKey });
       if (options.onSettled) {
-         // @ts-ignore
         options.onSettled(data, error, variables, context);
       }
     },

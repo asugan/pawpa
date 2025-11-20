@@ -29,7 +29,7 @@ export default function HomeScreen() {
   const { isMobile, scrollPadding } = useResponsiveSize();
 
   // Data fetching with hooks
-  const { data: pets, isLoading: petsLoading, error: petsError } = usePets();
+  const { data: pets, isLoading: petsLoading, error: petsError, refetch: refetchPets } = usePets();
   const { data: todayEvents, isLoading: eventsLoading } = useTodayEvents();
   const { data: upcomingVaccinations, isLoading: vaccinationsLoading } =
     useUpcomingVaccinations();
@@ -56,7 +56,7 @@ export default function HomeScreen() {
           title={t("common.error")}
           description={t("common.loadingError")}
           actionLabel={t("common.retry")}
-          onAction={() => window.location.reload()}
+          onAction={() => refetchPets()}
         />
       </SafeAreaView>
     );

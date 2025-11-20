@@ -4,7 +4,7 @@ import { formatEventDate, formatTime, getRelativeTime } from '@/lib/utils/date';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, GestureResponderEvent } from 'react-native';
 import { getEventTypeColor, getEventTypeIcon, getEventTypeLabel } from '../constants/eventIcons';
 import { Event } from '../lib/types';
 
@@ -66,12 +66,12 @@ export function EventCard({
     }
   }, [onPress, event, router]);
 
-  const handleEdit = React.useCallback((e: any) => {
+  const handleEdit = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onEdit?.(event);
   }, [onEdit, event]);
 
-  const handleDelete = React.useCallback((e: any) => {
+  const handleDelete = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onDelete?.(event);
   }, [onDelete, event]);

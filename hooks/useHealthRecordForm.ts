@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import {
   getHealthRecordSchema,
   type HealthRecordCreateInput,
@@ -21,7 +21,7 @@ export interface UseHealthRecordFormReturn {
     onSubmit: (data: HealthRecordCreateInput) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: HealthRecordCreateInput) => void;
-  setValue: (name: keyof HealthRecordCreateInput, value: any) => void;
+  setValue: <K extends Path<HealthRecordCreateInput>>(name: K, value: PathValue<HealthRecordCreateInput, K>) => void;
   getValues: (name?: keyof HealthRecordCreateInput) => HealthRecordCreateInput | any;
   trigger: (name?: keyof HealthRecordCreateInput) => Promise<boolean>;
   watch: (name?: keyof HealthRecordCreateInput) => HealthRecordCreateInput | any;
@@ -59,7 +59,7 @@ export const useHealthRecordForm = (
   }, [petId, initialData]);
 
   const form = useForm<HealthRecordCreateInput>({
-    resolver: zodResolver(getHealthRecordSchema(defaultValues.type)),
+    resolver: zodResolver(getHealthRecordSchema(defaultValues.type)) as any,
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',

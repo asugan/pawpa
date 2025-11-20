@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { FeedingSchedule, Pet } from '../lib/types';
 import { FeedingScheduleForm } from './forms/FeedingScheduleForm';
+import { type FeedingScheduleFormData, transformFormDataToAPI } from '../lib/schemas/feedingScheduleSchema';
 import {
   useCreateFeedingSchedule,
   useUpdateFeedingSchedule,
@@ -44,19 +45,20 @@ export function FeedingScheduleModal({
     setSnackbarVisible(true);
   }, []);
 
-  const handleSubmit = React.useCallback(async (data: any) => {
+  const handleSubmit = React.useCallback(async (data: FeedingScheduleFormData) => {
     setLoading(true);
     try {
+      const apiData = transformFormDataToAPI(data);
       if (schedule) {
         // Update existing schedule
         await updateMutation.mutateAsync({
           id: schedule.id,
-          data,
+          data: apiData,
         });
         showSnackbar(t('feedingSchedule.updateSuccess') || 'Besleme programı başarıyla güncellendi');
       } else {
         // Create new schedule
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(apiData);
         showSnackbar(t('feedingSchedule.createSuccess') || 'Besleme programı başarıyla eklendi');
       }
 

@@ -1,11 +1,3 @@
-// Base types for API responses
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
 // Import types from schemas
 import { BudgetCreateInput, BudgetLimit, BudgetPeriod, BudgetUpdateInput } from './schemas/budgetSchema';
 import { CreateEventInput, Event, UpdateEventInput } from './schemas/eventSchema';

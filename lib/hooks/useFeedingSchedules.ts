@@ -1,5 +1,6 @@
 import { feedingScheduleService } from '@/lib/services/feedingScheduleService';
-import { ApiResponse, CreateFeedingScheduleInput, FeedingSchedule, Pet, UpdateFeedingScheduleInput } from '@/lib/types';
+import { CreateFeedingScheduleInput, FeedingSchedule, Pet, UpdateFeedingScheduleInput } from '@/lib/types';
+import { ApiResponse } from '@/lib/api/client';
 import { CACHE_TIMES } from '@/lib/config/queryConfig';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';

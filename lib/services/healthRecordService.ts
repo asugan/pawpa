@@ -1,6 +1,6 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
-import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput, ApiResponse } from '../types';
+import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput } from '../types';
 
 /**
  * Health Record Service - Tüm health record API operasyonlarını yönetir

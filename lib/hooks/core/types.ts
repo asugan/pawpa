@@ -1,5 +1,5 @@
 import { QueryKey, UseQueryOptions } from '@tanstack/react-query';
-import { ApiResponse } from '@/lib/types';
+import { ApiResponse } from '@/lib/api/client';
 
 /**
  * Base options for resource queries

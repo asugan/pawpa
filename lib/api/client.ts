@@ -5,7 +5,8 @@ import { ENV } from '../config/env';
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
-  error?: {
+  message?: string;
+  error?: string | {
     code: string;
     message: string;
     details?: any;

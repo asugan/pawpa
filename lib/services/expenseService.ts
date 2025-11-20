@@ -1,11 +1,10 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import type {
   Expense,
   CreateExpenseInput,
   UpdateExpenseInput,
-  ExpenseStats,
-  ApiResponse
+  ExpenseStats
 } from '../types';
 
 /**

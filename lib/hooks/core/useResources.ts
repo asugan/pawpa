@@ -79,7 +79,10 @@ export function useResources<TData, TError = Error>(
 
       // Handle unsuccessful API response
       if (!result.success) {
-        throw new Error(result.error || errorMessage || 'Veriler yüklenemedi');
+        const extractedError = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || errorMessage || 'Veriler yüklenemedi';
+        throw new Error(extractedError);
       }
 
       // Return data or default empty array

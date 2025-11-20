@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Card, Text, Button,  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ interface EmptyStateProps {
   buttonText?: string;
   onButtonPress?: () => void;
   buttonColor?: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   actionLabel?: string;
   onAction?: () => void;
 }

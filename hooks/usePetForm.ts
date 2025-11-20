@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import { PetCreateInput, PetCreateSchema, PetUpdateInput, PetUpdateSchema } from '../lib/schemas/petSchema';
 import { Pet, PetGender, PetType } from '../lib/types';
 
@@ -14,7 +14,7 @@ export interface UsePetFormReturn {
   dirtyFields: Record<string, boolean>;
   handleSubmit: (onSubmit: (data: PetCreateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetCreateInput) => void;
-  setValue: (name: keyof PetCreateInput, value: any) => void;
+  setValue: <K extends Path<PetCreateInput>>(name: K, value: PathValue<PetCreateInput, K>) => void;
   getValues: (name?: keyof PetCreateInput) => PetCreateInput | any;
   trigger: (name?: keyof PetCreateInput) => Promise<boolean>;
   watch: (name?: keyof PetCreateInput) => PetCreateInput | any;
@@ -31,7 +31,7 @@ export interface UsePetUpdateFormReturn {
   dirtyFields: Record<string, boolean>;
   handleSubmit: (onSubmit: (data: PetUpdateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetUpdateInput) => void;
-  setValue: (name: keyof PetUpdateInput, value: any) => void;
+  setValue: <K extends Path<PetUpdateInput>>(name: K, value: PathValue<PetUpdateInput, K>) => void;
   getValues: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
   trigger: (name?: keyof PetUpdateInput) => Promise<boolean>;
   watch: (name?: keyof PetUpdateInput) => PetUpdateInput | any;

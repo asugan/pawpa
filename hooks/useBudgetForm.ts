@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import {
   BudgetCreateInput,
   BudgetCreateSchema,
@@ -21,7 +21,7 @@ export interface UseBudgetFormReturn {
     onSubmit: (data: BudgetCreateInput) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: BudgetCreateInput) => void;
-  setValue: (name: keyof BudgetCreateInput, value: any) => void;
+  setValue: <K extends Path<BudgetCreateInput>>(name: K, value: PathValue<BudgetCreateInput, K>) => void;
   getValues: (name?: keyof BudgetCreateInput) => BudgetCreateInput | any;
   trigger: (name?: keyof BudgetCreateInput) => Promise<boolean>;
   watch: (name?: keyof BudgetCreateInput) => BudgetCreateInput | any;

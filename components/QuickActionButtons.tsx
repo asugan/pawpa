@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Button,  } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ interface QuickActionButtonsProps {
   onAddPet?: () => void;
   onAddHealthRecord?: () => void;
   onAddFeedingSchedule?: () => void;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({

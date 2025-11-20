@@ -44,7 +44,6 @@ export const FormActions = ({
           mode="contained"
           onPress={onSubmit}
           disabled={loading || disabled}
-          loading={loading}
           style={styles.submitButton}
           testID={testID ? `${testID}-submit` : 'form-submit-button'}
         >

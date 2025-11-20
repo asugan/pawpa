@@ -1,6 +1,6 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
-import type { Pet, CreatePetInput, UpdatePetInput, ApiResponse } from '../types';
+import type { Pet, CreatePetInput, UpdatePetInput } from '../types';
 
 /**
  * Date utility functions for safe date handling
@@ -297,12 +297,19 @@ export class PetService {
       if (error instanceof ApiError) {
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code || 'UPLOAD_ERROR',
+            message: error.message,
+            details: error.details,
+          },
         };
       }
       return {
         success: false,
-        error: 'Pet fotoğrafı yüklenemedi. Lütfen tekrar deneyin.',
+        error: {
+          code: 'UPLOAD_ERROR',
+          message: 'Pet fotoğrafı yüklenemedi. Lütfen tekrar deneyin.',
+        },
       };
     }
   }
@@ -361,12 +368,19 @@ export class PetService {
       if (error instanceof ApiError) {
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code || 'STATS_ERROR',
+            message: error.message,
+            details: error.details,
+          },
         };
       }
       return {
         success: false,
-        error: 'İstatistikler yüklenemedi. Lütfen tekrar deneyin.',
+        error: {
+          code: 'STATS_ERROR',
+          message: 'İstatistikler yüklenemedi. Lütfen tekrar deneyin.',
+        },
       };
     }
   }

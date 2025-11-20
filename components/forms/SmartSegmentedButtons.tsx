@@ -44,7 +44,6 @@ export const SmartSegmentedButtons = ({
             onValueChange={onChange}
             buttons={buttons}
             density={density}
-            disabled={disabled}
             testID={testID}
           />
           {error && (

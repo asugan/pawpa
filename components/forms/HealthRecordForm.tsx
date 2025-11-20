@@ -54,7 +54,7 @@ export function HealthRecordForm({
     if (visible) {
       reset(
         initialData
-          ? {
+          ? ({
               petId,
               type: initialData.type,
               title: initialData.title || '',
@@ -65,15 +65,7 @@ export function HealthRecordForm({
               cost: initialData.cost || undefined,
               notes: initialData.notes || '',
               nextDueDate: initialData.nextDueDate || undefined,
-              vaccineName: initialData.vaccineName || '',
-              vaccineManufacturer: initialData.vaccineManufacturer || '',
-              batchNumber: initialData.batchNumber || '',
-              medicationName: initialData.medicationName || '',
-              dosage: initialData.dosage || '',
-              frequency: initialData.frequency || '',
-              startDate: initialData.startDate || undefined,
-              endDate: initialData.endDate || undefined,
-            }
+            } as HealthRecordCreateInput)
           : undefined
       );
     }

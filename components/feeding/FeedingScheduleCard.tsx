@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, GestureResponderEvent } from 'react-native';
 import { Text, IconButton, Chip, Switch } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
@@ -57,19 +57,18 @@ export function FeedingScheduleCard({
     onPress?.(schedule);
   }, [onPress, schedule]);
 
-  const handleEdit = React.useCallback((e: any) => {
+  const handleEdit = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onEdit?.(schedule);
   }, [onEdit, schedule]);
 
-  const handleDelete = React.useCallback((e: any) => {
+  const handleDelete = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onDelete?.(schedule);
   }, [onDelete, schedule]);
 
-  const handleToggleActive = React.useCallback((e: any) => {
-    e.stopPropagation();
-    onToggleActive?.(schedule, !schedule.isActive);
+  const handleToggleActive = React.useCallback((value: boolean) => {
+    onToggleActive?.(schedule, value);
   }, [onToggleActive, schedule]);
 
   const cardStyle = compact ? styles.compactCard : styles.card;

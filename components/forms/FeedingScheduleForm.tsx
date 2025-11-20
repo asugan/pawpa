@@ -21,7 +21,7 @@ import { SmartSwitch } from './SmartSwitch';
 
 interface FeedingScheduleFormProps {
   schedule?: FeedingSchedule;
-  onSubmit: (data: any) => void | Promise<void>;
+  onSubmit: (data: FeedingScheduleFormData) => void | Promise<void>;
   onCancel: () => void;
   loading?: boolean;
   initialPetId?: string;
@@ -98,11 +98,9 @@ export function FeedingScheduleForm({
         setIsSubmitting(true);
         console.log('Feeding schedule form submitting:', data);
 
-        // Transform form data to API format
-        const submitData = transformFormDataToAPI(data);
-        console.log('Transformed data for API:', submitData);
+        console.log('Form data:', data);
 
-        await onSubmit(submitData);
+        await onSubmit(data);
       } catch (error) {
         console.error('Feeding schedule form submission error:', error);
         Alert.alert(t('common.error'), t('feedingSchedule.errors.submitFailed'));

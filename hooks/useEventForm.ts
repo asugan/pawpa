@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import {
   eventFormSchema,
   getMinimumEventDateTime,
@@ -22,7 +22,7 @@ export interface UseEventFormReturn {
     onSubmit: (data: EventFormData) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: EventFormData) => void;
-  setValue: (name: keyof EventFormData, value: any) => void;
+  setValue: <K extends Path<EventFormData>>(name: K, value: PathValue<EventFormData, K>) => void;
   getValues: (name?: keyof EventFormData) => EventFormData | any;
   trigger: (name?: keyof EventFormData) => Promise<boolean>;
   watch: (name?: keyof EventFormData) => EventFormData | any;

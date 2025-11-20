@@ -37,14 +37,20 @@ export function usePets(filters: PetFilters = {}) {
       if (filters?.type) {
         const result = await petService.getPetsByType(filters.type);
         if (!result.success) {
-          throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+          const errorMessage = typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Evcil hayvanlar yüklenemedi';
+          throw new Error(errorMessage);
         }
         return result.data || [];
       }
       if (filters?.search) {
         const result = await petService.searchPets(filters.search);
         if (!result.success) {
-          throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+          const errorMessage = typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Evcil hayvanlar yüklenemedi';
+          throw new Error(errorMessage);
         }
         return result.data || [];
       }
@@ -55,7 +61,10 @@ export function usePets(filters: PetFilters = {}) {
       };
       const result = await petService.getPets(paginationParams);
       if (!result.success) {
-        throw new Error(result.error || 'Evcil hayvanlar yüklenemedi');
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Evcil hayvanlar yüklenemedi';
+        throw new Error(errorMessage);
       }
       return result.data || [];
     },

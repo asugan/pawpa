@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import { DAYS_OF_WEEK } from '../constants';
 import {
   feedingScheduleFormSchema,
@@ -10,19 +10,19 @@ import { FeedingSchedule } from '../lib/types';
 
 // Form hook types
 export interface UseFeedingScheduleFormReturn {
-  form: UseFormReturn<FeedingScheduleFormData>;
-  control: Control<FeedingScheduleFormData>;
+  form: UseFormReturn<FeedingScheduleFormData, any, FeedingScheduleFormData>;
+  control: Control<FeedingScheduleFormData, any>;
   errors: FieldErrors<FeedingScheduleFormData>;
   isSubmitting: boolean;
   isValid: boolean;
   isDirty: boolean;
-  touchedFields: Record<string, boolean>;
-  dirtyFields: Record<string, boolean>;
+  touchedFields: Partial<Readonly<Record<keyof FeedingScheduleFormData, boolean | boolean[]>>>;
+  dirtyFields: Partial<Readonly<Record<keyof FeedingScheduleFormData, boolean | boolean[]>>>;
   handleSubmit: (
     onSubmit: (data: FeedingScheduleFormData) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: FeedingScheduleFormData) => void;
-  setValue: (name: keyof FeedingScheduleFormData, value: any) => void;
+  setValue: <K extends Path<FeedingScheduleFormData>>(name: K, value: PathValue<FeedingScheduleFormData, K>) => void;
   getValues: (name?: keyof FeedingScheduleFormData) => FeedingScheduleFormData | any;
   trigger: (name?: keyof FeedingScheduleFormData) => Promise<boolean>;
   watch: (name?: keyof FeedingScheduleFormData) => FeedingScheduleFormData | any;

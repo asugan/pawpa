@@ -42,7 +42,10 @@ export function useHealthRecords(petId: string, filters: HealthRecordFilters = {
     queryFn: async () => {
       const result = await healthRecordService.getHealthRecordsByPetId(petId);
       if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Sağlık kayıtları yüklenemedi';
+        throw new Error(errorMessage);
       }
       return result.data || [];
     },

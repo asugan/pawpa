@@ -229,7 +229,7 @@ export default function ExpensesScreen() {
                 {t('expenses.totalSpent', 'Total Spent')}
               </Text>
               <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
-                {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(', ')}
+                {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(', ')}
               </Text>
             </View>
             <View style={styles.statItem}>

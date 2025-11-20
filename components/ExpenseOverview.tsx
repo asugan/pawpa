@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useExpenseStats } from '../lib/hooks/useExpenses';
 import { gradients, gradientsDark } from '../lib/theme';
+import { ExpenseCategory } from '../lib/types';
 
 interface ExpenseOverviewProps {
   petId?: string;
@@ -42,7 +43,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
   }
 
   const topCategory = stats.byCategory.length > 0
-    ? stats.byCategory.reduce((prev, current) => (prev.total > current.total ? prev : current))
+    ? stats.byCategory.reduce((prev: { category: ExpenseCategory; total: number; count: number }, current: { category: ExpenseCategory; total: number; count: number }) => (prev.total > current.total ? prev : current))
     : null;
 
   return (
@@ -82,7 +83,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
                 style={styles.amountContainer}
               >
                 <Text variant="headlineSmall" style={[styles.statValue, { color: '#FFFFFF', fontWeight: '800' }]}>
-                  {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(' + ')}
+                  {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(' + ')}
                 </Text>
                 <Text variant="bodySmall" style={{ color: '#FFFFFF', opacity: 0.9, fontWeight: '600' }}>
                   {t('expenses.totalSpent', 'Total Spent')}
@@ -107,7 +108,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
                 style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}
                 textStyle={{ fontWeight: '600' }}
               >
-                🏷️ {t(`expenses.categories.${topCategory.category}`, topCategory.category)} •{' '}
+                🏷️ {String(t(`expenses.categories.${topCategory.category}`, topCategory.category))} •{' '}
                 {formatCurrency(topCategory.total, stats.byCurrency[0]?.currency || 'TRY')}
               </Chip>
             </View>

@@ -53,9 +53,7 @@ export const feedingScheduleFormSchema = z.object({
     .min(1, 'En az bir gün seçmelisiniz')
     .max(7, 'En fazla 7 gün seçebilirsiniz'),
 
-  isActive: z
-    .boolean()
-    .default(true),
+  isActive: z.boolean(),
 }).refine((data) => {
   // Validate that time is reasonable (not empty after trim)
   return data.time.trim().length > 0;

@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 interface FormRowProps {
   children: React.ReactNode;
   gap?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**

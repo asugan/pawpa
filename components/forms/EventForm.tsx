@@ -20,7 +20,7 @@ import { SmartSwitch } from './SmartSwitch';
 
 interface EventFormProps {
   event?: Event;
-  onSubmit: (data: any) => void | Promise<void>;
+  onSubmit: (data: EventFormData) => void | Promise<void>;
   onCancel: () => void;
   loading?: boolean;
   initialPetId?: string;
@@ -97,11 +97,7 @@ export function EventForm({
         setIsSubmitting(true);
         console.log('Event form submitting:', data);
 
-        // Transform form data to API format
-        const submitData = transformFormDataToAPI(data);
-        console.log('Transformed data for API:', submitData);
-
-        await onSubmit(submitData);
+        await onSubmit(data);
       } catch (error) {
         console.error('Event form submission error:', error);
         Alert.alert('Hata', 'Etkinlik kaydedilirken bir hata oluştu');
@@ -211,7 +207,7 @@ export function EventForm({
         <FormSection title="Zaman ve Konum">
           {/* Start DateTime */}
           <SmartDateTimePicker
-            name="startDate"
+            dateName="startDate"
             timeName="startTime"
             required
             label="Başlangıç Zamanı"
@@ -220,7 +216,7 @@ export function EventForm({
 
           {/* End DateTime */}
           <SmartDateTimePicker
-            name="endDate"
+            dateName="endDate"
             timeName="endTime"
             label="Bitiş Zamanı (opsiyonel)"
             testID={`${testID}-end`}

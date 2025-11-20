@@ -195,7 +195,10 @@ export function useExportExpensesCSV() {
     }) => {
       const result = await expenseService.exportExpensesCSV(params);
       if (!result.success) {
-        throw new Error(result.error || 'Failed to export expenses');
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export expenses';
+        throw new Error(errorMessage);
       }
       return result.data!;
     },

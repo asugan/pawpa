@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 interface GridProps {
   children: React.ReactNode;
   maxColumns?: number;
-  style?: any;
-  contentContainerStyle?: any;
+  style?: StyleProp<ViewStyle>;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Grid: React.FC<GridProps> = ({
@@ -20,13 +20,11 @@ export const Grid: React.FC<GridProps> = ({
   const styles = StyleSheet.create({
     container: {
       paddingHorizontal: spacing,
-      ...style,
     },
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'space-between',
-      ...contentContainerStyle,
     },
     item: {
       width: '100%',
@@ -38,8 +36,8 @@ export const Grid: React.FC<GridProps> = ({
   const childrenArray = React.Children.toArray(children);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.grid}>
+    <View style={[styles.container, style]}>
+      <View style={[styles.grid, contentContainerStyle]}>
         {childrenArray.map((child, index) => {
           // For tablets, calculate width for each column
           const isTabletItem = columns > 1;

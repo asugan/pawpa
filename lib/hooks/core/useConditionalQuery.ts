@@ -97,7 +97,10 @@ export function useConditionalQuery<TData, TError = Error>(
 
       // Handle unsuccessful API response
       if (!result.success) {
-        throw new Error(result.error || errorMessage || 'Veri yüklenemedi');
+        const extractedError = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || errorMessage || 'Veri yüklenemedi';
+        throw new Error(extractedError);
       }
 
       // Return data or default value

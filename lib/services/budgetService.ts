@@ -1,12 +1,11 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import type {
   BudgetLimit,
   CreateBudgetLimitInput,
   UpdateBudgetLimitInput,
   BudgetAlert,
-  BudgetStatus,
-  ApiResponse
+  BudgetStatus
 } from '../types';
 
 /**
