@@ -1,4 +1,4 @@
-import { Button, Text } from '@/components/ui';
+import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { FormProvider } from 'react-hook-form';
@@ -8,7 +8,9 @@ import { createGenderOptions, createPetTypeOptions } from '../../constants';
 import { usePetForm } from '../../hooks/usePetForm';
 import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
-import FormWeightInput from './FormWeightInput'; // Keeping this as is for now, or could be smartified later
+import { FormActions } from './FormActions';
+import { FormSection } from './FormSection';
+import FormWeightInput from './FormWeightInput';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
@@ -22,13 +24,7 @@ interface PetFormProps {
   testID?: string;
 }
 
-export function PetForm({
-  pet,
-  onSubmit,
-  onCancel,
-  loading = false,
-  testID,
-}: PetFormProps) {
+export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: PetFormProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { form, handleSubmit, isValid, isSubmitting } = usePetForm(pet);
@@ -36,13 +32,16 @@ export function PetForm({
   // Track if user has attempted to submit the form
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
 
-  const onFormSubmit = React.useCallback(async (data: PetCreateInput) => {
-    try {
-      await onSubmit(data);
-    } catch (error) {
-      console.error('Pet form submission error:', error);
-    }
-  }, [onSubmit]);
+  const onFormSubmit = React.useCallback(
+    async (data: PetCreateInput) => {
+      try {
+        await onSubmit(data);
+      } catch (error) {
+        console.error('Pet form submission error:', error);
+      }
+    },
+    [onSubmit]
+  );
 
   const isEditMode = !!pet;
 
@@ -56,20 +55,13 @@ export function PetForm({
         style={[styles.container, { backgroundColor: theme.colors.background }]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
-        removeClippedSubviews={false}
         testID={testID}
       >
-        <View style={styles.formContent}>
-          {/* Form Header */}
-          <View style={styles.header}>
-            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-              {isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
-            </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-              {t('forms.petForm.subtitle')}
-            </Text>
-          </View>
-
+        {/* Form Header */}
+        <FormSection
+          title={isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
+          subtitle={t('forms.petForm.subtitle')}
+        >
           {/* Pet Name */}
           <SmartInput
             name="name"
@@ -99,7 +91,10 @@ export function PetForm({
             autoCapitalize="words"
             testID="pet-breed-input"
           />
+        </FormSection>
 
+        {/* Physical Details */}
+        <FormSection title={t('forms.petForm.sections.physicalDetails')}>
           {/* Gender */}
           <SmartDropdown
             name="gender"
@@ -117,7 +112,6 @@ export function PetForm({
           />
 
           {/* Weight */}
-          {/* Keeping FormWeightInput for now as it has specific logic, but could be wrapped or refactored */}
           <FormWeightInput
             control={form.control}
             name="weight"
@@ -127,50 +121,36 @@ export function PetForm({
             step={0.1}
             testID="pet-weight-input"
           />
+        </FormSection>
 
-          {/* Profile Photo */}
-          <SmartPetPhotoPicker
-            name="profilePhoto"
-            disabled={loading}
-          />
+        {/* Profile Photo */}
+        <FormSection title={t('forms.petForm.sections.photo')}>
+          <SmartPetPhotoPicker name="profilePhoto" disabled={loading} />
+        </FormSection>
 
-          {/* Form Actions */}
-          <View style={styles.actions}>
-            <Button
-              mode="outlined"
-              onPress={onCancel}
-              disabled={loading}
-              style={[styles.actionButton, styles.cancelButton] as any}
-              testID="cancel-button"
-            >
-              {t('pets.cancel')}
-            </Button>
+        {/* Form Actions */}
+        <FormActions
+          onCancel={onCancel}
+          onSubmit={async () => {
+            setHasAttemptedSubmit(true);
+            handleSubmit(onFormSubmit)();
+          }}
+          submitLabel={isEditMode ? t('pets.update') : t('pets.add')}
+          cancelLabel={t('pets.cancel')}
+          loading={loading}
+          disabled={loading}
+          showDivider={false}
+          testID={testID}
+        />
 
-            <Button
-              mode="contained"
-              buttonColor={theme.colors.primary}
-              textColor={theme.colors.onPrimary}
-              onPress={async () => {
-                setHasAttemptedSubmit(true);
-                handleSubmit(onFormSubmit)();
-              }}
-              disabled={loading}
-              style={styles.actionButton}
-              testID="submit-button"
-            >
-              {isEditMode ? t('pets.update') : t('pets.add')}
-            </Button>
+        {/* Form Status */}
+        {!isValid && hasAttemptedSubmit && (
+          <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
+            <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+              {t('pets.pleaseFillRequiredFields')}
+            </Text>
           </View>
-
-          {/* Form Status */}
-          {!isValid && hasAttemptedSubmit && (
-            <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
-              <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
-                {t('pets.pleaseFillRequiredFields')}
-              </Text>
-            </View>
-          )}
-        </View>
+        )}
       </ScrollView>
     </FormProvider>
   );
@@ -182,48 +162,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-  },
-  formContent: {
-    paddingBottom: 32,
-  },
-  header: {
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: 8,
-    fontFamily: 'System',
-  },
-  subtitle: {
-    textAlign: 'center',
-    fontFamily: 'System',
-  },
-  photoPlaceholder: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  photoPlaceholderText: {
-    fontSize: 14,
-    fontFamily: 'System',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 24,
-  },
-  actionButton: {
-    flex: 1,
-  },
-  cancelButton: {
-    borderColor: undefined,
-  },
-  buttonContent: {
-    paddingVertical: 8,
+    paddingBottom: 40,
   },
   statusContainer: {
     padding: 12,

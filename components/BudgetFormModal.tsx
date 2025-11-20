@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal as RNModal, View, StyleSheet } from 'react-native';
 import { Text, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import BudgetForm from './BudgetForm';
+import BudgetForm from './forms/BudgetForm';
 import { CreateBudgetLimitInput, BudgetLimit } from '../lib/types';
 
 interface BudgetFormModalProps {
