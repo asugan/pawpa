@@ -2,7 +2,7 @@ import { Button, Chip, Divider, Switch, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createFoodTypeOptions, DAYS_OF_WEEK } from '../../constants';
@@ -12,9 +12,9 @@ import {
     type FeedingScheduleFormData
 } from '../../lib/schemas/feedingScheduleSchema';
 import { FeedingSchedule, Pet } from '../../lib/types';
-import FormDropdown from './FormDropdown';
-import FormInput from './FormInput';
-import FormTimePicker from './FormTimePicker';
+import { SmartDatePicker } from './SmartDatePicker';
+import { SmartDropdown } from './SmartDropdown';
+import { SmartInput } from './SmartInput';
 
 interface FeedingScheduleFormProps {
   schedule?: FeedingSchedule;
@@ -69,17 +69,18 @@ export function FeedingScheduleForm({
   }, [schedule, initialPetId]);
 
   // React Hook Form setup with Zod validation
-  const {
-    control,
-    handleSubmit,
-    formState: { isDirty, errors },
-    setValue,
-    watch,
-  } = useForm({
+  const methods = useForm({
     resolver: zodResolver(feedingScheduleFormSchema),
     defaultValues,
     mode: 'onChange',
   });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+    setValue,
+  } = methods;
 
   // Watch form values for dynamic behavior
   const selectedPetId = useWatch({ control, name: 'petId' });
@@ -226,224 +227,221 @@ export function FeedingScheduleForm({
   const isEditMode = !!schedule;
 
   return (
-    <ScrollView
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
-      contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="always"
-      removeClippedSubviews={false}
-      testID={testID}
-    >
-      <View style={styles.formContent}>
-        {/* Form Header */}
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
-            {isEditMode ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
-          </Text>
-          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
-            {t('feedingSchedule.subtitle')}
-          </Text>
-        </View>
-
-        {/* Pet Selection */}
-        <FormDropdown
-          control={control}
-          name="petId"
-          required
-          options={petOptions}
-          placeholder={t('feedingSchedule.placeholders.selectPet')}
-          label={t('feedingSchedule.fields.pet')}
-          testID={`${testID}-pet`}
-        />
-
-        {selectedPet && (
-          <View style={StyleSheet.flatten([styles.infoBox, { backgroundColor: theme.colors.primaryContainer }])}>
-            <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
-              {t('feedingSchedule.selectedPet')}: {selectedPet.label}
+    <FormProvider {...methods}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="always"
+        removeClippedSubviews={false}
+        testID={testID}
+      >
+        <View style={styles.formContent}>
+          {/* Form Header */}
+          <View style={styles.header}>
+            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              {isEditMode ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+              {t('feedingSchedule.subtitle')}
             </Text>
           </View>
-        )}
 
-        <Divider style={styles.divider} />
+          {/* Pet Selection */}
+          <SmartDropdown
+            name="petId"
+            required
+            options={petOptions}
+            placeholder={t('feedingSchedule.placeholders.selectPet')}
+            label={t('feedingSchedule.fields.pet')}
+            testID={`${testID}-pet`}
+          />
 
-        {/* Time Picker */}
-        <FormTimePicker
-          control={control}
-          name="time"
-          required
-          placeholder={t('feedingSchedule.placeholders.selectTime')}
-          label={t('feedingSchedule.fields.time')}
-          minuteInterval={15}
-          testID={`${testID}-time`}
-        />
+          {selectedPet && (
+            <View style={[styles.infoBox, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                {t('feedingSchedule.selectedPet')}: {selectedPet.label}
+              </Text>
+            </View>
+          )}
 
-        {/* Food Type Dropdown */}
-        <FormDropdown
-          control={control}
-          name="foodType"
-          required
-          options={foodTypeOptions}
-          placeholder={t('feedingSchedule.placeholders.selectFoodType')}
-          label={t('feedingSchedule.fields.foodType')}
-          testID={`${testID}-food-type`}
-        />
+          <Divider style={styles.divider} />
 
-        {/* Food type suggestion */}
-        <View style={StyleSheet.flatten([styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }])}>
-          <Text style={styles.suggestionIcon}>💡</Text>
-          <Text variant="bodySmall" style={StyleSheet.flatten([styles.suggestionText, { color: theme.colors.onSecondaryContainer }])}>
-            {getFoodTypeSuggestion()}
-          </Text>
-        </View>
+          {/* Time Picker */}
+          <SmartDatePicker
+            name="time"
+            required
+            label={t('feedingSchedule.fields.time')}
+            mode="time"
+            testID={`${testID}-time`}
+          />
 
-        {/* Amount Input */}
-        <FormInput
-          control={control}
-          name="amount"
-          required
-          placeholder={t('feedingSchedule.placeholders.amount')}
-          testID={`${testID}-amount`}
-        />
+          {/* Food Type Dropdown */}
+          <SmartDropdown
+            name="foodType"
+            required
+            options={foodTypeOptions}
+            placeholder={t('feedingSchedule.placeholders.selectFoodType')}
+            label={t('feedingSchedule.fields.foodType')}
+            testID={`${testID}-food-type`}
+          />
 
-        <Divider style={styles.divider} />
-
-        {/* Days Selection */}
-        <View style={styles.daysSection}>
-          <Text variant="titleMedium" style={StyleSheet.flatten([styles.sectionTitle, { color: theme.colors.onSurface }])}>
-            {t('feedingSchedule.fields.days')} *
-          </Text>
-          <Text variant="bodySmall" style={StyleSheet.flatten([styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }])}>
-            {t('feedingSchedule.daysHelp')}
-          </Text>
-
-          {/* Quick select buttons */}
-          <View style={styles.quickSelectContainer}>
-            <Button
-              mode="outlined"
-              compact
-              onPress={selectAllDays}
-              style={styles.quickSelectButton}
-            >
-              {t('feedingSchedule.quickSelect.all')}
-            </Button>
-            <Button
-              mode="outlined"
-              compact
-              onPress={selectWeekdays}
-              style={styles.quickSelectButton}
-            >
-              {t('feedingSchedule.quickSelect.weekdays')}
-            </Button>
-            <Button
-              mode="outlined"
-              compact
-              onPress={selectWeekends}
-              style={styles.quickSelectButton}
-            >
-              {t('feedingSchedule.quickSelect.weekends')}
-            </Button>
-            <Button
-              mode="outlined"
-              compact
-              onPress={clearDays}
-              style={styles.quickSelectButton}
-            >
-              {t('feedingSchedule.quickSelect.clear')}
-            </Button>
+          {/* Food type suggestion */}
+          <View style={[styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Text style={styles.suggestionIcon}>💡</Text>
+            <Text variant="bodySmall" style={[styles.suggestionText, { color: theme.colors.onSecondaryContainer }]}>
+              {getFoodTypeSuggestion()}
+            </Text>
           </View>
 
-          {/* Day chips */}
-          <Controller
-            control={control}
-            name="daysArray"
-            render={({ field, fieldState }) => (
-              <View>
-                <View style={styles.daysChipContainer}>
-                  {daysOfWeek.map((day) => {
-                    const isSelected = selectedDays?.includes(day.value) ?? false;
-                    return (
-                      <Chip
-                        key={day.value}
-                        mode={isSelected ? 'flat' : 'outlined'}
-                        selected={isSelected}
-                        onPress={() => toggleDay(day.value)}
-                        style={StyleSheet.flatten([
+          {/* Amount Input */}
+          <SmartInput
+            name="amount"
+            required
+            placeholder={t('feedingSchedule.placeholders.amount')}
+            testID={`${testID}-amount`}
+          />
+
+          <Divider style={styles.divider} />
+
+          {/* Days Selection */}
+          <View style={styles.daysSection}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+              {t('feedingSchedule.fields.days')} *
+            </Text>
+            <Text variant="bodySmall" style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+              {t('feedingSchedule.daysHelp')}
+            </Text>
+
+            {/* Quick select buttons */}
+            <View style={styles.quickSelectContainer}>
+              <Button
+                mode="outlined"
+                compact
+                onPress={selectAllDays}
+                style={styles.quickSelectButton}
+              >
+                {t('feedingSchedule.quickSelect.all')}
+              </Button>
+              <Button
+                mode="outlined"
+                compact
+                onPress={selectWeekdays}
+                style={styles.quickSelectButton}
+              >
+                {t('feedingSchedule.quickSelect.weekdays')}
+              </Button>
+              <Button
+                mode="outlined"
+                compact
+                onPress={selectWeekends}
+                style={styles.quickSelectButton}
+              >
+                {t('feedingSchedule.quickSelect.weekends')}
+              </Button>
+              <Button
+                mode="outlined"
+                compact
+                onPress={clearDays}
+                style={styles.quickSelectButton}
+              >
+                {t('feedingSchedule.quickSelect.clear')}
+              </Button>
+            </View>
+
+            {/* Day chips */}
+            <Controller
+              control={control}
+              name="daysArray"
+              render={({ field, fieldState }) => (
+                <View>
+                  <View style={styles.daysChipContainer}>
+                    {daysOfWeek.map((day) => {
+                      const isSelected = selectedDays?.includes(day.value) ?? false;
+                      return (
+                        <Chip
+                          key={day.value}
+                          mode={isSelected ? 'flat' : 'outlined'}
+                          selected={isSelected}
+                          onPress={() => toggleDay(day.value)}
+                          style={[
                           styles.dayChip,
-                          isSelected && {
+                          isSelected ? {
                             backgroundColor: theme.colors.primaryContainer,
-                          }
-                        ])}
+                          } : undefined
+                        ] as any}
                         textStyle={[
                           styles.dayChipText,
                           isSelected && { color: theme.colors.onPrimaryContainer }
                         ]}
-                        testID={`${testID}-day-${day.value}`}
-                      >
-                        {day.label}
-                      </Chip>
-                    );
-                  })}
-                </View>
+                          testID={`${testID}-day-${day.value}`}
+                        >
+                          {day.label}
+                        </Chip>
+                      );
+                    })}
+                  </View>
 
-                {fieldState.error && (
-                  <Text style={StyleSheet.flatten([styles.errorText, { color: theme.colors.error }])}>
-                    {fieldState.error.message}
+                  {fieldState.error && (
+                    <Text style={[styles.errorText, { color: theme.colors.error }]}>
+                      {fieldState.error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+
+          <Divider style={styles.divider} />
+
+          {/* Active Switch */}
+          <Controller
+            control={control}
+            name="isActive"
+            render={({ field }) => (
+              <View style={styles.switchContainer}>
+                <View style={styles.switchLabel}>
+                  <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+                    {t('feedingSchedule.fields.isActive')}
                   </Text>
-                )}
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {t('feedingSchedule.isActiveHelp')}
+                  </Text>
+                </View>
+                <Switch
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  color={theme.colors.primary}
+                  testID={`${testID}-active-switch`}
+                />
               </View>
             )}
           />
+
+          {/* Form Actions */}
+          <View style={styles.actions}>
+            <Button
+              mode="outlined"
+              onPress={handleCancel}
+              disabled={loading || isSubmitting}
+              style={styles.cancelButton}
+              testID={`${testID}-cancel`}
+            >
+              {t('common.cancel')}
+            </Button>
+
+            <Button
+              mode="contained"
+              onPress={handleSubmit(onFormSubmit)}
+              disabled={loading || isSubmitting}
+              style={styles.submitButton}
+              testID={`${testID}-submit`}
+            >
+              {isEditMode ? t('common.update') : t('common.create')}
+            </Button>
+          </View>
         </View>
-
-        <Divider style={styles.divider} />
-
-        {/* Active Switch */}
-        <Controller
-          control={control}
-          name="isActive"
-          render={({ field }) => (
-            <View style={styles.switchContainer}>
-              <View style={styles.switchLabel}>
-                <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-                  {t('feedingSchedule.fields.isActive')}
-                </Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {t('feedingSchedule.isActiveHelp')}
-                </Text>
-              </View>
-              <Switch
-                value={field.value}
-                onValueChange={field.onChange}
-                color={theme.colors.primary}
-                testID={`${testID}-active-switch`}
-              />
-            </View>
-          )}
-        />
-
-        {/* Form Actions */}
-        <View style={styles.actions}>
-          <Button
-            mode="outlined"
-            onPress={handleCancel}
-            disabled={loading || isSubmitting}
-            style={styles.cancelButton}
-            testID={`${testID}-cancel`}
-          >
-            {t('common.cancel')}
-          </Button>
-
-          <Button
-            mode="contained"
-            onPress={handleSubmit(onFormSubmit)}
-            disabled={loading || isSubmitting}
-            style={styles.submitButton}
-            testID={`${testID}-submit`}
-          >
-            {isEditMode ? t('common.update') : t('common.create')}
-          </Button>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FormProvider>
   );
 }
 

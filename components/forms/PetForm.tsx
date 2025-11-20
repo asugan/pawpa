@@ -1,18 +1,18 @@
 import { Button, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import React from 'react';
-import { Controller } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { createGenderOptions, createPetTypeOptions } from '../../constants';
 import { usePetForm } from '../../hooks/usePetForm';
 import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
-import FormDatePicker from './FormDatePicker';
-import FormDropdown from './FormDropdown';
-import FormInput from './FormInput';
-import FormWeightInput from './FormWeightInput';
-import { PetPhotoPicker } from './PetPhotoPicker';
+import FormWeightInput from './FormWeightInput'; // Keeping this as is for now, or could be smartified later
+import { SmartDatePicker } from './SmartDatePicker';
+import { SmartDropdown } from './SmartDropdown';
+import { SmartInput } from './SmartInput';
+import { SmartPetPhotoPicker } from './SmartPetPhotoPicker';
 
 interface PetFormProps {
   pet?: Pet;
@@ -31,16 +31,11 @@ export function PetForm({
 }: PetFormProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { control, handleSubmit, errors, isSubmitting, isValid, watch, trigger } = usePetForm(pet);
-
-  // Watch the pet type for the PetPhotoPicker
-  const petType = watch('type');
+  const { form, handleSubmit, isValid, isSubmitting } = usePetForm(pet);
 
   // Track if user has attempted to submit the form
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
 
-  
-  
   const onFormSubmit = React.useCallback(async (data: PetCreateInput) => {
     try {
       await onSubmit(data);
@@ -56,139 +51,128 @@ export function PetForm({
   const genderOptions = React.useMemo(() => createGenderOptions(t), [t]);
 
   return (
-    <ScrollView
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
-      contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="always"
-      removeClippedSubviews={false}
-      testID={testID}
-    >
-      <View style={styles.formContent}>
-        {/* Form Header */}
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
-            {isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
-          </Text>
-          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
-            {t('forms.petForm.subtitle')}
-          </Text>
-        </View>
-
-        {/* Pet Name */}
-        <FormInput
-          control={control}
-          name="name"
-          required
-          placeholder={t('forms.petForm.petNamePlaceholder')}
-          maxLength={50}
-          autoCapitalize="words"
-          testID="pet-name-input"
-        />
-
-        {/* Pet Type */}
-        <FormDropdown
-          control={control}
-          name="type"
-          required
-          options={petTypeOptions}
-          placeholder={t('forms.petForm.typePlaceholder')}
-          label={t('forms.petForm.type')}
-          searchable
-          testID="pet-type-dropdown"
-        />
-
-        {/* Pet Breed */}
-        <FormInput
-          control={control}
-          name="breed"
-          placeholder={t('forms.petForm.breedPlaceholder')}
-          maxLength={100}
-          autoCapitalize="words"
-          testID="pet-breed-input"
-        />
-
-        {/* Gender */}
-        <FormDropdown
-          control={control}
-          name="gender"
-          options={genderOptions}
-          placeholder={t('forms.petForm.genderPlaceholder')}
-          label={t('forms.petForm.gender')}
-          testID="pet-gender-dropdown"
-        />
-
-        {/* Birth Date */}
-        <FormDatePicker
-          control={control}
-          name="birthDate"
-          placeholder={t('forms.petForm.birthDatePlaceholder')}
-          label={t('forms.petForm.birthDate')}
-          testID="pet-birthdate-picker"
-        />
-
-        {/* Weight */}
-        <FormWeightInput
-          control={control}
-          name="weight"
-          placeholder={t('forms.petForm.weightPlaceholder')}
-          min={0.1}
-          max={200}
-          step={0.1}
-          testID="pet-weight-input"
-        />
-
-        {/* Profile Photo */}
-        <Controller
-          control={control}
-          name="profilePhoto"
-          render={({ field: { onChange, value }, fieldState: { error } }) => (
-            <PetPhotoPicker
-              value={value}
-              onChange={onChange}
-              petType={petType}
-              disabled={loading}
-            />
-          )}
-        />
-
-        {/* Form Actions */}
-        <View style={styles.actions}>
-          <Button
-            mode="outlined"
-            onPress={onCancel}
-            disabled={loading}
-            style={StyleSheet.flatten([styles.actionButton, styles.cancelButton])}
-            testID="cancel-button"
-          >
-            {t('pets.cancel')}
-          </Button>
-
-          <Button
-            mode="contained"
-            buttonColor={theme.colors.primary}
-            textColor={theme.colors.onPrimary}
-            onPress={async () => {
-              setHasAttemptedSubmit(true);
-              handleSubmit(onFormSubmit)();
-            }}
-            disabled={loading}
-            style={styles.actionButton}
-            testID="submit-button"
-          >
-            {isEditMode ? t('pets.update') : t('pets.add')}
-          </Button>
-        </View>
-
-        {/* Form Status */}
-        {!isValid && hasAttemptedSubmit && (
-          <View style={StyleSheet.flatten([styles.statusContainer, { backgroundColor: theme.colors.errorContainer }])}>
-            <Text style={StyleSheet.flatten([styles.statusText, { color: theme.colors.onErrorContainer }])}>
-              {t('pets.pleaseFillRequiredFields')}
+    <FormProvider {...form}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="always"
+        removeClippedSubviews={false}
+        testID={testID}
+      >
+        <View style={styles.formContent}>
+          {/* Form Header */}
+          <View style={styles.header}>
+            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              {isEditMode ? t('forms.petForm.editPet') : t('forms.petForm.addNewPet')}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+              {t('forms.petForm.subtitle')}
             </Text>
           </View>
-        )}
-      </View>
-    </ScrollView>
+
+          {/* Pet Name */}
+          <SmartInput
+            name="name"
+            required
+            placeholder={t('forms.petForm.petNamePlaceholder')}
+            maxLength={50}
+            autoCapitalize="words"
+            testID="pet-name-input"
+          />
+
+          {/* Pet Type */}
+          <SmartDropdown
+            name="type"
+            required
+            options={petTypeOptions}
+            placeholder={t('forms.petForm.typePlaceholder')}
+            label={t('forms.petForm.type')}
+            searchable
+            testID="pet-type-dropdown"
+          />
+
+          {/* Pet Breed */}
+          <SmartInput
+            name="breed"
+            placeholder={t('forms.petForm.breedPlaceholder')}
+            maxLength={100}
+            autoCapitalize="words"
+            testID="pet-breed-input"
+          />
+
+          {/* Gender */}
+          <SmartDropdown
+            name="gender"
+            options={genderOptions}
+            placeholder={t('forms.petForm.genderPlaceholder')}
+            label={t('forms.petForm.gender')}
+            testID="pet-gender-dropdown"
+          />
+
+          {/* Birth Date */}
+          <SmartDatePicker
+            name="birthDate"
+            label={t('forms.petForm.birthDate')}
+            testID="pet-birthdate-picker"
+          />
+
+          {/* Weight */}
+          {/* Keeping FormWeightInput for now as it has specific logic, but could be wrapped or refactored */}
+          <FormWeightInput
+            control={form.control}
+            name="weight"
+            placeholder={t('forms.petForm.weightPlaceholder')}
+            min={0.1}
+            max={200}
+            step={0.1}
+            testID="pet-weight-input"
+          />
+
+          {/* Profile Photo */}
+          <SmartPetPhotoPicker
+            name="profilePhoto"
+            disabled={loading}
+          />
+
+          {/* Form Actions */}
+          <View style={styles.actions}>
+            <Button
+              mode="outlined"
+              onPress={onCancel}
+              disabled={loading}
+              style={[styles.actionButton, styles.cancelButton] as any}
+              testID="cancel-button"
+            >
+              {t('pets.cancel')}
+            </Button>
+
+            <Button
+              mode="contained"
+              buttonColor={theme.colors.primary}
+              textColor={theme.colors.onPrimary}
+              onPress={async () => {
+                setHasAttemptedSubmit(true);
+                handleSubmit(onFormSubmit)();
+              }}
+              disabled={loading}
+              style={styles.actionButton}
+              testID="submit-button"
+            >
+              {isEditMode ? t('pets.update') : t('pets.add')}
+            </Button>
+          </View>
+
+          {/* Form Status */}
+          {!isValid && hasAttemptedSubmit && (
+            <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
+              <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+                {t('pets.pleaseFillRequiredFields')}
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </FormProvider>
   );
 }
 

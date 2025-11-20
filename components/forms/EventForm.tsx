@@ -2,7 +2,7 @@ import { Button, Divider, Switch, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createEventTypeOptions } from '../../constants';
@@ -13,9 +13,9 @@ import {
     type EventFormData
 } from '../../lib/schemas/eventSchema';
 import { Event, Pet } from '../../lib/types';
-import FormDateTimePicker from './FormDateTimePicker';
-import FormDropdown from './FormDropdown';
-import FormInput from './FormInput';
+import { SmartDateTimePicker } from './SmartDateTimePicker';
+import { SmartDropdown } from './SmartDropdown';
+import { SmartInput } from './SmartInput';
 
 interface EventFormProps {
   event?: Event;
@@ -67,16 +67,17 @@ export function EventForm({
   }, [event, initialPetId]);
 
   // React Hook Form setup with Zod validation
-  const {
-    control,
-    handleSubmit,
-    formState: { isDirty, errors },
-    setError,
-  } = useForm<EventFormData>({
+  const methods = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues,
     mode: 'onChange',
   });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = methods;
 
   // Watch form values for dynamic behavior
   const selectedPetId = useWatch({ control, name: 'petId' });
@@ -175,173 +176,167 @@ export function EventForm({
   const isEditMode = !!event;
 
   return (
-    <ScrollView
-      style={StyleSheet.flatten([styles.container, { backgroundColor: theme.colors.background }])}
-      contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="always"
-      removeClippedSubviews={false}
-      testID={testID}
-    >
-      <View style={styles.formContent}>
-        {/* Form Header */}
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={StyleSheet.flatten([styles.title, { color: theme.colors.onSurface }])}>
-            {isEditMode ? 'Etkinliği Düzenle' : 'Yeni Etkinlik Ekle'}
-          </Text>
-          <Text variant="bodyMedium" style={StyleSheet.flatten([styles.subtitle, { color: theme.colors.onSurfaceVariant }])}>
-            Evcil hayvanınız için yeni bir etkinlik oluşturun
-          </Text>
-        </View>
-
-        {/* Pet Selection */}
-        <FormDropdown
-          control={control}
-          name="petId"
-          required
-          options={petOptions}
-          placeholder="Evcil hayvan seçiniz"
-          label={t('events.pet')}
-          searchable
-          testID="event-pet-dropdown"
-        />
-
-        {/* Selected Pet Display */}
-        {selectedPet && (
-          <View style={StyleSheet.flatten([styles.selectedPetDisplay, { backgroundColor: theme.colors.surfaceVariant }])}>
-            <Text style={StyleSheet.flatten([styles.selectedPetText, { color: theme.colors.onSurface }])}>
-              Bu etkinlik: {selectedPet.label} için
+    <FormProvider {...methods}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="always"
+        removeClippedSubviews={false}
+        testID={testID}
+      >
+        <View style={styles.formContent}>
+          {/* Form Header */}
+          <View style={styles.header}>
+            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              {isEditMode ? 'Etkinliği Düzenle' : 'Yeni Etkinlik Ekle'}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+              Evcil hayvanınız için yeni bir etkinlik oluşturun
             </Text>
           </View>
-        )}
 
-        {/* Event Type */}
-        <FormDropdown
-          control={control}
-          name="type"
-          required
-          options={eventTypeOptions}
-          placeholder="Etkinlik türü seçiniz"
-          label={t('pets.type')}
-          testID="event-type-dropdown"
-        />
-
-        {/* Event Type Suggestions */}
-        {eventType && eventType !== 'other' && (
-          <View style={StyleSheet.flatten([styles.suggestionsBox, { backgroundColor: theme.colors.surfaceVariant }])}>
-            <Text style={StyleSheet.flatten([styles.suggestionsTitle, { color: theme.colors.onSurface }])}>
-              Öneriler
-            </Text>
-            <Text style={StyleSheet.flatten([styles.suggestionsText, { color: theme.colors.onSurfaceVariant }])}>
-              {getEventTypeSuggestions()}
-            </Text>
-          </View>
-        )}
-
-        {/* Event Title */}
-        <FormInput
-          control={control}
-          name="title"
-          required
-          placeholder="Etkinlik başlığını girin"
-          maxLength={100}
-          autoCapitalize="sentences"
-          testID="event-title-input"
-        />
-
-        {/* Date and Time */}
-        <FormDateTimePicker
-          control={control}
-          dateName="startDate"
-          timeName="startTime"
-          required
-          testID="event-start-datetime"
-        />
-
-        {/* End Date and Time (Optional) */}
-        <FormDateTimePicker
-          control={control}
-          dateName="endDate"
-          timeName="endTime"
-          testID="event-end-datetime"
-        />
-
-        {/* Location */}
-        <FormInput
-          control={control}
-          name="location"
-          placeholder="Konum bilgisini girin"
-          maxLength={200}
-          testID="event-location-input"
-        />
-
-        {/* Description */}
-        <FormInput
-          control={control}
-          name="description"
-          placeholder="Etkinlik açıklamasını girin"
-          multiline
-          maxLength={500}
-          testID="event-description-input"
-        />
-
-        {/* Reminder Toggle */}
-        <View style={styles.switchContainer}>
-          <View style={styles.switchContent}>
-            <Text style={StyleSheet.flatten([styles.switchLabel, { color: theme.colors.onSurface }])}>
-              Hatırlatıcı Etkinleştir
-            </Text>
-            <Text style={StyleSheet.flatten([styles.switchDescription, { color: theme.colors.onSurfaceVariant }])}>
-              Etkinlikten önce bildirim alın
-            </Text>
-          </View>
-          <Controller
-            control={control}
-            name="reminder"
-            render={({ field: { onChange, value } }) => (
-              <Switch
-                value={value}
-                onValueChange={onChange}
-                disabled={loading}
-              />
-            )}
+          {/* Pet Selection */}
+          <SmartDropdown
+            name="petId"
+            required
+            options={petOptions}
+            placeholder="Evcil hayvan seçiniz"
+            label={t('events.pet')}
+            searchable
+            testID="event-pet-dropdown"
           />
+
+          {/* Selected Pet Display */}
+          {selectedPet && (
+            <View style={[styles.selectedPetDisplay, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text style={[styles.selectedPetText, { color: theme.colors.onSurface }]}>
+                Bu etkinlik: {selectedPet.label} için
+              </Text>
+            </View>
+          )}
+
+          {/* Event Type */}
+          <SmartDropdown
+            name="type"
+            required
+            options={eventTypeOptions}
+            placeholder="Etkinlik türü seçiniz"
+            label={t('pets.type')}
+            testID="event-type-dropdown"
+          />
+
+          {/* Event Type Suggestions */}
+          {eventType && eventType !== 'other' && (
+            <View style={[styles.suggestionsBox, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text style={[styles.suggestionsTitle, { color: theme.colors.onSurface }]}>
+                Öneriler
+              </Text>
+              <Text style={[styles.suggestionsText, { color: theme.colors.onSurfaceVariant }]}>
+                {getEventTypeSuggestions()}
+              </Text>
+            </View>
+          )}
+
+          {/* Event Title */}
+          <SmartInput
+            name="title"
+            required
+            placeholder="Etkinlik başlığını girin"
+            maxLength={100}
+            autoCapitalize="sentences"
+            testID="event-title-input"
+          />
+
+          {/* Date and Time */}
+          <SmartDateTimePicker
+            dateName="startDate"
+            timeName="startTime"
+            required
+            testID="event-start-datetime"
+          />
+
+          {/* End Date and Time (Optional) */}
+          <SmartDateTimePicker
+            dateName="endDate"
+            timeName="endTime"
+            testID="event-end-datetime"
+          />
+
+          {/* Location */}
+          <SmartInput
+            name="location"
+            placeholder="Konum bilgisini girin"
+            maxLength={200}
+            testID="event-location-input"
+          />
+
+          {/* Description */}
+          <SmartInput
+            name="description"
+            placeholder="Etkinlik açıklamasını girin"
+            multiline
+            maxLength={500}
+            testID="event-description-input"
+          />
+
+          {/* Reminder Toggle */}
+          <View style={styles.switchContainer}>
+            <View style={styles.switchContent}>
+              <Text style={[styles.switchLabel, { color: theme.colors.onSurface }]}>
+                Hatırlatıcı Etkinleştir
+              </Text>
+              <Text style={[styles.switchDescription, { color: theme.colors.onSurfaceVariant }]}>
+                Etkinlikten önce bildirim alın
+              </Text>
+            </View>
+            <Controller
+              control={control}
+              name="reminder"
+              render={({ field: { onChange, value } }) => (
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  disabled={loading}
+                />
+              )}
+            />
+          </View>
+
+          {/* Notes */}
+          <SmartInput
+            name="notes"
+            placeholder="Ek notlarınızı buraya yazın"
+            multiline
+            maxLength={1000}
+            testID="event-notes-input"
+          />
+
+          <Divider style={styles.divider} />
+
+          {/* Form Actions */}
+          <View style={styles.actions}>
+            <Button
+              mode="outlined"
+              onPress={handleCancel}
+              disabled={loading || isSubmitting}
+              style={styles.cancelButton}
+              testID="event-cancel-button"
+            >
+              İptal
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleSubmit(onFormSubmit)}
+              disabled={loading || isSubmitting}
+              style={styles.submitButton}
+              testID="event-submit-button"
+            >
+              {isEditMode ? 'Güncelle' : 'Oluştur'}
+            </Button>
+          </View>
         </View>
-
-        {/* Notes */}
-        <FormInput
-          control={control}
-          name="notes"
-          placeholder="Ek notlarınızı buraya yazın"
-          multiline
-          maxLength={1000}
-          testID="event-notes-input"
-        />
-
-        <Divider style={styles.divider} />
-
-        {/* Form Actions */}
-        <View style={styles.actions}>
-          <Button
-            mode="outlined"
-            onPress={handleCancel}
-            disabled={loading || isSubmitting}
-            style={styles.cancelButton}
-            testID="event-cancel-button"
-          >
-            İptal
-          </Button>
-          <Button
-            mode="contained"
-            onPress={handleSubmit(onFormSubmit)}
-            disabled={loading || isSubmitting}
-            style={styles.submitButton}
-            testID="event-submit-button"
-          >
-            {isEditMode ? 'Güncelle' : 'Oluştur'}
-          </Button>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FormProvider>
   );
 }
 

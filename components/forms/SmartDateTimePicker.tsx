@@ -3,26 +3,23 @@ import { useTheme } from '@/lib/theme';
 import { format, isAfter } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
 import React from 'react';
-import { Control, FieldValues, Path, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
-import { FormDatePicker } from './FormDatePicker';
-import { FormTimePicker } from './FormTimePicker';
+import { SmartDatePicker } from './SmartDatePicker';
 
-interface FormDateTimePickerProps<T extends FieldValues> {
-  control: Control<T>;
-  dateName: Path<T>;
-  timeName: Path<T>;
+interface SmartDateTimePickerProps {
+  dateName: string;
+  timeName: string;
   label?: string;
   required?: boolean;
   disabled?: boolean;
   testID?: string;
   minuteInterval?: number;
-  mode?: 'past' | 'future'; // 'past' for historical dates, 'future' for upcoming events
+  mode?: 'past' | 'future';
 }
 
-export function FormDateTimePicker<T extends FieldValues>({
-  control,
+export const SmartDateTimePicker = ({
   dateName,
   timeName,
   label,
@@ -31,7 +28,8 @@ export function FormDateTimePicker<T extends FieldValues>({
   testID,
   minuteInterval = 15,
   mode = 'future',
-}: FormDateTimePickerProps<T>) {
+}: SmartDateTimePickerProps) => {
+  const { control } = useFormContext();
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
 
@@ -65,12 +63,12 @@ export function FormDateTimePicker<T extends FieldValues>({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={StyleSheet.flatten([styles.headerText, { color: theme.colors.onSurface }])}>
+        <Text style={[styles.headerText, { color: theme.colors.onSurface }]}>
           {label}
           {required && ' *'}
         </Text>
         {dateValue && timeValue && (
-          <Text style={StyleSheet.flatten([styles.combinedDisplay, { color: theme.colors.primary }])}>
+          <Text style={[styles.combinedDisplay, { color: theme.colors.primary }]}>
             {formatDateTimeDisplay()}
           </Text>
         )}
@@ -78,34 +76,30 @@ export function FormDateTimePicker<T extends FieldValues>({
 
       <View style={styles.pickerRow}>
         <View style={styles.pickerContainer}>
-          <FormDatePicker
-            control={control}
+          <SmartDatePicker
             name={dateName}
-            required={required}
+            label={t('forms.dateTimePicker.date')}
             disabled={disabled}
             testID={`${testID}-date`}
-            label={t('forms.dateTimePicker.date')}
-            mode={mode}
+            mode="date"
           />
         </View>
 
         <View style={styles.pickerContainer}>
-          <FormTimePicker
-            control={control}
+          <SmartDatePicker
             name={timeName}
-            required={required}
+            label={t('forms.dateTimePicker.time')}
             disabled={disabled}
             testID={`${testID}-time`}
-            label={t('forms.dateTimePicker.time')}
-            minuteInterval={minuteInterval}
+            mode="time"
           />
         </View>
       </View>
 
       {/* Validation hint */}
       {dateValue && timeValue && (
-        <View style={StyleSheet.flatten([styles.validationHint, { backgroundColor: theme.colors.surfaceVariant }])}>
-          <Text style={StyleSheet.flatten([styles.hintText, { color: theme.colors.onSurfaceVariant }])}>
+        <View style={[styles.validationHint, { backgroundColor: theme.colors.surfaceVariant }]}>
+          <Text style={[styles.hintText, { color: theme.colors.onSurfaceVariant }]}>
             {(() => {
               const combinedDateTime = getCombinedDateTime();
               if (!combinedDateTime) return '';
@@ -123,7 +117,7 @@ export function FormDateTimePicker<T extends FieldValues>({
                 } else if (hoursFromNow < 24) {
                   return t('forms.dateTimePicker.hoursFromNow', { hours: hoursFromNow });
                 } else {
-                  return t('forms.dateTimePick er.daysFromNow', { days: Math.floor(hoursFromNow / 24) });
+                  return t('forms.dateTimePicker.daysFromNow', { days: Math.floor(hoursFromNow / 24) });
                 }
               } else {
                 return t('forms.dateTimePicker.pastDateTimeWarning');
@@ -134,7 +128,7 @@ export function FormDateTimePicker<T extends FieldValues>({
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -172,5 +166,3 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
   },
 });
-
-export default FormDateTimePicker;
