@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface LoadingSpinnerProps {
   size?: 'small' | 'large' | number;
@@ -13,7 +14,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   text,
   overlay = false,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const spinner = (
     <View style={[styles.container, overlay && styles.overlay]}>

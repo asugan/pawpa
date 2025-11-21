@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Chip, Text, useTheme } from 'react-native-paper';
+import { Chip, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { ExpenseCategory } from '../lib/types';
 import { EXPENSE_CATEGORIES } from '../lib/schemas/expenseSchema';
 import { useTranslation } from 'react-i18next';
@@ -19,11 +20,11 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
   label,
   error,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const getCategoryIcon = (category: ExpenseCategory): string => {
-    const icons: Record<ExpenseCategory, string> = {
+  const getCategoryIcon = (category: ExpenseCategory): keyof typeof MaterialCommunityIcons.glyphMap => {
+    const icons: Record<ExpenseCategory, keyof typeof MaterialCommunityIcons.glyphMap> = {
       food: 'food',
       premium_food: 'food-variant',
       veterinary: 'hospital-box',
@@ -81,9 +82,9 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
                 backgroundColor: getCategoryColor(category),
               },
             ]}
-            icon={({ size }) => (
+            icon={({ size }: { size: number }) => (
               <MaterialCommunityIcons
-                name={getCategoryIcon(category) as any}
+                name={getCategoryIcon(category)}
                 size={size}
                 color={
                   selectedCategory === category

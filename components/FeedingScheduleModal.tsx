@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, Modal as RNModal } from 'react-native';
-import { useTheme, Portal, Snackbar, Text, Button } from 'react-native-paper';
+import { Portal, Snackbar, Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { FeedingSchedule, Pet } from '../lib/types';
 import { FeedingScheduleForm } from './forms/FeedingScheduleForm';
+import { type FeedingScheduleFormData, transformFormDataToAPI } from '../lib/schemas/feedingScheduleSchema';
 import {
   useCreateFeedingSchedule,
   useUpdateFeedingSchedule,
@@ -28,7 +30,7 @@ export function FeedingScheduleModal({
   pets = [],
   testID,
 }: FeedingScheduleModalProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
@@ -43,19 +45,20 @@ export function FeedingScheduleModal({
     setSnackbarVisible(true);
   }, []);
 
-  const handleSubmit = React.useCallback(async (data: any) => {
+  const handleSubmit = React.useCallback(async (data: FeedingScheduleFormData) => {
     setLoading(true);
     try {
+      const apiData = transformFormDataToAPI(data);
       if (schedule) {
         // Update existing schedule
         await updateMutation.mutateAsync({
           id: schedule.id,
-          data,
+          data: apiData,
         });
         showSnackbar(t('feedingSchedule.updateSuccess') || 'Besleme programı başarıyla güncellendi');
       } else {
         // Create new schedule
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(apiData);
         showSnackbar(t('feedingSchedule.createSuccess') || 'Besleme programı başarıyla eklendi');
       }
 
@@ -109,7 +112,6 @@ export function FeedingScheduleModal({
             schedule={schedule}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            loading={loading}
             initialPetId={initialPetId}
             pets={pets}
             testID="feeding-schedule-form-in-modal"
@@ -122,13 +124,12 @@ export function FeedingScheduleModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          message={snackbarMessage}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
+        />
       </Portal>
     </>
   );

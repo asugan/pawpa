@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, FlatList, ScrollView } from 'react-native';
-import { Text, FAB, useTheme, SegmentedButtons, Menu, Button } from 'react-native-paper';
+import { Text, FAB, SegmentedButtons, Menu, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
 import { FeedingScheduleModal } from '@/components/FeedingScheduleModal';
@@ -14,17 +16,19 @@ import {
 } from '@/lib/hooks/useFeedingSchedules';
 import { usePets } from '@/lib/hooks/usePets';
 import { FeedingSchedule, Pet } from '@/lib/types';
+import { LAYOUT } from '@/constants';
 
 type TabValue = 'today' | 'upcoming' | 'all';
 
 export default function FeedingScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   // State management
   const [selectedTab, setSelectedTab] = useState<TabValue>('today');
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
   const [petFilterVisible, setPetFilterVisible] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Modal state
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -119,6 +123,26 @@ export default function FeedingScreen() {
   const handleModalSuccess = () => {
     // Modal will close itself and trigger refetch via TanStack Query
   };
+
+  // Simulate loading more (for smooth UX even though all data is loaded)
+  const handleEndReached = useCallback(() => {
+    if (!isLoading && !isLoadingMore && schedules.length > 10) {
+      setIsLoadingMore(true);
+      // Simulate a small delay for smooth UX
+      setTimeout(() => {
+        setIsLoadingMore(false);
+      }, 300);
+    }
+  }, [isLoading, isLoadingMore, schedules.length]);
+
+  const renderFooter = useCallback(() => {
+    if (!isLoadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={theme.colors.primary} />
+      </View>
+    );
+  }, [isLoadingMore, theme.colors.primary]);
 
   // Render empty state
   const renderEmptyState = () => (
@@ -218,14 +242,22 @@ export default function FeedingScreen() {
             <Menu.Item
               onPress={() => handlePetFilter(null)}
               title={t('feedingSchedule.allSchedules')}
-              leadingIcon={selectedPetId === null ? 'check' : undefined}
+              leadingIcon={
+                selectedPetId === null ? (
+                  <MaterialCommunityIcons name="check" size={20} color={theme.colors.primary} />
+                ) : undefined
+              }
             />
             {allPets.map((pet) => (
               <Menu.Item
                 key={pet.id}
                 onPress={() => handlePetFilter(pet.id)}
                 title={pet.name}
-                leadingIcon={selectedPetId === pet.id ? 'check' : undefined}
+                leadingIcon={
+                  selectedPetId === pet.id ? (
+                    <MaterialCommunityIcons name="check" size={20} color={theme.colors.primary} />
+                  ) : undefined
+                }
               />
             ))}
           </Menu>
@@ -250,14 +282,16 @@ export default function FeedingScreen() {
         )}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={renderEmptyState}
+        ListFooterComponent={renderFooter}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
       />
 
       {/* FAB for adding new schedule */}
       <FAB
-        icon="plus"
-        label={t('common.create')}
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        icon="add"
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddSchedule}
         testID="add-schedule-fab"
       />
@@ -304,7 +338,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   loadingContainer: {
     flex: 1,
@@ -329,6 +363,11 @@ const styles = StyleSheet.create({
   emptySubtext: {
     textAlign: 'center',
     marginBottom: 24,
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fab: {
     position: 'absolute',

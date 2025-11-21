@@ -1,52 +1,68 @@
 import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
-import { ThemeMode } from '../lib/theme';
+import { persist } from 'zustand/middleware';
+import { lightTheme, darkTheme } from '@/lib/theme/themes';
+import type { ThemeMode, Theme } from '@/lib/theme/types';
 
-export interface ThemeStore {
+export interface ThemeState {
   themeMode: ThemeMode;
-  toggleTheme: () => void;
-  setTheme: (mode: ThemeMode) => void;
-  isDarkMode: () => boolean;
-  getThemeClass: () => string;
+  theme: Theme;
+  isDark: boolean;
 }
 
-export const useThemeStore = create<ThemeStore>()(
-  devtools(
-    persist(
-      (set, get) => ({
-        themeMode: 'light',
+export interface ThemeActions {
+  toggleTheme: () => void;
+  setTheme: (mode: ThemeMode) => void;
+}
 
-        toggleTheme: () => {
-          set((state) => {
-            const newTheme = state.themeMode === 'light' ? 'dark' : 'light';
-            console.log(`🎨 Theme toggled to: ${newTheme}`);
-            return { themeMode: newTheme };
-          });
-        },
+export const useThemeStore = create<ThemeState & ThemeActions>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      themeMode: 'light',
+      theme: lightTheme,
+      isDark: false,
 
-        setTheme: (mode: ThemeMode) => {
-          set({ themeMode: mode });
-          console.log(`🎨 Theme set to: ${mode}`);
-        },
+      // Actions
+      toggleTheme: () => {
+        const currentMode = get().themeMode;
+        const newMode = currentMode === 'light' ? 'dark' : 'light';
+        const newTheme = newMode === 'light' ? lightTheme : darkTheme;
 
-        isDarkMode: () => {
-          return get().themeMode === 'dark';
-        },
+        set({
+          themeMode: newMode,
+          theme: newTheme,
+          isDark: newMode === 'dark',
+        });
 
-        getThemeClass: () => {
-          return `theme-${get().themeMode}`;
-        },
-      }),
-      {
-        name: 'theme-storage',
-        version: 1,
-        partialize: (state) => ({
-          themeMode: state.themeMode,
-        }),
-      }
-    ),
+        console.log(`🎨 Theme toggled to: ${newMode}`);
+      },
+
+      setTheme: (mode: ThemeMode) => {
+        const newTheme = mode === 'light' ? lightTheme : darkTheme;
+
+        set({
+          themeMode: mode,
+          theme: newTheme,
+          isDark: mode === 'dark',
+        });
+
+        console.log(`🎨 Theme set to: ${mode}`);
+      },
+    }),
     {
-      name: 'theme-store',
+      name: 'theme-storage',
+      // Only persist the mode, derive the rest on rehydration
+      partialize: (state) => ({
+        themeMode: state.themeMode,
+      }),
+      onRehydrateStorage: () => (state) => {
+        // Restore full theme after rehydration
+        if (state) {
+          const mode = state.themeMode;
+          state.theme = mode === 'light' ? lightTheme : darkTheme;
+          state.isDark = mode === 'dark';
+        }
+      },
     }
   )
 );

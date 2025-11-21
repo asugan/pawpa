@@ -1,9 +1,6 @@
 import { Stack } from "expo-router";
-import { PaperProvider } from "react-native-paper";
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { MOBILE_QUERY_CONFIG } from "../lib/config/queryConfig";
-import { useThemeStore } from "../stores/themeStore";
-import { lightTheme, darkTheme } from "../lib/theme";
 import { LanguageProvider } from "../providers/LanguageProvider";
 import { NetworkStatus } from "../lib/components/NetworkStatus";
 import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
@@ -25,29 +22,17 @@ function onAppStateChange(status: AppStateStatus) {
   }
 }
 
-function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { themeMode } = useThemeStore();
-  const theme = themeMode === 'dark' ? darkTheme : lightTheme;
-
-  return (
-    <PaperProvider theme={theme}>
-      {children}
-    </PaperProvider>
-  );
-}
-
 // Enhanced App Providers with better state management
+// Theme is now managed by Zustand store (useThemeStore) - no provider needed
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <OnlineManagerProvider>
         <NetworkStatus>
           <LanguageProvider>
-            <ThemeProvider>
-              <ApiErrorBoundary>
-                {children}
-              </ApiErrorBoundary>
-            </ThemeProvider>
+            <ApiErrorBoundary>
+              {children}
+            </ApiErrorBoundary>
           </LanguageProvider>
         </NetworkStatus>
       </OnlineManagerProvider>

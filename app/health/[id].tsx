@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Alert, Share, StyleSheet } from 'react-native';
+import { Card, Chip, IconButton, ListItem, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  Card,
-  Text,
-  Button,
-  IconButton,
-  Divider,
-  Chip,
-  List,
-  useTheme,
-} from 'react-native-paper';
+import React, { useState } from 'react';
+import { Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHealthRecord, useDeleteHealthRecord } from '../../lib/hooks/useHealthRecords';
-import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
-import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS } from '../../constants';
-import type { HealthRecord, ApiResponse } from '../../lib/types';
+import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import { HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, TURKCE_LABELS } from '../../constants';
+import { useDeleteHealthRecord, useHealthRecord } from '../../lib/hooks/useHealthRecords';
 
 export default function HealthRecordDetailScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   const deleteMutation = useDeleteHealthRecord();
-  const { data: healthRecord, isLoading } = useHealthRecord(id as string);
+  const { data: healthRecord, isLoading, refetch } = useHealthRecord(id as string);
 
-  
+
   const handleEdit = () => {
-    router.push(`/health/edit/${id}`);
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalVisible(false);
+    refetch();
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalVisible(false);
   };
 
   const handleDelete = () => {
@@ -53,10 +56,7 @@ export default function HealthRecordDetailScreen() {
   const confirmDelete = async () => {
     try {
       setIsDeleting(true);
-      const result = await deleteMutation.mutateAsync(id as string) as ApiResponse<void>;
-      if (!result.success) {
-        throw new Error(result.error || 'Kayıt silinemedi');
-      }
+      await deleteMutation.mutateAsync(id as string);
       router.back();
     } catch (error) {
       Alert.alert('Hata', error instanceof Error ? error.message : 'Sağlık kaydı silinirken bir hata oluştu');
@@ -134,7 +134,6 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
           <IconButton
             icon="delete"
             onPress={handleDelete}
-            loading={isDeleting}
           />
         </View>
       </View>
@@ -142,7 +141,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Title Card */}
         <Card style={styles.card}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <View style={styles.titleRow}>
               <View style={[styles.typeIndicator, { backgroundColor: typeColor }]} />
               <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, flex: 1 }}>
@@ -172,46 +171,46 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                 {healthRecord.description}
               </Text>
             )}
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Veteriner & Clinic */}
         {(healthRecord.veterinarian || healthRecord.clinic) && (
           <Card style={styles.card}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
                 Veteriner Bilgileri
               </Text>
 
               {healthRecord.veterinarian && (
-                <List.Item
+                <ListItem
                   title={healthRecord.veterinarian}
                   description="Veteriner"
-                  left={(props) => <List.Icon {...props} icon="doctor" />}
+                  left={<MaterialCommunityIcons name="doctor" size={24} color={theme.colors.onSurfaceVariant} />}
                 />
               )}
 
               {healthRecord.clinic && (
-                <List.Item
+                <ListItem
                   title={healthRecord.clinic}
                   description="Klinik"
-                  left={(props) => <List.Icon {...props} icon="hospital-building" />}
+                  left={<MaterialCommunityIcons name="hospital-building" size={24} color={theme.colors.onSurfaceVariant} />}
                 />
               )}
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Cost */}
         {healthRecord.cost && (
           <Card style={styles.card}>
-            <Card.Content>
-              <List.Item
+            <View style={styles.cardContent}>
+              <ListItem
                 title={`₺${healthRecord.cost.toLocaleString('tr-TR')}`}
                 description="Maliyet"
-                left={(props) => <List.Icon {...props} icon="currency-try" />}
+                left={<MaterialCommunityIcons name="currency-try" size={24} color={theme.colors.onSurfaceVariant} />}
               />
-            </Card.Content>
+            </View>
           </Card>
         )}
 
@@ -220,50 +219,50 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
           <>
             {(healthRecord.vaccineName || healthRecord.vaccineManufacturer || healthRecord.batchNumber) && (
               <Card style={styles.card}>
-                <Card.Content>
+                <View style={styles.cardContent}>
                   <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
                     Aşı Bilgileri
                   </Text>
 
                   {healthRecord.vaccineName && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.vaccineName}
                       description="Aşı Adı"
-                      left={(props) => <List.Icon {...props} icon="needle" />}
+                      left={<MaterialCommunityIcons name="needle" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.vaccineManufacturer && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.vaccineManufacturer}
                       description="Aşı Üreticisi"
-                      left={(props) => <List.Icon {...props} icon="factory" />}
+                      left={<MaterialCommunityIcons name="factory" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.batchNumber && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.batchNumber}
                       description="Parti Numarası"
-                      left={(props) => <List.Icon {...props} icon="barcode" />}
+                      left={<MaterialCommunityIcons name="barcode" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
-                </Card.Content>
+                </View>
               </Card>
             )}
 
             {healthRecord.nextDueDate && (
               <Card style={styles.card}>
-                <Card.Content>
-                  <List.Item
+                <View style={styles.cardContent}>
+                  <ListItem
                     title={new Date(healthRecord.nextDueDate).toLocaleDateString('tr-TR', {
                       day: '2-digit',
                       month: 'long',
                       year: 'numeric',
                     })}
                     description="Sonraki Aşı Tarihi"
-                    left={(props) => <List.Icon {...props} icon="calendar-clock" />}
-                    right={(props) => healthRecord.nextDueDate ? (
+                    left={<MaterialCommunityIcons name="calendar-clock" size={24} color={theme.colors.onSurfaceVariant} />}
+                    right={healthRecord.nextDueDate ? (
                       <Chip
                         icon="alert"
                         style={{ alignSelf: 'center' }}
@@ -273,7 +272,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                       </Chip>
                     ) : null}
                   />
-                </Card.Content>
+                </View>
               </Card>
             )}
           </>
@@ -284,51 +283,51 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
           <>
             {(healthRecord.medicationName || healthRecord.dosage || healthRecord.frequency) && (
               <Card style={styles.card}>
-                <Card.Content>
+                <View style={styles.cardContent}>
                   <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
                     İlaç Bilgileri
                   </Text>
 
                   {healthRecord.medicationName && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.medicationName}
                       description="İlaç Adı"
-                      left={(props) => <List.Icon {...props} icon="pill" />}
+                      left={<MaterialCommunityIcons name="pill" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.dosage && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.dosage}
                       description="Doz"
-                      left={(props) => <List.Icon {...props} icon="scale-balance" />}
+                      left={<MaterialCommunityIcons name="scale-balance" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.frequency && (
-                    <List.Item
+                    <ListItem
                       title={healthRecord.frequency}
                       description="Sıklık"
-                      left={(props) => <List.Icon {...props} icon="clock" />}
+                      left={<MaterialCommunityIcons name="clock" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.startDate && (
-                    <List.Item
+                    <ListItem
                       title={new Date(healthRecord.startDate).toLocaleDateString('tr-TR')}
                       description="Başlangıç Tarihi"
-                      left={(props) => <List.Icon {...props} icon="calendar-start" />}
+                      left={<MaterialCommunityIcons name="calendar-start" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
 
                   {healthRecord.endDate && (
-                    <List.Item
+                    <ListItem
                       title={new Date(healthRecord.endDate).toLocaleDateString('tr-TR')}
                       description="Bitiş Tarihi"
-                      left={(props) => <List.Icon {...props} icon="calendar-end" />}
+                      left={<MaterialCommunityIcons name="calendar-end" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
-                </Card.Content>
+                </View>
               </Card>
             )}
           </>
@@ -337,31 +336,42 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
         {/* Notes */}
         {healthRecord.notes && (
           <Card style={styles.card}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
                 Notlar
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, lineHeight: 20 }}>
                 {healthRecord.notes}
               </Text>
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Metadata */}
         <Card style={styles.card}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
               Oluşturulma: {new Date(healthRecord.createdAt).toLocaleString('tr-TR')}
             </Text>
-          </Card.Content>
+          </View>
         </Card>
       </ScrollView>
+
+      {/* Edit Modal */}
+      {healthRecord && (
+        <HealthRecordForm
+          petId={healthRecord.petId}
+          visible={isEditModalVisible}
+          onSuccess={handleEditSuccess}
+          onCancel={handleEditCancel}
+          initialData={healthRecord}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
-function getDaysUntilDue(dueDate: string): number {
+function getDaysUntilDue(dueDate: string | Date): number {
   const due = new Date(dueDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -393,6 +403,9 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
+  },
+  cardContent: {
+    padding: 16,
   },
   titleRow: {
     flexDirection: 'row',

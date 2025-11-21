@@ -1,6 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseService } from '../services/expenseService';
-import type { Expense, CreateExpenseInput, UpdateExpenseInput, ExpenseStats } from '../types';
+import type { CreateExpenseInput, Expense, ExpenseStats, MonthlyExpense, YearlyExpense, UpdateExpenseInput } from '../types';
+import { CACHE_TIMES } from '../config/queryConfig';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useResources } from './core/useResources';
+import { useConditionalQuery } from './core/useConditionalQuery';
 
 // Type-safe filters for expenses
 interface ExpenseFilters {
@@ -16,127 +22,104 @@ interface ExpenseFilters {
   paymentMethod?: string;
 }
 
-// Query keys
+// Stats params interface
+interface StatsParams {
+  petId?: string;
+  startDate?: string;
+  endDate?: string;
+  category?: string;
+}
+
+// Monthly/Yearly params interface
+interface PeriodParams {
+  petId?: string;
+  year?: number;
+  month?: number;
+}
+
+// Date range params interface
+interface DateRangeParams {
+  petId?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+// Query keys factory
+const baseExpenseKeys = createQueryKeys('expenses');
+
+// Extended query keys with custom keys
 export const expenseKeys = {
-  all: ['expenses'] as const,
-  lists: () => [...expenseKeys.all, 'list'] as const,
-  list: (filters: ExpenseFilters) => [...expenseKeys.lists(), filters] as const,
-  details: () => [...expenseKeys.all, 'detail'] as const,
-  detail: (id: string) => [...expenseKeys.details(), id] as const,
-  stats: (params?: any) => [...expenseKeys.all, 'stats', params] as const,
-  byPet: (petId: string) => [...expenseKeys.all, 'by-pet', petId] as const,
-  byCategory: (category: string, petId?: string) => [...expenseKeys.all, 'by-category', category, petId] as const,
-  monthly: (params?: any) => [...expenseKeys.all, 'monthly', params] as const,
-  yearly: (params?: any) => [...expenseKeys.all, 'yearly', params] as const,
-  dateRange: (params: any) => [...expenseKeys.all, 'date-range', params] as const,
+  ...baseExpenseKeys,
+  list: (filters: ExpenseFilters) => [...baseExpenseKeys.lists(), filters] as const,
+  stats: (params?: StatsParams) => [...baseExpenseKeys.all, 'stats', params] as const,
+  byPet: (petId: string) => [...baseExpenseKeys.all, 'by-pet', petId] as const,
+  byCategory: (category: string, petId?: string) => [...baseExpenseKeys.all, 'by-category', category, petId] as const,
+  monthly: (params?: PeriodParams) => [...baseExpenseKeys.all, 'monthly', params] as const,
+  yearly: (params?: Omit<PeriodParams, 'month'>) => [...baseExpenseKeys.all, 'yearly', params] as const,
+  dateRange: (params: DateRangeParams) => [...baseExpenseKeys.all, 'date-range', params] as const,
 };
 
 // Hook for fetching expenses by pet ID with filters
 export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId'> = {}) {
-  return useQuery({
+  return useConditionalQuery<{ expenses: Expense[]; total: number }>({
     queryKey: expenseKeys.list({ petId, ...filters }),
-    queryFn: async () => {
-      if (!petId) {
-        return { expenses: [], total: 0 };
-      }
-      const result = await expenseService.getExpensesByPetId(petId, filters);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load expenses');
-      }
-      return result.data || { expenses: [], total: 0 };
-    },
+    queryFn: () => expenseService.getExpensesByPetId(petId!, filters),
+    staleTime: CACHE_TIMES.SHORT,
     enabled: !!petId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    defaultValue: { expenses: [], total: 0 },
+    errorMessage: 'Failed to load expenses',
   });
 }
 
 // Hook for fetching a single expense
 export function useExpense(id?: string) {
-  return useQuery({
+  return useResource<Expense>({
     queryKey: expenseKeys.detail(id!),
-    queryFn: async () => {
-      if (!id) return null;
-      const result = await expenseService.getExpenseById(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load expense');
-      }
-      return result.data;
-    },
+    queryFn: () => expenseService.getExpenseById(id!),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    errorMessage: 'Failed to load expense',
   });
 }
 
 // Hook for expense statistics
-export function useExpenseStats(params?: {
-  petId?: string;
-  startDate?: string;
-  endDate?: string;
-  category?: string;
-}) {
-  return useQuery({
+export function useExpenseStats(params?: StatsParams) {
+  return useConditionalQuery<ExpenseStats | null>({
     queryKey: expenseKeys.stats(params),
-    queryFn: async () => {
-      const result = await expenseService.getExpenseStats(params);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load expense statistics');
-      }
-      return result.data;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => expenseService.getExpenseStats(params),
+    staleTime: CACHE_TIMES.MEDIUM,
+    defaultValue: null,
+    errorMessage: 'Failed to load expense statistics',
   });
 }
 
 // Hook for monthly expenses
-export function useMonthlyExpenses(params?: {
-  petId?: string;
-  year?: number;
-  month?: number;
-}) {
-  return useQuery({
+export function useMonthlyExpenses(params?: PeriodParams) {
+  return useResources<MonthlyExpense>({
     queryKey: expenseKeys.monthly(params),
-    queryFn: async () => {
-      const result = await expenseService.getMonthlyExpenses(params);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load monthly expenses');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => expenseService.getMonthlyExpenses(params),
+    staleTime: CACHE_TIMES.MEDIUM,
   });
 }
 
 // Hook for yearly expenses
-export function useYearlyExpenses(params?: {
-  petId?: string;
-  year?: number;
-}) {
-  return useQuery({
+export function useYearlyExpenses(params?: Omit<PeriodParams, 'month'>) {
+  return useResources<YearlyExpense>({
     queryKey: expenseKeys.yearly(params),
-    queryFn: async () => {
-      const result = await expenseService.getYearlyExpenses(params);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load yearly expenses');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => expenseService.getYearlyExpenses(params),
+    staleTime: CACHE_TIMES.MEDIUM,
   });
 }
 
 // Hook for expenses by category
 export function useExpensesByCategory(category: string, petId?: string) {
-  return useQuery({
+  return useConditionalQuery<Expense[]>({
     queryKey: expenseKeys.byCategory(category, petId),
-    queryFn: async () => {
-      const result = await expenseService.getExpensesByCategory(category, petId);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load expenses by category');
-      }
-      return result.data || [];
-    },
+    queryFn: () => expenseService.getExpensesByCategory(category, petId),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!category,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    defaultValue: [],
+    errorMessage: 'Failed to load expenses by category',
   });
 }
 
@@ -146,17 +129,13 @@ export function useExpensesByDateRange(params: {
   startDate: string;
   endDate: string;
 }) {
-  return useQuery({
+  return useConditionalQuery<Expense[]>({
     queryKey: expenseKeys.dateRange(params),
-    queryFn: async () => {
-      const result = await expenseService.getExpensesByDateRange(params);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load expenses by date range');
-      }
-      return result.data || [];
-    },
+    queryFn: () => expenseService.getExpensesByDateRange(params),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!params.startDate && !!params.endDate,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    defaultValue: [],
+    errorMessage: 'Failed to load expenses by date range',
   });
 }
 
@@ -164,60 +143,56 @@ export function useExpensesByDateRange(params: {
 export function useCreateExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: CreateExpenseInput) => {
-      const result = await expenseService.createExpense(data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to create expense');
+  return useCreateResource<Expense, CreateExpenseInput>(
+    (data) => expenseService.createExpense(data).then(res => res.data!),
+    {
+      listQueryKey: expenseKeys.all, // Ideally should be more specific but existing code invalidated 'all'
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for updating an expense
 export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateExpenseInput }) => {
-      const result = await expenseService.updateExpense(id, data);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update expense');
+  return useUpdateResource<Expense, UpdateExpenseInput>(
+    ({ id, data }) => expenseService.updateExpense(id, data).then(res => res.data!),
+    {
+      listQueryKey: expenseKeys.all,
+      detailQueryKey: expenseKeys.detail,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+      },
+      onSettled: (data) => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+        if (data) {
+             queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data.id) });
+        }
       }
-      return result.data!;
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data.id) });
-      queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for deleting an expense
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const result = await expenseService.deleteExpense(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete expense');
+  return useDeleteResource<Expense>(
+    (id) => expenseService.deleteExpense(id).then(res => res.data), // Assuming delete returns the ID or void
+    {
+      listQueryKey: expenseKeys.all,
+      detailQueryKey: expenseKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       }
-      return id;
-    },
-    onSuccess: () => {
-      // Invalidate and refetch all expense queries
-      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
-    },
-  });
+    }
+  );
 }
 
 // Mutation hook for exporting expenses as CSV
@@ -230,7 +205,10 @@ export function useExportExpensesCSV() {
     }) => {
       const result = await expenseService.exportExpensesCSV(params);
       if (!result.success) {
-        throw new Error(result.error || 'Failed to export expenses');
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export expenses';
+        throw new Error(errorMessage);
       }
       return result.data!;
     },

@@ -1,10 +1,11 @@
+import { Portal, Snackbar } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import React from 'react';
-import { View, StyleSheet, Modal as RNModal, Text } from 'react-native';
-import { useTheme, Portal, Snackbar } from 'react-native-paper';
-import { Pet } from '../lib/types';
-import { PetCreateInput } from '../lib/schemas/petSchema';
-import PetForm from './forms/PetForm';
+import { Modal as RNModal, StyleSheet, Text, View } from 'react-native';
 import { useCreatePet, useUpdatePet } from '../lib/hooks/usePets';
+import { PetCreateInput } from '../lib/schemas/petSchema';
+import { Pet } from '../lib/types';
+import PetForm from './forms/PetForm';
 
 interface PetModalProps {
   visible: boolean;
@@ -21,7 +22,7 @@ export function PetModal({
   onSuccess,
   testID,
 }: PetModalProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [loading, setLoading] = React.useState(false);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
@@ -42,11 +43,11 @@ export function PetModal({
         // Pet güncelleme - breed undefined'ı null'a çevir
         const updateData = {
           ...data,
-          breed: data.breed || null,
-          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
-          weight: data.weight || null,
-          gender: data.gender || null,
-          profilePhoto: data.profilePhoto || null,
+          breed: data.breed || undefined,
+          birthDate: data.birthDate ? data.birthDate : undefined,
+          weight: data.weight || undefined,
+          gender: data.gender || undefined,
+          profilePhoto: data.profilePhoto || undefined,
         };
         await updatePetMutation.mutateAsync({ id: pet.id, data: updateData });
         showSnackbar('Pet başarıyla güncellendi');
@@ -54,11 +55,11 @@ export function PetModal({
         // Yeni pet oluşturma - breed undefined'ı null'a çevir
         const createData = {
           ...data,
-          breed: data.breed || null,
-          birthDate: data.birthDate ? data.birthDate.toISOString() : null,
-          weight: data.weight || null,
-          gender: data.gender || null,
-          profilePhoto: data.profilePhoto || null,
+          breed: data.breed || undefined,
+          birthDate: data.birthDate ? data.birthDate : undefined,
+          weight: data.weight || undefined,
+          gender: data.gender || undefined,
+          profilePhoto: data.profilePhoto || undefined,
         };
         await createPetMutation.mutateAsync(createData);
         showSnackbar('Pet başarıyla eklendi');
@@ -106,7 +107,6 @@ export function PetModal({
             pet={pet}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            loading={loading}
             testID="pet-form-in-modal"
           />
         </View>
@@ -117,13 +117,12 @@ export function PetModal({
           visible={snackbarVisible}
           onDismiss={handleSnackbarDismiss}
           duration={3000}
-          style={[
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          message={snackbarMessage}
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+          }}
+        />
       </Portal>
     </>
   );

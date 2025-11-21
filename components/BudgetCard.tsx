@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, IconButton, ProgressBar, Chip, Badge } from 'react-native-paper';
+import { Card, Text, IconButton, ProgressBar, Chip, Badge } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { BudgetLimit, BudgetStatus } from '../lib/types';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,7 +23,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   onDelete,
   showActions = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
 
   const formatCurrency = (amount: number, currency: string): string => {
@@ -49,7 +50,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     return theme.colors.secondary;
   };
 
-  const getStatusIcon = (percentage: number): string => {
+  const getStatusIcon = (percentage: number): keyof typeof MaterialCommunityIcons.glyphMap => {
     if (percentage >= 100) return 'alert-circle';
     if (percentage >= budget.alertThreshold * 100) return 'alert';
     return 'check-circle';
@@ -71,7 +72,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
       ]}
       elevation={2}
     >
-      <Card.Content>
+      <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <MaterialCommunityIcons
@@ -131,7 +132,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           <View style={styles.progressInfo}>
             <View style={styles.progressLeft}>
               <MaterialCommunityIcons
-                name={getStatusIcon(percentage) as any}
+                name={getStatusIcon(percentage)}
                 size={16}
                 color={getProgressColor(percentage)}
               />
@@ -200,7 +201,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
             )}
           </View>
         )}
-      </Card.Content>
+      </View>
     </Card>
   );
 
@@ -222,6 +223,9 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 6,
     borderRadius: 12,
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',

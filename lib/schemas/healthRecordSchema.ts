@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { HEALTH_RECORD_TYPES } from '../../constants/index';
 // import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
@@ -7,13 +6,18 @@ const TURKISH_TEXT_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
 const TURKISH_CLINIC_REGEX = /^[a-zA-Z0-zA-Z0-9çÇğĞıİöÖşŞüÜ\s.,'-]+$/;
 
 // Custom validation functions
-const validateHealthDate = (date: Date) => {
+const validateHealthDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return false;
   const now = new Date();
   const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate()); // 30 years ago
   return date <= now && date >= minDate;
 };
 
-const validateNextDueDate = (nextDueDate: Date, healthDate: Date) => {
+const validateNextDueDate = (nextDueDateString: string, healthDateString: string) => {
+  const nextDueDate = new Date(nextDueDateString);
+  const healthDate = new Date(healthDateString);
+  if (isNaN(nextDueDate.getTime()) || isNaN(healthDate.getTime())) return false;
   return nextDueDate > healthDate;
 };
 
@@ -65,13 +69,6 @@ const BaseHealthRecordSchema = z.object({
   date: z
     .string()
     .datetime('Geçersiz tarih formatı')
-    .transform((dateString) => {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        throw new Error('Geçersiz tarih formatı');
-      }
-      return date;
-    })
     .refine(validateHealthDate, {
       message: 'Tarih gelecekte olamaz'
     }),
@@ -111,15 +108,23 @@ const BaseHealthRecordSchema = z.object({
     .string()
     .datetime('Geçersiz tarih formatı')
     .optional()
-    .nullable()
-    .transform((dateString) => {
-      if (!dateString) return undefined;
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        throw new Error('Geçersiz tarih formatı');
-      }
-      return date;
-    }),
+    .nullable(),
+});
+
+// Full HealthRecord schema including server-side fields
+export const HealthRecordSchema = BaseHealthRecordSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  // Add specific fields as optional to match the broad HealthRecord type
+  vaccineName: z.string().optional(),
+  vaccineManufacturer: z.string().optional(),
+  batchNumber: z.string().optional(),
+  medicationName: z.string().optional(),
+  dosage: z.string().optional(),
+  frequency: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 // Schema for creating a new health record
@@ -151,11 +156,8 @@ export const HealthRecordCreateSchema = BaseHealthRecordSchema.refine(
 );
 
 // Schema for updating an existing health record (all fields optional)
-export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial().extend({
-  id: z
-    .string()
-    .min(1, 'ID zorunludur'),
-}).refine(
+// Note: ID is handled separately in the mutation function, not in the schema
+export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial().refine(
   (data) => {
     // If both dates are provided, nextDueDate must be after date
     if (data.nextDueDate && data.date) {
@@ -202,8 +204,11 @@ export const VaccinationSchema = BaseHealthRecordSchema.extend({
 ).refine(
   (data) => {
     // For vaccination records, nextDueDate must be in the future
-    if (data.nextDueDate && data.nextDueDate <= new Date()) {
-      return false;
+    if (data.nextDueDate) {
+      const nextDueDate = new Date(data.nextDueDate);
+      if (nextDueDate <= new Date()) {
+        return false;
+      }
     }
     return true;
   },
@@ -242,39 +247,28 @@ export const MedicationSchema = BaseHealthRecordSchema.extend({
   startDate: z
     .string()
     .datetime('Geçersiz tarih formatı')
-    .optional()
-    .transform((dateString) => {
-      if (!dateString) return undefined;
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        throw new Error('Geçersiz başlangıç tarihi formatı');
-      }
-      return date;
-    }),
+    .optional(),
   endDate: z
     .string()
     .datetime('Geçersiz tarih formatı')
-    .optional()
-    .transform((dateString) => {
-      if (!dateString) return undefined;
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        throw new Error('Geçersiz bitiş tarihi formatı');
-      }
-      return date;
-    }),
+    .optional(),
 }).superRefine((data, ctx) => {
   // Validate that end date is after start date
-  if (data.startDate && data.endDate && data.endDate <= data.startDate) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Bitiş tarihi başlangıç tarihinden sonra olmalı',
-      path: ['endDate']
-    });
+  if (data.startDate && data.endDate) {
+    const startDate = new Date(data.startDate);
+    const endDate = new Date(data.endDate);
+    if (endDate <= startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Bitiş tarihi başlangıç tarihinden sonra olmalı',
+        path: ['endDate']
+      });
+    }
   }
 });
 
 // Type exports for TypeScript
+export type HealthRecord = z.infer<typeof HealthRecordSchema>;
 export type HealthRecordCreateInput = z.infer<typeof HealthRecordCreateSchema>;
 export type HealthRecordUpdateInput = z.infer<typeof HealthRecordUpdateSchema>;
 export type VaccinationInput = z.infer<typeof VaccinationSchema>;
@@ -383,7 +377,7 @@ export const getHealthRecordSchema = (type: HealthRecordType) => {
 };
 
 // Helper function to validate health record data with type-specific rules
-export const validateHealthRecord = (data: any, type: string) => {
+export const validateHealthRecord = (data: unknown, type: string) => {
   const schema = getHealthRecordSchema(type as HealthRecordType);
   return schema.safeParse(data);
 };

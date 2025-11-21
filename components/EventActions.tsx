@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { IconButton, Menu, useTheme } from 'react-native-paper';
+import { IconButton, Menu,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface EventActionsProps {
   onEdit?: () => void;
@@ -20,7 +22,7 @@ export default function EventActions({
   compact = false,
   iconSize = 24,
 }: EventActionsProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -64,31 +66,38 @@ export default function EventActions({
       >
         {onEdit && (
           <Menu.Item
-            leadingIcon="pencil"
+            leadingIcon={
+              <MaterialCommunityIcons name="pencil" size={20} color={theme.colors.onSurface} />
+            }
             onPress={handleEdit}
             title={t('common.edit')}
           />
         )}
         {onDuplicate && (
           <Menu.Item
-            leadingIcon="content-copy"
+            leadingIcon={
+              <MaterialCommunityIcons name="content-copy" size={20} color={theme.colors.onSurface} />
+            }
             onPress={handleDuplicate}
             title={t('events.duplicate')}
           />
         )}
         {onShare && (
           <Menu.Item
-            leadingIcon="share-variant"
+            leadingIcon={
+              <MaterialCommunityIcons name="share-variant" size={20} color={theme.colors.onSurface} />
+            }
             onPress={handleShare}
             title={t('common.share')}
           />
         )}
         {onDelete && (
           <Menu.Item
-            leadingIcon="delete"
+            leadingIcon={
+              <MaterialCommunityIcons name="delete" size={20} color={theme.colors.error} />
+            }
             onPress={handleDelete}
             title={t('common.delete')}
-            titleStyle={{ color: theme.colors.error }}
           />
         )}
       </Menu>

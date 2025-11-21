@@ -1,12 +1,15 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Button, Switch, List, useTheme } from 'react-native-paper';
+import { Text, Card, Button, Switch, ListItem } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '../../stores/themeStore';
 import { useLanguageStore } from '../../stores/languageStore';
 import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LAYOUT } from '../../constants';
 
 export default function SettingsScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const { themeMode, toggleTheme } = useThemeStore();
   const { language, setLanguage } = useLanguageStore();
@@ -17,101 +20,101 @@ export default function SettingsScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Theme Settings */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.appearance')}
             </Text>
-            <List.Item
+            <ListItem
               title={t('settings.darkMode')}
               description={t('settings.changeTheme')}
-              left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
-              right={() => (
+              left={<MaterialCommunityIcons name="theme-light-dark" size={24} color={theme.colors.onSurfaceVariant} />}
+              right={
                 <Switch
                   value={isDarkMode}
                   onValueChange={toggleTheme}
                   color={theme.colors.primary}
                 />
-              )}
+              }
             />
-          </Card.Content>
+          </View>
         </Card>
 
         {/* App Settings */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.appSettings')}
             </Text>
-            <List.Item
+            <ListItem
               title={t('settings.notifications')}
               description={t('settings.reminderNotifications')}
-              left={(props) => <List.Icon {...props} icon="bell" />}
-              right={() => (
+              left={<MaterialCommunityIcons name="bell" size={24} color={theme.colors.onSurfaceVariant} />}
+              right={
                 <Switch
                   value={true}
                   onValueChange={() => console.log('Toggle notifications')}
                   color={theme.colors.primary}
                 />
-              )}
+              }
             />
-            <List.Item
+            <ListItem
               title={t('settings.language')}
               description={language === 'tr' ? 'Türkçe' : 'English'}
-              left={(props) => <List.Icon {...props} icon="translate" />}
+              left={<MaterialCommunityIcons name="translate" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={() => {
                 const newLanguage = language === 'en' ? 'tr' : 'en';
                 setLanguage(newLanguage);
               }}
-              right={(props) => (
+              right={
                 <View style={styles.languageIndicator}>
                   <Text style={[styles.languageText, { color: theme.colors.onSurface }]}>
                     {language === 'en' ? 'EN' : 'TR'}
                   </Text>
                 </View>
-              )}
+              }
             />
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Data & Privacy */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.dataPrivacy')}
             </Text>
-            <List.Item
+            <ListItem
               title={t('settings.dataBackup')}
               description={t('settings.dataBackupDescription')}
-              left={(props) => <List.Icon {...props} icon="cloud-upload" />}
-              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              left={<MaterialCommunityIcons name="cloud-upload" size={24} color={theme.colors.onSurfaceVariant} />}
+              right={<MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />}
             />
-            <List.Item
+            <ListItem
               title={t('settings.dataCleanup')}
               description={t('settings.dataCleanupDescription')}
-              left={(props) => <List.Icon {...props} icon="delete" />}
-              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              left={<MaterialCommunityIcons name="delete" size={24} color={theme.colors.onSurfaceVariant} />}
+              right={<MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />}
             />
-          </Card.Content>
+          </View>
         </Card>
 
         {/* About */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               {t('settings.about')}
             </Text>
-            <List.Item
+            <ListItem
               title={t('settings.version')}
               description={t('settings.versionNumber')}
-              left={(props) => <List.Icon {...props} icon="information" />}
+              left={<MaterialCommunityIcons name="information" size={24} color={theme.colors.onSurfaceVariant} />}
             />
-            <List.Item
+            <ListItem
               title={t('settings.helpSupport')}
               description={t('settings.helpSupportDescription')}
-              left={(props) => <List.Icon {...props} icon="help-circle" />}
-              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              left={<MaterialCommunityIcons name="help-circle" size={24} color={theme.colors.onSurfaceVariant} />}
+              right={<MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />}
             />
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Logout Button */}
@@ -142,13 +145,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 2,
   },
+  cardContent: {
+    padding: 16,
+  },
   sectionTitle: {
     marginBottom: 8,
     fontWeight: '600',
   },
   logoutContainer: {
     marginTop: 24,
-    marginBottom: 32,
+    marginBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   logoutButton: {
     borderWidth: 1,

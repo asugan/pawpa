@@ -169,8 +169,16 @@ export const eventSchema = z.object({
     .optional(),
 });
 
+// Full Event schema including server-side fields
+export const EventSchema = eventSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
 // Type inference from the API schema
 export type EventData = z.infer<typeof eventSchema>;
+export type Event = z.infer<typeof EventSchema>;
 
 // Schema for event updates (all fields optional)
 export const updateEventSchema = z.object({
@@ -186,6 +194,8 @@ export const updateEventSchema = z.object({
 });
 
 export type UpdateEventFormData = z.infer<typeof updateEventSchema>;
+export type CreateEventInput = EventData;
+export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 
 // Helper function to validate date strings
 export const isValidDateTimeString = (dateString: string): boolean => {

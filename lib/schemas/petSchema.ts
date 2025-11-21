@@ -1,6 +1,4 @@
 import { z } from 'zod';
-import { PET_TYPES, PET_GENDERS } from '../../constants/index';
-import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
@@ -63,11 +61,18 @@ const BasePetSchema = z.object({
     })
 });
 
+// Full Pet schema including server-side fields
+export const PetSchema = BasePetSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
 // Schema for creating a new pet
 export const PetCreateSchema = BasePetSchema.refine(
-  (data: any) => {
+  (data: z.infer<typeof BasePetSchema>) => {
     const nameValid = data.name && data.name.trim().length >= 2;
-    const typeValid = data.type && data.type !== '';
+    const typeValid = !!data.type;
     return nameValid && typeValid;
   },
   {
@@ -80,6 +85,7 @@ export const PetCreateSchema = BasePetSchema.refine(
 export const PetUpdateSchema = BasePetSchema.partial();
 
 // Type exports for TypeScript
+export type Pet = z.infer<typeof PetSchema>;
 export type PetCreateInput = z.infer<typeof PetCreateSchema>;
 export type PetUpdateInput = z.infer<typeof PetUpdateSchema>;
 

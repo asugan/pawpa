@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export function NetworkStatusBadge() {
   const netInfo = useNetInfo();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   if (netInfo.isConnected === false) {
     return (

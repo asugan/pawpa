@@ -1,9 +1,9 @@
+import { Button, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import { filterUpcomingEvents, getEventGroupTranslationKey, groupEventsByTime } from '@/lib/utils/events';
 import React, { useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { useTheme, Text, Button, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, isAfter, addHours } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Event } from '../lib/types';
 import EventCard from './EventCard';
 
@@ -44,72 +44,23 @@ export function UpcomingEvents({
   emptyMessage,
   testID,
 }: UpcomingEventsProps) {
-  const { t, i18n } = useTranslation();
-  const theme = useTheme();
-  const locale = i18n.language === 'tr' ? tr : enUS;
+  const { t } = useTranslation();
+  const { theme } = useTheme();
 
-  // Filter and sort upcoming events
+  // Filter and sort upcoming events using utility function
   const upcomingEvents = useMemo(() => {
-    const now = new Date();
-    const endDate = endOfDay(addDays(now, daysToShow));
-
-    return events
-      .filter(event => {
-        const eventDate = new Date(event.startTime);
-        return eventDate >= now && eventDate <= endDate;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.startTime);
-        const dateB = new Date(b.startTime);
-        return dateA.getTime() - dateB.getTime();
-      })
-      .slice(0, maxEvents);
+    return filterUpcomingEvents(events, daysToShow, maxEvents);
   }, [events, daysToShow, maxEvents]);
 
-  // Group events by time categories
+  // Group events by time categories using utility function
   const eventGroups = useMemo(() => {
-    const now = new Date();
-    const inOneHour = addHours(now, 1);
-    const tomorrow = startOfDay(addDays(now, 1));
-
-    const groups = {
-      now: [] as Event[],
-      today: [] as Event[],
-      tomorrow: [] as Event[],
-      thisWeek: [] as Event[],
-    };
-
-    upcomingEvents.forEach(event => {
-      const eventDate = new Date(event.startTime);
-
-      if (isAfter(eventDate, now) && eventDate <= inOneHour) {
-        groups.now.push(event);
-      } else if (isToday(eventDate)) {
-        groups.today.push(event);
-      } else if (isTomorrow(eventDate)) {
-        groups.tomorrow.push(event);
-      } else {
-        groups.thisWeek.push(event);
-      }
-    });
-
-    return groups;
+    return groupEventsByTime(upcomingEvents);
   }, [upcomingEvents]);
 
-  // Format group title
+  // Format group title using utility function
   const formatGroupTitle = (group: string) => {
-    switch (group) {
-      case 'now':
-        return t('upcomingEvents.now');
-      case 'today':
-        return t('upcomingEvents.today');
-      case 'tomorrow':
-        return t('upcomingEvents.tomorrow');
-      case 'thisWeek':
-        return t('upcomingEvents.thisWeek');
-      default:
-        return '';
-    }
+    const translationKey = getEventGroupTranslationKey(group);
+    return translationKey ? t(translationKey) : '';
   };
 
   // Render event item

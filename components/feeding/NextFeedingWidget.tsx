@@ -1,32 +1,27 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, Card, IconButton } from 'react-native-paper';
+import { Text, Card, IconButton } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { formatDistanceToNow } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
-import { useNextFeeding } from '@/lib/hooks/useFeedingSchedules';
-import { usePets } from '@/lib/hooks/usePets';
-import { formatTimeForDisplay, getNextFeedingTime } from '@/lib/schemas/feedingScheduleSchema';
+import { useNextFeedingWithDetails } from '@/lib/hooks/useFeedingSchedules';
+import { formatTimeForDisplay } from '@/lib/schemas/feedingScheduleSchema';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gradients, gradientsDark } from '@/lib/theme';
 
 export function NextFeedingWidget() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const locale = i18n.language === 'tr' ? tr : enUS;
 
-  // Fetch next feeding
-  const { data: nextFeedingSchedule = null, isLoading } = useNextFeeding();
-
-  // Fetch pets for display
-  const { data: pets = [] } = usePets();
-
-  // Calculate next feeding time
-  const nextFeedingTime = nextFeedingSchedule ? getNextFeedingTime([nextFeedingSchedule]) : null;
-  const nextSchedule = nextFeedingSchedule;
-
-  // Get pet details
-  const pet = nextSchedule ? pets.find(p => p.id === nextSchedule.petId) : null;
+  // Use combined hook for all feeding details
+  const {
+    schedule: nextSchedule,
+    pet,
+    nextFeedingTime,
+    timeUntil,
+    isLoading,
+  } = useNextFeedingWithDetails(i18n.language);
 
   const handlePress = () => {
     router.push('/(tabs)/feeding');
@@ -41,11 +36,11 @@ export function NextFeedingWidget() {
   if (isLoading) {
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.content}>
+        <View style={styles.content}>
           <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
             {t('common.loading')}
           </Text>
-        </Card.Content>
+        </View>
       </Card>
     );
   }
@@ -55,113 +50,137 @@ export function NextFeedingWidget() {
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Pressable onPress={handleAddPress}>
-          <Card.Content style={styles.content}>
-            <View style={styles.header}>
-              <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-                🍽️ {t('feedingSchedule.nextFeeding')}
-              </Text>
-            </View>
+          <LinearGradient
+            colors={theme.dark ? ['#1A1F26', '#252B35'] : ['#FFFFFF', '#FAFAFA']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardGradient}
+          >
+            <View style={styles.content}>
+              <View style={styles.header}>
+                <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+                  🍽️ {t('feedingSchedule.nextFeeding')}
+                </Text>
+              </View>
 
-            <View style={styles.emptyContainer}>
-              <Text
-                variant="bodyMedium"
-                style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
-              >
-                {t('feedingSchedule.noNextFeeding')}
-              </Text>
-              <Text
-                variant="bodySmall"
-                style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}
-              >
-                {t('feedingSchedule.addFirstSchedule')}
-              </Text>
+              <View style={styles.emptyContainer}>
+                <Text style={styles.bigEmoji}>🍖</Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('feedingSchedule.noNextFeeding')}
+                </Text>
+                <Text
+                  variant="bodySmall"
+                  style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('feedingSchedule.addFirstSchedule')}
+                </Text>
+              </View>
             </View>
-          </Card.Content>
+          </LinearGradient>
         </Pressable>
       </Card>
     );
   }
 
-  // Calculate time until next feeding
-  const timeUntil = formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale });
-
   return (
-    <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, borderWidth: 2 }]}>
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
       <Pressable onPress={handlePress}>
-        <Card.Content style={styles.content}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-              🍽️ {t('feedingSchedule.nextFeeding')}
-            </Text>
-            <IconButton
-              icon="arrow-right"
-              size={20}
-              iconColor={theme.colors.onSurfaceVariant}
-              onPress={handlePress}
-            />
-          </View>
-
-          {/* Next Feeding Info */}
-          <View style={styles.feedingInfo}>
-            {/* Time */}
-            <View style={[styles.timeContainer, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text variant="headlineSmall" style={[styles.time, { color: theme.colors.onPrimaryContainer }]}>
-                {formatTimeForDisplay(nextSchedule.time)}
+        <LinearGradient
+          colors={theme.dark ? ['#1A1F26', '#252B35'] : ['#FFFFFF', '#FAFAFA']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.cardGradient}
+        >
+          <View style={styles.content}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+                🍽️ {t('feedingSchedule.nextFeeding')}
               </Text>
-              <Text variant="bodySmall" style={[styles.timeUntil, { color: theme.colors.onPrimaryContainer }]}>
-                {timeUntil}
-              </Text>
+              <IconButton
+                icon="arrow-forward"
+                size={20}
+                iconColor={theme.colors.onSurfaceVariant}
+                onPress={handlePress}
+              />
             </View>
 
-            {/* Details */}
-            <View style={styles.details}>
-              {/* Pet */}
-              {pet && (
+            {/* Next Feeding Info */}
+            <View style={styles.feedingInfo}>
+              {/* Time */}
+              <LinearGradient
+                colors={theme.dark ? gradientsDark.accent : gradients.accent}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.timeContainer}
+              >
+                <Text variant="headlineSmall" style={[styles.time, { color: '#FFFFFF' }]}>
+                  {formatTimeForDisplay(nextSchedule.time)}
+                </Text>
+                <Text variant="bodySmall" style={[styles.timeUntil, { color: '#FFFFFF' }]}>
+                  {timeUntil}
+                </Text>
+              </LinearGradient>
+
+              {/* Details */}
+              <View style={styles.details}>
+                {/* Pet */}
+                {pet && (
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailIcon}>🐾</Text>
+                    <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
+                      {pet.name}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Food Type */}
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailIcon}>🐾</Text>
+                  <Text style={styles.detailIcon}>🥘</Text>
                   <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
-                    {pet.name}
+                    {t(`foodTypes.${nextSchedule.foodType}`)}
                   </Text>
                 </View>
-              )}
 
-              {/* Food Type */}
-              <View style={styles.detailRow}>
-                <Text style={styles.detailIcon}>🥘</Text>
-                <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
-                  {t(`foodTypes.${nextSchedule.foodType}`)}
-                </Text>
-              </View>
-
-              {/* Amount */}
-              <View style={styles.detailRow}>
-                <Text style={styles.detailIcon}>📏</Text>
-                <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
-                  {nextSchedule.amount}
-                </Text>
+                {/* Amount */}
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailIcon}>📏</Text>
+                  <Text variant="bodyMedium" style={[styles.detailText, { color: theme.colors.onSurface }]}>
+                    {nextSchedule.amount}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-        </Card.Content>
+        </LinearGradient>
       </Pressable>
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
   card: {
     marginBottom: 16,
     marginHorizontal: 4,
-    elevation: 2,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 2,
     },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    borderRadius: 16,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  cardGradient: {
+    borderRadius: 20,
   },
   content: {
     padding: 16,
@@ -180,17 +199,17 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   time: {
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: -0.5,
   },
   timeUntil: {
     marginTop: 4,
-    fontWeight: '600',
-    opacity: 0.8,
+    fontWeight: '700',
+    opacity: 0.9,
   },
   details: {
     gap: 8,
@@ -201,7 +220,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   detailIcon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   detailText: {
     fontWeight: '500',
@@ -210,6 +229,10 @@ const styles = StyleSheet.create({
   emptyContainer: {
     paddingVertical: 16,
     alignItems: 'center',
+    gap: 8,
+  },
+  bigEmoji: {
+    fontSize: 48,
   },
   emptyText: {
     fontWeight: '600',

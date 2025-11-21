@@ -1,14 +1,16 @@
-import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ENV } from '../config/env';
+import { ErrorDetails } from '../types';
 
 // API Response interface
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
-  error?: {
+  message?: string;
+  error?: string | {
     code: string;
     message: string;
-    details?: any;
+    details?: ErrorDetails;
   };
   meta?: {
     total?: number;
@@ -23,7 +25,7 @@ export class ApiError extends Error {
     message: string,
     public code?: string,
     public status?: number,
-    public details?: any
+    public details?: ErrorDetails
   ) {
     super(message);
     this.name = 'ApiError';
@@ -31,7 +33,7 @@ export class ApiError extends Error {
 }
 
 // Request interceptor for debugging
-const requestInterceptor = (config: any) => {
+const requestInterceptor = (config: InternalAxiosRequestConfig) => {
   if (__DEV__) {
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     if (config.data) {
@@ -68,13 +70,20 @@ const errorInterceptor = (error: AxiosError) => {
 
   // Handle API errors
   const { status, data } = error.response;
-  const apiData = data as any;
+
+  // Type guard for API error response
+  const isApiErrorResponse = (data: unknown): data is ApiResponse => {
+    return typeof data === 'object' && data !== null && ('success' in data || 'error' in data || 'message' in data);
+  };
+
+  const apiData = isApiErrorResponse(data) ? data : { success: false, message: 'Bilinmeyen hata' };
+  const errorInfo = typeof apiData.error === 'object' ? apiData.error : { code: 'UNKNOWN_ERROR', message: apiData.error || apiData.message || 'Bilinmeyen hata' };
 
   throw new ApiError(
-    apiData?.error?.message || apiData?.message || 'Bilinmeyen hata',
-    apiData?.error?.code || 'UNKNOWN_ERROR',
+    errorInfo.message,
+    errorInfo.code,
     status,
-    apiData?.error?.details
+    errorInfo.details
   );
 };
 
@@ -102,31 +111,31 @@ export const apiClient = createApiClient();
 // Export utility functions
 export const api = {
   // GET request
-  get: async <T = any>(url: string, params?: any): Promise<ApiResponse<T>> => {
+  get: async <T = unknown>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> => {
     const response = await apiClient.get<ApiResponse<T>>(url, { params });
     return response.data;
   },
 
   // POST request
-  post: async <T = any>(url: string, data?: any): Promise<ApiResponse<T>> => {
+  post: async <T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> => {
     const response = await apiClient.post<ApiResponse<T>>(url, data);
     return response.data;
   },
 
   // PUT request
-  put: async <T = any>(url: string, data?: any): Promise<ApiResponse<T>> => {
+  put: async <T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> => {
     const response = await apiClient.put<ApiResponse<T>>(url, data);
     return response.data;
   },
 
   // DELETE request
-  delete: async <T = any>(url: string): Promise<ApiResponse<T>> => {
+  delete: async <T = unknown>(url: string): Promise<ApiResponse<T>> => {
     const response = await apiClient.delete<ApiResponse<T>>(url);
     return response.data;
   },
 
   // File upload (multipart/form-data)
-  upload: async <T = any>(url: string, formData: FormData): Promise<ApiResponse<T>> => {
+  upload: async <T = unknown>(url: string, formData: FormData): Promise<ApiResponse<T>> => {
     const response = await apiClient.post<ApiResponse<T>>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

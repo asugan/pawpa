@@ -1,3 +1,9 @@
+// Layout Constants
+export const LAYOUT = {
+  TAB_BAR_HEIGHT: 60,
+  FAB_OFFSET: 80, // Height needed for FAB clearance (includes padding)
+} as const;
+
 // Pet Types
 export const PET_TYPES = {
   DOG: 'dog',

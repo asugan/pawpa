@@ -1,6 +1,6 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
-import type { Pet, CreatePetInput, UpdatePetInput, ApiResponse } from '../types';
+import type { Pet, CreatePetInput, UpdatePetInput } from '../types';
 
 /**
  * Date utility functions for safe date handling
@@ -9,7 +9,7 @@ import type { Pet, CreatePetInput, UpdatePetInput, ApiResponse } from '../types'
 /**
  * Type guard function to safely check if a value is a Date object
  */
-function isDate(value: any): value is Date {
+function isDate(value: unknown): value is Date {
   return value instanceof Date && !isNaN(value.getTime());
 }
 
@@ -75,10 +75,31 @@ export class PetService {
 
   /**
    * Tüm petleri listeler (en yeni başa)
+   * Supports pagination, filtering by type, search, and sorting
    */
-  async getPets(): Promise<ApiResponse<Pet[]>> {
+  async getPets(params?: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApiResponse<Pet[]>> {
     try {
-      const response = await api.get<Pet[]>(ENV.ENDPOINTS.PETS);
+      const queryParams: Record<string, string | number> = {};
+
+      // Build query params from all available filters
+      if (params?.page !== undefined) queryParams.page = params.page;
+      if (params?.limit !== undefined) queryParams.limit = params.limit;
+      if (params?.type) queryParams.type = params.type;
+      if (params?.search) queryParams.search = params.search;
+      if (params?.sortBy) queryParams.sortBy = params.sortBy;
+      if (params?.sortOrder) queryParams.sortOrder = params.sortOrder;
+
+      const response = await api.get<Pet[]>(
+        ENV.ENDPOINTS.PETS,
+        Object.keys(queryParams).length > 0 ? queryParams : undefined
+      );
 
       console.log(`✅ ${response.data?.length || 0} pets loaded successfully`);
       return {
@@ -271,11 +292,13 @@ export class PetService {
   async uploadPetPhoto(id: string, photoUri: string): Promise<ApiResponse<Pet>> {
     try {
       const formData = new FormData();
-      formData.append('photo', {
+      // React Native FormData blob type
+      const photoBlob = {
         uri: photoUri,
         type: 'image/jpeg',
         name: 'pet-photo.jpg',
-      } as any);
+      } as unknown as Blob;
+      formData.append('photo', photoBlob);
 
       const response = await api.upload<Pet>(ENV.ENDPOINTS.PET_PHOTO(id), formData);
 
@@ -290,12 +313,19 @@ export class PetService {
       if (error instanceof ApiError) {
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code || 'UPLOAD_ERROR',
+            message: error.message,
+            details: error.details,
+          },
         };
       }
       return {
         success: false,
-        error: 'Pet fotoğrafı yüklenemedi. Lütfen tekrar deneyin.',
+        error: {
+          code: 'UPLOAD_ERROR',
+          message: 'Pet fotoğrafı yüklenemedi. Lütfen tekrar deneyin.',
+        },
       };
     }
   }
@@ -354,12 +384,19 @@ export class PetService {
       if (error instanceof ApiError) {
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code || 'STATS_ERROR',
+            message: error.message,
+            details: error.details,
+          },
         };
       }
       return {
         success: false,
-        error: 'İstatistikler yüklenemedi. Lütfen tekrar deneyin.',
+        error: {
+          code: 'STATS_ERROR',
+          message: 'İstatistikler yüklenemedi. Lütfen tekrar deneyin.',
+        },
       };
     }
   }

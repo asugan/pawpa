@@ -1,83 +1,32 @@
-// Base types for API responses
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
+// Import types from schemas
+import { BudgetCreateInput, BudgetLimit, BudgetPeriod, BudgetUpdateInput } from './schemas/budgetSchema';
+import { CreateEventInput, Event, UpdateEventInput } from './schemas/eventSchema';
+import { Currency, Expense, ExpenseCategory, ExpenseCreateInput, ExpenseUpdateInput, PaymentMethod } from './schemas/expenseSchema';
+import { CreateFeedingScheduleInput, FeedingSchedule, UpdateFeedingScheduleInput } from './schemas/feedingScheduleSchema';
+import { HealthRecord, HealthRecordCreateInput, HealthRecordUpdateInput } from './schemas/healthRecordSchema';
+import { Pet, PetCreateInput, PetUpdateInput } from './schemas/petSchema';
 
-// Pet type and gender unions
+// Re-export types
+// Re-export types with aliases for backward compatibility
+export type {
+    BudgetLimit, BudgetPeriod, BudgetCreateInput as CreateBudgetLimitInput, CreateEventInput, ExpenseCreateInput as CreateExpenseInput, CreateFeedingScheduleInput, HealthRecordCreateInput as CreateHealthRecordInput, PetCreateInput as CreatePetInput, Currency, Event, Expense, ExpenseCategory, FeedingSchedule, HealthRecord, PaymentMethod, Pet, BudgetUpdateInput as UpdateBudgetLimitInput, UpdateEventInput, ExpenseUpdateInput as UpdateExpenseInput, UpdateFeedingScheduleInput, HealthRecordUpdateInput as UpdateHealthRecordInput, PetUpdateInput as UpdatePetInput
+};
+
+// Also export the new names if needed, or just rely on the aliases
+    export type {
+        BudgetCreateInput,
+        BudgetUpdateInput, ExpenseCreateInput,
+        ExpenseUpdateInput, HealthRecordCreateInput,
+        HealthRecordUpdateInput, PetCreateInput,
+        PetUpdateInput
+    };
+
+// Pet type and gender unions (kept for compatibility if used elsewhere, or import from constants/schemas)
 export type PetType = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
 export type PetGender = 'male' | 'female' | 'other';
 
-// Pet types
-export interface Pet {
-  id: string;
-  name: string;
-  type: PetType;
-  breed?: string | null;
-  birthDate?: string | null;
-  weight?: number | null;
-  gender?: PetGender | null;
-  profilePhoto?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Health Record types
-export interface HealthRecord {
-  id: string;
-  petId: string;
-  type: string;
-  title: string;
-  description?: string;
-  date: string;
-  veterinarian?: string;
-  clinic?: string;
-  cost?: number;
-  notes?: string;
-  nextDueDate?: string | null;
-  // Vaccination specific fields
-  vaccineName?: string;
-  vaccineManufacturer?: string;
-  batchNumber?: string;
-  // Medication specific fields
-  medicationName?: string;
-  dosage?: string;
-  frequency?: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Event types
-export interface Event {
-  id: string;
-  petId: string;
-  type: string;
-  title: string;
-  description?: string;
-  startTime: string;
-  endTime?: string | null;
-  location?: string;
-  reminder: boolean;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Feeding Schedule types
-export interface FeedingSchedule {
-  id: string;
-  petId: string;
-  time: string; // HH:MM format (e.g., "08:00")
-  foodType: string;
-  amount: string; // Portion amount (e.g., "200g", "1 cup")
-  days: string; // Comma-separated days (e.g., "monday,tuesday,wednesday")
-  isActive: boolean;
-  createdAt: string;
-}
+// Food type union (from FOOD_TYPES constant)
+export type FoodType = 'dry_food' | 'wet_food' | 'raw_food' | 'homemade' | 'treats' | 'supplements' | 'other';
 
 // Extended types with additional fields if needed
 export type PetWithRelations = Pet & {
@@ -85,25 +34,6 @@ export type PetWithRelations = Pet & {
   events?: Event[];
   feedingSchedules?: FeedingSchedule[];
 };
-
-// Input types for forms (without id and timestamps)
-export type CreatePetInput = Omit<Pet, "id" | "createdAt" | "updatedAt">;
-export type UpdatePetInput = Partial<CreatePetInput>;
-
-export type CreateHealthRecordInput = Omit<
-  HealthRecord,
-  "id" | "createdAt" | "updatedAt"
->;
-export type UpdateHealthRecordInput = Partial<CreateHealthRecordInput>;
-
-export type CreateEventInput = Omit<Event, "id" | "createdAt" | "updatedAt">;
-export type UpdateEventInput = Partial<CreateEventInput>;
-
-export type CreateFeedingScheduleInput = Omit<
-  FeedingSchedule,
-  "id" | "createdAt"
->;
-export type UpdateFeedingScheduleInput = Partial<CreateFeedingScheduleInput>;
 
 export type PaginatedResponse<T> = {
   data: T[];
@@ -113,54 +43,6 @@ export type PaginatedResponse<T> = {
   hasNext: boolean;
   hasPrev: boolean;
 };
-
-// Expense and Budget types
-export type ExpenseCategory =
-  | 'food'
-  | 'premium_food'
-  | 'veterinary'
-  | 'vaccination'
-  | 'medication'
-  | 'grooming'
-  | 'toys'
-  | 'accessories'
-  | 'training'
-  | 'insurance'
-  | 'emergency'
-  | 'other';
-
-export type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer';
-
-export type Currency = 'TRY' | 'USD' | 'EUR' | 'GBP';
-
-export type BudgetPeriod = 'monthly' | 'yearly';
-
-export interface Expense {
-  id: string;
-  petId: string;
-  category: ExpenseCategory;
-  amount: number;
-  currency: Currency;
-  paymentMethod?: PaymentMethod | null;
-  description?: string | null;
-  date: string;
-  receiptPhoto?: string | null;
-  vendor?: string | null;
-  notes?: string | null;
-  createdAt: string;
-}
-
-export interface BudgetLimit {
-  id: string;
-  petId: string;
-  category?: ExpenseCategory | null; // null means overall budget
-  amount: number;
-  currency: Currency;
-  period: BudgetPeriod;
-  alertThreshold: number; // 0-1 (default 0.8 = 80%)
-  isActive: boolean;
-  createdAt: string;
-}
 
 export interface ExpenseStats {
   total: number;
@@ -192,15 +74,126 @@ export interface BudgetStatus {
   remainingAmount: number;
 }
 
-// Input types for forms
-export type CreateExpenseInput = Omit<Expense, 'id' | 'createdAt'>;
-export type UpdateExpenseInput = Partial<CreateExpenseInput>;
-
-export type CreateBudgetLimitInput = Omit<BudgetLimit, 'id' | 'createdAt'>;
-export type UpdateBudgetLimitInput = Partial<CreateBudgetLimitInput>;
-
 // Extended Pet type with expenses and budgets
 export type PetWithFinances = Pet & {
   expenses?: Expense[];
   budgetLimits?: BudgetLimit[];
 };
+
+// ============================================================================
+// Common Type Definitions (to replace 'any' usage)
+// ============================================================================
+
+// Icon Types - Material Community Icons
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+export type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+// API Error Details
+export interface ErrorDetails {
+  [key: string]: unknown;
+  field?: string;
+  value?: unknown;
+  constraint?: string;
+}
+
+// Query Filter Types
+export interface QueryFilters {
+  [key: string]: unknown;
+}
+
+export interface DateRangeFilter {
+  start?: Date | string;
+  end?: Date | string;
+}
+
+export interface PetFilter extends QueryFilters {
+  type?: string;
+  gender?: string;
+  isActive?: boolean;
+}
+
+export interface ExpenseFilter extends QueryFilters {
+  petId?: string;
+  category?: ExpenseCategory;
+  paymentMethod?: PaymentMethod;
+  dateRange?: DateRangeFilter;
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+export interface HealthRecordFilter extends QueryFilters {
+  petId?: string;
+  type?: string;
+  dateRange?: DateRangeFilter;
+}
+
+export interface EventFilter extends QueryFilters {
+  petId?: string;
+  type?: string;
+  dateRange?: DateRangeFilter;
+  isCompleted?: boolean;
+}
+
+// FileSystem Types (for photo utilities)
+export interface FileInfo {
+  exists: boolean;
+  uri: string;
+  size?: number;
+  isDirectory?: boolean;
+  modificationTime?: number;
+  md5?: string;
+}
+
+// Expense Stats Types
+export interface MonthlyExpense {
+  month: string;
+  total: number;
+  count: number;
+  byCategory: Array<{
+    category: ExpenseCategory;
+    total: number;
+  }>;
+}
+
+export interface YearlyExpense {
+  year: number;
+  total: number;
+  count: number;
+  byMonth: Array<{
+    month: number;
+    total: number;
+  }>;
+}
+
+// Translation Function Type (i18next)
+export type TranslationFunction = (key: string, options?: Record<string, unknown>) => string;
+
+// Theme Type
+export interface AppTheme {
+  dark: boolean;
+  colors: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    accent: string;
+    background: string;
+    surface: string;
+    error: string;
+    text: string;
+    onSurface: string;
+    disabled: string;
+    placeholder: string;
+    backdrop: string;
+    notification: string;
+    // Add other theme colors as needed
+    [key: string]: string;
+  };
+  fonts: {
+    [key: string]: unknown;
+  };
+  roundness: number;
+  animation: {
+    scale: number;
+  };
+}
+

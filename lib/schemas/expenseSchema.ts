@@ -16,6 +16,8 @@ export const EXPENSE_CATEGORIES = [
   'other'
 ] as const;
 
+export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number];
+
 // Payment methods enum
 export const PAYMENT_METHODS = [
   'cash',
@@ -24,8 +26,12 @@ export const PAYMENT_METHODS = [
   'bank_transfer'
 ] as const;
 
+export type PaymentMethod = typeof PAYMENT_METHODS[number];
+
 // Currencies enum
 export const CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
+
+export type Currency = typeof CURRENCIES[number];
 
 // Custom validation functions
 const validateExpenseDate = (date: Date) => {
@@ -89,7 +95,13 @@ const BaseExpenseSchema = z.object({
     .string()
     .max(1000, 'Notes are too long')
     .optional()
-    .transform(val => val?.trim() || undefined)
+    .transform(val => val?.trim() || undefined),
+});
+
+// Full Expense schema including server-side fields
+export const ExpenseSchema = BaseExpenseSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
 });
 
 // Schema for creating a new expense
@@ -109,7 +121,7 @@ export const ExpenseUpdateSchema = BaseExpenseSchema.partial().omit({ petId: tru
 // Query params schema for filtering expenses
 export const ExpenseQuerySchema = z.object({
   page: z.number().int().positive().optional().default(1),
-  limit: z.number().int().positive().max(100).optional().default(10),
+  limit: z.number().int().positive().max(100).optional().default(20),
   category: z.enum(EXPENSE_CATEGORIES).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -120,6 +132,7 @@ export const ExpenseQuerySchema = z.object({
 });
 
 // Type exports for TypeScript
+export type Expense = z.infer<typeof ExpenseSchema>;
 export type ExpenseCreateInput = z.infer<typeof ExpenseCreateSchema>;
 export type ExpenseUpdateInput = z.infer<typeof ExpenseUpdateSchema>;
 export type ExpenseQueryParams = z.infer<typeof ExpenseQuerySchema>;
@@ -139,16 +152,16 @@ export const formatExpenseValidationErrors = (error: z.ZodError): ValidationErro
 };
 
 // Helper to validate expense category
-export const isValidExpenseCategory = (category: string): boolean => {
-  return EXPENSE_CATEGORIES.includes(category as any);
+export const isValidExpenseCategory = (category: string): category is ExpenseCategory => {
+  return EXPENSE_CATEGORIES.includes(category as ExpenseCategory);
 };
 
 // Helper to validate payment method
-export const isValidPaymentMethod = (method: string): boolean => {
-  return PAYMENT_METHODS.includes(method as any);
+export const isValidPaymentMethod = (method: string): method is PaymentMethod => {
+  return PAYMENT_METHODS.includes(method as PaymentMethod);
 };
 
 // Helper to validate currency
-export const isValidCurrency = (currency: string): boolean => {
-  return CURRENCIES.includes(currency as any);
+export const isValidCurrency = (currency: string): currency is Currency => {
+  return CURRENCIES.includes(currency as Currency);
 };

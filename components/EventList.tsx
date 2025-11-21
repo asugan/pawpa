@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { useTheme, Text, Searchbar, Chip, Button } from 'react-native-paper';
+import { Text, Searchbar, Chip, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { format, startOfDay, endOfDay, isToday, isTomorrow, isYesterday, addDays } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
@@ -42,7 +43,7 @@ export function EventList({
   testID,
 }: EventListProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // State for search and filtering

@@ -1,12 +1,11 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import type {
   BudgetLimit,
   CreateBudgetLimitInput,
   UpdateBudgetLimitInput,
   BudgetAlert,
-  BudgetStatus,
-  ApiResponse
+  BudgetStatus
 } from '../types';
 
 /**
@@ -74,13 +73,13 @@ export class BudgetService {
 
       // Backend response includes data and meta
       const budgetLimits = response.data || [];
-      const meta = (response as any).meta || { total: budgetLimits.length };
+      const meta = response.meta || { total: budgetLimits.length };
 
       return {
         success: true,
         data: {
           budgetLimits,
-          total: meta.total
+          total: meta.total ?? budgetLimits.length
         }
       };
     } catch (error) {

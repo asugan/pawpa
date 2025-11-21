@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
-import { Text, FAB, useTheme, Snackbar, Chip } from 'react-native-paper';
+import { Text, FAB, Snackbar, Chip, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
-import { useExpenses, useExpenseStats, useCreateExpense, useUpdateExpense, useDeleteExpense } from '../../lib/hooks/useExpenses';
+import { useExpenses, useExpenseStats, useCreateExpense, useUpdateExpense, useDeleteExpense, expenseKeys } from '../../lib/hooks/useExpenses';
+import { useQueryClient } from '@tanstack/react-query';
 import ExpenseCard from '../../components/ExpenseCard';
 import ExpenseFormModal from '../../components/ExpenseFormModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -12,11 +14,14 @@ import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateExpenseInput, Expense } from '../../lib/types';
+import { LAYOUT } from '../../constants';
+import { ENV } from '../../lib/config/env';
 
 export default function ExpensesScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -24,13 +29,21 @@ export default function ExpensesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>();
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
   // Fetch pets
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
-  // Fetch expenses for selected pet
-  const { data: expensesData, isLoading: expensesLoading, refetch } = useExpenses(
+  // Fetch expenses for selected pet with pagination
+  const { data: expensesData, isLoading: expensesLoading, refetch, isFetching } = useExpenses(
     selectedPetId,
-    {}
+    {
+      page,
+      limit: ENV.DEFAULT_LIMIT,
+    }
   );
 
   // Fetch expense stats
@@ -42,6 +55,36 @@ export default function ExpensesScreen() {
   const deleteExpense = useDeleteExpense();
 
   const expenses = expensesData?.expenses || [];
+
+  // Reset pagination when selected pet changes
+  useEffect(() => {
+    setPage(1);
+    setAllExpenses([]);
+    setHasMore(true);
+  }, [selectedPetId]);
+
+  // Accumulate expenses when new data is loaded
+  useEffect(() => {
+    if (expenses && expenses.length > 0) {
+      if (page === 1) {
+        // First page - replace all expenses
+        setAllExpenses(expenses);
+      } else {
+        // Subsequent pages - append new expenses
+        setAllExpenses(prev => {
+          // Avoid duplicates
+          const newExpenses = expenses.filter(e => !prev.some(existing => existing.id === e.id));
+          return [...prev, ...newExpenses];
+        });
+      }
+      // Check if there are more expenses to load
+      setHasMore(expenses.length === ENV.DEFAULT_LIMIT);
+    } else if (page === 1 && selectedPetId) {
+      // No expenses on first page
+      setAllExpenses([]);
+      setHasMore(false);
+    }
+  }, [expenses, page, selectedPetId]);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -107,6 +150,22 @@ export default function ExpensesScreen() {
     }
   };
 
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setPage(1);
+    setHasMore(true);
+    // Invalidate all expense list queries to force fresh data from server
+    await queryClient.invalidateQueries({
+      queryKey: expenseKeys.lists(),
+      refetchType: 'active'
+    });
+  };
+
   const formatCurrency = (amount: number, currency: string): string => {
     const currencySymbols: Record<string, string> = {
       TRY: '₺',
@@ -155,7 +214,6 @@ export default function ExpensesScreen() {
               selected={selectedPetId === pet.id}
               onPress={() => setSelectedPetId(pet.id)}
               style={styles.petChip}
-              showSelectedCheck
             >
               {pet.name}
             </Chip>
@@ -171,7 +229,7 @@ export default function ExpensesScreen() {
                 {t('expenses.totalSpent', 'Total Spent')}
               </Text>
               <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
-                {stats.byCurrency.map((c) => formatCurrency(c.total, c.currency)).join(', ')}
+                {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(', ')}
               </Text>
             </View>
             <View style={styles.statItem}>
@@ -200,8 +258,8 @@ export default function ExpensesScreen() {
         style={styles.content}
         refreshControl={
           <RefreshControl
-            refreshing={expensesLoading}
-            onRefresh={refetch}
+            refreshing={isFetching && page === 1}
+            onRefresh={handleRefresh}
             colors={[theme.colors.primary]}
           />
         }
@@ -212,15 +270,17 @@ export default function ExpensesScreen() {
             title={t('expenses.selectPet', 'Select a pet')}
             description={t('expenses.selectPetMessage', 'Choose a pet to view expenses')}
           />
-        ) : expenses.length === 0 ? (
-          <EmptyState
-            icon="cash-remove"
-            title={t('expenses.noExpenses', 'No expenses yet')}
-            description={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
-          />
+        ) : allExpenses.length === 0 ? (
+          !expensesLoading && (
+            <EmptyState
+              icon="cash-remove"
+              title={t('expenses.noExpenses', 'No expenses yet')}
+              description={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
+            />
+          )
         ) : (
           <View style={styles.expenseList}>
-            {expenses.map((expense) => (
+            {allExpenses.map((expense) => (
               <ExpenseCard
                 key={expense.id}
                 expense={expense}
@@ -228,15 +288,35 @@ export default function ExpensesScreen() {
                 onDelete={() => handleDeleteExpense(expense)}
               />
             ))}
+
+            {/* Load More Button */}
+            {hasMore && (
+              <View style={styles.loadMoreContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLoadMore}
+                  disabled={isFetching}
+                  style={styles.loadMoreButton}
+                >
+                  {isFetching ? t('common.loading') : t('common.loadMore')}
+                </Button>
+              </View>
+            )}
+
+            {/* Loading indicator */}
+            {isFetching && page > 1 && (
+              <View style={styles.loadingFooter}>
+                <LoadingSpinner size="small" />
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
 
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        icon="add"
+        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
         onPress={handleAddExpense}
-        label={t('expenses.addExpense', 'Add Expense')}
       />
 
       {selectedPetId && (
@@ -257,9 +337,8 @@ export default function ExpensesScreen() {
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
         duration={3000}
-      >
-        {snackbarMessage}
-      </Snackbar>
+        message={snackbarMessage}
+      />
     </SafeAreaView>
   );
 }
@@ -310,6 +389,18 @@ const styles = StyleSheet.create({
   },
   expenseList: {
     padding: 16,
+    paddingBottom: LAYOUT.FAB_OFFSET,
+  },
+  loadMoreContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  loadMoreButton: {
+    minWidth: 200,
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',

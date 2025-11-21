@@ -1,17 +1,18 @@
-import { api, ApiError } from '../api/client';
+import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import type {
   Expense,
   CreateExpenseInput,
   UpdateExpenseInput,
   ExpenseStats,
-  ApiResponse
+  MonthlyExpense,
+  YearlyExpense
 } from '../types';
 
 /**
  * Date utility functions for safe date handling
  */
-function isDate(value: any): value is Date {
+function isDate(value: unknown): value is Date {
   return value instanceof Date && !isNaN(value.getTime());
 }
 
@@ -107,13 +108,13 @@ export class ExpenseService {
 
       // Backend response includes data and meta
       const expenses = response.data || [];
-      const meta = (response as any).meta || { total: expenses.length };
+      const meta = response.meta || { total: expenses.length };
 
       return {
         success: true,
         data: {
           expenses,
-          total: meta.total
+          total: meta.total ?? expenses.length
         }
       };
     } catch (error) {
@@ -162,7 +163,7 @@ export class ExpenseService {
    */
   async updateExpense(id: string, data: UpdateExpenseInput): Promise<ApiResponse<Expense>> {
     try {
-      const cleanedData: any = { ...data };
+      const cleanedData: Partial<UpdateExpenseInput> & { date?: string } = { ...data };
       if (data.date) {
         cleanedData.date = convertDateToISOString(data.date);
       }
@@ -262,7 +263,7 @@ export class ExpenseService {
     petId?: string;
     year?: number;
     month?: number;
-  }): Promise<ApiResponse<Expense[]>> {
+  }): Promise<ApiResponse<MonthlyExpense[]>> {
     try {
       const queryParams = new URLSearchParams();
       if (params?.petId) queryParams.append('petId', params.petId);
@@ -270,7 +271,7 @@ export class ExpenseService {
       if (params?.month !== undefined) queryParams.append('month', params.month.toString());
 
       const url = `/api/expenses/monthly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      const response = await api.get<Expense[]>(url);
+      const response = await api.get<MonthlyExpense[]>(url);
 
       return {
         success: true,
@@ -297,14 +298,14 @@ export class ExpenseService {
   async getYearlyExpenses(params?: {
     petId?: string;
     year?: number;
-  }): Promise<ApiResponse<Expense[]>> {
+  }): Promise<ApiResponse<YearlyExpense[]>> {
     try {
       const queryParams = new URLSearchParams();
       if (params?.petId) queryParams.append('petId', params.petId);
       if (params?.year) queryParams.append('year', params.year.toString());
 
       const url = `/api/expenses/yearly${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      const response = await api.get<Expense[]>(url);
+      const response = await api.get<YearlyExpense[]>(url);
 
       return {
         success: true,

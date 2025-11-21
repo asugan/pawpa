@@ -1,44 +1,33 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Share,
-  Platform,
-} from 'react-native';
-import {
-  Text,
-  Button,
-  Card,
-  Divider,
-  useTheme,
-  Portal,
-  Snackbar,
-  IconButton,
-  Chip,
-  ActivityIndicator,
-} from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
+import { Button, Card, Chip, Divider, IconButton, Portal, Snackbar, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { format } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import { enUS, tr } from 'date-fns/locale';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+    Alert,
+    ScrollView,
+    Share,
+    StyleSheet,
+    View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Hooks and Services
-import { useEvent, useDeleteEvent, useCreateEvent, useUpdateEvent } from '@/lib/hooks/useEvents';
+import { useCreateEvent, useDeleteEvent, useEvent, useUpdateEvent } from '@/lib/hooks/useEvents';
 import { usePet } from '@/lib/hooks/usePets';
 
 // Components
-import LoadingSpinner from '@/components/LoadingSpinner';
 import EventActions from '@/components/EventActions';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Utils
-import { getEventTypeIcon, getEventTypeColor, getEventTypeLabel } from '@/constants/eventIcons';
-import { Event } from '@/lib/types';
+import { getEventTypeIcon, getEventTypeLabel } from '@/constants/eventIcons';
+import { getEventColor } from '@/lib/utils/eventColors';
 
 export default function EventDetailScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -121,12 +110,11 @@ export default function EventDetailScreen() {
         title: `${event.title} (${t('events.copy')})`,
         description: event.description,
         startTime: newStartTime.toISOString(),
-        endTime: newEndTime?.toISOString() || null,
+        endTime: newEndTime?.toISOString() || undefined,
         location: event.location,
         reminder: event.reminder,
         notes: event.notes,
       };
-
       await createEventMutation.mutateAsync(duplicatedEvent);
       showSnackbar(t('events.eventDuplicated'));
     } catch (error) {
@@ -198,7 +186,7 @@ ${t('events.sharedFrom')} PawPa
     );
   }
 
-  const eventTypeColor = getEventTypeColor(event.type);
+  const eventTypeColor = getEventColor(event.type, theme);
   const eventTypeIcon = getEventTypeIcon(event.type);
   const eventTypeLabel = getEventTypeLabel(event.type, t);
 
@@ -241,7 +229,7 @@ ${t('events.sharedFrom')} PawPa
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Event Type and Title Card */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: eventTypeColor, borderWidth: 2 }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <View style={styles.eventTypeContainer}>
               <View style={[styles.eventTypeIconLarge, { backgroundColor: eventTypeColor }]}>
                 <Text style={styles.eventTypeIconText}>
@@ -278,12 +266,12 @@ ${t('events.sharedFrom')} PawPa
                 {event.description}
               </Text>
             )}
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Date and Time Card */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               📅 {t('events.dateAndTime')}
             </Text>
@@ -307,13 +295,13 @@ ${t('events.sharedFrom')} PawPa
                 {formatEventTime()}
               </Text>
             </View>
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Pet Information Card */}
         {pet && (
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 🐾 {t('events.pet')}
               </Text>
@@ -339,14 +327,14 @@ ${t('events.sharedFrom')} PawPa
               >
                 {t('events.viewPetProfile')}
               </Button>
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Location Card */}
         {event.location && (
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 📍 {t('events.location')}
               </Text>
@@ -354,14 +342,14 @@ ${t('events.sharedFrom')} PawPa
               <Text variant="bodyLarge" style={[styles.locationText, { color: theme.colors.onSurface }]}>
                 {event.location}
               </Text>
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Reminder Card */}
         {event.reminder && (
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 🔔 {t('events.reminder')}
               </Text>
@@ -369,14 +357,14 @@ ${t('events.sharedFrom')} PawPa
               <Text variant="bodyMedium" style={[styles.reminderText, { color: theme.colors.onSurfaceVariant }]}>
                 {t('events.reminderEnabled')}
               </Text>
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Notes Card */}
         {event.notes && (
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
+            <View style={styles.cardContent}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 📝 {t('events.notes')}
               </Text>
@@ -384,13 +372,13 @@ ${t('events.sharedFrom')} PawPa
               <Text variant="bodyMedium" style={[styles.notesText, { color: theme.colors.onSurface }]}>
                 {event.notes}
               </Text>
-            </Card.Content>
+            </View>
           </Card>
         )}
 
         {/* Status Management Card */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <View style={styles.cardContent}>
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               🔄 {t('events.status')}
             </Text>
@@ -418,7 +406,7 @@ ${t('events.sharedFrom')} PawPa
                 {t('events.statusCancelled')}
               </Button>
             </View>
-          </Card.Content>
+          </View>
         </Card>
 
         {/* Timestamps */}
@@ -437,13 +425,12 @@ ${t('events.sharedFrom')} PawPa
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
           duration={3000}
-          style={[
-            styles.snackbar,
-            { backgroundColor: snackbarMessage.includes(t('common.error')) ? theme.colors.error : theme.colors.primary }
-          ]}
-        >
-          {snackbarMessage}
-        </Snackbar>
+          style={{
+            ...styles.snackbar,
+            backgroundColor: snackbarMessage.includes(t('common.error')) ? theme.colors.error : theme.colors.primary
+          }}
+          message={snackbarMessage}
+        />
       </Portal>
     </SafeAreaView>
   );
@@ -480,6 +467,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 2,
     borderRadius: 16,
+  },
+  cardContent: {
+    padding: 16,
   },
   eventTypeContainer: {
     flexDirection: 'row',

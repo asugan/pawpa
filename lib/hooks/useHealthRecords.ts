@@ -1,6 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
-import type { HealthRecord, CreateHealthRecordInput, UpdateHealthRecordInput, ApiResponse } from '../types';
+import type { CreateHealthRecordInput, HealthRecord, UpdateHealthRecordInput } from '../types';
+import { CACHE_TIMES } from '../config/queryConfig';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useResources } from './core/useResources';
+import { useConditionalQuery } from './core/useConditionalQuery';
 
 // Type-safe filters for health records
 interface HealthRecordFilters {
@@ -12,33 +18,38 @@ interface HealthRecordFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-// Query keys
+// Query keys factory
+const baseHealthRecordKeys = createQueryKeys('health-records');
+
+// Extended query keys with custom keys
 export const healthRecordKeys = {
-  all: ['health-records'] as const,
-  lists: () => [...healthRecordKeys.all, 'list'] as const,
+  ...baseHealthRecordKeys,
   list: (petId: string, filters?: HealthRecordFilters) =>
-    [...healthRecordKeys.lists(), petId, filters] as const,
-  details: () => [...healthRecordKeys.all, 'detail'] as const,
-  detail: (id: string) => [...healthRecordKeys.details(), id] as const,
-  vaccinations: (petId: string) => [...healthRecordKeys.all, 'vaccinations', petId] as const,
-  upcoming: () => [...healthRecordKeys.all, 'upcoming'] as const,
-  byType: (petId: string, type: string) => [...healthRecordKeys.lists(), petId, 'type', type] as const,
+    [...baseHealthRecordKeys.lists(), petId, filters] as const,
+  vaccinations: (petId: string) => [...baseHealthRecordKeys.all, 'vaccinations', petId] as const,
+  upcoming: () => [...baseHealthRecordKeys.all, 'upcoming'] as const,
+  byType: (petId: string, type: string) => [...baseHealthRecordKeys.all, 'type', petId, type] as const,
   byDateRange: (petId: string, dateFrom: string, dateTo: string) =>
-    [...healthRecordKeys.lists(), petId, 'date-range', dateFrom, dateTo] as const,
+    [...baseHealthRecordKeys.all, 'date-range', petId, dateFrom, dateTo] as const,
 };
 
 // Get all health records for a pet with type-safe filters
+// Note: This hook has complex client-side sorting logic,
+// so it uses useQuery directly instead of generic hooks
 export function useHealthRecords(petId: string, filters: HealthRecordFilters = {}) {
   return useQuery({
     queryKey: healthRecordKeys.list(petId, filters),
     queryFn: async () => {
       const result = await healthRecordService.getHealthRecordsByPetId(petId);
       if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Sağlık kayıtları yüklenemedi';
+        throw new Error(errorMessage);
       }
       return result.data || [];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
     select: (data) => {
       // Apply client-side sorting if specified
@@ -60,81 +71,62 @@ export function useHealthRecords(petId: string, filters: HealthRecordFilters = {
   });
 }
 
-// Get a single health record by ID (renamed from useHealthRecordById for consistency)
+// Get a single health record by ID
 export function useHealthRecord(id: string) {
-  return useQuery({
+  return useResource<HealthRecord>({
     queryKey: healthRecordKeys.detail(id),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordById(id);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kaydı yüklenemedi');
-      }
-      return result.data;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => healthRecordService.getHealthRecordById(id),
+    staleTime: CACHE_TIMES.LONG,
     enabled: !!id,
+    errorMessage: 'Sağlık kaydı yüklenemedi',
   });
 }
 
 // Get vaccinations only
 export function useVaccinations(petId: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.vaccinations(petId),
-    queryFn: async () => {
-      const result = await healthRecordService.getVaccinations(petId);
-      if (!result.success) {
-        throw new Error(result.error || 'Aşı kayıtları yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => healthRecordService.getVaccinations(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
+    defaultValue: [],
+    errorMessage: 'Aşı kayıtları yüklenemedi',
   });
 }
 
 // Get upcoming vaccinations
 export function useUpcomingVaccinations() {
-  return useQuery({
+  return useResources<HealthRecord>({
     queryKey: healthRecordKeys.upcoming(),
-    queryFn: async () => {
-      const result = await healthRecordService.getUpcomingRecords();
-      if (!result.success) {
-        throw new Error(result.error || 'Yaklaşan kayıtlar yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => healthRecordService.getUpcomingRecords(),
+    staleTime: CACHE_TIMES.LONG,
     refetchInterval: 60 * 60 * 1000, // Refresh every hour
   });
 }
 
 // Get health records by type
 export function useHealthRecordsByType(petId: string, type: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.byType(petId, type),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordsByType(petId, type);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
-      }
-      return result.data || [];
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => healthRecordService.getHealthRecordsByType(petId, type),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId && !!type,
+    defaultValue: [],
+    errorMessage: 'Sağlık kayıtları yüklenemedi',
   });
 }
 
 // Get health records by date range (using existing service method)
 export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dateTo: string) {
-  return useQuery({
+  return useConditionalQuery<HealthRecord[]>({
     queryKey: healthRecordKeys.byDateRange(petId, dateFrom, dateTo),
-    queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordsByPetId(petId);
-      if (!result.success) {
-        throw new Error(result.error || 'Sağlık kayıtları yüklenemedi');
-      }
+    queryFn: () => healthRecordService.getHealthRecordsByPetId(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
+    enabled: !!petId && !!dateFrom && !!dateTo,
+    defaultValue: [],
+    errorMessage: 'Sağlık kayıtları yüklenemedi',
+    select: (allRecords) => {
       // Filter by date range on client side
-      const allRecords = result.data || [];
       return allRecords.filter((record: HealthRecord) => {
         const recordDate = new Date(record.date);
         const fromDate = new Date(dateFrom);
@@ -142,8 +134,6 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
         return recordDate >= fromDate && recordDate <= toDate;
       });
     },
-    staleTime: 5 * 60 * 1000,
-    enabled: !!petId && !!dateFrom && !!dateTo,
   });
 }
 
@@ -151,152 +141,84 @@ export function useHealthRecordsByDateRange(petId: string, dateFrom: string, dat
 export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation<ApiResponse<HealthRecord>, Error, CreateHealthRecordInput, { previousRecords?: HealthRecord[] }>({
-    mutationFn: (data: CreateHealthRecordInput) =>
-      healthRecordService.createHealthRecord(data),
-    onMutate: async (newRecord) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      // Snapshot the previous value
-      const previousRecords = queryClient.getQueryData<HealthRecord[]>(healthRecordKeys.list(newRecord.petId, {}));
-
-      // Optimistically update to the new value
-      const tempRecord = {
-        ...newRecord,
-        id: `temp-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      } as HealthRecord;
-
-      queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), (old: HealthRecord[] | undefined) =>
-        old ? [...old, tempRecord] : [tempRecord]
-      );
-
-      // Update vaccinations if it's a vaccination
-      if (tempRecord.type === 'vaccination') {
-        queryClient.setQueryData(healthRecordKeys.vaccinations(newRecord.petId), (old: HealthRecord[] | undefined) =>
-          old ? [...old, tempRecord] : [tempRecord]
-        );
-      }
-
-      return { previousRecords };
-    },
-    onError: (err, newRecord, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousRecords) {
-        queryClient.setQueryData(healthRecordKeys.list(newRecord.petId, {}), context.previousRecords);
-      }
-    },
-    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: CreateHealthRecordInput) => {
-      // Always refetch after error or success
-      if (result?.data) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(result.data.petId) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-
-        if (result.data.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+  return useCreateResource<HealthRecord, CreateHealthRecordInput>(
+    (data) => healthRecordService.createHealthRecord(data).then(res => res.data!),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      onSuccess: (newRecord) => {
+        // Update vaccinations if it's a vaccination
+        if (newRecord.type === 'vaccination') {
+          queryClient.setQueryData(healthRecordKeys.vaccinations(newRecord.petId), (old: HealthRecord[] | undefined) =>
+            old ? [...old, newRecord] : [newRecord]
+          );
         }
-      } else if (variables && !error) {
-        // Fallback to using input variables if no error and no data returned
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(variables.petId) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      }
-    },
-  });
+      },
+      onSettled: (newRecord) => {
+        if (newRecord) {
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.list(newRecord.petId) });
+          queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
+
+          if (newRecord.type === 'vaccination') {
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(newRecord.petId) });
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+          }
+        }
+      },
+    }
+  );
 }
 
 // Update health record mutation with optimistic updates
 export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation<ApiResponse<HealthRecord>, Error, { id: string; data: UpdateHealthRecordInput }, { previousRecord?: HealthRecord }>({
-    mutationFn: ({ id, data }: { id: string; data: UpdateHealthRecordInput }) =>
-      healthRecordService.updateHealthRecord(id, data),
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.detail(id) });
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      const previousRecord = queryClient.getQueryData<HealthRecord>(healthRecordKeys.detail(id));
-
-      // Update the record in cache with new data
-      queryClient.setQueryData(healthRecordKeys.detail(id), (old: HealthRecord | undefined) =>
-        old ? { ...old, ...data, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the record in all lists
-      queryClient.setQueriesData({ queryKey: healthRecordKeys.lists() }, (old: HealthRecord[] | undefined) => {
-        if (!old) return old;
-        return old.map(record =>
-          record.id === id ? { ...record, ...data, updatedAt: new Date().toISOString() } : record
-        );
-      });
-
-      return { previousRecord };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousRecord) {
-        queryClient.setQueryData(healthRecordKeys.detail(variables.id), context.previousRecord);
-      }
-    },
-    onSettled: (result?: ApiResponse<HealthRecord>, error?: Error | null, variables?: { id: string; data: UpdateHealthRecordInput }) => {
-      if (result?.data) {
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(result.data.id) });
+  return useUpdateResource<HealthRecord, UpdateHealthRecordInput>(
+    ({ id, data }) => healthRecordService.updateHealthRecord(id, data).then(res => res.data!),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      detailQueryKey: healthRecordKeys.detail,
+      onSettled: (data) => {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-
-        if (result.data.type === 'vaccination') {
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(result.data.petId) });
-          queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+        if (data) {
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(data.id) });
+            if (data.type === 'vaccination') {
+                queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(data.petId) });
+                queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+            }
         }
-      } else if (variables && !error) {
-        // Fallback to using input variables if no error and no data returned
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(variables.id) });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      }
-    },
-  });
+      },
+    }
+  );
 }
 
 // Delete health record mutation with optimistic updates
 export function useDeleteHealthRecord() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => healthRecordService.deleteHealthRecord(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: healthRecordKeys.lists() });
-
-      // Get the record to be deleted for cache updates
-      const recordToDelete = queryClient.getQueryData(healthRecordKeys.detail(id)) as HealthRecord;
-
-      // Remove the deleted record from all lists
-      queryClient.setQueriesData({ queryKey: healthRecordKeys.lists() }, (old: HealthRecord[] | undefined) =>
-        old?.filter(record => record.id !== id)
-      );
-
-      // Remove from vaccinations if it was a vaccination
-      if (recordToDelete?.type === 'vaccination') {
-        queryClient.setQueriesData({ queryKey: healthRecordKeys.vaccinations('') }, (old: HealthRecord[] | undefined) =>
-          old?.filter(record => record.id !== id)
-        );
-      }
-
-      queryClient.setQueryData(healthRecordKeys.upcoming(), (old: HealthRecord[] | undefined) =>
-        old?.filter(record => record.id !== id)
-      );
-
-      return { recordToDelete };
-    },
-    onSuccess: (_, deletedId) => {
-      // Remove the deleted record from cache
-      queryClient.removeQueries({ queryKey: healthRecordKeys.detail(deletedId) });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
-    },
-  });
+  return useDeleteResource<HealthRecord>(
+    (id) => healthRecordService.deleteHealthRecord(id).then(res => res.data),
+    {
+      listQueryKey: healthRecordKeys.lists(),
+      detailQueryKey: healthRecordKeys.detail,
+      onSuccess: (data, id) => {
+         // Remove from vaccinations if it was a vaccination
+         // Note: Hard to know if it was vaccination without fetching, but we can invalidate.
+         // Or if we had the object. useDeleteResource doesn't return the object usually unless we fetch it first.
+         // The original code fetched it in onMutate.
+         // The generic hook fetches list in onMutate but not detail unless we provide detailQueryKey.
+         // But we can't easily access the deleted item in onSuccess unless the mutation returns it.
+         // The generic hook returns what mutationFn returns.
+         // So if deleteHealthRecord returns the deleted record, we are good.
+         // If it returns ID, we can't check type.
+         // So we should just invalidate vaccinations and upcoming.
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
+        queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations('') }); // Invalidate all vaccinations potentially
+      },
+    }
+  );
 }
 
 // Export type for external use

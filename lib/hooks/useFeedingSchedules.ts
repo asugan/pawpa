@@ -1,214 +1,216 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { feedingScheduleService } from '@/lib/services/feedingScheduleService';
-import { FeedingSchedule, CreateFeedingScheduleInput, UpdateFeedingScheduleInput, ApiResponse } from '@/lib/types';
+import { CreateFeedingScheduleInput, FeedingSchedule, Pet, UpdateFeedingScheduleInput } from '@/lib/types';
+import { ApiResponse } from '@/lib/api/client';
+import { CACHE_TIMES } from '@/lib/config/queryConfig';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { createQueryKeys } from './core/createQueryKeys';
+import { useResource } from './core/useResource';
+import { useResources } from './core/useResources';
+import { useConditionalQuery } from './core/useConditionalQuery';
+import { useMemo } from 'react';
+import { getNextFeedingTime } from '@/lib/schemas/feedingScheduleSchema';
+import { usePets } from './usePets';
+import { formatDistanceToNow } from 'date-fns';
+import { tr, enUS } from 'date-fns/locale';
 
-// Query keys for feeding schedules
+// Query keys factory
+const baseFeedingScheduleKeys = createQueryKeys('feeding-schedules');
+
+// Extended query keys with custom keys
 export const feedingScheduleKeys = {
-  all: ['feeding-schedules'] as const,
-  lists: () => [...feedingScheduleKeys.all, 'list'] as const,
-  list: (petId: string) => [...feedingScheduleKeys.lists(), petId] as const,
-  details: () => [...feedingScheduleKeys.all, 'detail'] as const,
-  detail: (id: string) => [...feedingScheduleKeys.details(), id] as const,
-  active: () => [...feedingScheduleKeys.all, 'active'] as const,
-  today: () => [...feedingScheduleKeys.all, 'today'] as const,
-  next: () => [...feedingScheduleKeys.all, 'next'] as const,
-  activeByPet: (petId: string) => [...feedingScheduleKeys.lists(), petId, 'active'] as const,
+  ...baseFeedingScheduleKeys,
+  active: () => [...baseFeedingScheduleKeys.all, 'active'] as const,
+  today: () => [...baseFeedingScheduleKeys.all, 'today'] as const,
+  next: () => [...baseFeedingScheduleKeys.all, 'next'] as const,
+  activeByPet: (petId: string) => [...baseFeedingScheduleKeys.all, 'active', petId] as const,
 };
 
 // Hooks
 export const useFeedingSchedules = (petId: string) => {
-  return useQuery({
-    queryKey: feedingScheduleKeys.list(petId),
-    queryFn: () => feedingScheduleService.getFeedingSchedulesByPetId(petId).then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+  return useConditionalQuery<FeedingSchedule[]>({
+    queryKey: feedingScheduleKeys.list({ petId }),
+    queryFn: () => feedingScheduleService.getFeedingSchedulesByPetId(petId),
+    staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
+    defaultValue: [],
   });
 };
 
 export const useFeedingSchedule = (id: string) => {
-  return useQuery({
+  return useResource<FeedingSchedule>({
     queryKey: feedingScheduleKeys.detail(id),
-    queryFn: () => feedingScheduleService.getFeedingScheduleById(id).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: () => feedingScheduleService.getFeedingScheduleById(id),
+    staleTime: CACHE_TIMES.LONG,
     enabled: !!id,
   });
 };
 
 export const useActiveFeedingSchedules = () => {
-  return useQuery({
+  return useResources<FeedingSchedule>({
     queryKey: feedingScheduleKeys.active(),
-    queryFn: () => feedingScheduleService.getActiveFeedingSchedules().then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    queryFn: () => feedingScheduleService.getActiveFeedingSchedules(),
+    staleTime: CACHE_TIMES.SHORT,
+    refetchInterval: CACHE_TIMES.MEDIUM,
   });
 };
 
 export const useTodayFeedingSchedules = () => {
-  return useQuery({
+  return useResources<FeedingSchedule>({
     queryKey: feedingScheduleKeys.today(),
-    queryFn: () => feedingScheduleService.getTodayFeedingSchedules().then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 30 * 1000, // Refresh every 30 seconds
+    queryFn: () => feedingScheduleService.getTodayFeedingSchedules(),
+    staleTime: CACHE_TIMES.VERY_SHORT,
+    refetchInterval: CACHE_TIMES.VERY_SHORT,
   });
 };
 
 export const useNextFeeding = () => {
-  return useQuery({
+  return useConditionalQuery<FeedingSchedule | null>({
     queryKey: feedingScheduleKeys.next(),
-    queryFn: () => feedingScheduleService.getNextFeeding().then((res: ApiResponse<FeedingSchedule | null>) => res.data || null),
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000, // Refresh every minute
+    queryFn: () => feedingScheduleService.getNextFeeding(),
+    staleTime: CACHE_TIMES.VERY_SHORT,
+    refetchInterval: CACHE_TIMES.VERY_SHORT * 2, // Refresh every minute
+    defaultValue: null,
   });
 };
 
 export const useActiveFeedingSchedulesByPet = (petId: string) => {
-  return useQuery({
+  return useConditionalQuery<FeedingSchedule[]>({
     queryKey: feedingScheduleKeys.activeByPet(petId),
-    queryFn: () => feedingScheduleService.getActiveFeedingSchedulesByPet(petId).then((res: ApiResponse<FeedingSchedule[]>) => res.data || []),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    queryFn: () => feedingScheduleService.getActiveFeedingSchedulesByPet(petId),
+    staleTime: CACHE_TIMES.SHORT,
     enabled: !!petId,
+    defaultValue: [],
   });
+};
+
+/**
+ * Combined hook that provides next feeding schedule with all related details
+ * Combines data from useNextFeeding and usePets, and calculates derived values
+ *
+ * @param language - Optional language code for date formatting (default: 'en')
+ * @returns Object containing:
+ *   - schedule: The next feeding schedule
+ *   - pet: The pet associated with the schedule
+ *   - nextFeedingTime: Calculated next feeding time
+ *   - timeUntil: Human-readable time until next feeding
+ *   - isLoading: Loading state
+ */
+export const useNextFeedingWithDetails = (language: string = 'en') => {
+  const { data: nextFeedingSchedule = null, isLoading: isLoadingSchedule } = useNextFeeding();
+  const { data: pets = [], isLoading: isLoadingPets } = usePets();
+
+  return useMemo(() => {
+    const isLoading = isLoadingSchedule || isLoadingPets;
+
+    if (!nextFeedingSchedule) {
+      return {
+        schedule: null,
+        pet: null,
+        nextFeedingTime: null,
+        timeUntil: null,
+        isLoading,
+      };
+    }
+
+    const nextFeedingTime = getNextFeedingTime([nextFeedingSchedule]);
+    const pet = pets.find(p => p.id === nextFeedingSchedule.petId) || null;
+    const locale = language === 'tr' ? tr : enUS;
+    const timeUntil = nextFeedingTime
+      ? formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale })
+      : null;
+
+    return {
+      schedule: nextFeedingSchedule,
+      pet,
+      nextFeedingTime,
+      timeUntil,
+      isLoading,
+    };
+  }, [nextFeedingSchedule, pets, isLoadingSchedule, isLoadingPets, language]);
 };
 
 // Mutations
 export const useCreateFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<FeedingSchedule | undefined, Error, CreateFeedingScheduleInput, { previousSchedules?: FeedingSchedule[] }>({
-    mutationFn: (scheduleData: CreateFeedingScheduleInput) =>
-      feedingScheduleService.createFeedingSchedule(scheduleData).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    onMutate: async (newSchedule) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
+  return useCreateResource<FeedingSchedule, CreateFeedingScheduleInput>(
+    (data) => feedingScheduleService.createFeedingSchedule(data).then(res => res.data!),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      onSuccess: (newSchedule) => {
+        // Update active schedules if it's active
+        if (newSchedule.isActive) {
+          queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
+            old ? [...old, newSchedule] : [newSchedule]
+          );
 
-      // Snapshot the previous value
-      const previousSchedules = queryClient.getQueryData<FeedingSchedule[]>(feedingScheduleKeys.list(newSchedule.petId));
-
-      // Optimistically update to the new value
-      const tempSchedule = {
-        ...newSchedule,
-        id: `temp-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isActive: newSchedule.isActive !== undefined ? newSchedule.isActive : true
-      } as FeedingSchedule;
-
-      queryClient.setQueryData(feedingScheduleKeys.list(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
-        old ? [...old, tempSchedule] : [tempSchedule]
-      );
-
-      // Update active schedules if it's active
-      if (tempSchedule.isActive) {
-        queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-          old ? [...old, tempSchedule] : [tempSchedule]
-        );
-
-        queryClient.setQueryData(feedingScheduleKeys.activeByPet(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
-          old ? [...old, tempSchedule] : [tempSchedule]
-        );
-      }
-
-      return { previousSchedules };
-    },
-    onError: (err, newSchedule, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousSchedules) {
-        queryClient.setQueryData(feedingScheduleKeys.list(newSchedule.petId), context.previousSchedules);
-      }
-    },
-    onSettled: (newSchedule?: FeedingSchedule) => {
-      // Always refetch after error or success
-      if (newSchedule) {
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list(newSchedule.petId) });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-      }
-    },
-  });
+          queryClient.setQueryData(feedingScheduleKeys.activeByPet(newSchedule.petId), (old: FeedingSchedule[] | undefined) =>
+            old ? [...old, newSchedule] : [newSchedule]
+          );
+        }
+      },
+      onSettled: (newSchedule) => {
+        if (newSchedule) {
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list({ petId: newSchedule.petId }) });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+        }
+      },
+    }
+  );
 };
 
 export const useUpdateFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateFeedingScheduleInput }) =>
-      feedingScheduleService.updateFeedingSchedule(id, data).then((res: ApiResponse<FeedingSchedule>) => res.data),
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.detail(id) });
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
-
-      const previousSchedule = queryClient.getQueryData(feedingScheduleKeys.detail(id));
-
-      // Update the schedule in cache with new data
-      queryClient.setQueryData(feedingScheduleKeys.detail(id), (old: FeedingSchedule | undefined) =>
-        old ? { ...old, ...data, updatedAt: new Date().toISOString() } : undefined
-      );
-
-      // Update the schedule in all lists
-      queryClient.setQueriesData({ queryKey: feedingScheduleKeys.lists() }, (old: FeedingSchedule[] | undefined) => {
-        if (!old) return old;
-        return old.map(schedule =>
-          schedule.id === id ? { ...schedule, ...data, updatedAt: new Date().toISOString() } : schedule
-        );
-      });
-
-      return { previousSchedule };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSchedule) {
-        queryClient.setQueryData(feedingScheduleKeys.detail(variables.id), context.previousSchedule);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-    },
-  });
+  return useUpdateResource<FeedingSchedule, UpdateFeedingScheduleInput>(
+    ({ id, data }) => feedingScheduleService.updateFeedingSchedule(id, data).then(res => res.data!),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      detailQueryKey: feedingScheduleKeys.detail,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+      },
+    }
+  );
 };
 
 export const useDeleteFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => feedingScheduleService.deleteFeedingSchedule(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: feedingScheduleKeys.lists() });
+  return useDeleteResource<FeedingSchedule>(
+    (id) => feedingScheduleService.deleteFeedingSchedule(id).then(res => res.data),
+    {
+      listQueryKey: feedingScheduleKeys.lists(),
+      detailQueryKey: feedingScheduleKeys.detail,
+      onSuccess: (data, id) => {
+        // Remove from active schedules
+        queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
 
-      // Remove the deleted schedule from all lists
-      queryClient.setQueriesData({ queryKey: feedingScheduleKeys.lists() }, (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
+        queryClient.setQueryData(feedingScheduleKeys.today(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
 
-      // Remove from active schedules
-      queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      queryClient.setQueryData(feedingScheduleKeys.today(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      queryClient.setQueryData(feedingScheduleKeys.next(), (old: FeedingSchedule[] | undefined) =>
-        old?.filter(schedule => schedule.id !== id)
-      );
-
-      return { deletedId: id };
-    },
-    onSuccess: (_, deletedId) => {
-      // Remove the deleted schedule from cache
-      queryClient.removeQueries({ queryKey: feedingScheduleKeys.detail(deletedId) });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
-      queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
-    },
-  });
+        queryClient.setQueryData(feedingScheduleKeys.next(), (old: FeedingSchedule[] | undefined) =>
+          old?.filter(schedule => schedule.id !== id)
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });
+        queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.next() });
+      },
+    }
+  );
 };
 
 export const useToggleFeedingSchedule = () => {

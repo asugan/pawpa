@@ -1,7 +1,7 @@
 import React from 'react';
 import { Control, Controller, FieldValues, Path, useWatch } from 'react-hook-form';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@/lib/theme';
 
 // Custom hook for managing weight input state
 const useWeightInputState = (value: number | undefined) => {
@@ -20,7 +20,7 @@ const useWeightInputState = (value: number | undefined) => {
 interface FormWeightInputProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
@@ -44,7 +44,7 @@ export function FormWeightInput<T extends FieldValues>({
   unit = 'kg',
   testID,
 }: FormWeightInputProps<T>) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const parseWeightValue = (text: string): number | undefined => {
     if (!text.trim()) return undefined;

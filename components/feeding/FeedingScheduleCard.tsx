@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, IconButton, Chip, Switch } from 'react-native-paper';
+import { View, StyleSheet, Pressable, GestureResponderEvent } from 'react-native';
+import { Text, IconButton, Chip, Switch } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { FeedingSchedule } from '../../lib/types';
 import { formatTimeForDisplay } from '../../lib/schemas/feedingScheduleSchema';
@@ -29,7 +30,7 @@ export function FeedingScheduleCard({
   testID,
 }: FeedingScheduleCardProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   // Parse days string into array
   const daysArray = schedule.days.split(',').map(d => d.trim());
@@ -56,19 +57,18 @@ export function FeedingScheduleCard({
     onPress?.(schedule);
   }, [onPress, schedule]);
 
-  const handleEdit = React.useCallback((e: any) => {
+  const handleEdit = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onEdit?.(schedule);
   }, [onEdit, schedule]);
 
-  const handleDelete = React.useCallback((e: any) => {
+  const handleDelete = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onDelete?.(schedule);
   }, [onDelete, schedule]);
 
-  const handleToggleActive = React.useCallback((e: any) => {
-    e.stopPropagation();
-    onToggleActive?.(schedule, !schedule.isActive);
+  const handleToggleActive = React.useCallback((value: boolean) => {
+    onToggleActive?.(schedule, value);
   }, [onToggleActive, schedule]);
 
   const cardStyle = compact ? styles.compactCard : styles.card;
@@ -230,7 +230,7 @@ export function FeedingScheduleCard({
                 {
                   color: schedule.isActive
                     ? theme.colors.primary
-                    : theme.colors.onSurfaceDisabled
+                    : theme.colors.surfaceDisabled
                 }
               ]}
             >

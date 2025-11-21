@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, useTheme, Text, HelperText } from 'react-native-paper';
-import { useForm, Controller } from 'react-hook-form';
+import { Button, TextInput } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ExpenseCreateSchema, ExpenseCreateInput } from '../lib/schemas/expenseSchema';
-import { CreateExpenseInput as CreateExpenseInputType, Expense, ExpenseCategory, PaymentMethod, Currency } from '../lib/types';
+import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import CategoryPicker from './CategoryPicker';
-import CurrencyPicker from './CurrencyPicker';
-import PaymentMethodPicker from './PaymentMethodPicker';
-import { DateTimePicker } from './DateTimePicker';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ExpenseCreateInput, ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
+import { CreateExpenseInput as CreateExpenseInputType, Currency, Expense, ExpenseCategory } from '../lib/types';
+import { SmartCategoryPicker } from './forms/SmartCategoryPicker';
+import { SmartCurrencyPicker } from './forms/SmartCurrencyPicker';
+import { SmartDatePicker } from './forms/SmartDatePicker';
+import { SmartInput } from './forms/SmartInput';
+import { SmartPaymentMethodPicker } from './forms/SmartPaymentMethodPicker';
 
 interface ExpenseFormProps {
   petId: string;
@@ -26,7 +28,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   const defaultValues = {
@@ -41,16 +43,18 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     notes: initialData?.notes || '',
   };
 
+  const methods = useForm<ExpenseCreateInput>({
+    resolver: zodResolver(ExpenseCreateSchema),
+    defaultValues,
+  });
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
     watch,
-  } = useForm<ExpenseCreateInput>({
-    resolver: zodResolver(ExpenseCreateSchema),
-    defaultValues,
-  });
+  } = methods;
 
   const selectedDate = watch('date');
 
@@ -59,172 +63,63 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.form}>
+    <FormProvider {...methods}>
+      <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.form}>
         {/* Category Picker */}
-        <Controller
-          control={control}
-          name="category"
-          render={({ field: { value, onChange } }) => (
-            <CategoryPicker
-              selectedCategory={value}
-              onSelect={onChange}
-              label={t('expenses.category', 'Category')}
-              error={errors.category?.message}
-            />
-          )}
-        />
+        <SmartCategoryPicker name="category" />
 
         {/* Amount */}
-        <Controller
-          control={control}
+        <SmartInput
           name="amount"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                label={t('expenses.amount', 'Amount')}
-                value={value?.toString() || ''}
-                onChangeText={(text) => {
-                  const num = parseFloat(text.replace(',', '.'));
-                  onChange(isNaN(num) ? 0 : num);
-                }}
-                onBlur={onBlur}
-                keyboardType="decimal-pad"
-                mode="outlined"
-                error={!!errors.amount}
-                left={<TextInput.Icon icon="currency-usd" />}
-              />
-              {errors.amount && (
-                <HelperText type="error" visible={!!errors.amount}>
-                  {errors.amount.message}
-                </HelperText>
-              )}
-            </View>
-          )}
+          label={t('expenses.amount', 'Amount')}
+          keyboardType="decimal-pad"
+          left={<TextInput.Icon icon="cash-outline" />}
         />
 
         {/* Currency Picker */}
-        <Controller
-          control={control}
+        <SmartCurrencyPicker
           name="currency"
-          render={({ field: { value, onChange } }) => (
-            <CurrencyPicker
-              selectedCurrency={value}
-              onSelect={onChange}
-              label={t('expenses.currency', 'Currency')}
-              error={errors.currency?.message}
-            />
-          )}
+          label={t('expenses.currency', 'Currency')}
         />
 
         {/* Payment Method Picker */}
-        <Controller
-          control={control}
+        <SmartPaymentMethodPicker
           name="paymentMethod"
-          render={({ field: { value, onChange } }) => (
-            <PaymentMethodPicker
-              selectedMethod={value || null}
-              onSelect={onChange}
-              label={t('expenses.paymentMethod', 'Payment Method')}
-              error={errors.paymentMethod?.message}
-              optional
-            />
-          )}
+          label={t('expenses.paymentMethod', 'Payment Method')}
+          optional
         />
 
         {/* Date Picker */}
-        <Controller
-          control={control}
+        <SmartDatePicker
           name="date"
-          render={({ field: { value, onChange } }) => (
-            <View style={styles.inputContainer}>
-              <DateTimePicker
-                value={value ? new Date(value) : new Date()}
-                onChange={(date: Date) => onChange(date.toISOString().split('T')[0])}
-                mode="date"
-                maximumDate={new Date()}
-                label={t('expenses.date', 'Date')}
-                error={!!errors.date}
-                errorText={errors.date?.message}
-              />
-            </View>
-          )}
+          label={t('expenses.date', 'Date')}
+          mode="date"
+          maximumDate={new Date()}
         />
 
         {/* Description */}
-        <Controller
-          control={control}
+        <SmartInput
           name="description"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                label={t('expenses.description', 'Description (Optional)')}
-                value={value || ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                mode="outlined"
-                error={!!errors.description}
-                multiline
-                numberOfLines={3}
-                left={<TextInput.Icon icon="text" />}
-              />
-              {errors.description && (
-                <HelperText type="error" visible={!!errors.description}>
-                  {errors.description.message}
-                </HelperText>
-              )}
-            </View>
-          )}
+          label={t('expenses.description', 'Description')}
+          multiline
+          numberOfLines={3}
+          left={<TextInput.Icon icon="text" />}
         />
 
         {/* Vendor */}
-        <Controller
-          control={control}
+        <SmartInput
           name="vendor"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                label={t('expenses.vendor', 'Vendor (Optional)')}
-                value={value || ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                mode="outlined"
-                error={!!errors.vendor}
-                left={<TextInput.Icon icon="store" />}
-              />
-              {errors.vendor && (
-                <HelperText type="error" visible={!!errors.vendor}>
-                  {errors.vendor.message}
-                </HelperText>
-              )}
-            </View>
-          )}
+          label={t('expenses.vendor', 'Vendor')}
+          left={<TextInput.Icon icon="storefront-outline" />}
         />
 
         {/* Notes */}
-        <Controller
-          control={control}
+        <SmartInput
           name="notes"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                label={t('expenses.notes', 'Notes (Optional)')}
-                value={value || ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                mode="outlined"
-                error={!!errors.notes}
-                multiline
-                numberOfLines={3}
-                left={<TextInput.Icon icon="note-text" />}
-              />
-              {errors.notes && (
-                <HelperText type="error" visible={!!errors.notes}>
-                  {errors.notes.message}
-                </HelperText>
-              )}
-            </View>
-          )}
+          label={t('expenses.notes', 'Notes')}
+          multiline
+          numberOfLines={3}
+          left={<TextInput.Icon icon="document-text-outline" />}
         />
 
         {/* Action Buttons */}
@@ -243,14 +138,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             mode="contained"
             onPress={handleSubmit(handleFormSubmit)}
             style={styles.button}
-            loading={isSubmitting}
             disabled={isSubmitting}
           >
             {initialData ? t('common.update', 'Update') : t('common.create', 'Create')}
           </Button>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FormProvider>
   );
 };
 

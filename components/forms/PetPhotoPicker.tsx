@@ -7,16 +7,11 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {
-  Avatar,
-  Button,
-  Surface,
-  Text,
-  Modal,
-  List,
-} from 'react-native-paper';
+import { Avatar, Button, Surface, Text, Modal, ListItem } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/lib/theme';
 import { Pet } from '../../lib/types';
 
 interface PetPhotoPickerProps {
@@ -26,22 +21,23 @@ interface PetPhotoPickerProps {
   disabled?: boolean;
 }
 
-const getDefaultIcon = (petType?: Pet['type']): string => {
+const getDefaultIcon = (petType?: Pet['type']): keyof typeof import('@expo/vector-icons').Ionicons.glyphMap => {
+  // Map pet types to Ionicons icon names
   switch (petType) {
     case 'dog':
-      return 'dog';
+      return 'paw';
     case 'cat':
-      return 'cat';
+      return 'paw';
     case 'bird':
-      return 'bird';
+      return 'leaf'; // Ionicons doesn't have bird
     case 'rabbit':
-      return 'rabbit';
+      return 'paw';
     case 'hamster':
-      return 'hamster';
+      return 'paw';
     case 'fish':
       return 'fish';
     case 'reptile':
-      return 'lizard';
+      return 'fish'; // Ionicons doesn't have reptile
     default:
       return 'paw';
   }
@@ -75,6 +71,7 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
   disabled = false,
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -258,29 +255,29 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
           </Text>
 
           <Surface style={styles.modalContent}>
-            <List.Item
+            <ListItem
               title={t('forms.photoPicker.selectFromGallery')}
               description={t('forms.photoPicker.selectFromGalleryDescription')}
-              left={(props) => <List.Icon {...props} icon="image" />}
+              left={<MaterialCommunityIcons name="image" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={pickFromGallery}
               style={styles.modalItem}
             />
 
-            <List.Item
+            <ListItem
               title={t('forms.photoPicker.takePhoto')}
               description={t('forms.photoPicker.takePhotoDescription')}
-              left={(props) => <List.Icon {...props} icon="camera" />}
+              left={<MaterialCommunityIcons name="camera" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={takePhoto}
               style={styles.modalItem}
             />
 
             {value && (
-              <List.Item
+              <ListItem
                 title={t('forms.photoPicker.removePhotoTitle')}
                 description={t('forms.photoPicker.removePhotoDescription')}
-                left={(props) => <List.Icon {...props} icon="delete" />}
+                left={<MaterialCommunityIcons name="delete" size={24} color={theme.colors.onSurfaceVariant} />}
                 onPress={removePhoto}
-                style={[styles.modalItem, styles.dangerItem]}
+                style={{ ...styles.modalItem, ...styles.dangerItem }}
                 titleStyle={{ color: '#FF6B6B' }}
               />
             )}

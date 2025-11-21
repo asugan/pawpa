@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, Text, useTheme } from 'react-native-paper';
+import { Chip, Text,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { PaymentMethod } from '../lib/types';
 import { PAYMENT_METHODS } from '../lib/schemas/expenseSchema';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +22,11 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   error,
   optional = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const getMethodIcon = (method: PaymentMethod): string => {
-    const icons: Record<PaymentMethod, string> = {
+  const getMethodIcon = (method: PaymentMethod): keyof typeof MaterialCommunityIcons.glyphMap => {
+    const icons: Record<PaymentMethod, keyof typeof MaterialCommunityIcons.glyphMap> = {
       cash: 'cash',
       credit_card: 'credit-card',
       debit_card: 'credit-card-outline',
@@ -56,9 +57,9 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
             selected={selectedMethod === method}
             onPress={() => handleSelect(method)}
             style={styles.chip}
-            icon={({ size, color }) => (
+            icon={({ size, color }: { size: number, color: string }) => (
               <MaterialCommunityIcons
-                name={getMethodIcon(method) as any}
+                name={getMethodIcon(method)}
                 size={size}
                 color={selectedMethod === method ? theme.colors.primary : color}
               />

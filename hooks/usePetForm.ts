@@ -1,9 +1,7 @@
-import { useForm, Control, UseFormReturn, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Pet, PetType, PetGender } from '../lib/types';
-import { PetCreateSchema, PetUpdateSchema, PetCreateInput, PetUpdateInput } from '../lib/schemas/petSchema';
-import { createZodI18nErrorMap } from '../lib/schemas/createZodI18n';
+import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
+import { PetCreateInput, PetCreateSchema, PetUpdateInput, PetUpdateSchema } from '../lib/schemas/petSchema';
+import { Pet, PetGender, PetType } from '../lib/types';
 
 // Form hook types
 export interface UsePetFormReturn {
@@ -16,7 +14,7 @@ export interface UsePetFormReturn {
   dirtyFields: Record<string, boolean>;
   handleSubmit: (onSubmit: (data: PetCreateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetCreateInput) => void;
-  setValue: (name: keyof PetCreateInput, value: any) => void;
+  setValue: <K extends Path<PetCreateInput>>(name: K, value: PathValue<PetCreateInput, K>) => void;
   getValues: (name?: keyof PetCreateInput) => PetCreateInput | any;
   trigger: (name?: keyof PetCreateInput) => Promise<boolean>;
   watch: (name?: keyof PetCreateInput) => PetCreateInput | any;
@@ -33,7 +31,7 @@ export interface UsePetUpdateFormReturn {
   dirtyFields: Record<string, boolean>;
   handleSubmit: (onSubmit: (data: PetUpdateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetUpdateInput) => void;
-  setValue: (name: keyof PetUpdateInput, value: any) => void;
+  setValue: <K extends Path<PetUpdateInput>>(name: K, value: PathValue<PetUpdateInput, K>) => void;
   getValues: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
   trigger: (name?: keyof PetUpdateInput) => Promise<boolean>;
   watch: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
@@ -160,105 +158,13 @@ export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
   };
 };
 
-// Utility hook for form field validation states
-export const useFormFieldState = (fieldName: keyof PetCreateInput, control: Control<PetCreateInput>) => {
-  const fieldState = control.getFieldState(fieldName);
-
-  return {
-    error: fieldState.error,
-    isTouched: fieldState.isTouched,
-    isDirty: fieldState.isDirty,
-    isValid: fieldState.invalid === false,
-    hasError: !!fieldState.error
-  };
-};
-
-// Validation helper functions
-export const validatePetName = (name: string, t: (key: string) => string): string | null => {
-  if (!name || name.trim().length < 2) {
-    return t('forms.validation.nameMinLength');
-  }
-  if (name.length > 50) {
-    return t('forms.validation.nameMaxLength');
-  }
-  const turkishNameRegex = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
-  if (!turkishNameRegex.test(name.trim())) {
-    return t('forms.validation.nameInvalidChars');
-  }
-  return null;
-};
-
-export const validatePetWeight = (weight: number | undefined, t: (key: string) => string): string | null => {
-  if (weight === undefined || weight === null) {
-    return null; // Weight is optional
-  }
-  if (isNaN(weight)) {
-    return t('forms.validation.weightRequired');
-  }
-  if (weight <= 0) {
-    return t('forms.validation.weightPositive');
-  }
-  if (weight < 0.1) {
-    return t('forms.validation.weightMin');
-  }
-  if (weight > 200) {
-    return t('forms.validation.weightMax');
-  }
-  return null;
-};
-
-export const validateBirthDate = (date: Date | undefined, t: (key: string) => string): string | null => {
-  if (!date) {
-    return null; // Birth date is optional
-  }
-  if (isNaN(date.getTime())) {
-    return t('forms.validation.birthDateRequired');
-  }
-  const now = new Date();
-  const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate());
-
-  if (date > now) {
-    return t('forms.validation.birthDateFuture');
-  }
-  if (date < minDate) {
-    return t('forms.validation.birthDateMaxAge');
-  }
-  return null;
-};
-
-// Form validation hook for real-time validation
+// Form validation hook for real-time validation - DEPRECATED: Zod schema handles this now
+// Keeping it empty or removing it would be best, but for now removing the implementation to avoid confusion
+// and rely on Zod.
 export const usePetFormValidation = (t: (key: string) => string) => {
-  const validateField = (fieldName: keyof PetCreateInput, value: any): string | null => {
-    switch (fieldName) {
-      case 'name':
-        return validatePetName(value as string, t);
-      case 'weight':
-        return validatePetWeight(value as number | undefined, t);
-      case 'birthDate':
-        return validateBirthDate(value as Date | undefined, t);
-      default:
-        return null;
-    }
-  };
-
-  const validateForm = (data: PetCreateInput): Record<string, string> => {
-    const errors: Record<string, string> = {};
-
-    const nameError = validatePetName(data.name, t);
-    if (nameError) errors.name = nameError;
-
-    const weightError = validatePetWeight(data.weight, t);
-    if (weightError) errors.weight = weightError;
-
-    const birthDateError = validateBirthDate(data.birthDate, t);
-    if (birthDateError) errors.birthDate = birthDateError;
-
-    return errors;
-  };
-
   return {
-    validateField,
-    validateForm
+    validateField: () => null,
+    validateForm: () => ({})
   };
 };
 

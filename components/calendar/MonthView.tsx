@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
   startOfMonth,
@@ -14,6 +15,7 @@ import {
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
+import { getEventColor } from '@/lib/utils/eventColors';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -34,7 +36,7 @@ export function MonthView({
   testID,
 }: MonthViewProps) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Get all days to display in the calendar grid
@@ -131,7 +133,7 @@ export function MonthView({
                   style={[
                     styles.eventDot,
                     {
-                      backgroundColor: getEventColor(event.type),
+                      backgroundColor: getEventColor(event.type, theme),
                       marginLeft: index > 0 ? 2 : 0,
                     },
                   ]}
@@ -188,22 +190,6 @@ export function MonthView({
     </View>
   );
 }
-
-// Helper function to get event color based on type
-const getEventColor = (eventType: string): string => {
-  const colors: { [key: string]: string } = {
-    feeding: '#FFB3D1',   // Pink
-    exercise: '#B3FFD9',  // Mint
-    grooming: '#C8B3FF',  // Lavender
-    play: '#FFDAB3',      // Peach
-    training: '#FFF3B3',  // Yellow
-    vet_visit: '#FF9999', // Red
-    walk: '#B3E5FF',      // Sky Blue
-    bath: '#E5B3FF',      // Purple
-    other: '#CCCCCC',     // Gray
-  };
-  return colors[eventType] || colors.other;
-};
 
 const styles = StyleSheet.create({
   container: {

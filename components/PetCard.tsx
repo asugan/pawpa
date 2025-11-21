@@ -1,9 +1,12 @@
+import { Avatar, Button, Surface, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, Button, Avatar, Badge, Surface, useTheme } from 'react-native-paper';
-import { Pet } from '../lib/types';
 import { useTranslation } from 'react-i18next';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useResponsiveSize } from '../lib/hooks';
+import { gradients, gradientsDark } from '../lib/theme';
+import { Pet } from '../lib/types';
 
 interface PetCardProps {
   pet: Pet;
@@ -24,8 +27,9 @@ const PetCard: React.FC<PetCardProps> = ({
   upcomingEvents = 0,
   upcomingVaccinations = 0,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
+  const { isMobile, cardPadding, avatarSize } = useResponsiveSize();
 
   const getPetIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -83,6 +87,23 @@ const PetCard: React.FC<PetCardProps> = ({
     return typeColors[type.toLowerCase() as keyof typeof typeColors] || typeColors.default;
   };
 
+  const getPetTypeGradient = (type: string): readonly [string, string] => {
+    const isDark = theme.dark;
+    const gradientSet = isDark ? gradientsDark : gradients;
+
+    const typeGradients: { [key: string]: readonly [string, string] } = {
+      cat: gradientSet.secondary,
+      dog: gradientSet.tertiary,
+      bird: gradientSet.primary,
+      fish: gradientSet.accent,
+      rabbit: gradientSet.secondary,
+      hamster: gradientSet.tertiary,
+      reptile: gradientSet.accent,
+      default: gradientSet.primary,
+    };
+    return typeGradients[type.toLowerCase()] || typeGradients.default;
+  };
+
   const getInitials = (name: string): string => {
     return name
       .split(' ')
@@ -100,40 +121,64 @@ const PetCard: React.FC<PetCardProps> = ({
           {
             backgroundColor: theme.colors.surface,
             borderColor: getPetTypeColor(pet.type),
-            borderWidth: 1,
+            borderWidth: 2,
           },
         ]}
-        elevation={3}
+        elevation={5}
       >
-        <View style={styles.content}>
+        <View style={[styles.content, { padding: cardPadding }]}>
           {/* Header with avatar and basic info */}
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
-              {pet.profilePhoto ? (
-                <Avatar.Image
-                  size={70}
-                  source={{ uri: pet.profilePhoto }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <Avatar.Text
-                  size={70}
-                  label={getInitials(pet.name)}
-                  style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
-                  labelStyle={{ color: theme.colors.onPrimary, fontSize: 24, fontWeight: 'bold' }}
-                />
-              )}
+              <LinearGradient
+                colors={getPetTypeGradient(pet.type)}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.avatarRing, { padding: isMobile ? 2 : 3 }]}
+              >
+                {pet.profilePhoto ? (
+                  <Avatar.Image
+                    size={avatarSize}
+                    source={{ uri: pet.profilePhoto }}
+                    style={styles.avatar}
+                  />
+                ) : (
+                  <Avatar.Text
+                    label={pet.name.charAt(0).toUpperCase()}
+                    size={avatarSize}
+                    style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
+                    labelStyle={{ color: theme.colors.onPrimary, fontSize: isMobile ? 20 : 28, fontWeight: 'bold' }}
+                  />
+                )}
+              </LinearGradient>
             </View>
             <View style={styles.textContainer}>
-              <Text variant="titleLarge" style={[styles.name, { color: theme.colors.onSurface }]}>
+              <Text
+                variant={isMobile ? "titleMedium" : "titleLarge"}
+                style={[styles.name, { color: theme.colors.onSurface }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {pet.name}
               </Text>
               <View style={styles.typeContainer}>
-                <Text variant="bodyMedium" style={[styles.type, { color: getPetTypeColor(pet.type) }]}>
-                  {getPetTypeLabel(pet.type)}
-                </Text>
+                <LinearGradient
+                  colors={getPetTypeGradient(pet.type)}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.typeBadge}
+                >
+                  <Text variant="bodyMedium" style={[styles.type, { color: '#FFFFFF' }]}>
+                    {getPetTypeLabel(pet.type)}
+                  </Text>
+                </LinearGradient>
                 {pet.breed && (
-                  <Text variant="bodyMedium" style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     • {pet.breed}
                   </Text>
                 )}
@@ -144,29 +189,35 @@ const PetCard: React.FC<PetCardProps> = ({
             </View>
           </View>
 
-          {/* Status badges */}
+          {/* Status badges with emojis */}
           <View style={styles.badgesContainer}>
             {(upcomingEvents > 0 || upcomingVaccinations > 0) && (
               <View style={styles.badgesRow}>
                 {upcomingEvents > 0 && (
-                  <View style={[styles.miniBadge, { backgroundColor: theme.colors.tertiaryContainer }]}>
-                    <MaterialCommunityIcons
-                      name="calendar"
-                      size={12}
-                      color={theme.colors.onTertiaryContainer}
-                    />
+                  <View style={[
+                    styles.miniBadge,
+                    {
+                      backgroundColor: theme.colors.tertiaryContainer,
+                      paddingHorizontal: isMobile ? 6 : 8,
+                      paddingVertical: isMobile ? 3 : 4,
+                    }
+                  ]}>
+                    <Text style={styles.emoji}>📅</Text>
                     <Text style={[styles.miniBadgeText, { color: theme.colors.onTertiaryContainer }]}>
                       {upcomingEvents}
                     </Text>
                   </View>
                 )}
                 {upcomingVaccinations > 0 && (
-                  <View style={[styles.miniBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
-                    <MaterialCommunityIcons
-                      name="needle"
-                      size={12}
-                      color={theme.colors.onSecondaryContainer}
-                    />
+                  <View style={[
+                    styles.miniBadge,
+                    {
+                      backgroundColor: theme.colors.secondaryContainer,
+                      paddingHorizontal: isMobile ? 6 : 8,
+                      paddingVertical: isMobile ? 3 : 4,
+                    }
+                  ]}>
+                    <Text style={styles.emoji}>💉</Text>
                     <Text style={[styles.miniBadgeText, { color: theme.colors.onSecondaryContainer }]}>
                       {upcomingVaccinations}
                     </Text>
@@ -222,7 +273,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
-    padding: 16,
+    // padding is now dynamic via useResponsiveSize
   },
   header: {
     flexDirection: 'row',
@@ -231,6 +282,12 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginRight: 12,
+  },
+  avatarRing: {
+    // padding is now dynamic via useResponsiveSize
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatar: {
     borderWidth: 3,
@@ -249,8 +306,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 4,
   },
+  typeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
   type: {
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 12,
   },
   breed: {
     fontWeight: '400',
@@ -281,15 +345,18 @@ const styles = StyleSheet.create({
   miniBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 12,
-    gap: 3,
+    // padding is now dynamic via useResponsiveSize
+    borderRadius: 14,
+    gap: 4,
+  },
+  emoji: {
+    fontSize: 14,
+    lineHeight: 14,
   },
   miniBadgeText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
-    lineHeight: 12,
+    lineHeight: 14,
   },
   actions: {
     flexDirection: 'row',

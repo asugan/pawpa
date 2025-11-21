@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@/lib/theme';
 
 interface Props {
   children: ReactNode;
@@ -44,7 +44,7 @@ class ApiErrorBoundaryClass extends Component<Props, State> {
 }
 
 function ApiErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>

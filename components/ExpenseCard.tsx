@@ -1,11 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme, IconButton, Chip } from 'react-native-paper';
-import { Expense, ExpenseCategory } from '../lib/types';
-import { useTranslation } from 'react-i18next';
+import { Card, Chip, IconButton, Text } from '@/components/ui';
+import { getExpenseCategoryConfig } from '@/constants/expenseConfig';
+import { useTheme } from '@/lib/theme';
+import { formatCurrency } from '@/lib/utils/currency';
+import { formatDate } from '@/lib/utils/date';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { format } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Expense } from '../lib/types';
 
 interface ExpenseCardProps {
   expense: Expense;
@@ -22,79 +24,27 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   onDelete,
   showActions = true,
 }) => {
-  const theme = useTheme();
-  const { t, i18n } = useTranslation();
+  const { theme } = useTheme();
+  const { t } = useTranslation();
 
-  const getCategoryIcon = (category: ExpenseCategory): string => {
-    const icons: Record<ExpenseCategory, string> = {
-      food: 'food',
-      premium_food: 'food-variant',
-      veterinary: 'hospital-box',
-      vaccination: 'needle',
-      medication: 'pill',
-      grooming: 'content-cut',
-      toys: 'soccer',
-      accessories: 'shopping',
-      training: 'school',
-      insurance: 'shield-check',
-      emergency: 'alert-circle',
-      other: 'dots-horizontal',
-    };
-    return icons[category] || 'cash';
-  };
-
-  const getCategoryColor = (category: ExpenseCategory): string => {
-    const colors: Record<ExpenseCategory, string> = {
-      food: theme.colors.primary,
-      premium_food: theme.colors.tertiary,
-      veterinary: theme.colors.error,
-      vaccination: theme.colors.secondary,
-      medication: theme.colors.inversePrimary,
-      grooming: theme.colors.tertiaryContainer,
-      toys: theme.colors.primaryContainer,
-      accessories: theme.colors.secondaryContainer,
-      training: theme.colors.surfaceVariant,
-      insurance: theme.colors.outline,
-      emergency: theme.colors.errorContainer,
-      other: theme.colors.surface,
-    };
-    return colors[category] || theme.colors.surface;
-  };
-
-  const formatCurrency = (amount: number, currency: string): string => {
-    const currencySymbols: Record<string, string> = {
-      TRY: '₺',
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-    };
-
-    const symbol = currencySymbols[currency] || currency;
-    const formatted = amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-
-    return `${symbol}${formatted}`;
-  };
+  const categoryConfig = getExpenseCategoryConfig(expense.category);
 
   const formattedDate = React.useMemo(() => {
     try {
-      const date = typeof expense.date === 'string' ? new Date(expense.date) : expense.date;
-      return format(date, 'PPP', { locale: i18n.language === 'tr' ? tr : enUS });
+      return formatDate(expense.date, 'PPP');
     } catch {
       return expense.date.toString();
     }
-  }, [expense.date, i18n.language]);
+  }, [expense.date]);
 
   const cardContent = (
     <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={2}>
-      <Card.Content>
+      <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: getCategoryColor(expense.category) }]}>
+            <View style={[styles.iconContainer, { backgroundColor: categoryConfig.color.startsWith('#') ? categoryConfig.color : theme.colors[categoryConfig.color as keyof typeof theme.colors] }]}>
               <MaterialCommunityIcons
-                name={getCategoryIcon(expense.category) as any}
+                name={categoryConfig.icon}
                 size={24}
                 color={theme.colors.onPrimaryContainer}
               />
@@ -169,7 +119,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
             </View>
           )}
         </View>
-      </Card.Content>
+      </View>
     </Card>
   );
 
@@ -191,6 +141,9 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 6,
     borderRadius: 12,
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',

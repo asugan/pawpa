@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText,  } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 
 interface DateTimePickerProps {
   value: Date;
@@ -27,7 +28,7 @@ export function DateTimePicker({
   errorText,
 }: DateTimePickerProps) {
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const showPicker = () => {
     if (!disabled) {

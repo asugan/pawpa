@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal as RNModal, View, StyleSheet } from 'react-native';
-import { useTheme, Text, Button } from 'react-native-paper';
-import BudgetForm from './BudgetForm';
+import { Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import BudgetForm from './forms/BudgetForm';
 import { CreateBudgetLimitInput, BudgetLimit } from '../lib/types';
 
 interface BudgetFormModalProps {
@@ -21,7 +22,7 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <RNModal

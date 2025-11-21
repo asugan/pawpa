@@ -1,8 +1,11 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { Card, Text } from '@/components/ui';
+import { getGradientColors } from '@/constants/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useResponsiveSize } from '../lib/hooks';
 
 interface StatCardProps {
   title: string;
@@ -23,12 +26,13 @@ const StatCard: React.FC<StatCardProps> = ({
   loading,
   error
 }) => {
-  const theme = useTheme();
+  const { theme, isDark } = useTheme();
+  const { isMobile, cardPadding, iconSize } = useResponsiveSize();
 
   if (loading) {
     return (
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <View style={[styles.content, styles.loadingContent]}>
+        <View style={[styles.content, styles.loadingContent, { padding: cardPadding }]}>
           <ActivityIndicator size="small" color={color} />
           <View style={styles.loadingPlaceholder}>
             <View style={[styles.placeholderLine, { backgroundColor: theme.colors.surfaceVariant }]} />
@@ -43,72 +47,86 @@ const StatCard: React.FC<StatCardProps> = ({
     return (
       <Pressable onPress={onPress} style={styles.pressable}>
         <Card style={[styles.card, { borderColor: theme.colors.error, borderWidth: 1 }]}>
-          <Card.Content style={styles.content}>
-            <View style={[styles.iconContainer, { backgroundColor: theme.colors.errorContainer }]}>
+          <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
+            <LinearGradient
+              colors={[theme.colors.error, theme.colors.error + 'CC']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
+            >
               <MaterialCommunityIcons
                 name="alert-circle"
-                size={24}
-                color={theme.colors.onErrorContainer}
+                size={isMobile ? iconSize * 0.6 : 36}
+                color="#FFFFFF"
               />
-            </View>
-            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: 'bold' }}>
+            </LinearGradient>
+            <Text variant="headlineMedium" style={{ color: theme.colors.error, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
                 --
             </Text>
             <Text variant="bodyMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
               {title}
             </Text>
-          </Card.Content>
+          </View>
         </Card>
       </Pressable>
     );
   }
 
   return (
-    <Pressable onPress={onPress} style={styles.pressable}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.pressable,
+        { marginHorizontal: isMobile ? 2 : 4, minWidth: isMobile ? 100 : 120 },
+        pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+      ]}
+    >
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.content}>
-          <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}>
+        <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
+          <LinearGradient
+            colors={getGradientColors(color, isDark, theme)}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
+          >
             <MaterialCommunityIcons
               name={icon}
-              size={24}
-              color={color}
+              size={isMobile ? iconSize * 0.6 : 36}
+              color="#FFFFFF"
             />
-          </View>
-          <Text variant="headlineMedium" style={{ color, fontWeight: 'bold' }}>
+          </LinearGradient>
+          <Text variant="headlineMedium" style={{ color, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
             {value}
           </Text>
           <Text variant="bodyMedium" style={styles.title}>
             {title}
           </Text>
-        </Card.Content>
+        </View>
       </Card>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  cardContent: {
+    padding: 16,
+  },
   pressable: {
     flex: 1,
-    marginHorizontal: 4,
   },
   card: {
-    elevation: 2,
-    borderRadius: 12,
+    elevation: 5,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   content: {
     alignItems: 'center',
-    padding: 16,
-    gap: 8,
   },
   loadingContent: {
     justifyContent: 'center',
     gap: 12,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },

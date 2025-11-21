@@ -13,27 +13,9 @@ export const EVENT_TYPE_ICONS = {
   other: 'calendar',
 } as const;
 
-// Event Type Colors (Rainbow Pastel Theme)
-export const EVENT_TYPE_COLORS = {
-  feeding: '#FFB3D1',   // Pink
-  exercise: '#B3FFD9',  // Mint
-  grooming: '#C8B3FF', // Lavender
-  play: '#FFDAB3',     // Peach
-  training: '#FFF3B3', // Yellow
-  vet_visit: '#FF9999', // Red
-  walk: '#B3E5FF',     // Sky Blue
-  bath: '#E5B3FF',     // Purple
-  other: '#CCCCCC',    // Gray
-} as const;
-
 // Helper function to get event type icon
 export const getEventTypeIcon = (eventType: string): string => {
   return EVENT_TYPE_ICONS[eventType as keyof typeof EVENT_TYPE_ICONS] || EVENT_TYPE_ICONS.other;
-};
-
-// Helper function to get event type color
-export const getEventTypeColor = (eventType: string): string => {
-  return EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other;
 };
 
 // Helper function to get event type label with i18n support

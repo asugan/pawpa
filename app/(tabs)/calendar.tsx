@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { Text, FAB } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from 'date-fns';
@@ -11,9 +12,10 @@ import { DayView } from '@/components/calendar/DayView';
 import { EventModal } from '@/components/EventModal';
 import { useUpcomingEvents, useCalendarEvents } from '@/lib/hooks/useEvents';
 import { Event } from '@/lib/types';
+import { LAYOUT } from '@/constants';
 
 export default function CalendarScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { t } = useTranslation();
 
   // State management
@@ -194,10 +196,9 @@ export default function CalendarScreen() {
 
       {/* Add Event FAB */}
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.tertiary }]}
+        icon="add"
+        style={{ ...styles.fab, backgroundColor: theme.colors.tertiary }}
         onPress={handleAddEvent}
-        label={t('calendar.addEvent')}
         testID="calendar-add-event-fab"
       />
 
@@ -218,6 +219,7 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     flex: 1,
+    paddingBottom: LAYOUT.FAB_OFFSET,
   },
   loadingContainer: {
     flex: 1,

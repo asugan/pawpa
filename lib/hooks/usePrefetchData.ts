@@ -25,7 +25,7 @@ export function usePrefetchData() {
 
   const prefetchPetEvents = (petId: string) => {
     queryClient.prefetchQuery({
-      queryKey: eventKeys.list(petId),
+      queryKey: eventKeys.list({ petId }),
       queryFn: () => import('@/lib/services/eventService').then(m => m.eventService.getEventsByPetId(petId)),
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
@@ -33,7 +33,7 @@ export function usePrefetchData() {
 
   const prefetchPetFeedingSchedules = (petId: string) => {
     queryClient.prefetchQuery({
-      queryKey: feedingScheduleKeys.list(petId),
+      queryKey: feedingScheduleKeys.list({ petId }),
       queryFn: () => import('@/lib/services/feedingScheduleService').then(m => m.feedingScheduleService.getFeedingSchedulesByPetId(petId)),
       staleTime: 1 * 60 * 1000, // 1 minute
     });

@@ -1,12 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { useTheme, Text, IconButton, Chip } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { Chip, IconButton, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import { formatEventDate, formatTime, getRelativeTime } from '@/lib/utils/date';
 import { useRouter } from 'expo-router';
-import { format, isToday, isTomorrow, isYesterday, formatDistanceToNow } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View, GestureResponderEvent } from 'react-native';
+import { getEventTypeIcon, getEventTypeLabel } from '../constants/eventIcons';
+import { getEventColor } from '@/lib/utils/eventColors';
 import { Event } from '../lib/types';
-import { getEventTypeIcon, getEventTypeColor, getEventTypeLabel } from '../constants/eventIcons';
 
 interface EventCardProps {
   event: Event;
@@ -29,47 +30,31 @@ export function EventCard({
   compact = false,
   testID,
 }: EventCardProps) {
-  const { t, i18n } = useTranslation();
-  const theme = useTheme();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
   const router = useRouter();
-  const locale = i18n.language === 'tr' ? tr : enUS;
 
   // Format event date and time
-  const formatEventDateTime = () => {
-    const eventDate = new Date(event.startTime);
-
-    if (isToday(eventDate)) {
-      return t('eventCard.today');
-    } else if (isTomorrow(eventDate)) {
-      return t('eventCard.tomorrow');
-    } else if (isYesterday(eventDate)) {
-      return t('eventCard.yesterday');
-    } else {
-      return format(eventDate, 'dd MMMM yyyy', { locale });
-    }
+  const getFormattedEventDateTime = () => {
+    return formatEventDate(event.startTime, t);
   };
 
-  const formatEventTime = () => {
-    const startDate = new Date(event.startTime);
-    const startTime = format(startDate, 'HH:mm', { locale });
+  const getFormattedEventTime = () => {
+    const startTime = formatTime(event.startTime);
 
     if (event.endTime) {
-      const endDate = new Date(event.endTime);
-      const endTime = format(endDate, 'HH:mm', { locale });
+      const endTime = formatTime(event.endTime);
       return `${startTime} - ${endTime}`;
     }
 
     return startTime;
   };
 
-  const getRelativeTime = () => {
-    const eventDate = new Date(event.startTime);
-    const now = new Date();
-    const distance = formatDistanceToNow(eventDate, { addSuffix: true, locale });
-    return distance;
+  const getEventRelativeTime = () => {
+    return getRelativeTime(event.startTime);
   };
 
-  const eventTypeColor = getEventTypeColor(event.type);
+  const eventTypeColor = getEventColor(event.type, theme);
   const eventTypeIcon = getEventTypeIcon(event.type);
   const eventTypeLabel = getEventTypeLabel(event.type, t);
 
@@ -82,12 +67,12 @@ export function EventCard({
     }
   }, [onPress, event, router]);
 
-  const handleEdit = React.useCallback((e: any) => {
+  const handleEdit = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onEdit?.(event);
   }, [onEdit, event]);
 
-  const handleDelete = React.useCallback((e: any) => {
+  const handleDelete = React.useCallback((e: GestureResponderEvent) => {
     e.stopPropagation();
     onDelete?.(event);
   }, [onDelete, event]);
@@ -133,7 +118,7 @@ export function EventCard({
                 variant="bodySmall"
                 style={[styles.relativeTime, { color: theme.colors.onSurfaceVariant }]}
               >
-                {getRelativeTime()}
+                {getEventRelativeTime()}
               </Text>
             </View>
           </View>
@@ -143,13 +128,13 @@ export function EventCard({
               variant="labelMedium"
               style={[styles.dateTime, { color: theme.colors.onSurface }]}
             >
-              {formatEventDateTime()}
+              {getFormattedEventDateTime()}
             </Text>
             <Text
               variant="bodyMedium"
               style={[styles.time, { color: theme.colors.onSurface }]}
             >
-              {formatEventTime()}
+              {getFormattedEventTime()}
             </Text>
           </View>
         </View>

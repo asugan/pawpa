@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal as RNModal, View, StyleSheet } from 'react-native';
-import { useTheme, Text, Button } from 'react-native-paper';
+import { Text, Button } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import ExpenseForm from './ExpenseForm';
 import { CreateExpenseInput, Expense } from '../lib/types';
 
@@ -21,7 +22,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <RNModal
