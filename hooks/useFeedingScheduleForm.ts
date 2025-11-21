@@ -6,12 +6,12 @@ import {
   feedingScheduleFormSchema,
   type FeedingScheduleFormData,
 } from '../lib/schemas/feedingScheduleSchema';
-import { FeedingSchedule } from '../lib/types';
+import { FeedingSchedule, FoodType } from '../lib/types';
 
 // Form hook types
 export interface UseFeedingScheduleFormReturn {
-  form: UseFormReturn<FeedingScheduleFormData, any, FeedingScheduleFormData>;
-  control: Control<FeedingScheduleFormData, any>;
+  form: UseFormReturn<FeedingScheduleFormData>;
+  control: Control<FeedingScheduleFormData>;
   errors: FieldErrors<FeedingScheduleFormData>;
   isSubmitting: boolean;
   isValid: boolean;
@@ -23,9 +23,15 @@ export interface UseFeedingScheduleFormReturn {
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: FeedingScheduleFormData) => void;
   setValue: <K extends Path<FeedingScheduleFormData>>(name: K, value: PathValue<FeedingScheduleFormData, K>) => void;
-  getValues: (name?: keyof FeedingScheduleFormData) => FeedingScheduleFormData | any;
+  getValues: {
+    (): FeedingScheduleFormData;
+    <K extends keyof FeedingScheduleFormData>(name: K): FeedingScheduleFormData[K];
+  };
   trigger: (name?: keyof FeedingScheduleFormData) => Promise<boolean>;
-  watch: (name?: keyof FeedingScheduleFormData) => FeedingScheduleFormData | any;
+  watch: {
+    (): FeedingScheduleFormData;
+    <K extends keyof FeedingScheduleFormData>(name: K): FeedingScheduleFormData[K];
+  };
 }
 
 // Main hook for feeding schedule form - handles both create and edit modes
@@ -44,7 +50,7 @@ export const useFeedingScheduleForm = (
       return {
         petId: schedule.petId,
         time: schedule.time,
-        foodType: schedule.foodType as any,
+        foodType: schedule.foodType as FoodType,
         amount: schedule.amount,
         daysArray,
         isActive: schedule.isActive ?? true,
@@ -54,7 +60,7 @@ export const useFeedingScheduleForm = (
       return {
         petId: initialPetId || '',
         time: '08:00',
-        foodType: 'dry_food' as any,
+        foodType: 'dry_food' as FoodType,
         amount: '',
         daysArray: [],
         isActive: true,

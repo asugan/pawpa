@@ -25,7 +25,7 @@ export interface AvatarTextProps {
 }
 
 export interface AvatarIconProps {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   size?: number;
   style?: StyleProp<ViewStyle>;
   color?: string;
@@ -105,7 +105,7 @@ const AvatarIcon: React.FC<AvatarIconProps> = ({ icon, size = 40, style, color }
       ]}
     >
       <Ionicons
-        name={icon as any}
+        name={icon}
         size={size * 0.5}
         color={color || theme.colors.onPrimary}
       />

@@ -25,8 +25,8 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const getMethodIcon = (method: PaymentMethod): string => {
-    const icons: Record<PaymentMethod, string> = {
+  const getMethodIcon = (method: PaymentMethod): keyof typeof MaterialCommunityIcons.glyphMap => {
+    const icons: Record<PaymentMethod, keyof typeof MaterialCommunityIcons.glyphMap> = {
       cash: 'cash',
       credit_card: 'credit-card',
       debit_card: 'credit-card-outline',
@@ -59,7 +59,7 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
             style={styles.chip}
             icon={({ size, color }: { size: number, color: string }) => (
               <MaterialCommunityIcons
-                name={getMethodIcon(method) as any}
+                name={getMethodIcon(method)}
                 size={size}
                 color={selectedMethod === method ? theme.colors.primary : color}
               />

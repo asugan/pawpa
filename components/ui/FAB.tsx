@@ -71,7 +71,7 @@ export const FAB: React.FC<FABProps> = ({
     >
       {typeof icon === "string" ? (
         <Ionicons
-          name={icon as any}
+          name={icon as keyof typeof Ionicons.glyphMap}
           size={getIconSize()}
           color={theme.colors.onPrimary}
         />

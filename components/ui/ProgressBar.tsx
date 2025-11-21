@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { View, StyleSheet, ViewStyle, DimensionValue } from "react-native";
 import { useTheme } from "@/lib/theme";
 
 export interface ProgressBarProps {
@@ -18,7 +18,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const { theme } = useTheme();
 
   const progressColor = color || theme.colors.primary;
-  const progressWidth: string | number = indeterminate ? "100%" : `${Math.min(Math.max(progress * 100, 0), 100)}%`;
+  const progressWidth: DimensionValue = indeterminate ? "100%" : `${Math.min(Math.max(progress * 100, 0), 100)}%`;
 
   return (
     <View
@@ -35,7 +35,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         style={[
           styles.progress,
           {
-            width: progressWidth as any,
+            width: progressWidth,
             backgroundColor: progressColor,
             borderRadius: theme.roundness / 4,
           },

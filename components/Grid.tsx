@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle, DimensionValue } from 'react-native';
 import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 interface GridProps {
@@ -41,7 +41,8 @@ export const Grid: React.FC<GridProps> = ({
         {childrenArray.map((child, index) => {
           // For tablets, calculate width for each column
           const isTabletItem = columns > 1;
-          const itemWidth = isTabletItem ? `${100 / columns - 2}%` : '100%';
+          const itemWidth: DimensionValue = isTabletItem ? `${100 / columns - 2}%` : '100%';
+          const itemMaxWidth: DimensionValue = `${100 / columns}%`;
 
           return (
             <View
@@ -49,8 +50,8 @@ export const Grid: React.FC<GridProps> = ({
               style={[
                 styles.item,
                 isTabletItem && {
-                  width: itemWidth as any,
-                  maxWidth: `${100 / columns}%` as any,
+                  width: itemWidth,
+                  maxWidth: itemMaxWidth,
                 },
               ]}
             >

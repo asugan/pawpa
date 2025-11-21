@@ -25,7 +25,7 @@ export const eventKeys = {
 // Hooks
 export const useEvents = (petId: string) => {
   return useResources<Event>({
-    queryKey: eventKeys.list(petId),
+    queryKey: eventKeys.list({ petId }),
     queryFn: () => eventService.getEventsByPetId(petId),
     staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
@@ -135,7 +135,7 @@ export const useCreateEvent = () => {
       },
       onSettled: (newEvent) => {
         if (newEvent) {
-          queryClient.invalidateQueries({ queryKey: eventKeys.list(newEvent.petId) });
+          queryClient.invalidateQueries({ queryKey: eventKeys.list({ petId: newEvent.petId }) });
           queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
           queryClient.invalidateQueries({ queryKey: eventKeys.upcoming() });
           queryClient.invalidateQueries({ queryKey: eventKeys.today() });

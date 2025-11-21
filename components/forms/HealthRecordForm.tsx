@@ -89,10 +89,10 @@ export function HealthRecordForm({
       if (isEditing && initialData?.id) {
         await updateMutation.mutateAsync({
           id: initialData.id,
-          data: validationResult.data as any,
+          data: validationResult.data,
         });
       } else {
-        await createMutation.mutateAsync(validationResult.data as any);
+        await createMutation.mutateAsync(validationResult.data);
       }
 
       onSuccess?.();

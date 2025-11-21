@@ -9,7 +9,7 @@ import type { Pet, CreatePetInput, UpdatePetInput } from '../types';
 /**
  * Type guard function to safely check if a value is a Date object
  */
-function isDate(value: any): value is Date {
+function isDate(value: unknown): value is Date {
   return value instanceof Date && !isNaN(value.getTime());
 }
 
@@ -78,7 +78,7 @@ export class PetService {
    */
   async getPets(params?: { page?: number; limit?: number }): Promise<ApiResponse<Pet[]>> {
     try {
-      const queryParams: Record<string, any> = {};
+      const queryParams: Record<string, number> = {};
       if (params?.page !== undefined) queryParams.page = params.page;
       if (params?.limit !== undefined) queryParams.limit = params.limit;
 
@@ -278,11 +278,13 @@ export class PetService {
   async uploadPetPhoto(id: string, photoUri: string): Promise<ApiResponse<Pet>> {
     try {
       const formData = new FormData();
-      formData.append('photo', {
+      // React Native FormData blob type
+      const photoBlob = {
         uri: photoUri,
         type: 'image/jpeg',
         name: 'pet-photo.jpg',
-      } as any);
+      } as unknown as Blob;
+      formData.append('photo', photoBlob);
 
       const response = await api.upload<Pet>(ENV.ENDPOINTS.PET_PHOTO(id), formData);
 

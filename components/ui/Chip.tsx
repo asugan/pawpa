@@ -84,7 +84,7 @@ export const Chip: React.FC<ChipProps> = ({
       {icon && (
         <>
           {typeof icon === "string"
-            ? <Ionicons name={icon as any} size={16} color={getTextColor()} />
+            ? <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={16} color={getTextColor()} />
             : typeof icon === "function"
             ? icon({ size: 16, color: getTextColor() })
             : icon}

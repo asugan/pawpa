@@ -90,22 +90,23 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
     showSnackbar('Pet başarıyla güncellendi');
   };
 
-  const getPetIcon = (type: string) => {
+  const getPetIcon = (type: string): keyof typeof import('@expo/vector-icons').Ionicons.glyphMap => {
+    // Map pet types to Ionicons icon names
     switch (type.toLowerCase()) {
       case 'cat':
-        return 'cat';
+        return 'paw';
       case 'dog':
-        return 'dog';
+        return 'paw';
       case 'bird':
-        return 'bird';
+        return 'leaf'; // Ionicons doesn't have bird, use leaf as alternative
       case 'fish':
         return 'fish';
       case 'rabbit':
-        return 'rabbit';
+        return 'paw';
       case 'hamster':
-        return 'hamster';
+        return 'paw';
       case 'reptile':
-        return 'lizard';
+        return 'fish'; // Ionicons doesn't have reptile, use fish as alternative
       default:
         return 'paw';
     }

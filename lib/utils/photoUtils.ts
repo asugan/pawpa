@@ -1,6 +1,8 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import { EncodingType, documentDirectory } from 'expo-file-system/build/legacy';
+import type { FileInfo } from '../types';
 
 export interface PhotoProcessResult {
   uri: string;
@@ -35,8 +37,8 @@ export const processPhoto = async (
 
   try {
     // Başlangıç boyut bilgisini al
-    const fileInfo = await FileSystem.getInfoAsync(uri);
-    const initialSize = (fileInfo as any).size || 0;
+    const fileInfo = await FileSystem.getInfoAsync(uri) as FileInfo;
+    const initialSize = fileInfo.size || 0;
 
     // Fotoğrafı manipüle et (resize ve compress)
     const manipulatedImage = await ImageManipulator.manipulateAsync(
@@ -50,8 +52,8 @@ export const processPhoto = async (
     );
 
     // İşlenmiş fotoğrafın boyut bilgisini al
-    const processedFileInfo = await FileSystem.getInfoAsync(manipulatedImage.uri);
-    const finalSize = (processedFileInfo as any).size || 0;
+    const processedFileInfo = await FileSystem.getInfoAsync(manipulatedImage.uri) as FileInfo;
+    const finalSize = processedFileInfo.size || 0;
 
     // Eğer hala çok büyükse kaliteyi daha da düşür
     let finalUri = manipulatedImage.uri;
@@ -76,8 +78,8 @@ export const processPhoto = async (
           }
         );
 
-        const reManipulatedInfo = await FileSystem.getInfoAsync(reManipulated.uri);
-        if ((reManipulatedInfo as any).size! <= maxSize * 1024) {
+        const reManipulatedInfo = await FileSystem.getInfoAsync(reManipulated.uri) as FileInfo;
+        if (reManipulatedInfo.size && reManipulatedInfo.size <= maxSize * 1024) {
           finalUri = reManipulated.uri;
           break;
         }
@@ -102,7 +104,7 @@ export const processPhoto = async (
 export const photoToBase64 = async (uri: string): Promise<string> => {
   try {
     const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: (FileSystem as any).EncodingType.Base64,
+      encoding: EncodingType.Base64,
     });
     return base64;
   } catch (error) {
@@ -148,7 +150,7 @@ export const savePhotoToLocalStorage = async (
 ): Promise<string> => {
   try {
     // Pet photos için directory oluştur
-    const petPhotosDir = `${(FileSystem as any).documentDirectory}pets/${petId}/`;
+    const petPhotosDir = `${documentDirectory}pets/${petId}/`;
 
     // Directory'nin var olup olmadığını kontrol et
     const dirInfo = await FileSystem.getInfoAsync(petPhotosDir);
@@ -193,7 +195,7 @@ export const deletePhotoFromLocalStorage = async (uri: string): Promise<void> =>
  * Pet için fotoğraf storage path'i oluşturur
  */
 export const getPetPhotoPath = (petId: string, filename: string): string => {
-  return `${(FileSystem as any).documentDirectory}pets/${petId}/${filename}`;
+  return `${documentDirectory}pets/${petId}/${filename}`;
 };
 
 /**
@@ -263,8 +265,8 @@ export const isPhotoOptimized = async (
   maxSizeKB: number = 300
 ): Promise<boolean> => {
   try {
-    const fileInfo = await FileSystem.getInfoAsync(uri);
-    const sizeKB = ((fileInfo as any).size || 0) / 1024;
+    const fileInfo = await FileSystem.getInfoAsync(uri) as FileInfo;
+    const sizeKB = (fileInfo.size || 0) / 1024;
     return sizeKB <= maxSizeKB;
   } catch (error) {
     console.error('Photo optimization check error:', error);

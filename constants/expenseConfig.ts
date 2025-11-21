@@ -1,6 +1,6 @@
-import { ExpenseCategory } from '@/lib/types';
+import { ExpenseCategory, IconName } from '@/lib/types';
 
-export const EXPENSE_CATEGORY_CONFIG: Record<ExpenseCategory, { icon: string; color: string }> = {
+export const EXPENSE_CATEGORY_CONFIG: Record<ExpenseCategory, { icon: IconName; color: string }> = {
   food: { icon: 'food', color: 'primary' },
   premium_food: { icon: 'food-variant', color: 'tertiary' },
   veterinary: { icon: 'hospital-box', color: 'error' },

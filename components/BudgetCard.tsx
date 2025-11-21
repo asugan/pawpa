@@ -50,7 +50,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     return theme.colors.secondary;
   };
 
-  const getStatusIcon = (percentage: number): string => {
+  const getStatusIcon = (percentage: number): keyof typeof MaterialCommunityIcons.glyphMap => {
     if (percentage >= 100) return 'alert-circle';
     if (percentage >= budget.alertThreshold * 100) return 'alert';
     return 'check-circle';
@@ -132,7 +132,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           <View style={styles.progressInfo}>
             <View style={styles.progressLeft}>
               <MaterialCommunityIcons
-                name={getStatusIcon(percentage) as any}
+                name={getStatusIcon(percentage)}
                 size={16}
                 color={getProgressColor(percentage)}
               />

@@ -66,7 +66,7 @@ export function useSmartPrefetching() {
             prefetchRelatedData(context.petId);
             // Prefetch additional data for pet details view
             queryClient.prefetchQuery({
-              queryKey: feedingScheduleKeys.list(context.petId),
+              queryKey: feedingScheduleKeys.list({ petId: context.petId }),
               queryFn: () => import('@/lib/services/feedingScheduleService')
                 .then(m => m.feedingScheduleService.getFeedingSchedulesByPetId(context.petId!)),
               staleTime: 5 * 60 * 1000,
@@ -122,7 +122,7 @@ export function useSmartPrefetching() {
   const prefetchOnNavigation = useCallback((
     from: string,
     to: string,
-    context?: any
+    context?: { petId?: string; userId?: string; [key: string]: unknown }
   ) => {
     // Define navigation patterns and their prefetching logic
     const navigationPatterns: Record<string, () => void> = {

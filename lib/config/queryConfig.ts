@@ -1,4 +1,6 @@
-import { QueryClientConfig } from '@tanstack/react-query';
+import { QueryClient, QueryClientConfig } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { QueryFilters } from '../types';
 
 // Cache time constants
 export const CACHE_TIMES = {
@@ -59,17 +61,22 @@ export const MOBILE_QUERY_CONFIG: QueryClientConfig = {
       // Mobile app focused settings
       staleTime: CACHE_TIMES.MEDIUM,
       gcTime: CACHE_TIMES.LONG,
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: Error | AxiosError) => {
+        // Type guard for AxiosError
+        const isAxiosError = (err: Error | AxiosError): err is AxiosError => {
+          return 'response' in err && 'code' in err;
+        };
+
         // Network errors: retry more times
-        if (error?.code === 'NETWORK_ERROR' || error?.message?.includes('network')) {
+        if (error.message?.includes('network') || (isAxiosError(error) && error.code === 'NETWORK_ERROR')) {
           return failureCount < 3;
         }
         // 5xx server errors: retry fewer times
-        if (error?.response?.status >= 500) {
+        if (isAxiosError(error) && error.response?.status && error.response.status >= 500) {
           return failureCount < 2;
         }
         // 4xx client errors: don't retry
-        if (error?.response?.status >= 400 && error?.response?.status < 500) {
+        if (isAxiosError(error) && error.response?.status && error.response.status >= 400 && error.response.status < 500) {
           return false;
         }
         // Other errors: retry once
@@ -90,7 +97,7 @@ export const MOBILE_QUERY_CONFIG: QueryClientConfig = {
       // Prevent unnecessary re-renders
       structuralSharing: true,
       // Prefetching for better UX
-      placeholderData: (previousData: any) => previousData,
+      placeholderData: <T>(previousData: T | undefined) => previousData,
     },
     mutations: {
       retry: 1, // Retry mutations once
@@ -107,7 +114,7 @@ export const MOBILE_QUERY_CONFIG: QueryClientConfig = {
 export const createQueryKeys = (entity: string) => ({
   all: [entity] as const,
   lists: () => [...createQueryKeys(entity).all, 'list'] as const,
-  list: (filters?: any) => [...createQueryKeys(entity).lists(), filters] as const,
+  list: (filters?: QueryFilters) => [...createQueryKeys(entity).lists(), filters] as const,
   details: () => [...createQueryKeys(entity).all, 'detail'] as const,
   detail: (id: string) => [...createQueryKeys(entity).details(), id] as const,
   search: (query: string) => [...createQueryKeys(entity).all, 'search', query] as const,
@@ -116,7 +123,7 @@ export const createQueryKeys = (entity: string) => ({
 // Prefetching strategies
 export const PREFETCH_STRATEGIES = {
   // Prefetch related data when viewing details
-  onDetailsView: async (queryClient: any, id: string) => {
+  onDetailsView: async (queryClient: QueryClient, id: string) => {
     // Prefetch related entities
     await Promise.all([
       // Prefetch related health records, events, etc.
@@ -124,7 +131,7 @@ export const PREFETCH_STRATEGIES = {
     ]);
   },
   // Prefetch data for next navigation
-  onNextNavigation: async (queryClient: any) => {
+  onNextNavigation: async (queryClient: QueryClient) => {
     // Implementation for intelligent prefetching
   },
 } as const;

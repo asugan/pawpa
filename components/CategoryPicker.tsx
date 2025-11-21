@@ -23,8 +23,8 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
   const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const getCategoryIcon = (category: ExpenseCategory): string => {
-    const icons: Record<ExpenseCategory, string> = {
+  const getCategoryIcon = (category: ExpenseCategory): keyof typeof MaterialCommunityIcons.glyphMap => {
+    const icons: Record<ExpenseCategory, keyof typeof MaterialCommunityIcons.glyphMap> = {
       food: 'food',
       premium_food: 'food-variant',
       veterinary: 'hospital-box',
@@ -84,7 +84,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
             ]}
             icon={({ size }: { size: number }) => (
               <MaterialCommunityIcons
-                name={getCategoryIcon(category) as any}
+                name={getCategoryIcon(category)}
                 size={size}
                 color={
                   selectedCategory === category

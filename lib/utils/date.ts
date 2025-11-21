@@ -1,6 +1,7 @@
 import i18n from '@/lib/i18n';
 import { addDays, addHours, endOfDay, format, formatDistanceToNow, isAfter, isToday, isTomorrow, isYesterday, startOfDay } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
+import type { TranslationFunction } from '../types';
 
 const getLocale = () => {
   return i18n.language === 'tr' ? tr : enUS;
@@ -21,7 +22,7 @@ export const getRelativeTime = (date: Date | string | number) => {
   return formatDistanceToNow(dateObj, { addSuffix: true, locale: getLocale() });
 };
 
-export const formatEventDate = (date: Date | string | number, t: any) => {
+export const formatEventDate = (date: Date | string | number, t: TranslationFunction) => {
   const dateObj = new Date(date);
   
   if (isToday(dateObj)) {

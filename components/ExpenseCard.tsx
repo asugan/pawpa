@@ -44,7 +44,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
           <View style={styles.headerLeft}>
             <View style={[styles.iconContainer, { backgroundColor: categoryConfig.color.startsWith('#') ? categoryConfig.color : theme.colors[categoryConfig.color as keyof typeof theme.colors] }]}>
               <MaterialCommunityIcons
-                name={categoryConfig.icon as any}
+                name={categoryConfig.icon}
                 size={24}
                 color={theme.colors.onPrimaryContainer}
               />

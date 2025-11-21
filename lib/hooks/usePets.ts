@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { petService } from '../services/petService';
-import type { CreatePetInput, Pet, UpdatePetInput } from '../types';
+import type { CreatePetInput, Pet, QueryFilters, UpdatePetInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 import { createQueryKeys } from './core/createQueryKeys';
@@ -8,7 +8,7 @@ import { useResource } from './core/useResource';
 import { useConditionalQuery } from './core/useConditionalQuery';
 
 // Type-safe filters for pets
-interface PetFilters {
+interface PetFilters extends QueryFilters {
   search?: string;
   type?: string;
   sortBy?: 'name' | 'createdAt' | 'updatedAt' | 'type';

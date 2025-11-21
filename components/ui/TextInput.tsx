@@ -118,7 +118,7 @@ const TextInputBase: React.FC<TextInputProps> = ({
 const TextInputIcon: React.FC<TextInputIconProps> = ({ icon, name, size = 24, color }) => {
   const { theme } = useTheme();
   const iconName = icon || name || "help-circle";
-  return <Ionicons name={iconName as any} size={size} color={color || theme.colors.onSurfaceVariant} />;
+  return <Ionicons name={iconName} size={size} color={color || theme.colors.onSurfaceVariant} />;
 };
 
 // Affix subcomponent for backward compatibility

@@ -85,7 +85,7 @@ export const SegmentedButtons: React.FC<SegmentedButtonsProps> = ({
             activeOpacity={0.7}
           >
             {button.icon && (
-              <>{typeof button.icon === "string" ? <MaterialCommunityIcons name={button.icon as any} size={16} color={isSelected ? theme.colors.onSecondary : theme.colors.onSurface} /> : button.icon}</>
+              <>{typeof button.icon === "string" ? <MaterialCommunityIcons name={button.icon as keyof typeof MaterialCommunityIcons.glyphMap} size={16} color={isSelected ? theme.colors.onSecondary : theme.colors.onSurface} /> : button.icon}</>
             )}
             <Text
               variant="labelMedium"

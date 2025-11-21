@@ -25,6 +25,9 @@ export type {
 export type PetType = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
 export type PetGender = 'male' | 'female' | 'other';
 
+// Food type union (from FOOD_TYPES constant)
+export type FoodType = 'dry_food' | 'wet_food' | 'raw_food' | 'homemade' | 'treats' | 'supplements' | 'other';
+
 // Extended types with additional fields if needed
 export type PetWithRelations = Pet & {
   healthRecords?: HealthRecord[];
@@ -76,4 +79,121 @@ export type PetWithFinances = Pet & {
   expenses?: Expense[];
   budgetLimits?: BudgetLimit[];
 };
+
+// ============================================================================
+// Common Type Definitions (to replace 'any' usage)
+// ============================================================================
+
+// Icon Types - Material Community Icons
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+export type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+// API Error Details
+export interface ErrorDetails {
+  [key: string]: unknown;
+  field?: string;
+  value?: unknown;
+  constraint?: string;
+}
+
+// Query Filter Types
+export interface QueryFilters {
+  [key: string]: unknown;
+}
+
+export interface DateRangeFilter {
+  start?: Date | string;
+  end?: Date | string;
+}
+
+export interface PetFilter extends QueryFilters {
+  type?: string;
+  gender?: string;
+  isActive?: boolean;
+}
+
+export interface ExpenseFilter extends QueryFilters {
+  petId?: string;
+  category?: ExpenseCategory;
+  paymentMethod?: PaymentMethod;
+  dateRange?: DateRangeFilter;
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+export interface HealthRecordFilter extends QueryFilters {
+  petId?: string;
+  type?: string;
+  dateRange?: DateRangeFilter;
+}
+
+export interface EventFilter extends QueryFilters {
+  petId?: string;
+  type?: string;
+  dateRange?: DateRangeFilter;
+  isCompleted?: boolean;
+}
+
+// FileSystem Types (for photo utilities)
+export interface FileInfo {
+  exists: boolean;
+  uri: string;
+  size?: number;
+  isDirectory?: boolean;
+  modificationTime?: number;
+  md5?: string;
+}
+
+// Expense Stats Types
+export interface MonthlyExpense {
+  month: string;
+  total: number;
+  count: number;
+  byCategory: Array<{
+    category: ExpenseCategory;
+    total: number;
+  }>;
+}
+
+export interface YearlyExpense {
+  year: number;
+  total: number;
+  count: number;
+  byMonth: Array<{
+    month: number;
+    total: number;
+  }>;
+}
+
+// Translation Function Type (i18next)
+export type TranslationFunction = (key: string, options?: Record<string, unknown>) => string;
+
+// Theme Type
+export interface AppTheme {
+  dark: boolean;
+  colors: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    accent: string;
+    background: string;
+    surface: string;
+    error: string;
+    text: string;
+    onSurface: string;
+    disabled: string;
+    placeholder: string;
+    backdrop: string;
+    notification: string;
+    // Add other theme colors as needed
+    [key: string]: string;
+  };
+  fonts: {
+    [key: string]: unknown;
+  };
+  roundness: number;
+  animation: {
+    scale: number;
+  };
+}
 

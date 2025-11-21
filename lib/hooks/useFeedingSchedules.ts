@@ -29,7 +29,7 @@ export const feedingScheduleKeys = {
 // Hooks
 export const useFeedingSchedules = (petId: string) => {
   return useConditionalQuery<FeedingSchedule[]>({
-    queryKey: feedingScheduleKeys.list(petId),
+    queryKey: feedingScheduleKeys.list({ petId }),
     queryFn: () => feedingScheduleService.getFeedingSchedulesByPetId(petId),
     staleTime: CACHE_TIMES.MEDIUM,
     enabled: !!petId,
@@ -152,7 +152,7 @@ export const useCreateFeedingSchedule = () => {
       },
       onSettled: (newSchedule) => {
         if (newSchedule) {
-          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list(newSchedule.petId) });
+          queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.list({ petId: newSchedule.petId }) });
           queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.lists() });
           queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.active() });
           queryClient.invalidateQueries({ queryKey: feedingScheduleKeys.today() });

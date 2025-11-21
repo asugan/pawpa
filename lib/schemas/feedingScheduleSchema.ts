@@ -17,7 +17,7 @@ const isValidDaysString = (days: string): boolean => {
   const dayArray = days.split(',').map(d => d.trim().toLowerCase());
 
   // Check if all days are valid
-  return dayArray.every(day => VALID_DAYS.includes(day as any)) && dayArray.length > 0;
+  return dayArray.every(day => VALID_DAYS.includes(day as typeof VALID_DAYS[number])) && dayArray.length > 0;
 };
 
 // Form input schema (for create/edit forms with multi-select days)

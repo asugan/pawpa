@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseService } from '../services/expenseService';
-import type { CreateExpenseInput, Expense, UpdateExpenseInput } from '../types';
+import type { CreateExpenseInput, Expense, ExpenseStats, MonthlyExpense, YearlyExpense, UpdateExpenseInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 import { createQueryKeys } from './core/createQueryKeys';
@@ -22,6 +22,28 @@ interface ExpenseFilters {
   paymentMethod?: string;
 }
 
+// Stats params interface
+interface StatsParams {
+  petId?: string;
+  startDate?: string;
+  endDate?: string;
+  category?: string;
+}
+
+// Monthly/Yearly params interface
+interface PeriodParams {
+  petId?: string;
+  year?: number;
+  month?: number;
+}
+
+// Date range params interface
+interface DateRangeParams {
+  petId?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 // Query keys factory
 const baseExpenseKeys = createQueryKeys('expenses');
 
@@ -29,12 +51,12 @@ const baseExpenseKeys = createQueryKeys('expenses');
 export const expenseKeys = {
   ...baseExpenseKeys,
   list: (filters: ExpenseFilters) => [...baseExpenseKeys.lists(), filters] as const,
-  stats: (params?: any) => [...baseExpenseKeys.all, 'stats', params] as const,
+  stats: (params?: StatsParams) => [...baseExpenseKeys.all, 'stats', params] as const,
   byPet: (petId: string) => [...baseExpenseKeys.all, 'by-pet', petId] as const,
   byCategory: (category: string, petId?: string) => [...baseExpenseKeys.all, 'by-category', category, petId] as const,
-  monthly: (params?: any) => [...baseExpenseKeys.all, 'monthly', params] as const,
-  yearly: (params?: any) => [...baseExpenseKeys.all, 'yearly', params] as const,
-  dateRange: (params: any) => [...baseExpenseKeys.all, 'date-range', params] as const,
+  monthly: (params?: PeriodParams) => [...baseExpenseKeys.all, 'monthly', params] as const,
+  yearly: (params?: Omit<PeriodParams, 'month'>) => [...baseExpenseKeys.all, 'yearly', params] as const,
+  dateRange: (params: DateRangeParams) => [...baseExpenseKeys.all, 'date-range', params] as const,
 };
 
 // Hook for fetching expenses by pet ID with filters
@@ -61,13 +83,8 @@ export function useExpense(id?: string) {
 }
 
 // Hook for expense statistics
-export function useExpenseStats(params?: {
-  petId?: string;
-  startDate?: string;
-  endDate?: string;
-  category?: string;
-}) {
-  return useConditionalQuery<any>({
+export function useExpenseStats(params?: StatsParams) {
+  return useConditionalQuery<ExpenseStats | null>({
     queryKey: expenseKeys.stats(params),
     queryFn: () => expenseService.getExpenseStats(params),
     staleTime: CACHE_TIMES.MEDIUM,
@@ -77,12 +94,8 @@ export function useExpenseStats(params?: {
 }
 
 // Hook for monthly expenses
-export function useMonthlyExpenses(params?: {
-  petId?: string;
-  year?: number;
-  month?: number;
-}) {
-  return useResources<any>({
+export function useMonthlyExpenses(params?: PeriodParams) {
+  return useResources<MonthlyExpense>({
     queryKey: expenseKeys.monthly(params),
     queryFn: () => expenseService.getMonthlyExpenses(params),
     staleTime: CACHE_TIMES.MEDIUM,
@@ -90,11 +103,8 @@ export function useMonthlyExpenses(params?: {
 }
 
 // Hook for yearly expenses
-export function useYearlyExpenses(params?: {
-  petId?: string;
-  year?: number;
-}) {
-  return useResources<any>({
+export function useYearlyExpenses(params?: Omit<PeriodParams, 'month'>) {
+  return useResources<YearlyExpense>({
     queryKey: expenseKeys.yearly(params),
     queryFn: () => expenseService.getYearlyExpenses(params),
     staleTime: CACHE_TIMES.MEDIUM,

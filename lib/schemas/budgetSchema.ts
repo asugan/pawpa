@@ -133,8 +133,8 @@ export const formatBudgetValidationErrors = (error: z.ZodError): ValidationError
 };
 
 // Helper to validate budget period
-export const isValidBudgetPeriod = (period: string): boolean => {
-  return BUDGET_PERIODS.includes(period as any);
+export const isValidBudgetPeriod = (period: string): period is BudgetPeriod => {
+  return BUDGET_PERIODS.includes(period as BudgetPeriod);
 };
 
 // Helper to calculate percentage of budget used

@@ -70,9 +70,9 @@ export const PetSchema = BasePetSchema.extend({
 
 // Schema for creating a new pet
 export const PetCreateSchema = BasePetSchema.refine(
-  (data: any) => {
+  (data: z.infer<typeof BasePetSchema>) => {
     const nameValid = data.name && data.name.trim().length >= 2;
-    const typeValid = data.type && data.type !== '';
+    const typeValid = !!data.type;
     return nameValid && typeValid;
   },
   {

@@ -197,7 +197,7 @@ export default function HealthScreen() {
             onPress={() => setSelectedType(value)}
             icon={({ size, color }: { size: number, color: string }) => (
               <MaterialCommunityIcons
-                name={HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS] as any}
+                name={HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS]}
                 size={size}
                 color={color}
               />

@@ -27,7 +27,7 @@ export const Searchbar: React.FC<SearchbarProps> = ({
         mode="outlined"
         left={
           <IconButton
-            icon={icon as any}
+            icon={icon}
             size={20}
             onPress={onIconPress}
           />

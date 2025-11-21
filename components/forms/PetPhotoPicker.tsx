@@ -21,22 +21,23 @@ interface PetPhotoPickerProps {
   disabled?: boolean;
 }
 
-const getDefaultIcon = (petType?: Pet['type']): string => {
+const getDefaultIcon = (petType?: Pet['type']): keyof typeof import('@expo/vector-icons').Ionicons.glyphMap => {
+  // Map pet types to Ionicons icon names
   switch (petType) {
     case 'dog':
-      return 'dog';
+      return 'paw';
     case 'cat':
-      return 'cat';
+      return 'paw';
     case 'bird':
-      return 'bird';
+      return 'leaf'; // Ionicons doesn't have bird
     case 'rabbit':
-      return 'rabbit';
+      return 'paw';
     case 'hamster':
-      return 'hamster';
+      return 'paw';
     case 'fish':
       return 'fish';
     case 'reptile':
-      return 'lizard';
+      return 'fish'; // Ionicons doesn't have reptile
     default:
       return 'paw';
   }

@@ -47,7 +47,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       {...rest}
     >
       {typeof icon === "string" ? (
-        <MaterialCommunityIcons name={icon as any} size={size} color={color} />
+        <MaterialCommunityIcons name={icon as keyof typeof MaterialCommunityIcons.glyphMap} size={size} color={color} />
       ) : (
         icon
       )}

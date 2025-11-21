@@ -152,16 +152,16 @@ export const formatExpenseValidationErrors = (error: z.ZodError): ValidationErro
 };
 
 // Helper to validate expense category
-export const isValidExpenseCategory = (category: string): boolean => {
-  return EXPENSE_CATEGORIES.includes(category as any);
+export const isValidExpenseCategory = (category: string): category is ExpenseCategory => {
+  return EXPENSE_CATEGORIES.includes(category as ExpenseCategory);
 };
 
 // Helper to validate payment method
-export const isValidPaymentMethod = (method: string): boolean => {
-  return PAYMENT_METHODS.includes(method as any);
+export const isValidPaymentMethod = (method: string): method is PaymentMethod => {
+  return PAYMENT_METHODS.includes(method as PaymentMethod);
 };
 
 // Helper to validate currency
-export const isValidCurrency = (currency: string): boolean => {
-  return CURRENCIES.includes(currency as any);
+export const isValidCurrency = (currency: string): currency is Currency => {
+  return CURRENCIES.includes(currency as Currency);
 };
