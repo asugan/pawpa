@@ -49,6 +49,17 @@ export interface ThemeColors {
   onSecondaryContainer: string;
   onTertiaryContainer: string;
   onErrorContainer: string;
+
+  // Event type colors
+  eventFeeding: string;
+  eventExercise: string;
+  eventGrooming: string;
+  eventPlay: string;
+  eventTraining: string;
+  eventVetVisit: string;
+  eventWalk: string;
+  eventBath: string;
+  eventOther: string;
 }
 
 export interface FontVariant {

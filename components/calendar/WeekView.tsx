@@ -13,6 +13,7 @@ import {
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
+import { getEventColor } from '@/lib/utils/eventColors';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -174,7 +175,7 @@ export function WeekView({
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
       {/* Week Day Headers */}
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, { borderBottomColor: theme.colors.outlineVariant }]}>
         <View style={[styles.timeLabelsHeader, { width: TIME_LABEL_WIDTH }]} />
         {weekDays.map((day) => {
           const isTodayDate = isToday(day);
@@ -185,6 +186,7 @@ export function WeekView({
                 styles.dayHeaderCell,
                 {
                   width: DAY_WIDTH,
+                  borderLeftColor: theme.colors.outlineVariant,
                   backgroundColor: isTodayDate
                     ? theme.colors.primaryContainer
                     : theme.colors.surface,
@@ -242,7 +244,7 @@ export function WeekView({
               const isTodayDate = isToday(day);
 
               return (
-                <View key={day.toISOString()} style={[styles.dayColumn, { width: DAY_WIDTH }]}>
+                <View key={day.toISOString()} style={[styles.dayColumn, { width: DAY_WIDTH, borderLeftColor: theme.colors.outlineVariant }]}>
                   {/* Time Grid */}
                   <View style={styles.timeGrid}>
                     {/* Hour Lines */}
@@ -263,7 +265,7 @@ export function WeekView({
                     {/* Events */}
                     {dayEvents.map((event) => {
                       const style = getEventStyle(event);
-                      const eventColor = getEventColor(event.type);
+                      const eventColor = getEventColor(event.type, theme);
 
                       return (
                         <Pressable
@@ -282,7 +284,7 @@ export function WeekView({
                         >
                           <Text
                             variant="labelSmall"
-                            style={styles.eventTitle}
+                            style={[styles.eventTitle, { color: theme.colors.onSurface }]}
                             numberOfLines={2}
                           >
                             {event.title}
@@ -290,7 +292,7 @@ export function WeekView({
                           {style.height > 30 && (
                             <Text
                               variant="labelSmall"
-                              style={styles.eventTime}
+                              style={[styles.eventTime, { color: theme.colors.onSurface }]}
                               numberOfLines={1}
                             >
                               {format(new Date(event.startTime), 'HH:mm')}
@@ -312,22 +314,6 @@ export function WeekView({
     </View>
   );
 }
-
-// Helper function to get event color based on type
-const getEventColor = (eventType: string): string => {
-  const colors: { [key: string]: string } = {
-    feeding: '#FFB3D1',
-    exercise: '#B3FFD9',
-    grooming: '#C8B3FF',
-    play: '#FFDAB3',
-    training: '#FFF3B3',
-    vet_visit: '#FF9999',
-    walk: '#B3E5FF',
-    bath: '#E5B3FF',
-    other: '#CCCCCC',
-  };
-  return colors[eventType] || colors.other;
-};
 
 // Helper function to darken a color
 const darkenColor = (color: string, percent: number): string => {
@@ -356,7 +342,6 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   timeLabelsHeader: {
     height: 50,
@@ -366,7 +351,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderLeftWidth: 1,
-    borderLeftColor: 'rgba(0, 0, 0, 0.05)',
   },
   dayName: {
     fontSize: 10,
@@ -403,7 +387,6 @@ const styles = StyleSheet.create({
   dayColumn: {
     // Width set dynamically
     borderLeftWidth: 1,
-    borderLeftColor: 'rgba(0, 0, 0, 0.05)',
   },
   timeGrid: {
     position: 'relative',
@@ -430,11 +413,9 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontWeight: '600',
-    color: '#000',
     fontSize: 9,
   },
   eventTime: {
-    color: '#000',
     opacity: 0.7,
     fontSize: 8,
     marginTop: 1,

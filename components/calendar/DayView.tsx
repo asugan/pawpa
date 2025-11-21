@@ -9,6 +9,7 @@ import {
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
+import { getEventColor } from '@/lib/utils/eventColors';
 
 interface DayViewProps {
   currentDate: Date;
@@ -210,7 +211,7 @@ export function DayView({
           <View style={styles.eventsOverlay}>
             {dayEvents.map((event) => {
               const style = getEventStyle(event);
-              const eventColor = getEventColor(event.type);
+              const eventColor = getEventColor(event.type, theme);
 
               return (
                 <Pressable
@@ -231,7 +232,7 @@ export function DayView({
                     {/* Event Time */}
                     <Text
                       variant="labelSmall"
-                      style={styles.eventTime}
+                      style={[styles.eventTime, { color: theme.colors.onSurface }]}
                       numberOfLines={1}
                     >
                       {format(new Date(event.startTime), 'HH:mm')}
@@ -242,7 +243,7 @@ export function DayView({
                     {/* Event Title */}
                     <Text
                       variant="titleSmall"
-                      style={styles.eventTitle}
+                      style={[styles.eventTitle, { color: theme.colors.onSurface }]}
                       numberOfLines={2}
                     >
                       {event.title}
@@ -252,7 +253,7 @@ export function DayView({
                     {event.description && style.height > 60 && (
                       <Text
                         variant="bodySmall"
-                        style={styles.eventDescription}
+                        style={[styles.eventDescription, { color: theme.colors.onSurface }]}
                         numberOfLines={2}
                       >
                         {event.description}
@@ -265,7 +266,7 @@ export function DayView({
                         <Text style={styles.locationIcon}>📍</Text>
                         <Text
                           variant="labelSmall"
-                          style={styles.locationText}
+                          style={[styles.locationText, { color: theme.colors.onSurface }]}
                           numberOfLines={1}
                         >
                           {event.location}
@@ -300,22 +301,6 @@ export function DayView({
     </View>
   );
 }
-
-// Helper function to get event color based on type
-const getEventColor = (eventType: string): string => {
-  const colors: { [key: string]: string } = {
-    feeding: '#FFB3D1',
-    exercise: '#B3FFD9',
-    grooming: '#C8B3FF',
-    play: '#FFDAB3',
-    training: '#FFF3B3',
-    vet_visit: '#FF9999',
-    walk: '#B3E5FF',
-    bath: '#E5B3FF',
-    other: '#CCCCCC',
-  };
-  return colors[eventType] || colors.other;
-};
 
 // Helper function to darken a color
 const darkenColor = (color: string, percent: number): string => {
@@ -393,18 +378,15 @@ const styles = StyleSheet.create({
   },
   eventTime: {
     fontWeight: '600',
-    color: '#000',
     opacity: 0.7,
     fontSize: 11,
     marginBottom: 4,
   },
   eventTitle: {
     fontWeight: '700',
-    color: '#000',
     marginBottom: 4,
   },
   eventDescription: {
-    color: '#000',
     opacity: 0.8,
     marginBottom: 4,
   },
@@ -418,7 +400,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   locationText: {
-    color: '#000',
     opacity: 0.7,
     flex: 1,
   },

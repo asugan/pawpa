@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View, GestureResponderEvent } from 'react-native';
-import { getEventTypeColor, getEventTypeIcon, getEventTypeLabel } from '../constants/eventIcons';
+import { getEventTypeIcon, getEventTypeLabel } from '../constants/eventIcons';
+import { getEventColor } from '@/lib/utils/eventColors';
 import { Event } from '../lib/types';
 
 interface EventCardProps {
@@ -53,7 +54,7 @@ export function EventCard({
     return getRelativeTime(event.startTime);
   };
 
-  const eventTypeColor = getEventTypeColor(event.type);
+  const eventTypeColor = getEventColor(event.type, theme);
   const eventTypeIcon = getEventTypeIcon(event.type);
   const eventTypeLabel = getEventTypeLabel(event.type, t);
 

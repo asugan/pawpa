@@ -50,6 +50,17 @@ export const lightColors: ThemeColors = {
   onSecondaryContainer: "#004D40",  // Dark text on light mint
   onTertiaryContainer: "#4C1D95",   // Dark text on light purple
   onErrorContainer: "#991B1B",      // Dark text on light red
+
+  // Event type colors (Pastel shades for light mode)
+  eventFeeding: "#FFB3D1",          // Pastel pink
+  eventExercise: "#B3FFD9",         // Pastel mint
+  eventGrooming: "#C8B3FF",         // Pastel lavender
+  eventPlay: "#FFDAB3",             // Pastel peach
+  eventTraining: "#FFF3B3",         // Pastel yellow
+  eventVetVisit: "#FF9999",         // Pastel red
+  eventWalk: "#B3E5FF",             // Pastel sky blue
+  eventBath: "#E5B3FF",             // Pastel purple
+  eventOther: "#CCCCCC",            // Neutral gray
 };
 
 // Neon/Glow Color Palette (Dark Mode)
@@ -102,6 +113,17 @@ export const darkColors: ThemeColors = {
   onSecondaryContainer: "#CCFFF0",  // Light text on dark mint
   onTertiaryContainer: "#F3E8FF",   // Light text on dark purple
   onErrorContainer: "#FEE2E2",      // Light text on dark red
+
+  // Event type colors (Using theme colors for dark mode)
+  eventFeeding: "#FF4A8B",          // primary (Neon Pink)
+  eventExercise: "#00D696",         // secondary (Bright Mint)
+  eventGrooming: "#C084FC",         // tertiary (Neon Lavender)
+  eventPlay: "#FB923C",             // accent (Orange Glow)
+  eventTraining: "#60A5FA",         // info (Bright Blue)
+  eventVetVisit: "#F87171",         // error (Bright Red)
+  eventWalk: "#3B82F6",             // info variant (Bright Blue)
+  eventBath: "#D8B4FE",             // tertiary variant (Light Purple)
+  eventOther: "#6B7280",            // outline (Gray)
 };
 
 // Gradient tanımları (light mode için)

@@ -23,7 +23,8 @@ import EventActions from '@/components/EventActions';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Utils
-import { getEventTypeColor, getEventTypeIcon, getEventTypeLabel } from '@/constants/eventIcons';
+import { getEventTypeIcon, getEventTypeLabel } from '@/constants/eventIcons';
+import { getEventColor } from '@/lib/utils/eventColors';
 
 export default function EventDetailScreen() {
   const { theme } = useTheme();
@@ -185,7 +186,7 @@ ${t('events.sharedFrom')} PawPa
     );
   }
 
-  const eventTypeColor = getEventTypeColor(event.type);
+  const eventTypeColor = getEventColor(event.type, theme);
   const eventTypeIcon = getEventTypeIcon(event.type);
   const eventTypeLabel = getEventTypeLabel(event.type, t);
 
