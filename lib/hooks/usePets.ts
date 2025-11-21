@@ -28,62 +28,26 @@ export const petKeys = {
 };
 
 // Hook for fetching all pets with type-safe filters
-// Note: This hook has complex conditional logic and client-side sorting,
-// so it uses useQuery directly instead of generic hooks
+// Supports pagination, type filtering, search, and client-side sorting
 export function usePets(filters: PetFilters = {}) {
-  return useQuery<Pet[]>({
+  return useConditionalQuery<Pet[]>({
     queryKey: petKeys.list(filters),
-    queryFn: async () => {
-      if (filters?.type) {
-        const result = await petService.getPetsByType(filters.type);
-        if (!result.success) {
-          const errorMessage = typeof result.error === 'string'
-            ? result.error
-            : result.error?.message || 'Evcil hayvanlar yüklenemedi';
-          throw new Error(errorMessage);
-        }
-        return result.data || [];
-      }
-      if (filters?.search) {
-        const result = await petService.searchPets(filters.search);
-        if (!result.success) {
-          const errorMessage = typeof result.error === 'string'
-            ? result.error
-            : result.error?.message || 'Evcil hayvanlar yüklenemedi';
-          throw new Error(errorMessage);
-        }
-        return result.data || [];
-      }
-      // Pass pagination parameters to service
-      const paginationParams = {
-        page: filters.page,
-        limit: filters.limit,
-      };
-      const result = await petService.getPets(paginationParams);
-      if (!result.success) {
-        const errorMessage = typeof result.error === 'string'
-          ? result.error
-          : result.error?.message || 'Evcil hayvanlar yüklenemedi';
-        throw new Error(errorMessage);
-      }
-      return result.data || [];
-    },
+    queryFn: () => petService.getPets(filters),
     staleTime: CACHE_TIMES.MEDIUM,
-    select: (data) => {
+    defaultValue: [],
+    errorMessage: 'Evcil hayvanlar yüklenemedi',
+    select: filters.sortBy ? (data) => {
       // Apply client-side sorting if specified
-      if (filters.sortBy) {
-        return [...data].sort((a, b) => {
-          const aValue = a[filters.sortBy!];
-          const bValue = b[filters.sortBy!];
+      return [...data].sort((a, b) => {
+        const aValue = a[filters.sortBy!];
+        const bValue = b[filters.sortBy!];
 
-          if (filters.sortOrder === 'desc') {
-            return bValue > aValue ? 1 : bValue < aValue ? -1 : 0;
-          }
-          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-        });
-      }
-      return data;
-    },
+        if (filters.sortOrder === 'desc') {
+          return bValue > aValue ? 1 : bValue < aValue ? -1 : 0;
+        }
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      });
+    } : undefined,
   });
 }
 

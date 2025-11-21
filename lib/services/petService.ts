@@ -75,12 +75,26 @@ export class PetService {
 
   /**
    * Tüm petleri listeler (en yeni başa)
+   * Supports pagination, filtering by type, search, and sorting
    */
-  async getPets(params?: { page?: number; limit?: number }): Promise<ApiResponse<Pet[]>> {
+  async getPets(params?: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApiResponse<Pet[]>> {
     try {
-      const queryParams: Record<string, number> = {};
+      const queryParams: Record<string, string | number> = {};
+
+      // Build query params from all available filters
       if (params?.page !== undefined) queryParams.page = params.page;
       if (params?.limit !== undefined) queryParams.limit = params.limit;
+      if (params?.type) queryParams.type = params.type;
+      if (params?.search) queryParams.search = params.search;
+      if (params?.sortBy) queryParams.sortBy = params.sortBy;
+      if (params?.sortOrder) queryParams.sortOrder = params.sortOrder;
 
       const response = await api.get<Pet[]>(
         ENV.ENDPOINTS.PETS,
