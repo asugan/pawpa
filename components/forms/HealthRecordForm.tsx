@@ -36,7 +36,6 @@ export function HealthRecordForm({
   initialData,
 }: HealthRecordFormProps) {
   const { theme } = useTheme();
-  const styles = getStyles(theme);
   const [isLoading, setIsLoading] = useState(false);
   const createMutation = useCreateHealthRecord();
   const updateMutation = useUpdateHealthRecord();
@@ -241,20 +240,19 @@ export function HealthRecordForm({
   );
 }
 
-const getStyles = (theme: any) =>
-  StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      paddingTop: 50,
-    },
-    content: {
-      flex: 1,
-    },
-    card: {
-      margin: 16,
-      elevation: 4,
-    },
-    cardContent: {
-      padding: 16,
-    },
-  });
+const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    paddingTop: 50,
+  },
+  content: {
+    flex: 1,
+  },
+  card: {
+    margin: 16,
+    elevation: 4,
+  },
+  cardContent: {
+    padding: 16,
+  },
+});
