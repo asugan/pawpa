@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Evcil Hayvan Bakım Paneli</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#00ADB5","accent-orange": "#FF7F50","background-dark": "#1A202C","card-dark": "#2D3748","text-light": "#E2E8F0","text-muted": "#A0AEC0",},
+          fontFamily: {
+            "sans": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-sans bg-background-dark text-text-light">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden pb-24">
+<div class="flex flex-col gap-2 bg-transparent p-4 pb-2">
+<div class="flex h-12 items-center justify-between">
+<div class="flex size-12 shrink-0 items-center">
+<div class="aspect-square size-10 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-primary" data-alt="Kullanıcı Elif'in profil fotoğrafı" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAnhUWdjiz0PKPRtOSlduRAmzddKWYKcqFZSuv_viEuwjhVUBR2XXtvqRYkVhUgTvhY19pp2-xru1Pq_eeTMNhFq4Y5RhhcrkQUgCytdJWBfb9p8kJ-jRbNJoKR72_Ip3AaxFOL-06Q-xypieAbBQdMmolpBVnPaJgoZ59B3EuPuN7J4KI95rRn_xXaIrHSVMgU6J8S4-svpfqAjd7OSfgog5dmsOYsakGJtJSvkxiXkw5TRMV4lVvKmnoDmbml-AVi78lzuY4v9DS8");'></div>
+</div>
+<div class="flex w-12 items-center justify-end">
+<button class="flex h-12 min-w-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl bg-transparent p-0 text-base font-bold leading-normal tracking-[0.015em] text-text-light">
+<span class="material-symbols-outlined text-text-light">notifications</span>
+</button>
+</div>
+</div>
+<p class="text-3xl font-bold leading-tight tracking-tight text-text-light">Merhaba, Elif!</p>
+</div>
+<p class="px-4 pb-3 pt-1 text-base font-normal leading-normal text-text-muted">Bugün 2 evcil hayvanın için 3 etkinliğin var.</p>
+<div class="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden py-4 px-4 gap-3">
+<div class="flex-none w-40 flex flex-col gap-1 rounded-lg bg-card-dark p-3 border border-gray-700">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">pets</span>
+<p class="text-xs font-medium leading-normal text-text-muted uppercase tracking-wider">Toplam Evcil Hayvan</p>
+</div>
+<p class="text-xl font-semibold leading-tight tracking-tight text-text-light">2</p>
+</div>
+<div class="flex-none w-40 flex flex-col gap-1 rounded-lg bg-card-dark p-3 border border-gray-700">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">event</span>
+<p class="text-xs font-medium leading-normal text-text-muted uppercase tracking-wider">Bugünkü Etkinlikler</p>
+</div>
+<p class="text-xl font-semibold leading-tight tracking-tight text-text-light">3</p>
+</div>
+<div class="flex-none w-40 flex flex-col gap-1 rounded-lg bg-card-dark p-3 border border-gray-700">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">vaccines</span>
+<p class="text-xs font-medium leading-normal text-text-muted uppercase tracking-wider">Yaklaşan Aşılar</p>
+</div>
+<p class="text-xl font-semibold leading-tight tracking-tight text-text-light">1</p>
+</div>
+</div>
+<h2 class="px-4 pb-2 pt-5 text-xl font-bold leading-tight tracking-tight text-text-light">Evcil Hayvanlarım</h2>
+<div class="flex flex-col gap-3 px-4 py-2">
+<div class="flex items-center gap-4 rounded-lg bg-card-dark p-3 border border-gray-700">
+<div class="aspect-square size-14 shrink-0 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-primary" data-alt="Max adında altın rengi bir köpeğin fotoğrafı" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBcpq8Lqd28e-cuvOvT635v9MZsoo0Fz4s9s8J0x1bLR3_kWTonUm4KEA_qtHNZe4iSm8oAh80BJe3TfBP0Ip9jCy12hnvbtHvsiDqGOL4tU5okoRj0Y43nYNI7YLJXVLE2GICyfJ1Mt-8RIIluq9JkDI0q-exUUj_HQQ2_lTXnzenIGHt7za5nexB1vbWcTjqlrzTqgKUBFWhgW4naO1k5QegtprNISp1efj7M1vNdSEpUNH-vi_4zeAr5Z5nP0_vNxfq8PHEyU938");'></div>
+<div class="flex flex-col flex-grow">
+<p class="text-lg font-semibold leading-snug text-text-light">Max</p>
+<p class="text-sm font-normal leading-normal text-text-muted">Köpek</p>
+</div>
+<div class="flex flex-col items-end">
+<p class="text-sm font-medium text-text-muted whitespace-nowrap">Sonraki Aktivite:</p>
+<p class="text-base font-semibold text-primary whitespace-nowrap">Besleme (18:00)</p>
+</div>
+</div>
+<div class="flex items-center gap-4 rounded-lg bg-card-dark p-3 border border-gray-700">
+<div class="aspect-square size-14 shrink-0 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-accent-orange" data-alt="Mırmır adında tekir bir kedinin fotoğrafı" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBVQLYp7t4afaaxR-ktRU23dAg4Y9itBzcMZP5OjeWsoMvD0WPC_wpm7XGlrSpRniJ25SItyougjbYgSlWEC24V1LXPLZvz1bs-aubq_VB8fMPMV4hMjfi9pfRUMu4CiaBFT2TEFOJvKU71OEBBtbF0mxGxx1W19244GRfdTIebbg9zUXzLRG00V-AucUGa8FO7LtPUggXecMUEPMVqMKK5Ak8Ou_SZS28KKjtdLA-2Af9oX9wyet2IfELKWagWuspdCMZJicb4_WfL");'></div>
+<div class="flex flex-col flex-grow">
+<p class="text-lg font-semibold leading-snug text-text-light">Mırmır</p>
+<p class="text-sm font-normal leading-normal text-text-muted">Kedi</p>
+</div>
+<div class="flex flex-col items-end">
+<p class="text-sm font-medium text-text-muted whitespace-nowrap">Sonraki Aktivite:</p>
+<p class="text-base font-semibold text-accent-orange whitespace-nowrap">Aşı (10.05)</p>
+</div>
+</div>
+<div class="flex items-center gap-4 rounded-lg bg-card-dark p-3 border border-dashed border-gray-600 cursor-pointer">
+<div class="flex aspect-square size-14 shrink-0 items-center justify-center rounded-full bg-gray-700">
+<span class="material-symbols-outlined text-gray-400">add</span>
+</div>
+<p class="text-lg font-medium leading-normal text-text-muted">Yeni Evcil Hayvan Ekle</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 p-4">
+<div class="flex items-center gap-4 rounded-xl bg-card-dark p-4 border border-gray-700">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-3xl">restaurant</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-medium text-text-muted">Sonraki Besleme</p>
+<p class="text-lg font-bold text-text-light">18:00 - Max</p>
+</div>
+</div>
+<div class="rounded-xl bg-card-dark p-4 border border-gray-700">
+<h3 class="mb-3 text-lg font-bold text-text-light">Sağlık Görünümü</h3>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<p class="text-base text-text-muted">Genel Durum</p>
+<span class="rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-primary">İyi</span>
+</div>
+<div class="h-2 w-full rounded-full bg-gray-700">
+<div class="h-2 rounded-full bg-primary" style="width: 90%;"></div>
+</div>
+</div>
+</div>
+<div class="rounded-xl bg-card-dark p-4 border border-gray-700">
+<h3 class="mb-3 text-lg font-bold text-text-light">Finansal Genel Bakış</h3>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between text-sm">
+<p class="text-text-muted">Bu Ayki Harcamalar</p>
+<p class="font-medium text-text-light">450₺ / <span class="text-text-muted">800₺</span></p>
+</div>
+<div class="h-2 w-full rounded-full bg-gray-700">
+<div class="h-2 rounded-full bg-accent-orange" style="width: 56%;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 right-6">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+</div>
+</body></html>

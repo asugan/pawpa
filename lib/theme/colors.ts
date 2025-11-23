@@ -66,10 +66,10 @@ export const lightColors: ThemeColors = {
 // Neon/Glow Color Palette (Dark Mode)
 export const darkColors: ThemeColors = {
   // Ana Renkler (Neon/Glow Effect)
-  primary: "#FF4A8B",        // 💗 Neon Pink (parlak pembe)
+  primary: "#00ADB5",        // 🌊 Cyan/Teal (tasarıma uygun)
   secondary: "#00D696",      // 💚 Bright Mint (parlak nane)
   tertiary: "#C084FC",       // 💜 Neon Lavender (parlak mor)
-  accent: "#FB923C",         // 🟠 Orange Glow (turuncu ışık)
+  accent: "#FF7F50",         // 🟠 Coral Orange (tasarıma uygun)
 
   // Durum Renkleri (Daha parlak)
   success: "#34D399",        // ✅ Neon Green
@@ -78,10 +78,10 @@ export const darkColors: ThemeColors = {
   info: "#60A5FA",           // ℹ️ Bright Blue
 
   // Yüzeyler (Saf siyah değil!)
-  background: "#0F1419",     // Çok koyu gri (glow için)
-  surface: "#1A1F26",        // Koyu gri (background'dan açık)
-  surfaceVariant: "#252B35", // Orta koyu gri
-  surfaceDisabled: "#374151", // Disabled state
+  background: "#1A202C",     // Dark gray-blue (tasarıma uygun)
+  surface: "#2D3748",        // Darker gray (tasarıma uygun)
+  surfaceVariant: "#374151", // Medium gray
+  surfaceDisabled: "#4B5563", // Disabled state
 
   // Container colors
   primaryContainer: "#831843",      // Dark pink container
@@ -103,9 +103,9 @@ export const darkColors: ThemeColors = {
   onSecondary: "#000000",
   onTertiary: "#000000",
   onAccent: "#000000",
-  onBackground: "#F9FAFB",   // Çok açık gri (beyaza yakın)
-  onSurface: "#E5E7EB",      // Açık gri
-  onSurfaceVariant: "#D1D5DB", // Orta açık gri
+  onBackground: "#E2E8F0",   // Text Light (tasarıma uygun)
+  onSurface: "#E2E8F0",      // Text Light (tasarıma uygun)
+  onSurfaceVariant: "#A0AEC0", // Text Muted (tasarıma uygun)
   onError: "#FFFFFF",
   onSuccess: "#000000",
   onWarning: "#000000",
@@ -115,10 +115,10 @@ export const darkColors: ThemeColors = {
   onErrorContainer: "#FEE2E2",      // Light text on dark red
 
   // Event type colors (Using theme colors for dark mode)
-  eventFeeding: "#FF4A8B",          // primary (Neon Pink)
+  eventFeeding: "#00ADB5",          // primary (Cyan/Teal)
   eventExercise: "#00D696",         // secondary (Bright Mint)
   eventGrooming: "#C084FC",         // tertiary (Neon Lavender)
-  eventPlay: "#FB923C",             // accent (Orange Glow)
+  eventPlay: "#FF7F50",             // accent (Coral Orange)
   eventTraining: "#60A5FA",         // info (Bright Blue)
   eventVetVisit: "#F87171",         // error (Bright Red)
   eventWalk: "#3B82F6",             // info variant (Bright Blue)
@@ -136,8 +136,8 @@ export const lightGradients: GradientColors = {
 
 // Dark mode gradients (daha parlak)
 export const darkGradients: GradientColors = {
-  primary: ["#FF4A8B", "#FF6B9D"],
+  primary: ["#00ADB5", "#00C9D1"],  // Cyan/Teal gradient
   secondary: ["#00D696", "#00E5A0"],
   tertiary: ["#C084FC", "#D8B4FE"],
-  accent: ["#FB923C", "#FDBA74"],
+  accent: ["#FF7F50", "#FF9A70"],   // Coral Orange gradient
 };

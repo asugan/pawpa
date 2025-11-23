@@ -77,29 +77,24 @@ const StatCard: React.FC<StatCardProps> = ({
       onPress={onPress}
       style={({ pressed }) => [
         styles.pressable,
-        { marginHorizontal: isMobile ? 2 : 4, minWidth: isMobile ? 100 : 120 },
+        { width: 160 },
         pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
       ]}
     >
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <View style={[styles.content, { padding: cardPadding, gap: isMobile ? 6 : 8 }]}>
-          <LinearGradient
-            colors={getGradientColors(color, isDark, theme)}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.iconContainer, { width: iconSize, height: iconSize, borderRadius: iconSize / 2 }]}
-          >
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563', borderWidth: 1 }]}>
+        <View style={[styles.content, { padding: 12, gap: 4 }]}>
+          <View style={styles.header}>
             <MaterialCommunityIcons
               name={icon}
-              size={isMobile ? iconSize * 0.6 : 36}
-              color="#FFFFFF"
+              size={16}
+              color={color}
             />
-          </LinearGradient>
-          <Text variant="headlineMedium" style={{ color, fontWeight: '800', fontSize: isMobile ? 20 : 28 }}>
+            <Text variant="labelSmall" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
+              {title}
+            </Text>
+          </View>
+          <Text variant="headlineMedium" style={{ color: theme.colors.onSurface, fontWeight: '600', fontSize: 24 }}>
             {value}
-          </Text>
-          <Text variant="bodyMedium" style={styles.title}>
-            {title}
           </Text>
         </View>
       </Card>
@@ -112,15 +107,25 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   pressable: {
-    flex: 1,
   },
   card: {
-    elevation: 5,
-    borderRadius: 16,
+    elevation: 2,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   content: {
+    alignItems: 'flex-start',
+  },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  label: {
+    textTransform: 'uppercase',
+    fontSize: 10,
+    fontWeight: '500',
+    letterSpacing: 0.5,
   },
   loadingContent: {
     justifyContent: 'center',

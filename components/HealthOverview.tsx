@@ -81,133 +81,28 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
-          {t('home.healthOverview')}
-        </Text>
-        <Button
-          mode="text"
-          onPress={() => router.push('/(tabs)/health')}
-          compact
-          textColor={theme.colors.primary}
-        >
-          {t('common.viewAll')}
-        </Button>
-      </View>
+      <Card style={[styles.section, { backgroundColor: theme.colors.surface, borderColor: '#4B5563', borderWidth: 1 }]}>
+        <View style={styles.cardContent}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface, marginBottom: 12 }]}>
+            {t('home.healthOverview')}
+          </Text>
 
-      {todayEvents.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.cardContent}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.emojiIcon}>📅</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                {t('home.todaySchedule')}
-              </Text>
-            </View>
-            {todayEvents.slice(0, 3).map((event) => (
-              <View key={event.id} style={[styles.eventItem, { borderLeftColor: theme.colors.tertiary }]}>
-                <LinearGradient
-                  colors={theme.dark ? gradientsDark.primary : gradients.primary}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.eventTimeContainer}
-                >
-                  <Text variant="bodySmall" style={{ color: '#FFFFFF', fontWeight: '700' }}>
-                    {new Date(event.startTime).toLocaleTimeString('tr-TR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </Text>
-                </LinearGradient>
-                <View style={styles.eventDetails}>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
-                    {event.title}
-                  </Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {event.petId ? t('events.forPet') : ''}
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={16}
-                  color={theme.colors.onSurfaceVariant}
-                />
-              </View>
-            ))}
-            {todayEvents.length > 3 && (
-              <Button
-                mode="text"
-                onPress={() => router.push('/(tabs)/calendar')}
-                compact
-                textColor={theme.colors.primary}
-                style={styles.viewMoreButton}
-              >
-                {t('home.viewMoreEvents', { count: todayEvents.length - 3 })}
-              </Button>
-            )}
-          </View>
-        </Card>
-      )}
-
-      {upcomingVaccinations.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.cardContent}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.emojiIcon}>💉</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                {t('health.upcomingVaccinations')}
-              </Text>
-            </View>
-            {upcomingVaccinations.slice(0, 3).map((vaccination) => (
-              <View key={vaccination.id} style={[styles.eventItem, { borderLeftColor: theme.colors.secondary }]}>
-                <LinearGradient
-                  colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.vaccinationIconContainer}
-                >
-                  <Text style={styles.vaccinationEmoji}>💉</Text>
-                </LinearGradient>
-                <View style={styles.eventDetails}>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
-                    {vaccination.title}
-                  </Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {new Date(vaccination.date).toLocaleDateString('tr-TR')}
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={16}
-                  color={theme.colors.onSurfaceVariant}
-                />
-              </View>
-            ))}
-            {upcomingVaccinations.length > 3 && (
-              <Button
-                mode="text"
-                onPress={() => router.push('/(tabs)/health')}
-                compact
-                textColor={theme.colors.primary}
-                style={styles.viewMoreButton}
-              >
-                {t('home.viewMoreVaccinations', { count: upcomingVaccinations.length - 3 })}
-              </Button>
-            )}
-          </View>
-        </Card>
-      )}
-
-      {todayEvents.length === 0 && upcomingVaccinations.length === 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <View style={styles.emptyContent}>
-            <Text style={styles.bigEmoji}>✨</Text>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              {t('home.noHealthActivities')}
+          <View style={styles.statusRow}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              {t('health.generalStatus')}
             </Text>
+            <View style={[styles.statusBadge, { backgroundColor: `${theme.colors.primary}33` }]}>
+              <Text variant="bodySmall" style={{ color: theme.colors.primary, fontWeight: '500' }}>
+                {t('health.good')}
+              </Text>
+            </View>
           </View>
-        </Card>
-      )}
+
+          <View style={[styles.progressBarContainer, { backgroundColor: '#4B5563' }]}>
+            <View style={[styles.progressBar, { backgroundColor: theme.colors.primary, width: '90%' }]} />
+          </View>
+        </View>
+      </Card>
     </View>
   );
 };
@@ -219,18 +114,32 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 24,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
   sectionTitle: {
-    fontWeight: '600',
+    fontWeight: '700',
   },
   section: {
     marginBottom: 12,
-    elevation: 1,
+    borderRadius: 12,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  progressBarContainer: {
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 4,
   },
   sectionHeader: {
     flexDirection: 'row',

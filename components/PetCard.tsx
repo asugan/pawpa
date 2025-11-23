@@ -113,6 +113,25 @@ const PetCard: React.FC<PetCardProps> = ({
       .slice(0, 2);
   };
 
+  // Determine ring color based on upcoming activities
+  const getRingColor = () => {
+    if (upcomingVaccinations > 0) return theme.colors.accent; // Orange for vaccinations
+    return theme.colors.primary; // Cyan for general
+  };
+
+  // Get next activity text
+  const getNextActivity = () => {
+    if (upcomingVaccinations > 0) {
+      return { label: t('health.vaccination'), time: '10.05', color: theme.colors.accent };
+    }
+    if (upcomingEvents > 0) {
+      return { label: t('events.feeding'), time: '18:00', color: theme.colors.primary };
+    }
+    return null;
+  };
+
+  const nextActivity = getNextActivity();
+
   return (
     <Pressable onPress={onPress} style={styles.pressable}>
       <Surface
@@ -120,142 +139,68 @@ const PetCard: React.FC<PetCardProps> = ({
           styles.card,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: getPetTypeColor(pet.type),
-            borderWidth: 2,
+            borderColor: '#4B5563',
+            borderWidth: 1,
           },
         ]}
-        elevation={5}
+        elevation={2}
       >
-        <View style={[styles.content, { padding: cardPadding }]}>
-          {/* Header with avatar and basic info */}
-          <View style={styles.header}>
-            <View style={styles.avatarContainer}>
-              <LinearGradient
-                colors={getPetTypeGradient(pet.type)}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.avatarRing, { padding: isMobile ? 2 : 3 }]}
-              >
-                {pet.profilePhoto ? (
-                  <Avatar.Image
-                    size={avatarSize}
-                    source={{ uri: pet.profilePhoto }}
-                    style={styles.avatar}
-                  />
-                ) : (
-                  <Avatar.Text
-                    label={pet.name.charAt(0).toUpperCase()}
-                    size={avatarSize}
-                    style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
-                    labelStyle={{ color: theme.colors.onPrimary, fontSize: isMobile ? 20 : 28, fontWeight: 'bold' }}
-                  />
-                )}
-              </LinearGradient>
+        <View style={[styles.content, { padding: 12 }]}>
+          <View style={styles.horizontalLayout}>
+            {/* Avatar */}
+            <View style={[styles.avatarRing, { borderColor: getRingColor(), borderWidth: 2 }]}>
+              {pet.profilePhoto ? (
+                <Avatar.Image
+                  size={56}
+                  source={{ uri: pet.profilePhoto }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <Avatar.Text
+                  label={pet.name.charAt(0).toUpperCase()}
+                  size={56}
+                  style={[styles.avatar, { backgroundColor: getPetTypeColor(pet.type) }]}
+                  labelStyle={{ color: theme.colors.onPrimary, fontSize: 24, fontWeight: 'bold' }}
+                />
+              )}
             </View>
-            <View style={styles.textContainer}>
+
+            {/* Info */}
+            <View style={styles.infoContainer}>
               <Text
-                variant={isMobile ? "titleMedium" : "titleLarge"}
+                variant="titleMedium"
                 style={[styles.name, { color: theme.colors.onSurface }]}
                 numberOfLines={1}
-                ellipsizeMode="tail"
               >
                 {pet.name}
               </Text>
-              <View style={styles.typeContainer}>
-                <LinearGradient
-                  colors={getPetTypeGradient(pet.type)}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.typeBadge}
-                >
-                  <Text variant="bodyMedium" style={[styles.type, { color: '#FFFFFF' }]}>
-                    {getPetTypeLabel(pet.type)}
-                  </Text>
-                </LinearGradient>
-                {pet.breed && (
-                  <Text
-                    variant="bodyMedium"
-                    style={[styles.breed, { color: theme.colors.onSurfaceVariant }]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    • {pet.breed}
-                  </Text>
-                )}
-              </View>
-              <Text variant="bodyMedium" style={[styles.age, { color: theme.colors.onSurfaceVariant }]}>
-                {getAgeText(pet.birthDate)}
+              <Text
+                variant="bodySmall"
+                style={[styles.typeText, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {getPetTypeLabel(pet.type)}
               </Text>
             </View>
-          </View>
 
-          {/* Status badges with emojis */}
-          <View style={styles.badgesContainer}>
-            {(upcomingEvents > 0 || upcomingVaccinations > 0) && (
-              <View style={styles.badgesRow}>
-                {upcomingEvents > 0 && (
-                  <View style={[
-                    styles.miniBadge,
-                    {
-                      backgroundColor: theme.colors.tertiaryContainer,
-                      paddingHorizontal: isMobile ? 6 : 8,
-                      paddingVertical: isMobile ? 3 : 4,
-                    }
-                  ]}>
-                    <Text style={styles.emoji}>📅</Text>
-                    <Text style={[styles.miniBadgeText, { color: theme.colors.onTertiaryContainer }]}>
-                      {upcomingEvents}
-                    </Text>
-                  </View>
-                )}
-                {upcomingVaccinations > 0 && (
-                  <View style={[
-                    styles.miniBadge,
-                    {
-                      backgroundColor: theme.colors.secondaryContainer,
-                      paddingHorizontal: isMobile ? 6 : 8,
-                      paddingVertical: isMobile ? 3 : 4,
-                    }
-                  ]}>
-                    <Text style={styles.emoji}>💉</Text>
-                    <Text style={[styles.miniBadgeText, { color: theme.colors.onSecondaryContainer }]}>
-                      {upcomingVaccinations}
-                    </Text>
-                  </View>
-                )}
+            {/* Next Activity */}
+            {nextActivity && (
+              <View style={styles.activityContainer}>
+                <Text
+                  variant="bodySmall"
+                  style={[styles.activityLabel, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('home.nextActivity')}:
+                </Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.activityText, { color: nextActivity.color }]}
+                  numberOfLines={1}
+                >
+                  {nextActivity.label} ({nextActivity.time})
+                </Text>
               </View>
             )}
           </View>
-
-          {/* Action buttons */}
-          {showActions && (
-            <View style={styles.actions}>
-              {onEdit && (
-                <Button
-                  mode="outlined"
-                  compact
-                  icon="pencil"
-                  textColor={theme.colors.primary}
-                  style={styles.actionButton}
-                  onPress={onEdit}
-                >
-                  {t('pets.edit')}
-                </Button>
-              )}
-              {onDelete && (
-                <Button
-                  mode="outlined"
-                  compact
-                  icon="delete"
-                  textColor={theme.colors.error}
-                  style={[styles.actionButton, { borderColor: theme.colors.error }]}
-                  onPress={onDelete}
-                >
-                  {t('pets.delete')}
-                </Button>
-              )}
-            </View>
-          )}
         </View>
       </Surface>
     </Pressable>
@@ -269,106 +214,47 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 0,
     marginVertical: 0,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   content: {
-    // padding is now dynamic via useResponsiveSize
   },
-  header: {
+  horizontalLayout: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  avatarContainer: {
-    marginRight: 12,
+    alignItems: 'center',
+    gap: 16,
   },
   avatarRing: {
-    // padding is now dynamic via useResponsiveSize
-    borderRadius: 50,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatar: {
-    borderWidth: 3,
-    borderColor: 'white',
+    width: 56,
+    height: 56,
   },
-  textContainer: {
+  infoContainer: {
     flex: 1,
   },
   name: {
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  typeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    marginBottom: 4,
-  },
-  typeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  type: {
-    fontWeight: '700',
-    fontSize: 12,
-  },
-  breed: {
-    fontWeight: '400',
-  },
-  age: {
-    fontSize: 14,
-  },
-  badgesContainer: {
-    marginBottom: 12,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    alignItems: 'center',
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    alignSelf: 'flex-start',
-  },
-  badgeText: {
-    fontSize: 11,
     fontWeight: '600',
-    lineHeight: 14,
+    marginBottom: 2,
   },
-  miniBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    // padding is now dynamic via useResponsiveSize
-    borderRadius: 14,
-    gap: 4,
-  },
-  emoji: {
+  typeText: {
     fontSize: 14,
-    lineHeight: 14,
   },
-  miniBadgeText: {
+  activityContainer: {
+    alignItems: 'flex-end',
+  },
+  activityLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    lineHeight: 14,
+    marginBottom: 2,
   },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
-    paddingTop: 12,
-  },
-  actionButton: {
-    flex: 1,
-    minWidth: 0,
+  activityText: {
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 
