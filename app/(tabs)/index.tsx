@@ -27,7 +27,7 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const { isMobile, scrollPadding } = useResponsiveSize();
+  const { isMobile, scrollPadding, layoutMode } = useResponsiveSize();
 
   // Data fetching with hooks
   const { data: pets, isLoading: petsLoading, error: petsError, refetch: refetchPets } = usePets();
@@ -99,35 +99,64 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Statistics Dashboard */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.statsScrollView}
-          contentContainerStyle={styles.statsContainer}
-        >
-          <StatCard
-            title={t("home.totalPets")}
-            value={pets?.length || 0}
-            icon="paw"
-            color={theme.colors.primary}
-            onPress={() => router.push("/(tabs)/pets")}
-          />
-          <StatCard
-            title={t("events.today")}
-            value={todayEvents?.length || 0}
-            icon="calendar"
-            color={theme.colors.primary}
-            onPress={() => router.push("/(tabs)/calendar")}
-          />
-          <StatCard
-            title={t("health.upcomingVaccinations")}
-            value={upcomingVaccinations?.length || 0}
-            icon="needle"
-            color={theme.colors.primary}
-            onPress={() => router.push("/(tabs)/health")}
-          />
-        </ScrollView>
+        {/* Statistics Dashboard - Responsive Layout */}
+        {layoutMode === 'horizontal-scroll' ? (
+          // Mobile: Horizontal scroll layout
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.statsScrollView}
+            contentContainerStyle={styles.statsContainer}
+            scrollEventThrottle={16}
+          >
+            <StatCard
+              title={t("home.totalPets")}
+              value={pets?.length || 0}
+              icon="paw"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/pets")}
+            />
+            <StatCard
+              title={t("events.today")}
+              value={todayEvents?.length || 0}
+              icon="calendar"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/calendar")}
+            />
+            <StatCard
+              title={t("health.upcomingVaccinations")}
+              value={upcomingVaccinations?.length || 0}
+              icon="needle"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/health")}
+            />
+          </ScrollView>
+        ) : (
+          // Tablet/Desktop: Grid layout
+          <View style={styles.statsGrid}>
+            <StatCard
+              title={t("home.totalPets")}
+              value={pets?.length || 0}
+              icon="paw"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/pets")}
+            />
+            <StatCard
+              title={t("events.today")}
+              value={todayEvents?.length || 0}
+              icon="calendar"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/calendar")}
+            />
+            <StatCard
+              title={t("health.upcomingVaccinations")}
+              value={upcomingVaccinations?.length || 0}
+              icon="needle"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/health")}
+            />
+          </View>
+        )}
 
         {/* My Pets Section */}
         <View style={styles.petsSection}>
@@ -308,6 +337,12 @@ const styles = StyleSheet.create({
   statsContainer: {
     gap: 12,
     paddingHorizontal: 0,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 24,
   },
   petsSection: {
     marginBottom: 24,
