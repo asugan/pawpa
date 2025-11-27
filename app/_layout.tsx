@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { MOBILE_QUERY_CONFIG } from "../lib/config/queryConfig";
 import { LanguageProvider } from "../providers/LanguageProvider";
+import { AuthProvider } from "../providers/AuthProvider";
 import { NetworkStatus } from "../lib/components/NetworkStatus";
 import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
 import { useOnlineManager } from "../lib/hooks/useOnlineManager";
@@ -31,7 +32,9 @@ function AppProviders({ children }: { children: React.ReactNode }) {
         <NetworkStatus>
           <LanguageProvider>
             <ApiErrorBoundary>
-              {children}
+              <AuthProvider>
+                {children}
+              </AuthProvider>
             </ApiErrorBoundary>
           </LanguageProvider>
         </NetworkStatus>
@@ -59,6 +62,7 @@ export default function RootLayout() {
     <AppProviders>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </AppProviders>

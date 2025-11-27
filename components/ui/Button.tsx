@@ -2,6 +2,7 @@ import { useTheme } from "@/lib/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
+    ActivityIndicator,
     StyleProp,
     StyleSheet,
     TextStyle,
@@ -23,6 +24,7 @@ export interface ButtonProps extends Omit<TouchableOpacityProps, "style"> {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   uppercase?: boolean;
+  loading?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -35,6 +37,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   labelStyle,
   uppercase = false,
+  loading = false,
   disabled,
   ...rest
 }) => {
@@ -79,28 +82,34 @@ export const Button: React.FC<ButtonProps> = ({
         getBorderStyle(),
         style,
       ]}
-      disabled={disabled}
+      disabled={disabled || loading}
       activeOpacity={0.7}
       {...rest}
     >
-      {icon && (
-        <>{typeof icon === "string" ? <MaterialCommunityIcons name={icon as keyof typeof MaterialCommunityIcons.glyphMap} size={compact ? 16 : 18} color={getTextColor()} /> : icon}</>
-      )}
-      {typeof children === "string" ? (
-        <Text
-          variant={compact ? "labelMedium" : "labelLarge"}
-          style={[
-            {
-              color: getTextColor(),
-              textTransform: uppercase ? "uppercase" : "none",
-            },
-            labelStyle,
-          ]}
-        >
-          {children}
-        </Text>
+      {loading ? (
+        <ActivityIndicator size="small" color={getTextColor()} />
       ) : (
-        children
+        <>
+          {icon && (
+            <>{typeof icon === "string" ? <MaterialCommunityIcons name={icon as keyof typeof MaterialCommunityIcons.glyphMap} size={compact ? 16 : 18} color={getTextColor()} /> : icon}</>
+          )}
+          {typeof children === "string" ? (
+            <Text
+              variant={compact ? "labelMedium" : "labelLarge"}
+              style={[
+                {
+                  color: getTextColor(),
+                  textTransform: uppercase ? "uppercase" : "none",
+                },
+                labelStyle,
+              ]}
+            >
+              {children}
+            </Text>
+          ) : (
+            children
+          )}
+        </>
       )}
     </TouchableOpacity>
   );

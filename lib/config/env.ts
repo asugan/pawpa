@@ -3,6 +3,12 @@ export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__ ? 'https://f47ca50d1f3e.ngrok-free.app' : 'https://your-production-api.com',
 
+  // Auth configuration
+  AUTH: {
+    SCHEME: 'pawpa',
+    STORAGE_PREFIX: 'pawpa-auth',
+  },
+
   // API Endpoints
   ENDPOINTS: {
     // Pet endpoints
