@@ -4,7 +4,9 @@ import { z } from 'zod';
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
 
 // Custom validation functions
-const validateBirthDate = (date: Date) => {
+const validateBirthDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return false;
   const now = new Date();
   const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate()); // 30 years ago
   return date <= now && date >= minDate;
@@ -32,7 +34,8 @@ const BasePetSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   birthDate: z
-    .date()
+    .string()
+    .datetime({ message: 'Invalid date format. Expected ISO 8601 datetime' })
     .refine(validateBirthDate, {
       message: "Birth date cannot be in the future or more than 30 years ago"
     })

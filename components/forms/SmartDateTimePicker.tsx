@@ -1,8 +1,9 @@
 import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import { combineDateTimeToISO } from '@/lib/utils/dateConversion';
 import { format, isAfter } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -11,6 +12,7 @@ import { SmartDatePicker } from './SmartDatePicker';
 interface SmartDateTimePickerProps {
   dateName: string;
   timeName: string;
+  combinedOutputName?: string;
   label?: string;
   required?: boolean;
   disabled?: boolean;
@@ -22,6 +24,7 @@ interface SmartDateTimePickerProps {
 export const SmartDateTimePicker = ({
   dateName,
   timeName,
+  combinedOutputName,
   label,
   required = false,
   disabled = false,
@@ -29,7 +32,7 @@ export const SmartDateTimePicker = ({
   minuteInterval = 15,
   mode = 'future',
 }: SmartDateTimePickerProps) => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
 
@@ -38,6 +41,18 @@ export const SmartDateTimePicker = ({
   const timeValue = useWatch({ control, name: timeName });
 
   const locale = i18n.language === 'tr' ? tr : enUS;
+
+  // Automatically combine date and time into ISO string if combinedOutputName is provided
+  useEffect(() => {
+    if (combinedOutputName && dateValue && timeValue) {
+      try {
+        const isoDateTime = combineDateTimeToISO(dateValue, timeValue);
+        setValue(combinedOutputName, isoDateTime);
+      } catch (error) {
+        console.warn('Invalid date/time combination:', error);
+      }
+    }
+  }, [dateValue, timeValue, combinedOutputName, setValue]);
 
   // Combine date and time for validation
   const getCombinedDateTime = () => {
@@ -82,6 +97,7 @@ export const SmartDateTimePicker = ({
             disabled={disabled}
             testID={`${testID}-date`}
             mode="date"
+            outputFormat="iso-date"
           />
         </View>
 
@@ -92,6 +108,7 @@ export const SmartDateTimePicker = ({
             disabled={disabled}
             testID={`${testID}-time`}
             mode="time"
+            outputFormat="iso-time"
           />
         </View>
       </View>

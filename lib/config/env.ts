@@ -1,7 +1,13 @@
 // Environment configuration for PawPa app
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
-  API_BASE_URL: __DEV__ ? 'https://4b426d4760a9.ngrok-free.app' : 'https://your-production-api.com',
+  API_BASE_URL: __DEV__ ? 'https://28ea846af788.ngrok-free.app' : 'https://your-production-api.com',
+
+  // Auth configuration
+  AUTH: {
+    SCHEME: 'pawpa',
+    STORAGE_PREFIX: 'pawpa-auth',
+  },
 
   // API Endpoints
   ENDPOINTS: {

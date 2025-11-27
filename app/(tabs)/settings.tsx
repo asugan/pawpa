@@ -1,23 +1,78 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Card, Button, Switch, ListItem } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '../../stores/themeStore';
 import { useLanguageStore } from '../../stores/languageStore';
+import { useAuth } from '@/lib/auth';
+import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LAYOUT } from '../../constants';
+import { useRouter } from 'expo-router';
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const { themeMode, toggleTheme } = useThemeStore();
   const { language, setLanguage } = useLanguageStore();
+  const { user, signOut } = useAuth();
+  const { isLoading, setLoading } = useAuthStore();
   const isDarkMode = themeMode === 'dark';
+
+  const handleLogout = () => {
+    Alert.alert(
+      t('auth.logout'),
+      t('auth.logoutConfirm'),
+      [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('auth.logout'),
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await signOut();
+              router.replace('/(auth)/login');
+            } catch (error) {
+              console.error('Logout error:', error);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* User Profile */}
+        {user && (
+          <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
+            <View style={styles.cardContent}>
+              <View style={styles.profileContainer}>
+                <View style={[styles.avatarContainer, { backgroundColor: theme.colors.primaryContainer }]}>
+                  <MaterialCommunityIcons name="account" size={32} color={theme.colors.primary} />
+                </View>
+                <View style={styles.profileInfo}>
+                  <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+                    {user.name || 'User'}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {user.email}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </Card>
+        )}
+
         {/* Theme Settings */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardContent}>
@@ -123,9 +178,11 @@ export default function SettingsScreen() {
             mode="outlined"
             textColor={theme.colors.error}
             style={[styles.logoutButton, { borderColor: theme.colors.error }]}
-            onPress={() => console.log('Logout')}
+            onPress={handleLogout}
+            loading={isLoading}
+            disabled={isLoading}
           >
-            {t('settings.logout')}
+            {t('auth.logout')}
           </Button>
         </View>
       </ScrollView>
@@ -147,6 +204,22 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 16,
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  avatarContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileInfo: {
+    flex: 1,
+    gap: 4,
   },
   sectionTitle: {
     marginBottom: 8,

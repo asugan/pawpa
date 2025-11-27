@@ -1,298 +1,164 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button,  } from '@/components/ui';
+import { Card, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Event } from '@/lib/types';
-import { ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { gradients, gradientsDark } from '@/lib/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { usePets } from '@/lib/hooks/usePets';
+import type { HealthRecord } from '@/lib/types';
 
 interface HealthOverviewProps {
-  todayEvents?: Event[];
-  upcomingVaccinations?: any[];
+  healthRecords?: HealthRecord[];
   loading?: boolean;
-  error?: string;
 }
 
 const HealthOverview: React.FC<HealthOverviewProps> = ({
-  todayEvents = [],
-  upcomingVaccinations = [],
+  healthRecords = [],
   loading,
-  error
 }) => {
   const { theme } = useTheme();
-  const router = useRouter();
   const { t } = useTranslation();
+  const { data: pets } = usePets();
+
+  // Get pet name by id
+  const getPetName = (petId: string) => {
+    const pet = pets?.find(p => p.id === petId);
+    return pet?.name || '';
+  };
+
+  // Format date to DD.MM.YYYY
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  // Determine icon and color based on record type
+  const getIconInfo = (type: string) => {
+    switch (type) {
+      case 'vaccination':
+        return { name: 'medkit' as const, color: '#FF7F50' }; // Orange
+      case 'checkup':
+        return { name: 'fitness' as const, color: '#00ADB5' }; // Teal
+      case 'medication':
+        return { name: 'medical' as const, color: '#9B59B6' }; // Purple
+      case 'surgery':
+        return { name: 'bandage' as const, color: '#E74C3C' }; // Red
+      case 'dental':
+        return { name: 'happy' as const, color: '#3498DB' }; // Blue
+      case 'grooming':
+        return { name: 'cut' as const, color: '#F39C12' }; // Yellow
+      default:
+        return { name: 'document-text' as const, color: '#7F8C8D' }; // Gray
+    }
+  };
+
+  // Map health records for display (already sorted and limited by hook)
+  const healthItems = healthRecords.map((record) => ({
+    id: record.id,
+    title: record.title || t(`health.types.${record.type}`, record.type),
+    petId: record.petId,
+    date: record.date,
+    type: record.type,
+  }));
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+        <View style={styles.content}>
+          <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {t('home.healthOverview')}
           </Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('common.loading')}
+          </Text>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.loadingContent}>
-            <ActivityIndicator size="small" color={theme.colors.primary} />
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-              {t('common.loading')}
-            </Text>
-          </View>
-        </Card>
-      </View>
+      </Card>
     );
   }
 
-  if (error) {
+  if (healthItems.length === 0) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+        <View style={styles.content}>
+          <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {t('home.healthOverview')}
           </Text>
-          <Button
-            mode="text"
-            onPress={() => router.push('/(tabs)/health')}
-            compact
-            textColor={theme.colors.primary}
-          >
-            {t('common.viewAll')}
-          </Button>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('health.noRecords')}
+          </Text>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <View style={styles.errorContent}>
-            <MaterialCommunityIcons
-              name="alert-circle"
-              size={24}
-              color={theme.colors.error}
-            />
-            <Text variant="bodyMedium" style={{ color: theme.colors.error, marginTop: 8 }}>
-              {error}
-            </Text>
-          </View>
-        </Card>
-      </View>
+      </Card>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+      <View style={styles.content}>
+        <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
           {t('home.healthOverview')}
         </Text>
-        <Button
-          mode="text"
-          onPress={() => router.push('/(tabs)/health')}
-          compact
-          textColor={theme.colors.primary}
-        >
-          {t('common.viewAll')}
-        </Button>
+
+        <View style={styles.list}>
+          {healthItems.map((item) => {
+            const iconInfo = getIconInfo(item.type);
+            const petName = getPetName(item.petId);
+
+            return (
+              <View key={item.id} style={styles.healthItem}>
+                <View style={[styles.iconCircle, { backgroundColor: iconInfo.color + '33' }]}>
+                  <Ionicons name={iconInfo.name} size={20} color={iconInfo.color} />
+                </View>
+                <View style={styles.healthInfo}>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                    {item.title}{petName ? ` - ${petName}` : ''}
+                  </Text>
+                </View>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {formatDate(item.date)}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
-
-      {todayEvents.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.cardContent}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.emojiIcon}>📅</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                {t('home.todaySchedule')}
-              </Text>
-            </View>
-            {todayEvents.slice(0, 3).map((event) => (
-              <View key={event.id} style={[styles.eventItem, { borderLeftColor: theme.colors.tertiary }]}>
-                <LinearGradient
-                  colors={theme.dark ? gradientsDark.primary : gradients.primary}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.eventTimeContainer}
-                >
-                  <Text variant="bodySmall" style={{ color: '#FFFFFF', fontWeight: '700' }}>
-                    {new Date(event.startTime).toLocaleTimeString('tr-TR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </Text>
-                </LinearGradient>
-                <View style={styles.eventDetails}>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
-                    {event.title}
-                  </Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {event.petId ? t('events.forPet') : ''}
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={16}
-                  color={theme.colors.onSurfaceVariant}
-                />
-              </View>
-            ))}
-            {todayEvents.length > 3 && (
-              <Button
-                mode="text"
-                onPress={() => router.push('/(tabs)/calendar')}
-                compact
-                textColor={theme.colors.primary}
-                style={styles.viewMoreButton}
-              >
-                {t('home.viewMoreEvents', { count: todayEvents.length - 3 })}
-              </Button>
-            )}
-          </View>
-        </Card>
-      )}
-
-      {upcomingVaccinations.length > 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.cardContent}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.emojiIcon}>💉</Text>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                {t('health.upcomingVaccinations')}
-              </Text>
-            </View>
-            {upcomingVaccinations.slice(0, 3).map((vaccination) => (
-              <View key={vaccination.id} style={[styles.eventItem, { borderLeftColor: theme.colors.secondary }]}>
-                <LinearGradient
-                  colors={theme.dark ? gradientsDark.secondary : gradients.secondary}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.vaccinationIconContainer}
-                >
-                  <Text style={styles.vaccinationEmoji}>💉</Text>
-                </LinearGradient>
-                <View style={styles.eventDetails}>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
-                    {vaccination.title}
-                  </Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {new Date(vaccination.date).toLocaleDateString('tr-TR')}
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={16}
-                  color={theme.colors.onSurfaceVariant}
-                />
-              </View>
-            ))}
-            {upcomingVaccinations.length > 3 && (
-              <Button
-                mode="text"
-                onPress={() => router.push('/(tabs)/health')}
-                compact
-                textColor={theme.colors.primary}
-                style={styles.viewMoreButton}
-              >
-                {t('home.viewMoreVaccinations', { count: upcomingVaccinations.length - 3 })}
-              </Button>
-            )}
-          </View>
-        </Card>
-      )}
-
-      {todayEvents.length === 0 && upcomingVaccinations.length === 0 && (
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <View style={styles.emptyContent}>
-            <Text style={styles.bigEmoji}>✨</Text>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
-              {t('home.noHealthActivities')}
-            </Text>
-          </View>
-        </Card>
-      )}
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  cardContent: {
-    padding: 16,
-  },
-  container: {
-    marginBottom: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  card: {
+    borderRadius: 12,
+    borderWidth: 1,
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontWeight: '600',
+  content: {
+    padding: 16,
   },
-  section: {
-    marginBottom: 12,
-    elevation: 1,
+  title: {
+    fontWeight: '700',
+    marginBottom: 16,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  emojiIcon: {
-    fontSize: 20,
-  },
-  loadingContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  errorContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  emptyContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  bigEmoji: {
-    fontSize: 48,
-  },
-  eventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingLeft: 12,
+  list: {
     gap: 12,
-    borderLeftWidth: 3,
   },
-  eventTimeContainer: {
-    minWidth: 60,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+  healthItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  vaccinationIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  vaccinationEmoji: {
-    fontSize: 16,
-  },
-  eventDetails: {
+  healthInfo: {
     flex: 1,
-    gap: 2,
-  },
-  viewMoreButton: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    paddingHorizontal: 0,
   },
 });
 

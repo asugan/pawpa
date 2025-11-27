@@ -1,13 +1,6 @@
 import { z } from 'zod';
 import { EVENT_TYPES } from '../../constants';
-
-// Helper function to combine date and time into ISO datetime string
-const combineDateTimeToISO = (date: string, time: string): string => {
-  if (!date || !time) return '';
-  // Create ISO datetime with seconds and milliseconds
-  const datetime = `${date}T${time}:00.000Z`;
-  return datetime;
-};
+import { combineDateTimeToISO } from '../utils/dateConversion';
 
 // Form input schema (matches the form structure with separate date/time fields)
 export const eventFormSchema = z.object({

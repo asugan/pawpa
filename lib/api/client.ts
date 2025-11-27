@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ENV } from '../config/env';
 import { ErrorDetails } from '../types';
+import { authClient } from '../auth/client';
 
 // API Response interface
 export interface ApiResponse<T = unknown> {
@@ -31,6 +32,17 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
+
+// Auth request interceptor - adds session cookie to requests
+const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
+  const cookies = authClient.getCookie();
+
+  if (cookies) {
+    config.headers.set('Cookie', cookies);
+  }
+
+  return config;
+};
 
 // Request interceptor for debugging
 const requestInterceptor = (config: InternalAxiosRequestConfig) => {
@@ -71,6 +83,12 @@ const errorInterceptor = (error: AxiosError) => {
   // Handle API errors
   const { status, data } = error.response;
 
+  // Handle unauthorized (session expired or invalid)
+  if (status === 401) {
+    console.warn('🔒 Session expired or unauthorized');
+    // The AuthProvider will handle navigation to login
+  }
+
   // Type guard for API error response
   const isApiErrorResponse = (data: unknown): data is ApiResponse => {
     return typeof data === 'object' && data !== null && ('success' in data || 'error' in data || 'message' in data);
@@ -99,6 +117,8 @@ const createApiClient = (): AxiosInstance => {
   });
 
   // Add interceptors
+  // Auth interceptor first to add session cookie
+  client.interceptors.request.use(authRequestInterceptor);
   client.interceptors.request.use(requestInterceptor);
   client.interceptors.response.use(responseInterceptor, errorInterceptor);
 
