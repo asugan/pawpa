@@ -1,10 +1,11 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, TouchableOpacity, Image } from "react-native";
 import { Button, Text } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 // Data hooks
 import { useTodayEvents } from "@/lib/hooks/useEvents";
@@ -26,7 +27,7 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const { isMobile, scrollPadding } = useResponsiveSize();
+  const { isMobile, scrollPadding, layoutMode } = useResponsiveSize();
 
   // Data fetching with hooks
   const { data: pets, isLoading: petsLoading, error: petsError, refetch: refetchPets } = usePets();
@@ -70,13 +71,25 @@ export default function HomeScreen() {
         style={[styles.scrollView, { padding: scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header with Profile and Notification */}
+        <View style={styles.topHeader}>
+          <TouchableOpacity style={[styles.avatarContainer, { borderColor: theme.colors.primary }]}>
+            <View style={styles.avatarPlaceholder}>
+              <Ionicons name="person" size={24} color={theme.colors.primary} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notificationButton}>
+            <Ionicons name="notifications-outline" size={28} color={theme.colors.onBackground} />
+          </TouchableOpacity>
+        </View>
+
         {/* Greeting Section */}
         <View style={styles.header}>
           <Text
-            variant="bodyLarge"
+            variant="headlineMedium"
             style={[styles.greeting, { color: theme.colors.onBackground }]}
           >
-            {getGreetingMessage()}!
+            {t("home.greeting")}!
           </Text>
           <Text
             variant="bodyMedium"
@@ -86,93 +99,113 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Statistics Dashboard */}
-        <View
-          style={[
-            styles.statsContainer,
-            isMobile && styles.statsContainerMobile,
-          ]}
-        >
-          <StatCard
-            title={t("home.totalPets")}
-            value={pets?.length || 0}
-            icon="paw"
-            color={theme.colors.primary}
-            onPress={() => router.push("/(tabs)/pets")}
-          />
-          <StatCard
-            title={t("events.today")}
-            value={todayEvents?.length || 0}
-            icon="calendar"
-            color={theme.colors.secondary}
-            onPress={() => router.push("/(tabs)/calendar")}
-          />
-          <StatCard
-            title={t("health.upcomingVaccinations")}
-            value={upcomingVaccinations?.length || 0}
-            icon="needle"
-            color={theme.colors.tertiary}
-            onPress={() => router.push("/(tabs)/health")}
-          />
-        </View>
+        {/* Statistics Dashboard - Responsive Layout */}
+        {layoutMode === 'horizontal-scroll' ? (
+          // Mobile: Horizontal scroll layout
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.statsScrollView}
+            contentContainerStyle={styles.statsContainer}
+            scrollEventThrottle={16}
+          >
+            <StatCard
+              title={t("home.totalPets")}
+              value={pets?.length || 0}
+              icon="paw"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/pets")}
+            />
+            <StatCard
+              title={t("events.today")}
+              value={todayEvents?.length || 0}
+              icon="calendar"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/calendar")}
+            />
+            <StatCard
+              title={t("health.upcomingVaccinations")}
+              value={upcomingVaccinations?.length || 0}
+              icon="needle"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/health")}
+            />
+          </ScrollView>
+        ) : (
+          // Tablet/Desktop: Grid layout
+          <View style={styles.statsGrid}>
+            <StatCard
+              title={t("home.totalPets")}
+              value={pets?.length || 0}
+              icon="paw"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/pets")}
+            />
+            <StatCard
+              title={t("events.today")}
+              value={todayEvents?.length || 0}
+              icon="calendar"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/calendar")}
+            />
+            <StatCard
+              title={t("health.upcomingVaccinations")}
+              value={upcomingVaccinations?.length || 0}
+              icon="needle"
+              color={theme.colors.primary}
+              onPress={() => router.push("/(tabs)/health")}
+            />
+          </View>
+        )}
 
         {/* My Pets Section */}
         <View style={styles.petsSection}>
-          <View style={styles.sectionHeader}>
-            <Text
-              variant="titleLarge"
-              style={[
-                styles.sectionTitle,
-                { color: theme.colors.onBackground },
-              ]}
-            >
-              {t("home.myPets")}
-            </Text>
-            <Button
-              mode="text"
-              onPress={() => router.push("/(tabs)/pets")}
-              compact
-              textColor={theme.colors.primary}
-            >
-              {pets && pets.length > 4 ? t("common.viewAll") : t("pets.add")}
-            </Button>
-          </View>
+          <Text
+            variant="titleLarge"
+            style={[
+              styles.sectionTitle,
+              { color: theme.colors.onBackground },
+            ]}
+          >
+            {t("home.myPets")}
+          </Text>
 
           {pets && pets.length > 0 ? (
-            <>
-              <View style={styles.petGrid}>
-                {pets.slice(0, 4).map((pet) => (
-                  <View
-                    key={pet.id}
-                    style={[
-                      styles.petCardWrapper,
-                      isMobile && styles.petCardWrapperMobile,
-                    ]}
-                  >
-                    <PetCard
-                      pet={pet}
-                      onPress={() => router.push(`/pet/${pet.id}`)}
-                      onEdit={() => router.push(`/pet/${pet.id}/edit`)}
-                      upcomingEvents={getPetUpcomingEvents(pet.id, todayEvents)}
-                      upcomingVaccinations={getPetUpcomingVaccinations(
-                        pet.id,
-                        upcomingVaccinations
-                      )}
-                      showActions={false}
-                    />
-                  </View>
-                ))}
-              </View>
-              {pets.length > 4 && (
-                <Button
-                  mode="outlined"
-                  onPress={() => router.push("/(tabs)/pets")}
-                  style={styles.viewAllButton}
+            <View style={styles.petList}>
+              {pets.map((pet) => (
+                <View key={pet.id} style={styles.petCardWrapper}>
+                  <PetCard
+                    pet={pet}
+                    onPress={() => router.push(`/pet/${pet.id}`)}
+                    upcomingEvents={getPetUpcomingEvents(pet.id, todayEvents)}
+                    upcomingVaccinations={getPetUpcomingVaccinations(
+                      pet.id,
+                      upcomingVaccinations
+                    )}
+                    showActions={false}
+                  />
+                </View>
+              ))}
+
+              {/* Add New Pet Button */}
+              <TouchableOpacity
+                onPress={() => router.push("/pet/add")}
+                style={[
+                  styles.addPetButton,
+                  { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }
+                ]}
+              >
+                <View style={[styles.addPetIconContainer, { backgroundColor: '#4B5563' }]}>
+                  <Ionicons name="add" size={24} color="#9CA3AF" />
+                </View>
+                <Text
+                  variant="titleMedium"
+                  style={[styles.addPetText, { color: theme.colors.onSurfaceVariant }]}
                 >
-                  {t("common.viewAll")} ({pets.length - 4} {t("common.more")})
-                </Button>
-              )}
-            </>
+                  {t("pets.addNewPet")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <EmptyState
               icon="paw"
@@ -197,12 +230,34 @@ export default function HomeScreen() {
 
         {/* Financial Overview Section */}
         {pets && pets.length > 0 && (
-          <View style={styles.financialSection}>
-            <ExpenseOverview />
-            <BudgetOverview />
+          <View style={[styles.financialCard, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+            <Text variant="titleMedium" style={[styles.financialTitle, { color: theme.colors.onSurface }]}>
+              {t("home.financialOverview")}
+            </Text>
+
+            <View style={styles.financialRow}>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {t("finance.monthlyExpenses")}
+              </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                450₺ / <Text style={{ color: theme.colors.onSurfaceVariant }}>800₺</Text>
+              </Text>
+            </View>
+
+            <View style={[styles.progressBarContainer, { backgroundColor: '#4B5563' }]}>
+              <View style={[styles.progressBar, { backgroundColor: theme.colors.accent, width: '56%' }]} />
+            </View>
           </View>
         )}
       </ScrollView>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        onPress={() => router.push("/pet/add")}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+      >
+        <Ionicons name="add" size={32} color="#FFFFFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -240,26 +295,54 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  header: {
+  topHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notificationButton: {
+    width: 48,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  header: {
+    marginBottom: 16,
+  },
   greeting: {
-    textAlign: "center",
+    fontWeight: "bold",
     marginBottom: 4,
   },
   subtitle: {
-    textAlign: "center",
+  },
+  statsScrollView: {
+    marginBottom: 24,
   },
   statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 24,
-    gap: 8,
-  },
-  statsContainerMobile: {
-    flexDirection: "column",
     gap: 12,
+    paddingHorizontal: 0,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 24,
   },
   petsSection: {
     marginBottom: 24,
@@ -267,32 +350,73 @@ const styles = StyleSheet.create({
   widgetSection: {
     marginBottom: 24,
   },
-  financialSection: {
+  financialCard: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
     marginBottom: 24,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
+  financialTitle: {
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  financialRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  progressBarContainer: {
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 4,
   },
   sectionTitle: {
     fontWeight: "600",
+    marginBottom: 16,
   },
-  petGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+  petList: {
     gap: 12,
   },
   petCardWrapper: {
-    width: "48%",
-    marginBottom: 12,
-  },
-  petCardWrapperMobile: {
     width: "100%",
   },
-  viewAllButton: {
-    marginTop: 12,
+  addPetButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    gap: 16,
+  },
+  addPetIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addPetText: {
+    fontWeight: "500",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
 });
