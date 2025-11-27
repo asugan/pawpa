@@ -2,7 +2,8 @@ import React from 'react';
 import { View, StyleSheet, Modal as RNModal } from 'react-native';
 import { Portal, Snackbar, Text, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { Event, CreateEventInput } from '../lib/types';
+import { Event } from '../lib/types';
+import { EventFormData, transformFormDataToAPI } from '../lib/schemas/eventSchema';
 import EventForm from './forms/EventForm';
 import { useCreateEvent, useUpdateEvent } from '../lib/hooks/useEvents';
 import { usePets } from '../lib/hooks/usePets';
@@ -39,29 +40,22 @@ export function EventModal({
     setSnackbarVisible(true);
   }, []);
 
-  const handleSubmit = React.useCallback(async (data: CreateEventInput) => {
+  const handleSubmit = React.useCallback(async (data: EventFormData) => {
     setLoading(true);
     try {
+      // Transform form data to API format (combines date+time into ISO datetime)
+      const apiData = transformFormDataToAPI(data);
+
       if (event) {
         // Event güncelleme
         await updateEventMutation.mutateAsync({
           id: event.id,
-          data: {
-            ...data,
-            endTime: data.endTime || undefined,
-            location: data.location || undefined,
-            notes: data.notes || undefined,
-          }
+          data: apiData
         });
         showSnackbar('Etkinlik başarıyla güncellendi');
       } else {
         // Yeni event oluşturma
-        await createEventMutation.mutateAsync({
-          ...data,
-          endTime: data.endTime || undefined,
-          location: data.location || undefined,
-          notes: data.notes || undefined,
-        });
+        await createEventMutation.mutateAsync(apiData);
         showSnackbar('Etkinlik başarıyla eklendi');
       }
 

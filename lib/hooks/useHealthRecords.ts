@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
 import type { CreateHealthRecordInput, HealthRecord, UpdateHealthRecordInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
@@ -102,6 +102,37 @@ export function useUpcomingVaccinations() {
     staleTime: CACHE_TIMES.LONG,
     refetchInterval: 60 * 60 * 1000, // Refresh every hour
   });
+}
+
+// Get all health records for all pets (for homepage overview)
+export function useAllPetsHealthRecords(petIds: string[]) {
+  const queries = useQueries({
+    queries: petIds.map(petId => ({
+      queryKey: healthRecordKeys.list(petId),
+      queryFn: async () => {
+        const result = await healthRecordService.getHealthRecordsByPetId(petId);
+        if (!result.success) {
+          return [];
+        }
+        return result.data || [];
+      },
+      staleTime: CACHE_TIMES.MEDIUM,
+      enabled: !!petId,
+    })),
+  });
+
+  // Combine all results from all pets
+  const allRecords = queries
+    .filter(q => q.data && Array.isArray(q.data))
+    .flatMap(q => q.data as HealthRecord[])
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
+
+  return {
+    data: allRecords,
+    isLoading: queries.some(q => q.isLoading),
+    isError: queries.some(q => q.isError),
+  };
 }
 
 // Get health records by type

@@ -14,7 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { useTodayEvents } from "@/lib/hooks/useEvents";
 import { useExpenseStats } from "@/lib/hooks/useExpenses";
 import { useBudgetStatuses } from "@/lib/hooks/useBudgets";
-import { useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
+import { useUpcomingVaccinations, useAllPetsHealthRecords } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
 
@@ -43,6 +43,10 @@ export default function HomeScreen() {
     useUpcomingVaccinations();
   const { data: expenseStats } = useExpenseStats();
   const { data: budgetStatuses } = useBudgetStatuses();
+
+  // Get all health records for all pets (for HealthOverview)
+  const petIds = (pets || []).map(p => p.id);
+  const { data: allHealthRecords, isLoading: healthRecordsLoading } = useAllPetsHealthRecords(petIds);
 
   // Calculate financial overview data
   const monthlyExpense = expenseStats?.total || 0;
@@ -245,7 +249,7 @@ export default function HomeScreen() {
 
         {/* Health Overview Section */}
         <HealthOverview
-          upcomingVaccinations={upcomingVaccinations || []}
+          healthRecords={allHealthRecords || []}
         />
 
         {/* Financial Overview Section */}

@@ -5,14 +5,15 @@ import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { usePets } from '@/lib/hooks/usePets';
+import type { HealthRecord } from '@/lib/types';
 
 interface HealthOverviewProps {
-  upcomingVaccinations?: any[];
+  healthRecords?: HealthRecord[];
   loading?: boolean;
 }
 
 const HealthOverview: React.FC<HealthOverviewProps> = ({
-  upcomingVaccinations = [],
+  healthRecords = [],
   loading,
 }) => {
   const { theme } = useTheme();
@@ -36,21 +37,32 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
   };
 
   // Determine icon and color based on record type
-  const getIconInfo = (type: string, isUpcoming: boolean) => {
-    if (type === 'vaccination' && isUpcoming) {
-      return { name: 'alert-circle' as const, color: '#FF7F50' }; // Orange for upcoming vaccination
+  const getIconInfo = (type: string) => {
+    switch (type) {
+      case 'vaccination':
+        return { name: 'medkit' as const, color: '#FF7F50' }; // Orange
+      case 'checkup':
+        return { name: 'fitness' as const, color: '#00ADB5' }; // Teal
+      case 'medication':
+        return { name: 'medical' as const, color: '#9B59B6' }; // Purple
+      case 'surgery':
+        return { name: 'bandage' as const, color: '#E74C3C' }; // Red
+      case 'dental':
+        return { name: 'happy' as const, color: '#3498DB' }; // Blue
+      case 'grooming':
+        return { name: 'cut' as const, color: '#F39C12' }; // Yellow
+      default:
+        return { name: 'document-text' as const, color: '#7F8C8D' }; // Gray
     }
-    return { name: 'checkmark-circle' as const, color: '#00ADB5' }; // Teal for completed
   };
 
-  // Combine vaccinations into health items for display
-  const healthItems = upcomingVaccinations.slice(0, 3).map((item, index) => ({
-    id: item.id || index,
-    title: item.title || item.name || t('health.vaccination'),
-    petId: item.petId,
-    date: item.nextDueDate || item.date,
-    type: 'vaccination',
-    isUpcoming: true,
+  // Map health records for display (already sorted and limited by hook)
+  const healthItems = healthRecords.map((record) => ({
+    id: record.id,
+    title: record.title || t(`health.types.${record.type}`, record.type),
+    petId: record.petId,
+    date: record.date,
+    type: record.type,
   }));
 
   if (loading) {
@@ -92,7 +104,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
 
         <View style={styles.list}>
           {healthItems.map((item) => {
-            const iconInfo = getIconInfo(item.type, item.isUpcoming);
+            const iconInfo = getIconInfo(item.type);
             const petName = getPetName(item.petId);
 
             return (
