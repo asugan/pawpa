@@ -1,38 +1,7 @@
 import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import type { Pet, CreatePetInput, UpdatePetInput } from '../types';
-
-/**
- * Date utility functions for safe date handling
- */
-
-/**
- * Type guard function to safely check if a value is a Date object
- */
-function isDate(value: unknown): value is Date {
-  return value instanceof Date && !isNaN(value.getTime());
-}
-
-/**
- * Converts a date value to ISO string format
- * Handles Date objects, strings, null, and undefined
- */
-function convertDateToISOString(dateValue: Date | string | null | undefined): string | undefined {
-  if (!dateValue) {
-    return undefined;
-  }
-
-  if (isDate(dateValue)) {
-    return dateValue.toISOString();
-  }
-
-  // If it's already a string, return as-is (assuming it's already ISO format)
-  if (typeof dateValue === 'string') {
-    return dateValue;
-  }
-
-  return undefined;
-}
+import { normalizeToISOString } from '../utils/dateConversion';
 
 /**
  * Pet Service - Tüm pet API operasyonlarını yönetir
@@ -46,7 +15,7 @@ export class PetService {
       // Clean up the data before sending to API
       const cleanedData = {
         ...data,
-        birthDate: convertDateToISOString(data.birthDate),
+        birthDate: normalizeToISOString(data.birthDate),
         profilePhoto: data.profilePhoto || undefined,
       };
 
@@ -164,7 +133,7 @@ export class PetService {
       // Clean up the data before sending to API
       const updateData = {
         ...data,
-        birthDate: convertDateToISOString(data.birthDate),
+        birthDate: normalizeToISOString(data.birthDate),
         profilePhoto: data.profilePhoto || undefined,
       };
 

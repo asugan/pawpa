@@ -175,6 +175,7 @@ export function FeedingScheduleForm({
             required
             label={t('feedingSchedule.fields.time')}
             mode="time"
+            outputFormat="iso-time"
             testID={`${testID}-time`}
           />
 

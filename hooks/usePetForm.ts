@@ -90,7 +90,7 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
       name: pet.name || '',
       type: normalizePetType(pet.type),
       breed: pet.breed || '',
-      birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
+      birthDate: pet.birthDate || undefined, // Keep as ISO string
       weight: pet.weight || undefined,
       gender: pet.gender ? normalizeGender(pet.gender) : undefined,
       profilePhoto: pet.profilePhoto || ''
@@ -132,7 +132,7 @@ export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
       name: pet.name || '',
       type: normalizePetType(pet.type),
       breed: pet.breed || '',
-      birthDate: pet.birthDate ? new Date(pet.birthDate) : undefined,
+      birthDate: pet.birthDate || undefined, // Keep as ISO string
       weight: pet.weight || undefined,
       gender: pet.gender ? normalizeGender(pet.gender) : undefined,
       profilePhoto: pet.profilePhoto || ''

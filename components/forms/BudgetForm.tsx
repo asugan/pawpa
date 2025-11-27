@@ -11,7 +11,7 @@ import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
 import { SmartCategoryPicker } from './SmartCategoryPicker';
 import { SmartCurrencyPicker } from './SmartCurrencyPicker';
-import { SmartInput } from './SmartInput';
+import { SmartNumberInput } from './SmartNumberInput';
 import { SmartSegmentedButtons } from './SmartSegmentedButtons';
 import { SmartSwitch } from './SmartSwitch';
 
@@ -89,10 +89,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         {/* Budget Details */}
         <FormSection title={t('budgets.sections.details', 'Budget Details')}>
           {/* Amount */}
-          <SmartInput
+          <SmartNumberInput
             name="amount"
             label={t('budgets.amount', 'Amount')}
-            keyboardType="decimal-pad"
+            required
+            decimal
+            precision={2}
+            min={1}
             left={<TextInput.Icon icon="cash" />}
           />
 

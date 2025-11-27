@@ -11,6 +11,7 @@ import { SmartCategoryPicker } from './forms/SmartCategoryPicker';
 import { SmartCurrencyPicker } from './forms/SmartCurrencyPicker';
 import { SmartDatePicker } from './forms/SmartDatePicker';
 import { SmartInput } from './forms/SmartInput';
+import { SmartNumberInput } from './forms/SmartNumberInput';
 import { SmartPaymentMethodPicker } from './forms/SmartPaymentMethodPicker';
 
 interface ExpenseFormProps {
@@ -69,10 +70,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         <SmartCategoryPicker name="category" />
 
         {/* Amount */}
-        <SmartInput
+        <SmartNumberInput
           name="amount"
           label={t('expenses.amount', 'Amount')}
-          keyboardType="decimal-pad"
+          required
+          decimal
+          precision={2}
+          min={0.01}
           left={<TextInput.Icon icon="cash-outline" />}
         />
 
@@ -94,6 +98,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           name="date"
           label={t('expenses.date', 'Date')}
           mode="date"
+          outputFormat="iso"
           maximumDate={new Date()}
         />
 
