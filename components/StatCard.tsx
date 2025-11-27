@@ -22,6 +22,8 @@ interface StatCardProps {
   maxTitleLines?: number;
   /** Enable tooltip for truncated text (default: true) */
   showTooltip?: boolean;
+  /** Enable flex grow for tablet grid layout (default: false) */
+  flexGrow?: boolean;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -35,6 +37,7 @@ const StatCard: React.FC<StatCardProps> = ({
   minWidth = STAT_CARD_CONSTRAINTS.MIN_WIDTH,
   maxTitleLines = STAT_CARD_CONSTRAINTS.MAX_TITLE_LINES,
   showTooltip = true,
+  flexGrow = false,
 }) => {
   const { theme, isDark } = useTheme();
   const { isMobile, cardPadding, iconSize } = useResponsiveSize();
@@ -103,7 +106,7 @@ const StatCard: React.FC<StatCardProps> = ({
         onPress={onPress}
         style={({ pressed }) => [
           styles.pressable,
-          { width: minWidth },
+          flexGrow ? { flex: 1, minWidth } : { width: minWidth },
           pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
         ]}
       >
@@ -152,6 +155,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderRadius: 12,
     overflow: 'hidden',
+    minHeight: 80,
   },
   content: {
     alignItems: 'flex-start',

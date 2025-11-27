@@ -1,207 +1,152 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button,  } from '@/components/ui';
+import { Card, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Event } from '@/lib/types';
-import { ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { gradients, gradientsDark } from '@/lib/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { usePets } from '@/lib/hooks/usePets';
 
 interface HealthOverviewProps {
-  todayEvents?: Event[];
   upcomingVaccinations?: any[];
   loading?: boolean;
-  error?: string;
 }
 
 const HealthOverview: React.FC<HealthOverviewProps> = ({
-  todayEvents = [],
   upcomingVaccinations = [],
   loading,
-  error
 }) => {
   const { theme } = useTheme();
-  const router = useRouter();
   const { t } = useTranslation();
+  const { data: pets } = usePets();
+
+  // Get pet name by id
+  const getPetName = (petId: string) => {
+    const pet = pets?.find(p => p.id === petId);
+    return pet?.name || '';
+  };
+
+  // Format date to DD.MM.YYYY
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  // Determine icon and color based on record type
+  const getIconInfo = (type: string, isUpcoming: boolean) => {
+    if (type === 'vaccination' && isUpcoming) {
+      return { name: 'alert-circle' as const, color: '#FF7F50' }; // Orange for upcoming vaccination
+    }
+    return { name: 'checkmark-circle' as const, color: '#00ADB5' }; // Teal for completed
+  };
+
+  // Combine vaccinations into health items for display
+  const healthItems = upcomingVaccinations.slice(0, 3).map((item, index) => ({
+    id: item.id || index,
+    title: item.title || item.name || t('health.vaccination'),
+    petId: item.petId,
+    date: item.nextDueDate || item.date,
+    type: 'vaccination',
+    isUpcoming: true,
+  }));
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+        <View style={styles.content}>
+          <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {t('home.healthOverview')}
           </Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('common.loading')}
+          </Text>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <View style={styles.loadingContent}>
-            <ActivityIndicator size="small" color={theme.colors.primary} />
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-              {t('common.loading')}
-            </Text>
-          </View>
-        </Card>
-      </View>
+      </Card>
     );
   }
 
-  if (error) {
+  if (healthItems.length === 0) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+        <View style={styles.content}>
+          <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {t('home.healthOverview')}
           </Text>
-          <Button
-            mode="text"
-            onPress={() => router.push('/(tabs)/health')}
-            compact
-            textColor={theme.colors.primary}
-          >
-            {t('common.viewAll')}
-          </Button>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('health.noRecords')}
+          </Text>
         </View>
-        <Card style={[styles.section, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <View style={styles.errorContent}>
-            <MaterialCommunityIcons
-              name="alert-circle"
-              size={24}
-              color={theme.colors.error}
-            />
-            <Text variant="bodyMedium" style={{ color: theme.colors.error, marginTop: 8 }}>
-              {error}
-            </Text>
-          </View>
-        </Card>
-      </View>
+      </Card>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Card style={[styles.section, { backgroundColor: theme.colors.surface, borderColor: '#4B5563', borderWidth: 1 }]}>
-        <View style={styles.cardContent}>
-          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface, marginBottom: 12 }]}>
-            {t('home.healthOverview')}
-          </Text>
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: '#4B5563' }]}>
+      <View style={styles.content}>
+        <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+          {t('home.healthOverview')}
+        </Text>
 
-          <View style={styles.statusRow}>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('health.generalStatus')}
-            </Text>
-            <View style={[styles.statusBadge, { backgroundColor: `${theme.colors.primary}33` }]}>
-              <Text variant="bodySmall" style={{ color: theme.colors.primary, fontWeight: '500' }}>
-                {t('health.good')}
-              </Text>
-            </View>
-          </View>
+        <View style={styles.list}>
+          {healthItems.map((item) => {
+            const iconInfo = getIconInfo(item.type, item.isUpcoming);
+            const petName = getPetName(item.petId);
 
-          <View style={[styles.progressBarContainer, { backgroundColor: '#4B5563' }]}>
-            <View style={[styles.progressBar, { backgroundColor: theme.colors.primary, width: '90%' }]} />
-          </View>
+            return (
+              <View key={item.id} style={styles.healthItem}>
+                <View style={[styles.iconCircle, { backgroundColor: iconInfo.color + '33' }]}>
+                  <Ionicons name={iconInfo.name} size={20} color={iconInfo.color} />
+                </View>
+                <View style={styles.healthInfo}>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                    {item.title}{petName ? ` - ${petName}` : ''}
+                  </Text>
+                </View>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {formatDate(item.date)}
+                </Text>
+              </View>
+            );
+          })}
         </View>
-      </Card>
-    </View>
+      </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  cardContent: {
+  card: {
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  content: {
     padding: 16,
   },
-  container: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
+  title: {
     fontWeight: '700',
+    marginBottom: 16,
   },
-  section: {
-    marginBottom: 12,
-    borderRadius: 12,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  progressBarContainer: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  emojiIcon: {
-    fontSize: 20,
-  },
-  loadingContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  errorContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  emptyContent: {
-    alignItems: 'center',
-    padding: 24,
-    gap: 8,
-  },
-  bigEmoji: {
-    fontSize: 48,
-  },
-  eventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingLeft: 12,
+  list: {
     gap: 12,
-    borderLeftWidth: 3,
   },
-  eventTimeContainer: {
-    minWidth: 60,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+  healthItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  vaccinationIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  vaccinationEmoji: {
-    fontSize: 16,
-  },
-  eventDetails: {
+  healthInfo: {
     flex: 1,
-    gap: 2,
-  },
-  viewMoreButton: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    paddingHorizontal: 0,
   },
 });
 

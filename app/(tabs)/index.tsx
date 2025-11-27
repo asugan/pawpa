@@ -7,8 +7,13 @@ import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
+// Auth hook
+import { useAuth } from "@/lib/auth";
+
 // Data hooks
 import { useTodayEvents } from "@/lib/hooks/useEvents";
+import { useExpenseStats } from "@/lib/hooks/useExpenses";
+import { useBudgetStatuses } from "@/lib/hooks/useBudgets";
 import { useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
@@ -21,6 +26,7 @@ import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
+import UpcomingEventsSection from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 
 export default function HomeScreen() {
@@ -28,12 +34,20 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { isMobile, scrollPadding, layoutMode } = useResponsiveSize();
+  const { user } = useAuth();
 
   // Data fetching with hooks
   const { data: pets, isLoading: petsLoading, error: petsError, refetch: refetchPets } = usePets();
   const { data: todayEvents, isLoading: eventsLoading } = useTodayEvents();
   const { data: upcomingVaccinations, isLoading: vaccinationsLoading } =
     useUpcomingVaccinations();
+  const { data: expenseStats } = useExpenseStats();
+  const { data: budgetStatuses } = useBudgetStatuses();
+
+  // Calculate financial overview data
+  const monthlyExpense = expenseStats?.total || 0;
+  const monthlyBudget = budgetStatuses?.reduce((sum: number, b: any) => sum + (b.limit || 0), 0) || 800;
+  const expensePercentage = monthlyBudget > 0 ? (monthlyExpense / monthlyBudget) * 100 : 0;
 
   // Loading state
   if (petsLoading || eventsLoading || vaccinationsLoading) {
@@ -74,9 +88,13 @@ export default function HomeScreen() {
         {/* Header with Profile and Notification */}
         <View style={styles.topHeader}>
           <TouchableOpacity style={[styles.avatarContainer, { borderColor: theme.colors.primary }]}>
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={24} color={theme.colors.primary} />
-            </View>
+            {user?.image ? (
+              <Image source={{ uri: user.image }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={24} color={theme.colors.primary} />
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationButton}>
             <Ionicons name="notifications-outline" size={28} color={theme.colors.onBackground} />
@@ -89,7 +107,7 @@ export default function HomeScreen() {
             variant="headlineMedium"
             style={[styles.greeting, { color: theme.colors.onBackground }]}
           >
-            {t("home.greeting")}!
+            {t("home.greeting")}, {user?.name || 'User'}!
           </Text>
           <Text
             variant="bodyMedium"
@@ -132,7 +150,7 @@ export default function HomeScreen() {
             />
           </ScrollView>
         ) : (
-          // Tablet/Desktop: Grid layout
+          // Tablet/Desktop: Grid layout - full width 3 columns
           <View style={styles.statsGrid}>
             <StatCard
               title={t("home.totalPets")}
@@ -140,6 +158,7 @@ export default function HomeScreen() {
               icon="paw"
               color={theme.colors.primary}
               onPress={() => router.push("/(tabs)/pets")}
+              flexGrow
             />
             <StatCard
               title={t("events.today")}
@@ -147,6 +166,7 @@ export default function HomeScreen() {
               icon="calendar"
               color={theme.colors.primary}
               onPress={() => router.push("/(tabs)/calendar")}
+              flexGrow
             />
             <StatCard
               title={t("health.upcomingVaccinations")}
@@ -154,6 +174,7 @@ export default function HomeScreen() {
               icon="needle"
               color={theme.colors.primary}
               onPress={() => router.push("/(tabs)/health")}
+              flexGrow
             />
           </View>
         )}
@@ -224,7 +245,6 @@ export default function HomeScreen() {
 
         {/* Health Overview Section */}
         <HealthOverview
-          todayEvents={todayEvents || []}
           upcomingVaccinations={upcomingVaccinations || []}
         />
 
@@ -240,15 +260,21 @@ export default function HomeScreen() {
                 {t("finance.monthlyExpenses")}
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-                450₺ / <Text style={{ color: theme.colors.onSurfaceVariant }}>800₺</Text>
+                {monthlyExpense.toFixed(0)}₺ / <Text style={{ color: theme.colors.onSurfaceVariant }}>{monthlyBudget.toFixed(0)}₺</Text>
               </Text>
             </View>
 
             <View style={[styles.progressBarContainer, { backgroundColor: '#4B5563' }]}>
-              <View style={[styles.progressBar, { backgroundColor: theme.colors.accent, width: '56%' }]} />
+              <View style={[styles.progressBar, {
+                backgroundColor: expensePercentage > 80 ? theme.colors.error : theme.colors.accent,
+                width: `${Math.min(expensePercentage, 100)}%`
+              }]} />
             </View>
           </View>
         )}
+
+        {/* Upcoming Events Section */}
+        <UpcomingEventsSection />
       </ScrollView>
 
       {/* Floating Action Button */}
@@ -309,6 +335,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
   avatarPlaceholder: {
     width: 44,
     height: 44,
@@ -340,7 +371,6 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 12,
     marginBottom: 24,
   },

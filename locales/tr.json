@@ -51,7 +51,12 @@
     "upcomingHealth": "Yaklaşan Sağlık",
     "noHealthActivities": "Bugün planlanmış sağlık aktivitesi yok",
     "viewMoreEvents": "+{{count}} daha fazla etkinlik",
-    "viewMoreVaccinations": "+{{count}} daha fazla aşı"
+    "viewMoreVaccinations": "+{{count}} daha fazla aşı",
+    "financialOverview": "Finansal Genel Bakış",
+    "greeting": "Merhaba"
+  },
+  "finance": {
+    "monthlyExpenses": "Bu Ayki Harcamalar"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -100,6 +105,7 @@
     }
   },
   "events": {
+    "upcoming": "Yaklaşan Etkinlikler",
     "today": "Bugün",
     "addEvent": "Etkinlik Ekle",
     "forPet": "Pet için",
