@@ -18,9 +18,9 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
   persist(
     (set, get) => ({
       // Initial state
-      themeMode: 'light',
-      theme: lightTheme,
-      isDark: false,
+      themeMode: 'dark',
+      theme: darkTheme,
+      isDark: true,
 
       // Actions
       toggleTheme: () => {
