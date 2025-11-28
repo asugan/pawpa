@@ -25,6 +25,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
     isProUser,
     isSubscribed,
     isTrialActive,
+    isPaidSubscription,
     daysRemaining,
     expirationDate,
     willRenew,
@@ -146,8 +147,8 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
 
         {/* Status Info */}
         <View style={styles.statusContainer}>
-          {/* Pro User Status */}
-          {isSubscribed && (
+          {/* Paid Subscription Status */}
+          {isPaidSubscription && (
             <>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                 {t('subscription.currentPlan')}: <Text style={{ fontWeight: '600' }}>{t('subscription.pro')}</Text>
@@ -163,7 +164,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
           )}
 
           {/* Trial Status */}
-          {isTrialActive && !isSubscribed && (
+          {isTrialActive && (
             <>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                 {t('subscription.trialActive')}
@@ -192,7 +193,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
         {/* Action Buttons */}
         {showManageButton && (
           <View style={styles.actions}>
-            {isProUser ? (
+            {isPaidSubscription ? (
               <Button
                 mode="outlined"
                 onPress={handleManage}
