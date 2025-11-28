@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-
 import { MOBILE_QUERY_CONFIG } from "../lib/config/queryConfig";
 import { LanguageProvider } from "../providers/LanguageProvider";
 import { AuthProvider } from "../providers/AuthProvider";
+import { SubscriptionProvider } from "../providers/SubscriptionProvider";
 import { NetworkStatus } from "../lib/components/NetworkStatus";
 import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
 import { useOnlineManager } from "../lib/hooks/useOnlineManager";
@@ -33,7 +34,9 @@ function AppProviders({ children }: { children: React.ReactNode }) {
           <LanguageProvider>
             <ApiErrorBoundary>
               <AuthProvider>
-                {children}
+                <SubscriptionProvider>
+                  {children}
+                </SubscriptionProvider>
               </AuthProvider>
             </ApiErrorBoundary>
           </LanguageProvider>
@@ -64,6 +67,13 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="subscription"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
       </Stack>
     </AppProviders>
   );

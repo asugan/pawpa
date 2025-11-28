@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LAYOUT } from '../../constants';
 import { useRouter } from 'expo-router';
+import { SubscriptionCard } from '@/components/subscription';
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
@@ -72,6 +73,9 @@ export default function SettingsScreen() {
             </View>
           </Card>
         )}
+
+        {/* Subscription Status */}
+        <SubscriptionCard />
 
         {/* Theme Settings */}
         <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>

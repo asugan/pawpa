@@ -522,5 +522,47 @@
       "monthly": "Monthly",
       "yearly": "Yearly"
     }
+  },
+  "subscription": {
+    "title": "Subscription",
+    "pro": "Pro",
+    "free": "Free",
+    "trial": "Trial",
+    "trialActive": "Free Trial Active",
+    "trialDaysRemaining": "{{days}} days remaining",
+    "trialExpired": "Trial Expired",
+    "trialPrompt": "Your trial ends in {{days}} days",
+    "upgrade": "Upgrade to Pro",
+    "upgradePrompt": "Unlock all features with Pro",
+    "upgradeBeforeTrialEnds": "Upgrade Before Trial Ends",
+    "manageSubscription": "Manage Subscription",
+    "restorePurchases": "Restore Purchases",
+    "restoreSuccess": "Purchases restored successfully",
+    "restoreError": "Failed to restore purchases",
+    "noPurchases": "No Purchases Found",
+    "noPurchasesMessage": "No previous purchases were found for your account",
+    "currentPlan": "Current Plan",
+    "expiresOn": "Expires on {{date}}",
+    "autoRenews": "Auto-renews on {{date}}",
+    "cancelled": "Cancelled - expires {{date}}",
+    "paywallError": "Unable to load subscription options",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "unlockFeature": "Unlock {{feature}}",
+    "features": {
+      "title": "Pro Features",
+      "unlimited": "Unlimited Pets",
+      "unlimitedDesc": "Add as many pets as you want",
+      "advanced": "Advanced Health Tracking",
+      "advancedDesc": "Detailed health analytics and insights",
+      "export": "Data Export",
+      "exportDesc": "Export your data in multiple formats",
+      "priority": "Priority Support",
+      "priorityDesc": "Get help when you need it"
+    },
+    "paywall": {
+      "title": "Unlock PawPa Pro",
+      "subtitle": "Get the most out of PawPa"
+    }
   }
 }

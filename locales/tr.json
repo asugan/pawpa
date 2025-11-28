@@ -522,5 +522,47 @@
       "monthly": "Aylık",
       "yearly": "Yıllık"
     }
+  },
+  "subscription": {
+    "title": "Abonelik",
+    "pro": "Pro",
+    "free": "Ücretsiz",
+    "trial": "Deneme",
+    "trialActive": "Ücretsiz Deneme Aktif",
+    "trialDaysRemaining": "{{days}} gün kaldı",
+    "trialExpired": "Deneme Süresi Doldu",
+    "trialPrompt": "Deneme süreniz {{days}} gün sonra bitiyor",
+    "upgrade": "Pro'ya Yükselt",
+    "upgradePrompt": "Pro ile tüm özelliklerin kilidini açın",
+    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükselt",
+    "manageSubscription": "Aboneliği Yönet",
+    "restorePurchases": "Satın Alımları Geri Yükle",
+    "restoreSuccess": "Satın alımlar başarıyla geri yüklendi",
+    "restoreError": "Satın alımlar geri yüklenemedi",
+    "noPurchases": "Satın Alım Bulunamadı",
+    "noPurchasesMessage": "Hesabınızda önceki satın alım bulunamadı",
+    "currentPlan": "Mevcut Plan",
+    "expiresOn": "{{date}} tarihinde sona eriyor",
+    "autoRenews": "{{date}} tarihinde otomatik yenilenir",
+    "cancelled": "İptal edildi - {{date}} tarihinde sona eriyor",
+    "paywallError": "Abonelik seçenekleri yüklenemedi",
+    "terms": "Kullanım Koşulları",
+    "privacy": "Gizlilik Politikası",
+    "unlockFeature": "{{feature}} Kilidini Aç",
+    "features": {
+      "title": "Pro Özellikleri",
+      "unlimited": "Sınırsız Evcil Hayvan",
+      "unlimitedDesc": "İstediğiniz kadar evcil hayvan ekleyin",
+      "advanced": "Gelişmiş Sağlık Takibi",
+      "advancedDesc": "Detaylı sağlık analizleri ve içgörüler",
+      "export": "Veri Dışa Aktarma",
+      "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
+      "priority": "Öncelikli Destek",
+      "priorityDesc": "İhtiyacınız olduğunda yardım alın"
+    },
+    "paywall": {
+      "title": "PawPa Pro'nun Kilidini Açın",
+      "subtitle": "PawPa'dan en iyi şekilde yararlanın"
+    }
   }
 }
