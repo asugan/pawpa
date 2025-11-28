@@ -3,12 +3,17 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore } from '../../stores/themeStore';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomTabHeader from '@/components/CustomTabHeader';
 
 export default function TabLayout() {
   const { themeMode } = useThemeStore();
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+
+  // Base tab bar height (without safe area)
+  const TAB_BAR_HEIGHT = 60;
 
   return (
     <Tabs
@@ -18,6 +23,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.outline,
+          paddingBottom: insets.bottom,
+          height: TAB_BAR_HEIGHT + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -27,6 +34,9 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
+        sceneStyle: {
+          backgroundColor: theme.colors.background,
+        },
       }}
     >
       <Tabs.Screen

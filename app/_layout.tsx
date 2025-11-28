@@ -9,6 +9,10 @@ import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
 import { useOnlineManager } from "../lib/hooks/useOnlineManager";
 import { AppState, AppStateStatus } from 'react-native';
 import { useEffect } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '../lib/theme';
+import { useThemeStore } from '../stores/themeStore';
 import "../lib/i18n"; // Initialize i18n
 
 // Enhanced QueryClient with better configuration
@@ -61,20 +65,31 @@ function OnlineManagerProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
+  const { theme } = useTheme();
+  const { themeMode } = useThemeStore();
+  const isDark = themeMode === 'dark';
+
   return (
-    <AppProviders>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="subscription"
-          options={{
-            headerShown: false,
-            presentation: 'modal',
+    <SafeAreaProvider>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <AppProviders>
+        <Stack
+          screenOptions={{
+            contentStyle: { backgroundColor: theme.colors.background },
           }}
-        />
-      </Stack>
-    </AppProviders>
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="subscription"
+            options={{
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+        </Stack>
+      </AppProviders>
+    </SafeAreaProvider>
   );
 }
