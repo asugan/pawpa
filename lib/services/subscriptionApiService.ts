@@ -1,0 +1,229 @@
+import { api, ApiError, ApiResponse } from '../api/client';
+import { ENV } from '../config/env';
+import { getDeviceId } from '../utils/deviceId';
+
+/**
+ * Unified subscription status from backend - single source of truth
+ */
+export interface SubscriptionStatus {
+  hasActiveSubscription: boolean;
+  subscriptionType: 'trial' | 'paid' | null;
+  tier: string | null;
+  expiresAt: string | null;
+  daysRemaining: number;
+  isExpired: boolean;
+  isCancelled: boolean;
+  canStartTrial: boolean;
+  provider: 'internal' | 'revenuecat' | null;
+}
+
+/**
+ * @deprecated Use SubscriptionStatus instead
+ */
+export interface TrialStatus {
+  hasActiveTrial: boolean;
+  trialStartDate: string | null;
+  trialEndDate: string | null;
+  trialDaysRemaining: number;
+  isTrialExpired: boolean;
+  canStartTrial: boolean;
+}
+
+/**
+ * Device eligibility response
+ */
+export interface DeviceEligibility {
+  canStartTrial: boolean;
+  reason?: string;
+  existingTrialUserId?: string;
+}
+
+/**
+ * Start trial response
+ */
+export interface StartTrialResponse {
+  success: boolean;
+  subscription: {
+    id: string;
+    provider: string;
+    tier: string;
+    status: string;
+    expiresAt: string;
+  };
+}
+
+/**
+ * Subscription API Service - Handles all subscription related API calls
+ */
+export class SubscriptionApiService {
+  /**
+   * Get unified subscription status from backend
+   * This is the main method - use this for all status checks
+   */
+  async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
+    try {
+      const deviceId = await getDeviceId();
+      const response = await api.get<SubscriptionStatus>(
+        ENV.ENDPOINTS.SUBSCRIPTION_STATUS,
+        { deviceId }
+      );
+
+      console.log('✅ Subscription status loaded successfully');
+      return {
+        success: true,
+        data: response.data!,
+      };
+    } catch (error) {
+      console.error('❌ Get subscription status error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Abonelik durumu yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * @deprecated Use getSubscriptionStatus instead
+   */
+  async getTrialStatus(): Promise<ApiResponse<TrialStatus>> {
+    try {
+      const deviceId = await getDeviceId();
+      const response = await api.get<TrialStatus>(
+        ENV.ENDPOINTS.SUBSCRIPTION_TRIAL_STATUS,
+        { deviceId }
+      );
+
+      console.log('✅ Trial status loaded successfully');
+      return {
+        success: true,
+        data: response.data!,
+      };
+    } catch (error) {
+      console.error('❌ Get trial status error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Trial durumu yüklenemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Start a new trial for the user
+   */
+  async startTrial(): Promise<ApiResponse<StartTrialResponse>> {
+    try {
+      const deviceId = await getDeviceId();
+      const response = await api.post<StartTrialResponse>(
+        ENV.ENDPOINTS.SUBSCRIPTION_START_TRIAL,
+        { deviceId }
+      );
+
+      console.log('✅ Trial started successfully');
+      return {
+        success: true,
+        data: response.data!,
+        message: 'Trial başarıyla başlatıldı',
+      };
+    } catch (error) {
+      console.error('❌ Start trial error:', error);
+      if (error instanceof ApiError) {
+        // Handle specific error codes
+        if (error.code === 'SUBSCRIPTION_EXISTS') {
+          return {
+            success: false,
+            error: 'Zaten bir aboneliğiniz var',
+          };
+        }
+        if (error.code === 'DEVICE_TRIAL_USED') {
+          return {
+            success: false,
+            error: 'Bu cihazda daha önce trial kullanılmış',
+          };
+        }
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Trial başlatılamadı. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * Check if the current device is eligible for a trial
+   */
+  async checkDeviceEligibility(): Promise<ApiResponse<DeviceEligibility>> {
+    try {
+      const deviceId = await getDeviceId();
+      const response = await api.post<DeviceEligibility>(
+        ENV.ENDPOINTS.SUBSCRIPTION_CHECK_DEVICE,
+        { deviceId }
+      );
+
+      console.log('✅ Device eligibility checked');
+      return {
+        success: true,
+        data: response.data!,
+      };
+    } catch (error) {
+      console.error('❌ Check device eligibility error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Cihaz kontrolü yapılamadı. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+
+  /**
+   * @deprecated Trial is now automatically converted when RevenueCat subscription is created
+   */
+  async deactivateTrial(): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    try {
+      const response = await api.post<{ success: boolean; message: string }>(
+        ENV.ENDPOINTS.SUBSCRIPTION_DEACTIVATE_TRIAL
+      );
+
+      console.log('✅ Trial deactivated successfully');
+      return {
+        success: true,
+        data: response.data!,
+      };
+    } catch (error) {
+      console.error('❌ Deactivate trial error:', error);
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'Trial deaktive edilemedi. Lütfen tekrar deneyin.',
+      };
+    }
+  }
+}
+
+// Singleton instance
+export const subscriptionApiService = new SubscriptionApiService();

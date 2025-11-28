@@ -21,7 +21,7 @@ export default function SubscriptionScreen() {
     isProUser,
     isSubscribed,
     isTrialActive,
-    trialDaysRemaining,
+    daysRemaining,
     isLoading,
     restorePurchases,
   } = useSubscription();

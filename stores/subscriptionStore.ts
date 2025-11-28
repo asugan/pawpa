@@ -1,19 +1,21 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { CustomerInfo } from 'react-native-purchases';
-import { REVENUECAT_CONFIG } from '@/lib/revenuecat/config';
+import { subscriptionApiService, SubscriptionStatus } from '@/lib/services/subscriptionApiService';
 
 // EntitlementInfo type from CustomerInfo
 type EntitlementInfo = CustomerInfo['entitlements']['active'][string];
 
 /**
  * Subscription state interface
+ * Backend-first approach: subscription status comes from backend
  */
 export interface SubscriptionState {
-  // Trial tracking (persisted)
-  trialStartDate: string | null;
+  // Unified subscription status from backend - single source of truth
+  subscriptionStatus: SubscriptionStatus | null;
+  isStatusLoading: boolean;
+  statusError: string | null;
 
-  // RevenueCat customer info (not persisted - fetched on app start)
+  // RevenueCat customer info (only for purchase operations, not status)
   customerInfo: CustomerInfo | null;
 
   // SDK state
@@ -26,31 +28,43 @@ export interface SubscriptionState {
  * Subscription actions interface
  */
 export interface SubscriptionActions {
-  // Trial management
-  startTrial: () => void;
-  getTrialDaysRemaining: () => number;
-  isTrialActive: () => boolean;
-  isTrialExpired: () => boolean;
+  // Status management (from backend)
+  fetchSubscriptionStatus: () => Promise<void>;
 
-  // Customer info management
+  // Trial management
+  startTrial: () => Promise<boolean>;
+
+  // Computed getters (from backend status)
+  isProUser: () => boolean;
+  hasActiveSubscription: () => boolean;
+  isTrialActive: () => boolean;
+  isPaidSubscription: () => boolean;
+  isExpired: () => boolean;
+  isCancelled: () => boolean;
+  canStartTrial: () => boolean;
+  getDaysRemaining: () => number;
+  getExpirationDate: () => string | null;
+  getTier: () => string | null;
+  getProvider: () => 'internal' | 'revenuecat' | null;
+
+  // Customer info management (for purchases only)
   setCustomerInfo: (info: CustomerInfo | null) => void;
+  getActiveEntitlement: () => EntitlementInfo | null;
+  willRenew: () => boolean;
+
+  // SDK state
   setInitialized: (initialized: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-
-  // Computed getters
-  isSubscribed: () => boolean;
-  isProUser: () => boolean;
-  getActiveEntitlement: () => EntitlementInfo | null;
-  getExpirationDate: () => string | null;
-  willRenew: () => boolean;
 
   // Reset
   resetSubscription: () => void;
 }
 
 const initialState: SubscriptionState = {
-  trialStartDate: null,
+  subscriptionStatus: null,
+  isStatusLoading: false,
+  statusError: null,
   customerInfo: null,
   isInitialized: false,
   isLoading: false,
@@ -58,157 +72,207 @@ const initialState: SubscriptionState = {
 };
 
 /**
- * Subscription store for managing trial and subscription state
+ * Subscription store for managing subscription state
  *
- * Trial is managed locally (7 days without credit card)
- * Subscription state comes from RevenueCat CustomerInfo
+ * Backend-first approach:
+ * - All status checks come from backend (subscriptionStatus)
+ * - CustomerInfo is only used for RevenueCat purchase operations
+ * - Trial and paid subscriptions are unified in backend
  */
 export const useSubscriptionStore = create<SubscriptionState & SubscriptionActions>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
+  (set, get) => ({
+    ...initialState,
 
-      // Start a new trial for the user
-      startTrial: () => {
-        const { trialStartDate } = get();
-        // Only start trial if not already started
-        if (!trialStartDate) {
-          const now = new Date().toISOString();
-          set({ trialStartDate: now });
-          console.log('[Subscription] Trial started:', now);
+    // Fetch unified subscription status from backend
+    fetchSubscriptionStatus: async () => {
+      set({ isStatusLoading: true, statusError: null });
+      try {
+        const response = await subscriptionApiService.getSubscriptionStatus();
+        if (response.success && response.data) {
+          set({ subscriptionStatus: response.data, isStatusLoading: false });
+          console.log('[Subscription] Status fetched:', response.data);
+        } else {
+          set({ statusError: response.error as string, isStatusLoading: false });
+          console.error('[Subscription] Failed to fetch status:', response.error);
         }
-      },
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+        set({ statusError: errorMessage, isStatusLoading: false });
+        console.error('[Subscription] Error fetching status:', error);
+      }
+    },
 
-      // Get remaining trial days
-      getTrialDaysRemaining: () => {
-        const { trialStartDate } = get();
-        if (!trialStartDate) return REVENUECAT_CONFIG.TRIAL_DURATION_DAYS;
-
-        const start = new Date(trialStartDate);
-        const now = new Date();
-        const diffMs = now.getTime() - start.getTime();
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const remaining = REVENUECAT_CONFIG.TRIAL_DURATION_DAYS - diffDays;
-
-        return Math.max(0, remaining);
-      },
-
-      // Check if trial is currently active
-      isTrialActive: () => {
-        const { trialStartDate } = get();
-        if (!trialStartDate) return false;
-
-        const remaining = get().getTrialDaysRemaining();
-        return remaining > 0;
-      },
-
-      // Check if trial has expired
-      isTrialExpired: () => {
-        const { trialStartDate } = get();
-        if (!trialStartDate) return false;
-
-        return get().getTrialDaysRemaining() <= 0;
-      },
-
-      // Update customer info from RevenueCat
-      setCustomerInfo: (info) => {
-        set({ customerInfo: info });
-        if (info) {
-          console.log('[Subscription] Customer info updated:', {
-            activeEntitlements: Object.keys(info.entitlements.active),
-          });
+    // Start a new trial for the user via backend
+    startTrial: async () => {
+      set({ isStatusLoading: true, statusError: null });
+      try {
+        const response = await subscriptionApiService.startTrial();
+        if (response.success && response.data) {
+          console.log('[Subscription] Trial started:', response.data.subscription);
+          // Refresh status after starting trial
+          await get().fetchSubscriptionStatus();
+          return true;
+        } else {
+          set({ statusError: response.error as string, isStatusLoading: false });
+          console.error('[Subscription] Failed to start trial:', response.error);
+          return false;
         }
-      },
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Trial başlatılamadı';
+        set({ statusError: errorMessage, isStatusLoading: false });
+        console.error('[Subscription] Error starting trial:', error);
+        return false;
+      }
+    },
 
-      setInitialized: (initialized) => set({ isInitialized: initialized }),
-      setLoading: (loading) => set({ isLoading: loading }),
-      setError: (error) => set({ error }),
+    // Check if user has Pro access (active subscription - trial or paid)
+    isProUser: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.hasActiveSubscription ?? false;
+    },
 
-      // Check if user has active subscription via RevenueCat
-      isSubscribed: () => {
-        const { customerInfo } = get();
-        if (!customerInfo) return false;
+    // Alias for isProUser
+    hasActiveSubscription: () => {
+      return get().isProUser();
+    },
 
-        return typeof customerInfo.entitlements.active[REVENUECAT_CONFIG.ENTITLEMENT_ID] !== 'undefined';
-      },
+    // Check if current subscription is a trial
+    isTrialActive: () => {
+      const { subscriptionStatus } = get();
+      if (!subscriptionStatus?.hasActiveSubscription) return false;
+      return subscriptionStatus.subscriptionType === 'trial';
+    },
 
-      // Check if user has Pro access (subscribed OR in trial)
-      isProUser: () => {
-        const isSubscribed = get().isSubscribed();
-        const isTrialActive = get().isTrialActive();
+    // Check if current subscription is paid
+    isPaidSubscription: () => {
+      const { subscriptionStatus } = get();
+      if (!subscriptionStatus?.hasActiveSubscription) return false;
+      return subscriptionStatus.subscriptionType === 'paid';
+    },
 
-        return isSubscribed || isTrialActive;
-      },
+    // Check if subscription has expired
+    isExpired: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.isExpired ?? false;
+    },
 
-      // Get the active Pro entitlement info
-      getActiveEntitlement: () => {
-        const { customerInfo } = get();
-        if (!customerInfo) return null;
+    // Check if subscription is cancelled
+    isCancelled: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.isCancelled ?? false;
+    },
 
-        return customerInfo.entitlements.active[REVENUECAT_CONFIG.ENTITLEMENT_ID] ?? null;
-      },
+    // Check if user can start a trial (device hasn't used one before)
+    canStartTrial: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.canStartTrial ?? false;
+    },
 
-      // Get subscription expiration date
-      getExpirationDate: () => {
-        const entitlement = get().getActiveEntitlement();
-        return entitlement?.expirationDate ?? null;
-      },
+    // Get remaining days
+    getDaysRemaining: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.daysRemaining ?? 0;
+    },
 
-      // Check if subscription will auto-renew
-      willRenew: () => {
-        const entitlement = get().getActiveEntitlement();
-        return entitlement?.willRenew ?? false;
-      },
+    // Get expiration date
+    getExpirationDate: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.expiresAt ?? null;
+    },
 
-      // Reset subscription state (on logout)
-      resetSubscription: () => {
-        set({
-          customerInfo: null,
-          isInitialized: false,
-          error: null,
+    // Get subscription tier
+    getTier: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.tier ?? null;
+    },
+
+    // Get subscription provider
+    getProvider: () => {
+      const { subscriptionStatus } = get();
+      return subscriptionStatus?.provider ?? null;
+    },
+
+    // Update customer info from RevenueCat (for purchases only)
+    setCustomerInfo: (info) => {
+      set({ customerInfo: info });
+      if (info) {
+        console.log('[Subscription] Customer info updated (for purchases):', {
+          activeEntitlements: Object.keys(info.entitlements.active),
         });
-        // Note: We don't reset trialStartDate as trial is device-bound
-        console.log('[Subscription] State reset (keeping trial)');
-      },
-    }),
-    {
-      name: 'subscription-storage',
-      // Only persist trial start date - customer info is fetched fresh
-      partialize: (state) => ({
-        trialStartDate: state.trialStartDate,
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          console.log('[Subscription] Store rehydrated, trial start:', state.trialStartDate);
-        }
-      },
-    }
-  )
+      }
+    },
+
+    // Get the active Pro entitlement info (from RevenueCat)
+    getActiveEntitlement: () => {
+      const { customerInfo } = get();
+      if (!customerInfo) return null;
+
+      // Check for any active entitlement
+      const entitlements = customerInfo.entitlements.active;
+      const firstKey = Object.keys(entitlements)[0];
+      return firstKey ? entitlements[firstKey] : null;
+    },
+
+    // Check if subscription will auto-renew (from RevenueCat)
+    willRenew: () => {
+      const entitlement = get().getActiveEntitlement();
+      return entitlement?.willRenew ?? false;
+    },
+
+    setInitialized: (initialized) => set({ isInitialized: initialized }),
+    setLoading: (loading) => set({ isLoading: loading }),
+    setError: (error) => set({ error }),
+
+    // Reset subscription state (on logout)
+    resetSubscription: () => {
+      set({
+        subscriptionStatus: null,
+        isStatusLoading: false,
+        statusError: null,
+        customerInfo: null,
+        isInitialized: false,
+        error: null,
+      });
+      console.log('[Subscription] State reset');
+    },
+  })
 );
 
 /**
  * Helper function to get subscription status summary
  */
-export function getSubscriptionStatus(): {
+export function getSubscriptionStatusSummary(): {
   status: 'pro' | 'trial' | 'free';
   daysRemaining: number | null;
   expirationDate: string | null;
+  provider: 'internal' | 'revenuecat' | null;
 } {
   const store = useSubscriptionStore.getState();
+  const subscriptionStatus = store.subscriptionStatus;
 
-  if (store.isSubscribed()) {
+  if (!subscriptionStatus) {
     return {
-      status: 'pro',
+      status: 'free',
       daysRemaining: null,
-      expirationDate: store.getExpirationDate(),
+      expirationDate: null,
+      provider: null,
     };
   }
 
-  if (store.isTrialActive()) {
+  if (subscriptionStatus.hasActiveSubscription) {
+    if (subscriptionStatus.subscriptionType === 'paid') {
+      return {
+        status: 'pro',
+        daysRemaining: subscriptionStatus.daysRemaining,
+        expirationDate: subscriptionStatus.expiresAt,
+        provider: subscriptionStatus.provider,
+      };
+    }
     return {
       status: 'trial',
-      daysRemaining: store.getTrialDaysRemaining(),
-      expirationDate: null,
+      daysRemaining: subscriptionStatus.daysRemaining,
+      expirationDate: subscriptionStatus.expiresAt,
+      provider: subscriptionStatus.provider,
     };
   }
 
@@ -216,5 +280,6 @@ export function getSubscriptionStatus(): {
     status: 'free',
     daysRemaining: null,
     expirationDate: null,
+    provider: null,
   };
 }

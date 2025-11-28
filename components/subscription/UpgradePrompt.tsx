@@ -51,7 +51,7 @@ export function UpgradePrompt({
   const {
     isProUser,
     isTrialActive,
-    trialDaysRemaining,
+    daysRemaining,
     isLoading,
     presentPaywall,
   } = useSubscription();
@@ -67,7 +67,7 @@ export function UpgradePrompt({
 
   const displayMessage = message ?? (
     isTrialActive
-      ? t('subscription.trialPrompt', { days: trialDaysRemaining })
+      ? t('subscription.trialPrompt', { days: daysRemaining })
       : t('subscription.upgradePrompt')
   );
 
@@ -106,7 +106,7 @@ export function UpgradePrompt({
             </Text>
             {isTrialActive && (
               <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer, opacity: 0.8 }}>
-                {t('subscription.trialDaysRemaining', { days: trialDaysRemaining })}
+                {t('subscription.trialDaysRemaining', { days: daysRemaining })}
               </Text>
             )}
           </View>

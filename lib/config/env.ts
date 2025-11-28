@@ -37,6 +37,13 @@ export const ENV = {
     ACTIVE_FEEDING_SCHEDULES: '/api/feeding-schedules/active',
     TODAY_FEEDING_SCHEDULES: '/api/feeding-schedules/today',
     NEXT_FEEDING: '/api/feeding-schedules/next',
+
+    // Subscription endpoints
+    SUBSCRIPTION_STATUS: '/api/subscription/status', // Unified status endpoint
+    SUBSCRIPTION_TRIAL_STATUS: '/api/subscription/trial-status', // Deprecated
+    SUBSCRIPTION_START_TRIAL: '/api/subscription/start-trial',
+    SUBSCRIPTION_CHECK_DEVICE: '/api/subscription/check-device',
+    SUBSCRIPTION_DEACTIVATE_TRIAL: '/api/subscription/deactivate-trial', // Deprecated
   },
 
   // Request timeout

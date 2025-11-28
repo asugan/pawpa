@@ -10,21 +10,26 @@ import { restorePurchases as restorePurchasesApi } from '@/lib/revenuecat/initia
 /**
  * Subscription status type
  */
-export type SubscriptionStatus = 'pro' | 'trial' | 'free';
+export type SubscriptionStatusType = 'pro' | 'trial' | 'free';
 
 /**
  * useSubscription hook return type
  */
 export interface UseSubscriptionReturn {
-  // Status
+  // Status (from backend)
   isProUser: boolean;
   isSubscribed: boolean;
   isTrialActive: boolean;
-  isTrialExpired: boolean;
-  trialDaysRemaining: number;
-  subscriptionStatus: SubscriptionStatus;
+  isPaidSubscription: boolean;
+  isExpired: boolean;
+  isCancelled: boolean;
+  daysRemaining: number;
+  subscriptionStatus: SubscriptionStatusType;
+  canStartTrial: boolean;
+  provider: 'internal' | 'revenuecat' | null;
+  tier: string | null;
 
-  // Customer Info
+  // Customer Info (for RevenueCat operations)
   customerInfo: CustomerInfo | null;
   activeEntitlements: string[];
   expirationDate: string | null;
@@ -34,7 +39,9 @@ export interface UseSubscriptionReturn {
   // Loading states
   isInitialized: boolean;
   isLoading: boolean;
+  isStatusLoading: boolean;
   error: string | null;
+  statusError: string | null;
 
   // Actions
   presentPaywall: (offering?: PurchasesOfferings) => Promise<boolean>;
@@ -44,32 +51,61 @@ export interface UseSubscriptionReturn {
   purchasePackage: (pkg: PurchasesPackage) => Promise<boolean>;
   getOfferings: () => Promise<PurchasesOfferings | null>;
   checkEntitlement: (entitlementId?: string) => boolean;
-  startTrial: () => void;
+  startTrial: () => Promise<boolean>;
+  refreshSubscriptionStatus: () => Promise<void>;
+}
+
+/**
+ * Poll for subscription status update after purchase
+ * Waits for webhook to process and backend to update
+ */
+async function pollForSubscriptionUpdate(
+  fetchStatus: () => Promise<void>,
+  checkActive: () => boolean,
+  maxAttempts: number = 10
+): Promise<boolean> {
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    await fetchStatus();
+    if (checkActive()) {
+      console.log(`[Subscription] Status updated after ${i + 1} attempts`);
+      return true;
+    }
+  }
+  console.log('[Subscription] Status update timeout - webhook may be delayed');
+  return false;
 }
 
 /**
  * Main hook for subscription management
  *
- * Combines RevenueCat SDK functionality with custom trial tracking
- * Provides all subscription-related actions and state
+ * Backend-first approach:
+ * - All status checks come from backend
+ * - RevenueCat SDK used only for purchases and customer center
+ * - Polling after purchase to wait for webhook processing
  */
 export function useSubscription(): UseSubscriptionReturn {
   const { t } = useTranslation();
   const store = useSubscriptionStore();
 
-  // Computed values
+  // Computed values from backend status
   const isProUser = store.isProUser();
-  const isSubscribed = store.isSubscribed();
+  const isSubscribed = store.hasActiveSubscription();
   const isTrialActive = store.isTrialActive();
-  const isTrialExpired = store.isTrialExpired();
-  const trialDaysRemaining = store.getTrialDaysRemaining();
+  const isPaidSubscription = store.isPaidSubscription();
+  const isExpired = store.isExpired();
+  const isCancelled = store.isCancelled();
+  const daysRemaining = store.getDaysRemaining();
+  const canStartTrial = store.canStartTrial();
+  const provider = store.getProvider();
+  const tier = store.getTier();
   const activeEntitlement = store.getActiveEntitlement();
 
-  const subscriptionStatus: SubscriptionStatus = useMemo(() => {
-    if (isSubscribed) return 'pro';
+  const subscriptionStatus: SubscriptionStatusType = useMemo(() => {
+    if (isPaidSubscription) return 'pro';
     if (isTrialActive) return 'trial';
     return 'free';
-  }, [isSubscribed, isTrialActive]);
+  }, [isPaidSubscription, isTrialActive]);
 
   const activeEntitlements = useMemo(() => {
     if (!store.customerInfo) return [];
@@ -79,6 +115,7 @@ export function useSubscription(): UseSubscriptionReturn {
   /**
    * Present the RevenueCat paywall
    * Returns true if a purchase or restore was made
+   * Uses polling to wait for backend status update
    */
   const presentPaywall = useCallback(async (offering?: PurchasesOfferings): Promise<boolean> => {
     try {
@@ -92,9 +129,15 @@ export function useSubscription(): UseSubscriptionReturn {
       switch (result) {
         case PAYWALL_RESULT.PURCHASED:
         case PAYWALL_RESULT.RESTORED:
-          // Refresh customer info after purchase/restore
+          // Update RevenueCat customer info immediately
           const info = await Purchases.getCustomerInfo();
           store.setCustomerInfo(info);
+
+          // Poll for backend status update (webhook processing)
+          await pollForSubscriptionUpdate(
+            () => store.fetchSubscriptionStatus(),
+            () => store.hasActiveSubscription()
+          );
           return true;
 
         case PAYWALL_RESULT.CANCELLED:
@@ -124,6 +167,7 @@ export function useSubscription(): UseSubscriptionReturn {
 
   /**
    * Present paywall only if user doesn't have the Pro entitlement
+   * Uses polling to wait for backend status update
    */
   const presentPaywallIfNeeded = useCallback(async (): Promise<boolean> => {
     try {
@@ -137,6 +181,12 @@ export function useSubscription(): UseSubscriptionReturn {
       if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
         const info = await Purchases.getCustomerInfo();
         store.setCustomerInfo(info);
+
+        // Poll for backend status update
+        await pollForSubscriptionUpdate(
+          () => store.fetchSubscriptionStatus(),
+          () => store.hasActiveSubscription()
+        );
         return true;
       }
 
@@ -163,9 +213,11 @@ export function useSubscription(): UseSubscriptionReturn {
           onRestoreStarted: () => {
             console.log('[Subscription] Restore started from Customer Center');
           },
-          onRestoreCompleted: ({ customerInfo }) => {
+          onRestoreCompleted: async ({ customerInfo }) => {
             console.log('[Subscription] Restore completed from Customer Center');
             store.setCustomerInfo(customerInfo);
+            // Refresh backend status
+            await store.fetchSubscriptionStatus();
           },
           onRestoreFailed: ({ error }) => {
             console.error('[Subscription] Restore failed from Customer Center:', error);
@@ -201,6 +253,12 @@ export function useSubscription(): UseSubscriptionReturn {
       const hasEntitlement = typeof customerInfo.entitlements.active[REVENUECAT_CONFIG.ENTITLEMENT_ID] !== 'undefined';
 
       if (hasEntitlement) {
+        // Poll for backend status update
+        await pollForSubscriptionUpdate(
+          () => store.fetchSubscriptionStatus(),
+          () => store.hasActiveSubscription()
+        );
+
         Alert.alert(
           t('common.success'),
           t('subscription.restoreSuccess')
@@ -241,6 +299,11 @@ export function useSubscription(): UseSubscriptionReturn {
 
       if (hasEntitlement) {
         console.log('[Subscription] Purchase successful');
+        // Poll for backend status update
+        await pollForSubscriptionUpdate(
+          () => store.fetchSubscriptionStatus(),
+          () => store.hasActiveSubscription()
+        );
         return true;
       }
 
@@ -279,7 +342,7 @@ export function useSubscription(): UseSubscriptionReturn {
   }, []);
 
   /**
-   * Check if user has a specific entitlement
+   * Check if user has a specific entitlement (from RevenueCat)
    */
   const checkEntitlement = useCallback((entitlementId: string = REVENUECAT_CONFIG.ENTITLEMENT_ID): boolean => {
     if (!store.customerInfo) return false;
@@ -287,22 +350,35 @@ export function useSubscription(): UseSubscriptionReturn {
   }, [store.customerInfo]);
 
   /**
-   * Start the free trial
+   * Start the free trial (via backend)
+   * Returns true if trial was started successfully
    */
-  const startTrial = useCallback(() => {
-    store.startTrial();
+  const startTrial = useCallback(async (): Promise<boolean> => {
+    return await store.startTrial();
+  }, [store]);
+
+  /**
+   * Refresh subscription status from backend
+   */
+  const refreshSubscriptionStatus = useCallback(async (): Promise<void> => {
+    await store.fetchSubscriptionStatus();
   }, [store]);
 
   return {
-    // Status
+    // Status (from backend)
     isProUser,
     isSubscribed,
     isTrialActive,
-    isTrialExpired,
-    trialDaysRemaining,
+    isPaidSubscription,
+    isExpired,
+    isCancelled,
+    daysRemaining,
     subscriptionStatus,
+    canStartTrial,
+    provider,
+    tier,
 
-    // Customer Info
+    // Customer Info (for RevenueCat operations)
     customerInfo: store.customerInfo,
     activeEntitlements,
     expirationDate: store.getExpirationDate(),
@@ -312,7 +388,9 @@ export function useSubscription(): UseSubscriptionReturn {
     // Loading states
     isInitialized: store.isInitialized,
     isLoading: store.isLoading,
+    isStatusLoading: store.isStatusLoading,
     error: store.error,
+    statusError: store.statusError,
 
     // Actions
     presentPaywall,
@@ -323,5 +401,6 @@ export function useSubscription(): UseSubscriptionReturn {
     getOfferings,
     checkEntitlement,
     startTrial,
+    refreshSubscriptionStatus,
   };
 }

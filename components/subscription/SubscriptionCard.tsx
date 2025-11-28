@@ -25,7 +25,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
     isProUser,
     isSubscribed,
     isTrialActive,
-    trialDaysRemaining,
+    daysRemaining,
     expirationDate,
     willRenew,
     isLoading,
@@ -79,7 +79,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
 
   // Calculate trial progress (0 to 1)
   const trialProgress = isTrialActive
-    ? (REVENUECAT_CONFIG.TRIAL_DURATION_DAYS - trialDaysRemaining) / REVENUECAT_CONFIG.TRIAL_DURATION_DAYS
+    ? (REVENUECAT_CONFIG.TRIAL_DURATION_DAYS - daysRemaining) / REVENUECAT_CONFIG.TRIAL_DURATION_DAYS
     : 0;
 
   const handleUpgrade = async () => {
@@ -108,7 +108,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
           </Text>
           {isTrialActive && (
             <Text variant="labelSmall" style={{ color: statusConfig.color, marginLeft: 4 }}>
-              ({t('subscription.trialDaysRemaining', { days: trialDaysRemaining })})
+              ({t('subscription.trialDaysRemaining', { days: daysRemaining })})
             </Text>
           )}
           <MaterialCommunityIcons
@@ -175,7 +175,7 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
                   style={styles.progressBar}
                 />
                 <Text variant="bodySmall" style={{ color: theme.colors.tertiary, marginTop: 4 }}>
-                  {t('subscription.trialDaysRemaining', { days: trialDaysRemaining })}
+                  {t('subscription.trialDaysRemaining', { days: daysRemaining })}
                 </Text>
               </View>
             </>
