@@ -26,9 +26,19 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{ "scheme": "pawpa" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "pawpa"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
+      ],
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -60,6 +70,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "28c754d9-aea7-4168-a3b9-becb001d5b22"
+      }
     }
   }
 }
