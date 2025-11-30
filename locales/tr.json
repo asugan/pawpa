@@ -53,7 +53,8 @@
     "viewMoreEvents": "+{{count}} daha fazla etkinlik",
     "viewMoreVaccinations": "+{{count}} daha fazla aşı",
     "financialOverview": "Finansal Genel Bakış",
-    "greeting": "Merhaba"
+    "greeting": "Merhaba",
+    "nextActivity": "Sonraki Aktivite"
   },
   "finance": {
     "monthlyExpenses": "Bu Ayki Harcamalar"
@@ -136,6 +137,37 @@
     "viewPetProfile": "Pet Profilini Görüntüle",
     "noUpcomingEvents": "Yaklaşan etkinlik yok"
   },
+  "eventList": {
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "yesterday": "Dün",
+    "filters": {
+      "all": "Tümü",
+      "today": "Bugün",
+      "tomorrow": "Yarın",
+      "thisWeek": "Bu Hafta",
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş"
+    },
+    "events": "Etkinlikler",
+    "noEvents": "Etkinlik bulunamadı",
+    "clearFilters": "Filtreleri Temizle",
+    "searchPlaceholder": "Etkinlik ara...",
+    "dateFilter": "Tarih Filtresi",
+    "typeFilter": "Tür Filtresi",
+    "allTypes": "Tüm Türler"
+  },
+  "upcomingEvents": {
+    "viewAll": "Tümünü Görüntüle",
+    "noUpcomingTitle": "Yaklaşan Etkinlik Yok",
+    "noUpcomingMessage": "Şu anda yaklaşan bir etkinlik bulunmamaktadır",
+    "refresh": "Yenile",
+    "loading": "Yükleniyor..."
+  },
+  "eventCard": {
+    "forPet": "Evcil Dost İçin",
+    "reminderSet": "Hatırlatıcı Ayarlandı"
+  },
   "notifications": {
     "enableTitle": "Bildirimleri Etkinleştir",
     "enableDescription": "Önemli pet bakım hatırlatmalarını kaçırmayın",
@@ -178,6 +210,7 @@
     "versionNumber": "1.0.0",
     "helpSupport": "Yardım ve Destek",
     "helpSupportDescription": "SSS ve iletişim",
+    "settings": "Ayarlar",
     "logout": "Çıkış Yap"
   },
   "common": {
@@ -203,7 +236,12 @@
     "success": "Başarılı",
     "unsavedChanges": "Kaydedilmemiş Değişiklikler",
     "unsavedChangesMessage": "Kaydedilmemiş değişiklikleriniz var. Bunları silmek istediğinizden emin misiniz?",
-    "discard": "Değişiklikleri Sil"
+    "discard": "Değişiklikleri Sil",
+    "close": "Kapat",
+    "weekdays": "Hafta İçi",
+    "weekend": "Hafta Sonu",
+    "loadMore": "Daha Fazla Yükle",
+    "all": "Tümü"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -267,6 +305,11 @@
     "createTitle": "Besleme Programı Oluştur",
     "editTitle": "Besleme Programı Düzenle",
     "subtitle": "Evcil dostunuz için bir besleme programı oluşturun",
+    "sections": {
+      "scheduleDetails": "Program Detayları",
+      "scheduleDetailsSubtitle": "Besleme programı detaylarını ayarlayın",
+      "settings": "Ayarlar"
+    },
     "forPet": "Evcil dost için",
     "everyday": "Her Gün",
     "active": "Aktif",
@@ -347,7 +390,11 @@
       "weight": "Kilo",
       "weightPlaceholder": "Kilo girin (opsiyonel)",
       "selectType": "Pet türünü seçin",
-      "selectGender": "Cinsiyet seçin (opsiyonel)"
+      "selectGender": "Cinsiyet seçin (opsiyonel)",
+      "sections": {
+        "physicalDetails": "Fiziksel Bilgiler",
+        "photo": "Fotoğraf"
+      }
     },
     "validation": {
       "nameMinLength": "İsim en az 2 karakter olmalıdır",

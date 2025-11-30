@@ -53,7 +53,8 @@
     "viewMoreEvents": "+{{count}} more events",
     "viewMoreVaccinations": "+{{count}} more vaccinations",
     "financialOverview": "Financial Overview",
-    "greeting": "Hello"
+    "greeting": "Hello",
+    "nextActivity": "Next Activity"
   },
   "finance": {
     "monthlyExpenses": "Monthly Expenses"
@@ -136,6 +137,37 @@
     "viewPetProfile": "View Pet Profile",
     "noUpcomingEvents": "No upcoming events"
   },
+  "eventList": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "filters": {
+      "all": "All",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "thisWeek": "This Week",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "events": "Events",
+    "noEvents": "No events found",
+    "clearFilters": "Clear Filters",
+    "searchPlaceholder": "Search events...",
+    "dateFilter": "Date Filter",
+    "typeFilter": "Type Filter",
+    "allTypes": "All Types"
+  },
+  "upcomingEvents": {
+    "viewAll": "View All",
+    "noUpcomingTitle": "No Upcoming Events",
+    "noUpcomingMessage": "There are no upcoming events at the moment",
+    "refresh": "Refresh",
+    "loading": "Loading..."
+  },
+  "eventCard": {
+    "forPet": "For Pet",
+    "reminderSet": "Reminder Set"
+  },
   "notifications": {
     "enableTitle": "Enable Notifications",
     "enableDescription": "Never miss important pet care reminders",
@@ -178,6 +210,7 @@
     "versionNumber": "1.0.0",
     "helpSupport": "Help & Support",
     "helpSupportDescription": "FAQ and contact",
+    "settings": "Settings",
     "logout": "Logout"
   },
   "common": {
@@ -203,7 +236,12 @@
     "success": "Success",
     "unsavedChanges": "Unsaved Changes",
     "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to discard them?",
-    "discard": "Discard"
+    "discard": "Discard",
+    "close": "Close",
+    "weekdays": "Weekdays",
+    "weekend": "Weekend",
+    "loadMore": "Load More",
+    "all": "All"
   },
   "errors": {
     "loadingFailed": "Loading Failed"
@@ -267,6 +305,11 @@
     "createTitle": "Create Feeding Schedule",
     "editTitle": "Edit Feeding Schedule",
     "subtitle": "Set up a feeding schedule for your pet",
+    "sections": {
+      "scheduleDetails": "Schedule Details",
+      "scheduleDetailsSubtitle": "Configure feeding schedule details",
+      "settings": "Settings"
+    },
     "forPet": "For pet",
     "everyday": "Everyday",
     "active": "Active",
@@ -347,7 +390,11 @@
       "weight": "Weight",
       "weightPlaceholder": "Enter weight (optional)",
       "selectType": "Select pet type",
-      "selectGender": "Select gender (optional)"
+      "selectGender": "Select gender (optional)",
+      "sections": {
+        "physicalDetails": "Physical Details",
+        "photo": "Photo"
+      }
     },
     "validation": {
       "nameMinLength": "Name must be at least 2 characters",
