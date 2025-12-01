@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import PetCard from '../../components/PetCard';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
 import { Grid } from '../../components/Grid';
-import PetModal from '../../components/PetModal';
+import { PetModal } from '../../components/PetModal';
 import PetDetailModal from '../../components/PetDetailModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';

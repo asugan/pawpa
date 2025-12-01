@@ -5,7 +5,7 @@ import { Modal as RNModal, StyleSheet, Text, View } from 'react-native';
 import { useCreatePet, useUpdatePet } from '../lib/hooks/usePets';
 import { PetCreateInput } from '../lib/schemas/petSchema';
 import { Pet } from '../lib/types';
-import PetForm from './forms/PetForm';
+import { PetForm } from './forms/PetForm';
 
 interface PetModalProps {
   visible: boolean;

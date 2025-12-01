@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import NetworkStatusBadge from './NetworkStatusBadge';
+import { NetworkStatusBadge } from './NetworkStatusBadge';
 
 interface CustomTabHeaderProps {
   showNetworkBadge?: boolean;

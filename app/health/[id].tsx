@@ -17,7 +17,6 @@ export default function HealthRecordDetailScreen() {
   const { theme } = useTheme();
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   const deleteMutation = useDeleteHealthRecord();
@@ -57,13 +56,10 @@ export default function HealthRecordDetailScreen() {
 
   const confirmDelete = async () => {
     try {
-      setIsDeleting(true);
       await deleteMutation.mutateAsync(id as string);
       router.back();
     } catch (error) {
       Alert.alert(t('common.error'), error instanceof Error ? error.message : t('healthRecords.deleteError'));
-    } finally {
-      setIsDeleting(false);
     }
   };
 

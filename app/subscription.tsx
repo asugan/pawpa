@@ -18,10 +18,7 @@ export default function SubscriptionScreen() {
   const { theme } = useTheme();
   const router = useRouter();
   const {
-    isProUser,
     isSubscribed,
-    isTrialActive,
-    daysRemaining,
     isLoading,
     restorePurchases,
   } = useSubscription();

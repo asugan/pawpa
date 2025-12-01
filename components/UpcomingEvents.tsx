@@ -5,7 +5,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Event } from '../lib/types';
-import EventCard from './EventCard';
+import { EventCard } from './EventCard';
 
 interface UpcomingEventsProps {
   events: Event[];

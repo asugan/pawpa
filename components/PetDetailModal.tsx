@@ -11,7 +11,7 @@ import { useTheme } from '@/lib/theme';
 import { Event } from '../lib/types';
 import { usePet, useDeletePet } from '../lib/hooks/usePets';
 import { useEvents } from '../lib/hooks/useEvents';
-import PetModal from './PetModal';
+import { PetModal } from './PetModal';
 import LoadingSpinner from './LoadingSpinner';
 import { EventCard } from './EventCard';
 import { useTranslation } from 'react-i18next';

@@ -7,7 +7,7 @@ import { format, startOfDay, endOfDay, isToday, isTomorrow, isYesterday, addDays
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../lib/types';
 import { createEventTypeOptions } from '../constants';
-import EventCard from './EventCard';
+import { EventCard } from './EventCard';
 
 interface EventListProps {
   events: Event[];

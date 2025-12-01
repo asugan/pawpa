@@ -10,7 +10,7 @@ import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
-import UpcomingEventsSection from "@/components/UpcomingEventsSection";
+import { UpcomingEventsSection } from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 import { FinancialOverview } from "@/components/home/FinancialOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";

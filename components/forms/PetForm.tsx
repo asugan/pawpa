@@ -10,7 +10,7 @@ import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
-import FormWeightInput from './FormWeightInput';
+import { FormWeightInput } from './FormWeightInput';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
