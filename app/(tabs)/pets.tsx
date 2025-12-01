@@ -3,26 +3,24 @@ import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-nativ
 import { Text, FAB, Portal, Snackbar, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
-import { usePetUIStore } from '../../stores/petStore';
-import { usePets, useCreatePet, useDeletePet, petKeys } from '../../lib/hooks/usePets';
+import { usePets, useDeletePet, petKeys } from '../../lib/hooks/usePets';
 import { useQueryClient } from '@tanstack/react-query';
 import PetCard from '../../components/PetCard';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
 import { Grid } from '../../components/Grid';
-import PetModal from '../../components/PetModal';
+import { PetModal } from '../../components/PetModal';
 import PetDetailModal from '../../components/PetDetailModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function PetsScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   // Pagination state
@@ -31,24 +29,11 @@ export default function PetsScreen() {
   const [hasMore, setHasMore] = useState(true);
 
   // ✅ React Query hooks for server state with pagination
-  const { data: pets = [], isLoading, error, refetch, isFetching } = usePets({
+  const { data: pets = [], isLoading, error, isFetching } = usePets({
     page,
     limit: ENV.DEFAULT_LIMIT,
   });
-  const createPetMutation = useCreatePet();
   const deletePetMutation = useDeletePet();
-
-  // ✅ Zustand store for UI state only
-  const {
-    selectedPetId,
-    isCreatingPet,
-    filterStatus,
-    sortBy,
-    searchQuery,
-    setSelectedPet,
-    setCreatingPet,
-    setSearchQuery
-  } = usePetUIStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPetState] = useState<Pet | undefined>();
@@ -82,10 +67,10 @@ export default function PetsScreen() {
 
   useEffect(() => {
     if (error) {
-      setSnackbarMessage(error.message || 'Bir hata oluştu');
+      setSnackbarMessage(error.message || t('common.error'));
       setSnackbarVisible(true);
     }
-  }, [error]);
+  }, [error, t]);
 
   const showSnackbar = React.useCallback((message: string) => {
     setSnackbarMessage(message);
@@ -104,22 +89,22 @@ export default function PetsScreen() {
 
   const handleDeletePet = (pet: Pet) => {
     Alert.alert(
-      'Pet Sil',
-      `"${pet.name}" adlı pet\'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+      t('pets.deletePet'),
+      t('pets.deleteConfirmation', { name: pet.name }),
       [
         {
-          text: 'İptal',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sil',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deletePetMutation.mutateAsync(pet.id);
-              showSnackbar(`"${pet.name}" başarıyla silindi`);
+              showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
             } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'Pet silinemedi';
+              const errorMessage = error instanceof Error ? error.message : t('pets.deleteError');
               showSnackbar(errorMessage);
             }
           },
@@ -130,7 +115,7 @@ export default function PetsScreen() {
 
   const handleModalSuccess = () => {
     // React Query handles cache invalidation automatically
-    showSnackbar('Pet başarıyla kaydedildi');
+    showSnackbar(t('pets.saveSuccess'));
   };
 
   const handleSnackbarDismiss = () => {
@@ -195,106 +180,110 @@ export default function PetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          {t('pets.myPets')}
-        </Text>
-      </View>
+    <ProtectedRoute featureName={t('subscription.features.petManagement')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
+            {t('pets.myPets')}
+          </Text>
+        </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && page === 1}
-            onRefresh={handleRefresh}
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
-          />
-        }
-      >
-        {allPets.length === 0 ? (
-          !isLoading && (
-            <EmptyState
-              title={t('pets.noPetsYet')}
-              description={t('pets.addFirstPet')}
-              icon="paw"
-              buttonText={t('pets.addFirstPetButton', 'İlk Peti Ekle')}
-              onButtonPress={handleAddPet}
-              buttonColor={theme.colors.primary}
-              style={styles.emptyState}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && page === 1}
+              onRefresh={handleRefresh}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
             />
-          )
-        ) : (
-          <>
-            <Grid maxColumns={2}>
-              {allPets.map(renderPetCard)}
-            </Grid>
+          }
+        >
+          {allPets.length === 0 ? (
+            !isLoading && (
+              <EmptyState
+                title={t('pets.noPetsYet')}
+                description={t('pets.addFirstPet')}
+                icon="paw"
+                buttonText={t('pets.addFirstPetButton')}
+                onButtonPress={handleAddPet}
+                buttonColor={theme.colors.primary}
+                style={styles.emptyState}
+              />
+            )
+          ) : (
+            <>
+              <Grid maxColumns={2}>
+                {allPets.map(renderPetCard)}
+              </Grid>
 
-            {/* Load More Button */}
-            {hasMore && (
-              <View style={styles.loadMoreContainer}>
-                <Button
-                  mode="outlined"
-                  onPress={handleLoadMore}
-                  disabled={isFetching}
-                  style={styles.loadMoreButton}
-                >
-                  {isFetching ? t('common.loading') : t('common.loadMore')}
-                </Button>
-              </View>
-            )}
+              {/* Load More Button */}
+              {hasMore && (
+                <View style={styles.loadMoreContainer}>
+                  <Button
+                    mode="outlined"
+                    onPress={handleLoadMore}
+                    disabled={isFetching}
+                    style={styles.loadMoreButton}
+                  >
+                    {isFetching ? t('common.loading') : t('common.loadMore')}
+                  </Button>
+                </View>
+              )}
 
-            {/* Loading indicator at bottom when fetching next page */}
-            {isFetching && page > 1 && (
-              <View style={styles.loadingFooter}>
-                <LoadingSpinner size="small" />
-              </View>
-            )}
-          </>
+              {/* Loading indicator at bottom when fetching next page */}
+              {isFetching && page > 1 && (
+                <View style={styles.loadingFooter}>
+                  <LoadingSpinner size="small" />
+                </View>
+              )}
+            </>
+          )}
+        </ScrollView>
+
+        <FAB
+          icon="add"
+          style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+          onPress={handleAddPet}
+        />
+
+        <PetModal
+          visible={modalVisible}
+          pet={selectedPet}
+          onClose={() => setModalVisible(false)}
+          onSuccess={handleModalSuccess}
+          testID="pet-modal"
+        />
+
+        {selectedPetIdForDetail && (
+          <PetDetailModal
+            visible={detailModalVisible}
+            petId={selectedPetIdForDetail}
+            onClose={() => {
+              setDetailModalVisible(false);
+              setSelectedPetIdForDetail('');
+            }}
+          />
         )}
-      </ScrollView>
 
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-        onPress={handleAddPet}
-      />
-
-      <PetModal
-        visible={modalVisible}
-        pet={selectedPet}
-        onClose={() => setModalVisible(false)}
-        onSuccess={handleModalSuccess}
-        testID="pet-modal"
-      />
-
-      {selectedPetIdForDetail && (
-        <PetDetailModal
-          visible={detailModalVisible}
-          petId={selectedPetIdForDetail}
-          onClose={() => {
-            setDetailModalVisible(false);
-            setSelectedPetIdForDetail('');
-          }}
-        />
-      )}
-
-      <Portal>
-        <Snackbar
-          visible={snackbarVisible}
-          onDismiss={handleSnackbarDismiss}
-          duration={3000}
-          message={snackbarMessage}
-          style={{
-            ...styles.snackbar,
-            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
-          }}
-        />
-      </Portal>
-    </SafeAreaView>
+        <Portal>
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={handleSnackbarDismiss}
+            duration={3000}
+            message={snackbarMessage}
+            style={{
+              ...styles.snackbar,
+              backgroundColor: snackbarMessage.includes(t('pets.saveSuccess')) || snackbarMessage.includes(t('pets.deleteSuccess'))
+                ? theme.colors.primary
+                : theme.colors.error
+            }}
+          />
+        </Portal>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

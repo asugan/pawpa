@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Card, Text, Chip } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
+import { useTheme , gradients, gradientsDark } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useExpenseStats } from '../lib/hooks/useExpenses';
-import { gradients, gradientsDark } from '../lib/theme';
 import { ExpenseCategory } from '../lib/types';
 
 interface ExpenseOverviewProps {

@@ -1,5 +1,5 @@
 import { Card, Text } from '@/components/ui';
-import { getGradientColors, STAT_CARD_CONSTRAINTS } from '@/constants/ui';
+import { STAT_CARD_CONSTRAINTS } from '@/constants/ui';
 import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,7 +39,7 @@ const StatCard: React.FC<StatCardProps> = ({
   showTooltip = true,
   flexGrow = false,
 }) => {
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const { isMobile, cardPadding, iconSize } = useResponsiveSize();
   const { isTruncated, onTextLayout } = useTruncatedText(maxTitleLines);
   const [tooltipVisible, setTooltipVisible] = useState(false);

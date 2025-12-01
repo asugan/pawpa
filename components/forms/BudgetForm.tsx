@@ -6,7 +6,7 @@ import { Controller, FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { BUDGET_PERIODS } from '../../lib/schemas/budgetSchema';
-import { BudgetLimit, BudgetPeriod, CreateBudgetLimitInput } from '../../lib/types';
+import { BudgetLimit, CreateBudgetLimitInput } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
 import { SmartCategoryPicker } from './SmartCategoryPicker';

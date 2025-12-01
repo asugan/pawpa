@@ -4,7 +4,7 @@ import { Portal, Snackbar, Text, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { Event } from '../lib/types';
 import { EventFormData, transformFormDataToAPI } from '../lib/schemas/eventSchema';
-import EventForm from './forms/EventForm';
+import { EventForm } from './forms/EventForm';
 import { useCreateEvent, useUpdateEvent } from '../lib/hooks/useEvents';
 import { usePets } from '../lib/hooks/usePets';
 

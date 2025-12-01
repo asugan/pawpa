@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator, FlatList, ScrollView } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
 import { Text, FAB, SegmentedButtons, Menu, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
 import { FeedingScheduleModal } from '@/components/FeedingScheduleModal';
 import {
-  useFeedingSchedules,
   useActiveFeedingSchedules,
   useTodayFeedingSchedules,
   useDeleteFeedingSchedule,
@@ -17,6 +16,7 @@ import {
 import { usePets } from '@/lib/hooks/usePets';
 import { FeedingSchedule, Pet } from '@/lib/types';
 import { LAYOUT } from '@/constants';
+import { ProtectedRoute } from '@/components/subscription';
 
 type TabValue = 'today' | 'upcoming' | 'all';
 
@@ -188,13 +188,14 @@ export default function FeedingScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-          {t('feedingSchedule.title')}
-        </Text>
-      </View>
+    <ProtectedRoute featureName={t('subscription.features.feeding')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+            {t('feedingSchedule.title')}
+          </Text>
+        </View>
 
       {/* Tab Buttons */}
       <View style={styles.tabContainer}>
@@ -306,7 +307,8 @@ export default function FeedingScreen() {
         pets={allPets}
         testID="feeding-schedule-modal"
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

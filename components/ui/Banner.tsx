@@ -9,10 +9,10 @@ export interface BannerProps {
   visible: boolean;
   children: React.ReactNode;
   icon?: React.ReactNode;
-  actions?: Array<{
+  actions?: {
     label: string;
     onPress: () => void;
-  }>;
+  }[];
   onDismiss?: () => void;
   style?: ViewStyle;
 }

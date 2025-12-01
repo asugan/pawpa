@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Modal, View, StyleSheet, ViewStyle } from "react-native";
+import React, { createContext, useContext, useState, ReactNode, useRef } from "react";
 
 interface PortalContextValue {
   mount: (key: string, children: ReactNode) => void;
@@ -39,18 +38,24 @@ export interface PortalProps {
 
 export const Portal: React.FC<PortalProps> = ({ children }) => {
   const context = useContext(PortalContext);
+  const keyRef = useRef<string | null>(null);
+  
+  if (!keyRef.current) {
+    keyRef.current = `portal-${Math.random()}`;
+  }
+  const key = keyRef.current;
+
+  React.useEffect(() => {
+    if (context) {
+      context.mount(key, children);
+      return () => context.unmount(key);
+    }
+  }, [children, context, key]);
 
   // If no PortalProvider, just render children (fallback)
   if (!context) {
     return <>{children}</>;
   }
-
-  const key = `portal-${Math.random()}`;
-
-  React.useEffect(() => {
-    context.mount(key, children);
-    return () => context.unmount(key);
-  }, [children]);
 
   return null;
 };

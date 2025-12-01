@@ -1,11 +1,8 @@
-import { Avatar, Button, Surface, Text } from '@/components/ui';
+import { Avatar, Surface, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useResponsiveSize } from '../lib/hooks';
-import { gradients, gradientsDark } from '../lib/theme';
 import { Pet } from '../lib/types';
 
 interface PetCardProps {
@@ -29,48 +26,10 @@ const PetCard: React.FC<PetCardProps> = ({
 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const { isMobile, cardPadding, avatarSize } = useResponsiveSize();
-
-  const getPetIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'cat':
-        return 'cat';
-      case 'dog':
-        return 'dog';
-      case 'bird':
-        return 'bird';
-      case 'fish':
-        return 'fish';
-      case 'rabbit':
-        return 'rabbit';
-      case 'hamster':
-        return 'hamster';
-      case 'reptile':
-        return 'lizard';
-      default:
-        return 'paw';
-    }
-  };
 
   const getPetTypeLabel = (type: string) => {
     const typeKey = type.toLowerCase();
     return t(typeKey, type); // Fallback to original type if translation not found
-  };
-
-  const getAgeText = (birthDate: string | Date | null | undefined) => {
-    if (!birthDate) return t('pets.ageUnknown');
-
-    const today = new Date();
-    const birth = typeof birthDate === 'string' ? new Date(birthDate) : new Date(birthDate);
-    const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
-
-    if (months < 12) {
-      return `${months} ${t('pets.months')}`;
-    } else {
-      const years = Math.floor(months / 12);
-      const remainingMonths = months % 12;
-      return remainingMonths > 0 ? `${years} ${t('pets.years')} ${remainingMonths} ${t('pets.months')}` : `${years} ${t('pets.years')}`;
-    }
   };
 
   const getPetTypeColor = (type: string): string => {
@@ -85,32 +44,6 @@ const PetCard: React.FC<PetCardProps> = ({
       default: theme.colors.primary,
     };
     return typeColors[type.toLowerCase() as keyof typeof typeColors] || typeColors.default;
-  };
-
-  const getPetTypeGradient = (type: string): readonly [string, string] => {
-    const isDark = theme.dark;
-    const gradientSet = isDark ? gradientsDark : gradients;
-
-    const typeGradients: { [key: string]: readonly [string, string] } = {
-      cat: gradientSet.secondary,
-      dog: gradientSet.tertiary,
-      bird: gradientSet.primary,
-      fish: gradientSet.accent,
-      rabbit: gradientSet.secondary,
-      hamster: gradientSet.tertiary,
-      reptile: gradientSet.accent,
-      default: gradientSet.primary,
-    };
-    return typeGradients[type.toLowerCase()] || typeGradients.default;
-  };
-
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   // Determine ring color based on upcoming activities

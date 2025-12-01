@@ -1,6 +1,6 @@
 import { useTheme } from "@/lib/theme";
 import React from "react";
-import { Text as RNText, TextProps as RNTextProps, StyleSheet } from "react-native";
+import { Text as RNText, TextProps as RNTextProps } from "react-native";
 
 type TextVariant =
   | "headlineLarge"
@@ -48,5 +48,3 @@ export const Text: React.FC<TextProps> = ({
     </RNText>
   );
 };
-
-const styles = StyleSheet.create({});

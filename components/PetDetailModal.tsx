@@ -11,7 +11,7 @@ import { useTheme } from '@/lib/theme';
 import { Event } from '../lib/types';
 import { usePet, useDeletePet } from '../lib/hooks/usePets';
 import { useEvents } from '../lib/hooks/useEvents';
-import PetModal from './PetModal';
+import { PetModal } from './PetModal';
 import LoadingSpinner from './LoadingSpinner';
 import { EventCard } from './EventCard';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,7 @@ interface PetDetailModalProps {
 
 export default function PetDetailModal({ visible, petId, onClose }: PetDetailModalProps) {
   const { theme } = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
   // React Query hooks for server state
@@ -39,9 +39,9 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
   useEffect(() => {
     if (error) {
-      showSnackbar('Pet yüklenirken hata oluştu');
+      showSnackbar(t('pets.loadError'));
     }
-  }, [error]);
+  }, [error, t]);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -58,25 +58,25 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
     if (!pet) return;
 
     Alert.alert(
-      'Pet Sil',
-      `"${pet.name}" adlı pet'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+      t('pets.deletePet'),
+      t('pets.deleteConfirmation', { name: pet.name }),
       [
         {
-          text: 'İptal',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sil',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deletePetMutation.mutateAsync(pet.id);
-              showSnackbar(`"${pet.name}" başarıyla silindi`);
+              showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
               setTimeout(() => {
                 onClose();
               }, 1500);
             } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'Pet silinemedi';
+              const errorMessage = error instanceof Error ? error.message : t('pets.deleteError');
               showSnackbar(errorMessage);
             }
           },
@@ -87,7 +87,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
   const handleEditModalSuccess = () => {
     // React Query handles cache invalidation automatically
-    showSnackbar('Pet başarıyla güncellendi');
+    showSnackbar(t('pets.updateSuccess'));
   };
 
   const getPetIcon = (type: string): keyof typeof import('@expo/vector-icons').Ionicons.glyphMap => {
@@ -134,7 +134,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
   };
 
   const formatDate = (dateString: string | Date | null | undefined) => {
-    if (!dateString) return 'Belirtilmemiş';
+    if (!dateString) return t('common.notSpecified');
 
     const date = typeof dateString === 'string' ? new Date(dateString) : new Date(dateString);
     return date.toLocaleDateString('tr-TR', {
@@ -157,14 +157,14 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
       return (
         <View style={styles.errorContainer}>
           <Text variant="headlineMedium" style={{ color: theme.colors.onSurface, textAlign: 'center' }}>
-            Pet bulunamadı
+            {t('pets.notFound')}
           </Text>
           <Button
             mode="contained"
             onPress={onClose}
             style={styles.backButton}
           >
-            Kapat
+            {t('common.close')}
           </Button>
         </View>
       );
@@ -224,7 +224,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                     {getPetTypeLabel(pet.type)}
                   </Text>
                   <Text variant="bodyMedium" style={[styles.petBreed, { color: theme.colors.onSurfaceVariant }]}>
-                    {pet.breed || 'Cinsi belirtilmemiş'}
+                    {pet.breed || t('pets.breedNotSpecified')}
                   </Text>
                 </View>
               </View>
@@ -235,15 +235,15 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.cardContent}>
               <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Detaylı Bilgiler
+                {t('pets.detailedInfo')}
               </Text>
 
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Cinsiyet:
+                  {t('pets.gender')}:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
-                  {pet.gender === 'male' ? 'Erkek' : pet.gender === 'female' ? 'Dişi' : 'Belirtilmemiş'}
+                  {pet.gender === 'male' ? t('pets.male') : pet.gender === 'female' ? t('pets.female') : t('common.notSpecified')}
                 </Text>
               </View>
 
@@ -251,7 +251,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Doğum Tarihi:
+                  {t('pets.birthDate')}:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {formatDate(pet.birthDate)}
@@ -262,7 +262,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Yaş:
+                  {t('pets.age')}:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {getAgeText(pet.birthDate)}
@@ -273,10 +273,10 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Kilo:
+                  {t('pets.weight')}:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
-                  {pet.weight ? `${pet.weight} kg` : 'Belirtilmemiş'}
+                  {pet.weight ? `${pet.weight} kg` : t('common.notSpecified')}
                 </Text>
               </View>
 
@@ -284,7 +284,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Eklenme Tarihi:
+                  {t('pets.addedDate')}:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                   {formatDate(pet.createdAt)}
@@ -299,7 +299,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
               <View style={styles.cardContent}>
                 <View style={styles.sectionHeader}>
                   <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                    📅 Yaklaşan Etkinlikler
+                    {t('pets.upcomingEvents')}
                   </Text>
                   <Button
                     mode="text"
@@ -342,7 +342,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.cardContent}>
               <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Hızlı İşlemler
+                {t('pets.quickActions')}
               </Text>
 
               <View style={styles.quickActions}>
@@ -421,7 +421,9 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           duration={3000}
           style={{
             ...styles.snackbar,
-            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+            backgroundColor: snackbarMessage.includes(t('pets.saveSuccess')) || snackbarMessage.includes(t('pets.deleteSuccess')) || snackbarMessage.includes(t('pets.updateSuccess'))
+              ? theme.colors.primary
+              : theme.colors.error
           }}
           message={snackbarMessage}
         />

@@ -10,7 +10,7 @@ import { PetCreateInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
-import FormWeightInput from './FormWeightInput';
+import { FormWeightInput } from './FormWeightInput';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
@@ -27,7 +27,7 @@ interface PetFormProps {
 export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: PetFormProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { form, handleSubmit, isValid, isSubmitting } = usePetForm(pet);
+  const { form, handleSubmit, isValid } = usePetForm(pet);
 
   // Track if user has attempted to submit the form
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);

@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Chip, Text,  } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
-import { PaymentMethod } from '../lib/types';
-import { PAYMENT_METHODS } from '../lib/schemas/expenseSchema';
-import { useTranslation } from 'react-i18next';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Chip, Text } from "@/components/ui";
+import { useTheme } from "@/lib/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, View } from "react-native";
+import { PAYMENT_METHODS } from "../lib/schemas/expenseSchema";
+import { PaymentMethod } from "../lib/types";
 
 interface PaymentMethodPickerProps {
   selectedMethod?: PaymentMethod | null;
@@ -25,14 +25,19 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const getMethodIcon = (method: PaymentMethod): keyof typeof MaterialCommunityIcons.glyphMap => {
-    const icons: Record<PaymentMethod, keyof typeof MaterialCommunityIcons.glyphMap> = {
-      cash: 'cash',
-      credit_card: 'credit-card',
-      debit_card: 'credit-card-outline',
-      bank_transfer: 'bank-transfer',
+  const getMethodIcon = (
+    method: PaymentMethod
+  ): keyof typeof MaterialCommunityIcons.glyphMap => {
+    const icons: Record<
+      PaymentMethod,
+      keyof typeof MaterialCommunityIcons.glyphMap
+    > = {
+      cash: "cash",
+      credit_card: "credit-card",
+      debit_card: "credit-card-outline",
+      bank_transfer: "bank-transfer",
     };
-    return icons[method] || 'cash';
+    return icons[method] || "cash";
   };
 
   const handleSelect = (method: PaymentMethod) => {
@@ -46,8 +51,14 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text variant="labelLarge" style={[styles.label, { color: theme.colors.onSurface }]}>
-          {label} {optional && <Text style={{ opacity: 0.6 }}>(Optional)</Text>}
+        <Text
+          variant="labelLarge"
+          style={[styles.label, { color: theme.colors.onSurface }]}
+        >
+          {label}{" "}
+          {optional && (
+            <Text style={{ opacity: 0.6 }}>({t("common.optional")})</Text>
+          )}
         </Text>
       )}
       <View style={styles.chipContainer}>
@@ -57,14 +68,14 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
             selected={selectedMethod === method}
             onPress={() => handleSelect(method)}
             style={styles.chip}
-            icon={({ size, color }: { size: number, color: string }) => (
+            icon={({ size, color }: { size: number; color: string }) => (
               <MaterialCommunityIcons
                 name={getMethodIcon(method)}
                 size={size}
                 color={selectedMethod === method ? theme.colors.primary : color}
               />
             )}
-            mode={selectedMethod === method ? 'flat' : 'outlined'}
+            mode={selectedMethod === method ? "flat" : "outlined"}
             selectedColor={theme.colors.primary}
           >
             {t(`expenses.paymentMethods.${method}`, method)}
@@ -72,7 +83,10 @@ const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
         ))}
       </View>
       {error && (
-        <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+        <Text
+          variant="bodySmall"
+          style={[styles.error, { color: theme.colors.error }]}
+        >
           {error}
         </Text>
       )}
@@ -86,11 +100,11 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   chipContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   chip: {

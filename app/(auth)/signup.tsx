@@ -59,7 +59,7 @@ export default function SignupScreen() {
       } else {
         router.replace('/(tabs)');
       }
-    } catch (error) {
+    } catch {
       setError(t('auth.signUpError'));
     } finally {
       setLoading(false);

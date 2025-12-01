@@ -6,10 +6,7 @@ import { FormProvider, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createFoodTypeOptions } from '../../constants';
-import {
-  transformFormDataToAPI,
-  type FeedingScheduleFormData,
-} from '../../lib/schemas/feedingScheduleSchema';
+import { type FeedingScheduleFormData } from '../../lib/schemas/feedingScheduleSchema';
 import { FeedingSchedule, Pet } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';

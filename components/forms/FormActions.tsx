@@ -1,6 +1,7 @@
 import { Button, Divider } from '@/components/ui';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -20,13 +21,14 @@ interface FormActionsProps {
 export const FormActions = ({
   onCancel,
   onSubmit,
-  submitLabel = 'Submit',
-  cancelLabel = 'Cancel',
+  submitLabel,
+  cancelLabel,
   loading = false,
   disabled = false,
   showDivider = true,
   testID,
 }: FormActionsProps) => {
+  const { t } = useTranslation();
   return (
     <>
       {showDivider && <Divider style={styles.divider} />}
@@ -38,7 +40,7 @@ export const FormActions = ({
           style={styles.cancelButton}
           testID={testID ? `${testID}-cancel` : 'form-cancel-button'}
         >
-          {cancelLabel}
+          {cancelLabel || t('common.cancel')}
         </Button>
         <Button
           mode="contained"
@@ -47,7 +49,7 @@ export const FormActions = ({
           style={styles.submitButton}
           testID={testID ? `${testID}-submit` : 'form-submit-button'}
         >
-          {submitLabel}
+          {submitLabel || t('common.save')}
         </Button>
       </View>
     </>

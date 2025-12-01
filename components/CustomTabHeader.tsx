@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import NetworkStatusBadge from './NetworkStatusBadge';
+import { NetworkStatusBadge } from './NetworkStatusBadge';
 
 interface CustomTabHeaderProps {
   showNetworkBadge?: boolean;
@@ -50,25 +50,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingLeft: 4,
-    paddingRight: 16,
+    paddingHorizontal: 16,
     height: 56,
+    position: 'relative',
   },
   left: {
-    width: 200,
+    alignItems: 'flex-start',
+    paddingRight: 60,
   },
   center: {
     position: 'absolute',
     left: '50%',
-    marginLeft: -40,
+    transform: [{ translateX: -50 }],
+    width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
   right: {
-    width: 100,
     alignItems: 'flex-end',
+    paddingLeft: 60,
+    minWidth: 60,
   },
   logo: {
-    width: 200,
-    height: 64,
+    width: 120,
+    height: 40,
+    resizeMode: 'contain',
   },
   pageTitle: {
     fontWeight: '600',

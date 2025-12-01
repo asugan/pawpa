@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import { Text, FAB, Snackbar, Chip, Banner, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
 import { useBudgets, useBudgetAlerts, useBudgetStatuses, useCreateBudget, useUpdateBudget, useDeleteBudget, budgetKeys } from '../../lib/hooks/useBudgets';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,12 +15,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function BudgetsScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -34,11 +32,14 @@ export default function BudgetsScreen() {
   const [allBudgets, setAllBudgets] = useState<BudgetLimit[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
+  // Query client
+  const queryClient = useQueryClient();
+
   // Fetch pets
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
   // Fetch budgets for selected pet with pagination
-  const { data: budgetsData, isLoading: budgetsLoading, refetch, isFetching } = useBudgets(selectedPetId, {
+  const { data: budgetsData, isLoading: budgetsLoading, isFetching } = useBudgets(selectedPetId, {
     page,
     limit: ENV.DEFAULT_LIMIT,
   });
@@ -54,7 +55,7 @@ export default function BudgetsScreen() {
   const updateBudget = useUpdateBudget();
   const deleteBudget = useDeleteBudget();
 
-  const budgets = budgetsData?.budgetLimits || [];
+  const budgets = useMemo(() => budgetsData?.budgetLimits || [], [budgetsData?.budgetLimits]);
 
   // Reset pagination when selected pet changes
   useEffect(() => {
@@ -121,7 +122,7 @@ export default function BudgetsScreen() {
             try {
               await deleteBudget.mutateAsync(budget.id);
               showSnackbar(t('budgets.deleteSuccess', 'Budget deleted successfully'));
-            } catch (error) {
+            } catch {
               showSnackbar(t('budgets.deleteError', 'Failed to delete budget'));
             }
           },
@@ -141,7 +142,7 @@ export default function BudgetsScreen() {
       }
       setModalVisible(false);
       setEditingBudget(undefined);
-    } catch (error) {
+    } catch {
       showSnackbar(
         editingBudget
           ? t('budgets.updateError', 'Failed to update budget')
@@ -183,11 +184,12 @@ export default function BudgetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          {t('budgets.title', 'Budgets')}
-        </Text>
+    <ProtectedRoute featureName={t('subscription.features.budgets')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={styles.title}>
+            {t('budgets.title', 'Budgets')}
+          </Text>
 
         {/* Pet Selector */}
         <ScrollView
@@ -322,7 +324,8 @@ export default function BudgetsScreen() {
         duration={3000}
         message={snackbarMessage}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

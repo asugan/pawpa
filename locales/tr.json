@@ -53,7 +53,8 @@
     "viewMoreEvents": "+{{count}} daha fazla etkinlik",
     "viewMoreVaccinations": "+{{count}} daha fazla aşı",
     "financialOverview": "Finansal Genel Bakış",
-    "greeting": "Merhaba"
+    "greeting": "Merhaba",
+    "nextActivity": "Sonraki Aktivite"
   },
   "finance": {
     "monthlyExpenses": "Bu Ayki Harcamalar"
@@ -62,14 +63,20 @@
     "myPets": "Evcil Dostlarım",
     "noPetsYet": "Henüz pet yok",
     "addFirstPet": "+ butonuna basarak ilk evcil dostunuzu ekleyin",
+    "addFirstPetButton": "İlk Peti Ekle",
     "addNewPet": "Yeni Pet Ekle",
     "editPet": "Pet Düzenle",
     "petName": "Pet Adı",
     "type": "Tür",
     "breed": "Cins",
+    "breedNotSpecified": "Cins belirtilmemiş",
     "gender": "Cinsiyet",
+    "male": "Erkek",
+    "female": "Dişi",
     "birthDate": "Doğum Tarihi",
+    "age": "Yaş",
     "weight": "Kilo",
+    "addedDate": "Eklenme Tarihi",
     "cancel": "İptal",
     "update": "Güncelle",
     "add": "Ekle",
@@ -79,7 +86,18 @@
     "months": "ay",
     "years": "yıl",
     "edit": "Düzenle",
-    "delete": "Sil"
+    "delete": "Sil",
+    "deletePet": "Pet Sil",
+    "deleteConfirmation": "\"{{name}}\" adlı pet'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteSuccess": "\"{{name}}\" başarıyla silindi",
+    "deleteError": "Pet silinemedi",
+    "saveSuccess": "Pet başarıyla kaydedildi",
+    "loadError": "Pet yüklenirken hata oluştu",
+    "updateSuccess": "Pet başarıyla güncellendi",
+    "notFound": "Pet bulunamadı",
+    "detailedInfo": "Detaylı Bilgiler",
+    "upcomingEvents": "📅 Yaklaşan Etkinlikler",
+    "quickActions": "Hızlı İşlemler"
   },
   "health": {
     "healthRecords": "Sağlık Kayıtları",
@@ -88,7 +106,68 @@
     "noRecords": "Henüz sağlık kaydı yok",
     "petNameDate": "Pet Adı • Tarih",
     "upcomingVaccinations": "Yaklaşan Aşılar",
-    "addRecord": "Sağlık Kaydı Ekle"
+    "addRecord": "Sağlık Kaydı Ekle",
+    "noPets": "Evcil Hayvan Yok",
+    "addPetFirstToViewRecords": "Sağlık kayıtlarını görüntülemek için önce bir evcil hayvan ekleyin",
+    "selectPet": "Evcil Hayvan Seçin",
+    "recordType": "Kayıt Türü",
+    "loadingError": "Sağlık kayıtları yüklenirken bir hata oluştu",
+    "selectPetToViewRecords": "Evcil Hayvan Seçin",
+    "selectPetToViewRecordsMessage": "Sağlık kayıtlarını görüntülemek için bir evcil hayvan seçin",
+    "noRecordsShort": "Sağlık Kaydı Yok",
+    "noRecordsMessage": "Henüz sağlık kaydı eklenmemiş",
+    "addFirstRecord": "İlk Sağlık Kaydını Ekle"
+  },
+  "healthRecords": {
+    "title": "Sağlık Kaydı",
+    "deleteRecord": "Sağlık Kaydını Sil",
+    "deleteConfirmation": "Bu sağlık kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteError": "Sağlık kaydı silinirken bir hata oluştu",
+    "notFound": "Kayıt Bulunamadı",
+    "notFoundDescription": "Sağlık kaydı bulunamadı veya silinmiş",
+    "veterinarianInfo": "Veteriner Bilgileri",
+    "veterinarian": "Veteriner",
+    "clinic": "Klinik",
+    "cost": "Maliyet",
+    "vaccinationInfo": "Aşı Bilgileri",
+    "vaccineName": "Aşı Adı",
+    "vaccineManufacturer": "Aşı Üreticisi",
+    "batchNumber": "Parti Numarası",
+    "nextVaccinationDate": "Sonraki Aşı Tarihi",
+    "medicationInfo": "İlaç Bilgileri",
+    "medicationName": "İlaç Adı",
+    "dosage": "Doz",
+    "frequency": "Sıklık",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "createTitle": "Yeni Sağlık Kaydı",
+    "editTitle": "Sağlık Kaydını Düzenle",
+    "createSubtitle": "Evcil hayvanınızın sağlık kayıtlarını yönetin",
+    "saveError": "Sağlık kaydı kaydedilirken bir hata oluştu",
+    "titleField": "Başlık",
+    "titlePlaceholder": "Kayıt başlığı",
+    "descriptionField": "Açıklama",
+    "descriptionPlaceholder": "Açıklama (opsiyonel)",
+    "recordDate": "Kayıt Tarihi",
+    "nextAppointmentDate": "Sonraki Randevu Tarihi",
+    "vaccinationNameLabel": "Aşı Adı",
+    "manufacturerLabel": "Üretici",
+    "manufacturerPlaceholder": "Üretici firma",
+    "batchNumberLabel": "Lot Numarası",
+    "batchNumberPlaceholder": "Lot numarası",
+    "medicationNamePlaceholder": "İlaç adı",
+    "dosageLabel": "Doz",
+    "dosagePlaceholder": "Doz miktarı",
+    "frequencyLabel": "Sıklık",
+    "frequencyPlaceholder": "Kullanım sıklığı",
+    "start": "Başlangıç",
+    "end": "Bitiş",
+    "veterinarianLabel": "Veteriner",
+    "veterinarianPlaceholder": "Veteriner adı",
+    "clinicLabel": "Klinik",
+    "clinicPlaceholder": "Klinik adı",
+    "costPlaceholder": "0.00",
+    "notesPlaceholder": "Ek notlar"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -134,7 +213,70 @@
     "statusCompleted": "Tamamlandı",
     "statusCancelled": "İptal Edildi",
     "viewPetProfile": "Pet Profilini Görüntüle",
-    "noUpcomingEvents": "Yaklaşan etkinlik yok"
+    "noUpcomingEvents": "Yaklaşan etkinlik yok",
+    "createTitle": "Yeni Etkinlik",
+    "editTitle": "Etkinliği Düzenle",
+    "createSubtitle": "Evcil hayvanınız için etkinlik oluşturun",
+    "selectPet": "Evcil hayvan seçin",
+    "title": "Başlık",
+    "type": "Tür",
+    "description": "Açıklama",
+    "titlePlaceholder": "Etkinlik başlığı",
+    "typePlaceholder": "Etkinlik türü seçin",
+    "descriptionPlaceholder": "Etkinlik açıklaması (opsiyonel)",
+    "startTime": "Başlangıç Zamanı",
+    "endTime": "Bitiş Zamanı (opsiyonel)",
+    "locationField": "Konum",
+    "locationPlaceholder": "Konum (opsiyonel)",
+    "enableReminder": "Hatırlatıcı Etkinleştir",
+    "reminderDescription": "Etkinlikten önce bildirim alın",
+    "notesPlaceholder": "Ek notlarınızı buraya yazın",
+    "saveError": "Etkinlik kaydedilirken bir hata oluştu",
+    "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
+    "exit": "Çık"
+  },
+  "eventForm": {
+    "suggestions": {
+      "feeding": "Düzenli besleme zamanları pet sağlığı için önemlidir. Mama türüne göre porsiyonları ayarlayın.",
+      "vetVisit": "Veteriner ziyaretleri pet sağlığının korunması için gereklidir. Düzenli kontrolleri unutmayın.",
+      "exercise": "Düzenli egzersiz petin fiziksel ve mental sağlığı için önemlidir. Yaşa uygun aktiviteler seçin.",
+      "grooming": "Düzenli bakım petin temizliği ve sağlığı için gereklidir. Tüy, tırnak ve diş bakımını unutmayın.",
+      "play": "Oyun zamanı petinizle bağ kurmanın ve egzersiz yapmanın harika bir yoludur.",
+      "training": "Eğitim seansları petinizin öğrenmesi ve sosyalleşmesi için önemlidir. Sabır ve ödülle ilerleyin.",
+      "bath": "Banyo petin temizliği için gereklidir. Sıklığı pet türüne göre ayarlayın.",
+      "default": "Bu etkinlik petinizin sağlık ve mutluluğu için önemlidir. Düzenli olarak planlayın."
+    }
+  },
+  "eventList": {
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "yesterday": "Dün",
+    "filters": {
+      "all": "Tümü",
+      "today": "Bugün",
+      "tomorrow": "Yarın",
+      "thisWeek": "Bu Hafta",
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş"
+    },
+    "events": "Etkinlikler",
+    "noEvents": "Etkinlik bulunamadı",
+    "clearFilters": "Filtreleri Temizle",
+    "searchPlaceholder": "Etkinlik ara...",
+    "dateFilter": "Tarih Filtresi",
+    "typeFilter": "Tür Filtresi",
+    "allTypes": "Tüm Türler"
+  },
+  "upcomingEvents": {
+    "viewAll": "Tümünü Görüntüle",
+    "noUpcomingTitle": "Yaklaşan Etkinlik Yok",
+    "noUpcomingMessage": "Şu anda yaklaşan bir etkinlik bulunmamaktadır",
+    "refresh": "Yenile",
+    "loading": "Yükleniyor..."
+  },
+  "eventCard": {
+    "forPet": "Evcil Dost İçin",
+    "reminderSet": "Hatırlatıcı Ayarlandı"
   },
   "notifications": {
     "enableTitle": "Bildirimleri Etkinleştir",
@@ -178,7 +320,17 @@
     "versionNumber": "1.0.0",
     "helpSupport": "Yardım ve Destek",
     "helpSupportDescription": "SSS ve iletişim",
-    "logout": "Çıkış Yap"
+    "settings": "Ayarlar",
+    "logout": "Çıkış Yap",
+    "userPlaceholder": "Kullanıcı",
+    "turkishLanguage": "Türkçe",
+    "englishLanguage": "English",
+    "trIndicator": "TR",
+    "enIndicator": "EN",
+    "languages": {
+      "turkish": "Türkçe",
+      "english": "English"
+    }
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -203,7 +355,22 @@
     "success": "Başarılı",
     "unsavedChanges": "Kaydedilmemiş Değişiklikler",
     "unsavedChangesMessage": "Kaydedilmemiş değişiklikleriniz var. Bunları silmek istediğinizden emin misiniz?",
-    "discard": "Değişiklikleri Sil"
+    "discard": "Değişiklikleri Sil",
+    "close": "Kapat",
+    "offline": "Çevrimdışı",
+    "wifi": "Wi-Fi",
+    "cellular": "Mobil",
+    "weekdays": "Hafta İçi",
+    "weekend": "Hafta Sonu",
+    "loadMore": "Daha Fazla Yükle",
+    "all": "Tümü",
+    "selected": "Seçili",
+    "dateTime": "Tarih ve Saat",
+    "additionalOptions": "Ek Seçenekler",
+    "dateInformation": "Tarih Bilgileri",
+    "days": "gün",
+    "notSpecified": "Belirtilmemiş",
+    "optional": "Opsiyonel"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -267,6 +434,11 @@
     "createTitle": "Besleme Programı Oluştur",
     "editTitle": "Besleme Programı Düzenle",
     "subtitle": "Evcil dostunuz için bir besleme programı oluşturun",
+    "sections": {
+      "scheduleDetails": "Program Detayları",
+      "scheduleDetailsSubtitle": "Besleme programı detaylarını ayarlayın",
+      "settings": "Ayarlar"
+    },
     "forPet": "Evcil dost için",
     "everyday": "Her Gün",
     "active": "Aktif",
@@ -347,7 +519,11 @@
       "weight": "Kilo",
       "weightPlaceholder": "Kilo girin (opsiyonel)",
       "selectType": "Pet türünü seçin",
-      "selectGender": "Cinsiyet seçin (opsiyonel)"
+      "selectGender": "Cinsiyet seçin (opsiyonel)",
+      "sections": {
+        "physicalDetails": "Fiziksel Bilgiler",
+        "photo": "Fotoğraf"
+      }
     },
     "validation": {
       "nameMinLength": "İsim en az 2 karakter olmalıdır",
@@ -367,7 +543,8 @@
       "photoInvalid": "Lütfen geçerli bir fotoğraf URI veya URL'i giriniz",
       "petNameAndTypeRequired": "Pet adı ve türü zorunludur",
       "required": "Bu alan zorunludur",
-      "invalid": "Geçersiz değer"
+      "invalid": "Geçersiz değer",
+      "error": "Validasyon Hatası"
     },
     "dropdown": {
       "searchPlaceholder": "Ara...",
@@ -420,6 +597,14 @@
       "takePhotoDescription": "Yeni bir fotoğraf çekin",
       "removePhotoTitle": "Fotoğrafı Kaldır",
       "removePhotoDescription": "Mevcut fotoğrafı silin"
+    },
+    "healthRecord": {
+      "title": "Sağlık Kaydı Bilgileri",
+      "subtitle": "Sağlık kaydı detaylarını girin"
+    },
+    "actions": {
+      "submit": "Gönder",
+      "cancel": "İptal"
     }
   },
   "expenses": {
@@ -521,6 +706,67 @@
     "periods": {
       "monthly": "Aylık",
       "yearly": "Yıllık"
+    }
+  },
+  "subscription": {
+    "title": "Abonelik",
+    "pro": "Pro",
+    "free": "Ücretsiz",
+    "trial": "Deneme",
+    "trialActive": "Ücretsiz Deneme Aktif",
+    "trialDaysRemaining": "{{days}} gün kaldı",
+    "trialExpired": "Deneme Süresi Doldu",
+    "trialPrompt": "Deneme süreniz {{days}} gün sonra bitiyor",
+    "upgrade": "Pro'ya Yükselt",
+    "upgradePrompt": "Pro ile tüm özelliklerin kilidini açın",
+    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükselt",
+    "manageSubscription": "Aboneliği Yönet",
+    "restorePurchases": "Satın Alımları Geri Yükle",
+    "restoreSuccess": "Satın alımlar başarıyla geri yüklendi",
+    "restoreError": "Satın alımlar geri yüklenemedi",
+    "noPurchases": "Satın Alım Bulunamadı",
+    "noPurchasesMessage": "Hesabınızda önceki satın alım bulunamadı",
+    "currentPlan": "Mevcut Plan",
+    "expiresOn": "{{date}} tarihinde sona eriyor",
+    "autoRenews": "{{date}} tarihinde otomatik yenilenir",
+    "cancelled": "İptal edildi - {{date}} tarihinde sona eriyor",
+    "paywallError": "Abonelik seçenekleri yüklenemedi",
+    "terms": "Kullanım Koşulları",
+    "privacy": "Gizlilik Politikası",
+    "unlockFeature": "{{feature}} Kilidini Aç",
+    "modal": {
+      "title": "Premium Özellik",
+      "description": "Bu özellik sadece Pro üyeler için",
+      "featureDescription": "{{feature}} sadece Pro üyeler için",
+      "upgradeNow": "Şimdi Yükselt",
+      "maybeLater": "Belki Daha Sonra",
+      "includes": "Pro üyelik şunları içerir:"
+    },
+    "features": {
+      "title": "Pro Özellikleri",
+      "unlimited": "Sınırsız Evcil Hayvan",
+      "unlimitedDesc": "İstediğiniz kadar evcil hayvan ekleyin",
+      "advanced": "Gelişmiş Sağlık Takibi",
+      "advancedDesc": "Detaylı sağlık analizleri ve içgörüler",
+      "export": "Veri Dışa Aktarma",
+      "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
+      "priority": "Öncelikli Destek",
+      "priorityDesc": "İhtiyacınız olduğunda yardım alın",
+      "petManagement": "Evcil Hayvan Yönetimi",
+      "healthRecords": "Sağlık Kayıtları",
+      "calendar": "Takvim & Etkinlikler",
+      "feeding": "Besleme Programları",
+      "expenses": "Gider Takibi",
+      "budgets": "Bütçe Yönetimi"
+    },
+    "paywall": {
+      "title": "PawPa Pro'nun Kilidini Açın",
+      "subtitle": "PawPa'dan en iyi şekilde yararlanın"
+    },
+    "success": {
+      "title": "Abonelik Başarılı!",
+      "message": "Artık Pro üyesiniz. Tüm premium özelliklerin keyfini çıkarın.",
+      "button": "Anasayfaya Dön"
     }
   }
 }

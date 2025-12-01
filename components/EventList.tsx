@@ -7,7 +7,7 @@ import { format, startOfDay, endOfDay, isToday, isTomorrow, isYesterday, addDays
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../lib/types';
 import { createEventTypeOptions } from '../constants';
-import EventCard from './EventCard';
+import { EventCard } from './EventCard';
 
 interface EventListProps {
   events: Event[];
@@ -144,7 +144,7 @@ export function EventList({
   }, [filteredEvents]);
 
   // Format date for section headers
-  const formatSectionDate = (dateString: string) => {
+  const formatSectionDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
 
     if (isToday(date)) {
@@ -156,7 +156,7 @@ export function EventList({
     } else {
       return format(date, 'dd MMMM yyyy', { locale });
     }
-  };
+  }, [locale, t]);
 
   // Filter options
   const filterOptions: { type: FilterType; label: string }[] = [
@@ -208,15 +208,7 @@ export function EventList({
         {groupedEvents[title].length} {t('eventList.events')}
       </Text>
     </View>
-  ), [theme.colors, groupedEvents, t]);
-
-  // Prepare sections for FlatList
-  const sections = useMemo(() => {
-    return Object.keys(groupedEvents).map(date => ({
-      title: date,
-      data: groupedEvents[date],
-    }));
-  }, [groupedEvents]);
+  ), [theme.colors, groupedEvents, t, formatSectionDate]);
 
   // Empty state
   if (!loading && filteredEvents.length === 0) {
