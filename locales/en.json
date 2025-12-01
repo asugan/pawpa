@@ -366,7 +366,8 @@
     "additionalOptions": "Additional Options",
     "dateInformation": "Date Information",
     "days": "days",
-    "notSpecified": "Not specified"
+    "notSpecified": "Not specified",
+    "optional": "Optional"
   },
   "errors": {
     "loadingFailed": "Loading Failed"
@@ -539,7 +540,8 @@
       "photoInvalid": "Please enter a valid photo URI or URL",
       "petNameAndTypeRequired": "Pet name and type are required",
       "required": "This field is required",
-      "invalid": "Invalid value"
+      "invalid": "Invalid value",
+      "error": "Validation Error"
     },
     "dropdown": {
       "searchPlaceholder": "Search...",
@@ -600,9 +602,6 @@
     "actions": {
       "submit": "Submit",
       "cancel": "Cancel"
-    },
-    "validation": {
-      "error": "Validation Error"
     }
   },
   "expenses": {

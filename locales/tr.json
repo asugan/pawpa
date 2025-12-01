@@ -366,7 +366,8 @@
     "additionalOptions": "Ek Seçenekler",
     "dateInformation": "Tarih Bilgileri",
     "days": "gün",
-    "notSpecified": "Belirtilmemiş"
+    "notSpecified": "Belirtilmemiş",
+    "optional": "Opsiyonel"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -539,7 +540,8 @@
       "photoInvalid": "Lütfen geçerli bir fotoğraf URI veya URL'i giriniz",
       "petNameAndTypeRequired": "Pet adı ve türü zorunludur",
       "required": "Bu alan zorunludur",
-      "invalid": "Geçersiz değer"
+      "invalid": "Geçersiz değer",
+      "error": "Validasyon Hatası"
     },
     "dropdown": {
       "searchPlaceholder": "Ara...",
@@ -600,9 +602,6 @@
     "actions": {
       "submit": "Gönder",
       "cancel": "İptal"
-    },
-    "validation": {
-      "error": "Validasyon Hatası"
     }
   },
   "expenses": {

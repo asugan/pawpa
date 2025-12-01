@@ -1,10 +1,10 @@
+import { Text } from "@/components/ui";
+import { User } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Text } from "@/components/ui";
-import { User } from "@/lib/auth";
-import { useTheme } from "@/lib/theme";
 
 interface HomeHeaderProps {
   user: User | null;
@@ -12,7 +12,11 @@ interface HomeHeaderProps {
   eventsCount: number;
 }
 
-export const HomeHeader = ({ user, petsCount, eventsCount }: HomeHeaderProps) => {
+export const HomeHeader = ({
+  user,
+  petsCount,
+  eventsCount,
+}: HomeHeaderProps) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
 
@@ -26,7 +30,12 @@ export const HomeHeader = ({ user, petsCount, eventsCount }: HomeHeaderProps) =>
   return (
     <>
       <View style={styles.topHeader}>
-        <TouchableOpacity style={[styles.avatarContainer, { borderColor: theme.colors.primary }]}>
+        <TouchableOpacity
+          style={[
+            styles.avatarContainer,
+            { borderColor: theme.colors.primary },
+          ]}
+        >
           {user?.image ? (
             <Image source={{ uri: user.image }} style={styles.avatar} />
           ) : (
@@ -36,15 +45,25 @@ export const HomeHeader = ({ user, petsCount, eventsCount }: HomeHeaderProps) =>
           )}
         </TouchableOpacity>
         <TouchableOpacity style={styles.notificationButton}>
-          <Ionicons name="notifications-outline" size={28} color={theme.colors.onBackground} />
+          <Ionicons
+            name="notifications-outline"
+            size={28}
+            color={theme.colors.onBackground}
+          />
         </TouchableOpacity>
       </View>
 
       <View style={styles.header}>
-        <Text variant="headlineMedium" style={[styles.greeting, { color: theme.colors.onBackground }]}>
-          {t("home.greeting")}, {user?.name || "User"}!
+        <Text
+          variant="headlineMedium"
+          style={[styles.greeting, { color: theme.colors.onBackground }]}
+        >
+          {t("home.greeting")}, {user?.name || t("settings.userPlaceholder")}!
         </Text>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text
+          variant="bodyMedium"
+          style={{ color: theme.colors.onSurfaceVariant }}
+        >
           {getDynamicSubtitle()}
         </Text>
       </View>
