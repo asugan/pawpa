@@ -227,11 +227,15 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
     console.log('[SubscriptionProvider] Setting up CustomerInfo listener');
 
-    // Add listener for real-time updates
-    Purchases.addCustomerInfoUpdateListener(handleCustomerInfoUpdate);
+    // Defer listener setup to next tick to avoid race condition
+    // This prevents the customLogHandler error during SDK initialization
+    const setupTimer = setTimeout(() => {
+      Purchases.addCustomerInfoUpdateListener(handleCustomerInfoUpdate);
+    }, 0);
 
     return () => {
       console.log('[SubscriptionProvider] Removing CustomerInfo listener');
+      clearTimeout(setupTimer);
       Purchases.removeCustomerInfoUpdateListener(handleCustomerInfoUpdate);
     };
   }, [isInitialized, handleCustomerInfoUpdate]);
