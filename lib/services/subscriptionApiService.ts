@@ -2,9 +2,51 @@ import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import { getDeviceId } from '../utils/deviceId';
 
+// Request deduplication and rate limiting
+const REQUEST_CACHE = new Map<string, { timestamp: number; promise: Promise<any> }>();
+const CACHE_TTL = 5000; // 5 seconds
+
 /**
  * Unified subscription status from backend - single source of truth
  */
+
+/**
+ * Clear expired cache entries
+ */
+function clearExpiredCache() {
+  const now = Date.now();
+  for (const [key, entry] of REQUEST_CACHE.entries()) {
+    if (now - entry.timestamp > CACHE_TTL) {
+      REQUEST_CACHE.delete(key);
+    }
+  }
+}
+
+/**
+ * Get or create a cached request
+ */
+function getCachedRequest<T>(key: string, factory: () => Promise<T>): Promise<T> {
+  clearExpiredCache();
+  
+  const existing = REQUEST_CACHE.get(key);
+  if (existing) {
+    console.log(`[SubscriptionApiService] Using cached request for ${key}`);
+    return existing.promise;
+  }
+  
+  const promise = factory();
+  REQUEST_CACHE.set(key, { timestamp: Date.now(), promise });
+  
+  // Clean up after promise resolves
+  promise.catch(() => {}).finally(() => {
+    // Remove from cache after TTL to allow fresh requests
+    setTimeout(() => {
+      REQUEST_CACHE.delete(key);
+    }, CACHE_TTL);
+  });
+  
+  return promise;
+}
 export interface SubscriptionStatus {
   hasActiveSubscription: boolean;
   subscriptionType: 'trial' | 'paid' | null;
@@ -59,33 +101,38 @@ export class SubscriptionApiService {
   /**
    * Get unified subscription status from backend
    * This is the main method - use this for all status checks
+   * Implements request deduplication to prevent duplicate calls
    */
   async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
-    try {
-      const deviceId = await getDeviceId();
-      const response = await api.get<SubscriptionStatus>(
-        ENV.ENDPOINTS.SUBSCRIPTION_STATUS,
-        { deviceId }
-      );
+    const deviceId = await getDeviceId();
+    const cacheKey = `subscription-status-${deviceId}`;
 
-      console.log('✅ Subscription status loaded successfully');
-      return {
-        success: true,
-        data: response.data!,
-      };
-    } catch (error) {
-      console.error('❌ Get subscription status error:', error);
-      if (error instanceof ApiError) {
+    return getCachedRequest(cacheKey, async () => {
+      try {
+        const response = await api.get<SubscriptionStatus>(
+          ENV.ENDPOINTS.SUBSCRIPTION_STATUS,
+          { deviceId }
+        );
+
+        console.log('✅ Subscription status loaded successfully');
+        return {
+          success: true,
+          data: response.data!,
+        };
+      } catch (error) {
+        console.error('❌ Get subscription status error:', error);
+        if (error instanceof ApiError) {
+          return {
+            success: false,
+            error: error.message,
+          };
+        }
         return {
           success: false,
-          error: error.message,
+          error: 'Abonelik durumu yüklenemedi. Lütfen tekrar deneyin.',
         };
       }
-      return {
-        success: false,
-        error: 'Abonelik durumu yüklenemedi. Lütfen tekrar deneyin.',
-      };
-    }
+    });
   }
 
   /**

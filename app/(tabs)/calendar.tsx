@@ -13,6 +13,7 @@ import { EventModal } from '@/components/EventModal';
 import { useUpcomingEvents, useCalendarEvents } from '@/lib/hooks/useEvents';
 import { Event } from '@/lib/types';
 import { LAYOUT } from '@/constants';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function CalendarScreen() {
   const { theme } = useTheme();
@@ -177,39 +178,41 @@ export default function CalendarScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      {/* Calendar Header */}
-      <CalendarHeader
-        currentDate={currentDate}
-        viewType={viewType}
-        onViewTypeChange={handleViewTypeChange}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-        onToday={handleToday}
-        testID="calendar-header"
-      />
+    <ProtectedRoute featureName={t('subscription.features.calendar')}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        {/* Calendar Header */}
+        <CalendarHeader
+          currentDate={currentDate}
+          viewType={viewType}
+          onViewTypeChange={handleViewTypeChange}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onToday={handleToday}
+          testID="calendar-header"
+        />
 
-      {/* Calendar View */}
-      <View style={styles.calendarContainer}>{renderCalendarView()}</View>
+        {/* Calendar View */}
+        <View style={styles.calendarContainer}>{renderCalendarView()}</View>
 
-      {/* Add Event FAB */}
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.tertiary }}
-        onPress={handleAddEvent}
-        testID="calendar-add-event-fab"
-      />
+        {/* Add Event FAB */}
+        <FAB
+          icon="add"
+          style={{ ...styles.fab, backgroundColor: theme.colors.tertiary }}
+          onPress={handleAddEvent}
+          testID="calendar-add-event-fab"
+        />
 
-      {/* Event Creation Modal */}
-      <EventModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onSuccess={handleModalSuccess}
-        testID="calendar-event-modal"
-      />
-    </SafeAreaView>
+        {/* Event Creation Modal */}
+        <EventModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onSuccess={handleModalSuccess}
+          testID="calendar-event-modal"
+        />
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

@@ -734,6 +734,14 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "unlockFeature": "Unlock {{feature}}",
+    "modal": {
+      "title": "Premium Feature",
+      "description": "This feature is only available for Pro members",
+      "featureDescription": "{{feature}} is only available for Pro members",
+      "upgradeNow": "Upgrade Now",
+      "maybeLater": "Maybe Later",
+      "includes": "Pro membership includes:"
+    },
     "features": {
       "title": "Pro Features",
       "unlimited": "Unlimited Pets",
@@ -743,7 +751,13 @@
       "export": "Data Export",
       "exportDesc": "Export your data in multiple formats",
       "priority": "Priority Support",
-      "priorityDesc": "Get help when you need it"
+      "priorityDesc": "Get help when you need it",
+      "petManagement": "Pet Management",
+      "healthRecords": "Health Records",
+      "calendar": "Calendar & Events",
+      "feeding": "Feeding Schedules",
+      "expenses": "Expense Tracking",
+      "budgets": "Budget Management"
     },
     "paywall": {
       "title": "Unlock PawPa Pro",

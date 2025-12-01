@@ -16,6 +16,7 @@ import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function PetsScreen() {
   const { theme } = useTheme();
@@ -179,108 +180,110 @@ export default function PetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          {t('pets.myPets')}
-        </Text>
-      </View>
+    <ProtectedRoute featureName={t('subscription.features.petManagement')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
+            {t('pets.myPets')}
+          </Text>
+        </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && page === 1}
-            onRefresh={handleRefresh}
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
-          />
-        }
-      >
-        {allPets.length === 0 ? (
-          !isLoading && (
-            <EmptyState
-              title={t('pets.noPetsYet')}
-              description={t('pets.addFirstPet')}
-              icon="paw"
-              buttonText={t('pets.addFirstPetButton')}
-              onButtonPress={handleAddPet}
-              buttonColor={theme.colors.primary}
-              style={styles.emptyState}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && page === 1}
+              onRefresh={handleRefresh}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
             />
-          )
-        ) : (
-          <>
-            <Grid maxColumns={2}>
-              {allPets.map(renderPetCard)}
-            </Grid>
+          }
+        >
+          {allPets.length === 0 ? (
+            !isLoading && (
+              <EmptyState
+                title={t('pets.noPetsYet')}
+                description={t('pets.addFirstPet')}
+                icon="paw"
+                buttonText={t('pets.addFirstPetButton')}
+                onButtonPress={handleAddPet}
+                buttonColor={theme.colors.primary}
+                style={styles.emptyState}
+              />
+            )
+          ) : (
+            <>
+              <Grid maxColumns={2}>
+                {allPets.map(renderPetCard)}
+              </Grid>
 
-            {/* Load More Button */}
-            {hasMore && (
-              <View style={styles.loadMoreContainer}>
-                <Button
-                  mode="outlined"
-                  onPress={handleLoadMore}
-                  disabled={isFetching}
-                  style={styles.loadMoreButton}
-                >
-                  {isFetching ? t('common.loading') : t('common.loadMore')}
-                </Button>
-              </View>
-            )}
+              {/* Load More Button */}
+              {hasMore && (
+                <View style={styles.loadMoreContainer}>
+                  <Button
+                    mode="outlined"
+                    onPress={handleLoadMore}
+                    disabled={isFetching}
+                    style={styles.loadMoreButton}
+                  >
+                    {isFetching ? t('common.loading') : t('common.loadMore')}
+                  </Button>
+                </View>
+              )}
 
-            {/* Loading indicator at bottom when fetching next page */}
-            {isFetching && page > 1 && (
-              <View style={styles.loadingFooter}>
-                <LoadingSpinner size="small" />
-              </View>
-            )}
-          </>
+              {/* Loading indicator at bottom when fetching next page */}
+              {isFetching && page > 1 && (
+                <View style={styles.loadingFooter}>
+                  <LoadingSpinner size="small" />
+                </View>
+              )}
+            </>
+          )}
+        </ScrollView>
+
+        <FAB
+          icon="add"
+          style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+          onPress={handleAddPet}
+        />
+
+        <PetModal
+          visible={modalVisible}
+          pet={selectedPet}
+          onClose={() => setModalVisible(false)}
+          onSuccess={handleModalSuccess}
+          testID="pet-modal"
+        />
+
+        {selectedPetIdForDetail && (
+          <PetDetailModal
+            visible={detailModalVisible}
+            petId={selectedPetIdForDetail}
+            onClose={() => {
+              setDetailModalVisible(false);
+              setSelectedPetIdForDetail('');
+            }}
+          />
         )}
-      </ScrollView>
 
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-        onPress={handleAddPet}
-      />
-
-      <PetModal
-        visible={modalVisible}
-        pet={selectedPet}
-        onClose={() => setModalVisible(false)}
-        onSuccess={handleModalSuccess}
-        testID="pet-modal"
-      />
-
-      {selectedPetIdForDetail && (
-        <PetDetailModal
-          visible={detailModalVisible}
-          petId={selectedPetIdForDetail}
-          onClose={() => {
-            setDetailModalVisible(false);
-            setSelectedPetIdForDetail('');
-          }}
-        />
-      )}
-
-      <Portal>
-        <Snackbar
-          visible={snackbarVisible}
-          onDismiss={handleSnackbarDismiss}
-          duration={3000}
-          message={snackbarMessage}
-          style={{
-            ...styles.snackbar,
-            backgroundColor: snackbarMessage.includes(t('pets.saveSuccess')) || snackbarMessage.includes(t('pets.deleteSuccess'))
-              ? theme.colors.primary
-              : theme.colors.error
-          }}
-        />
-      </Portal>
-    </SafeAreaView>
+        <Portal>
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={handleSnackbarDismiss}
+            duration={3000}
+            message={snackbarMessage}
+            style={{
+              ...styles.snackbar,
+              backgroundColor: snackbarMessage.includes(t('pets.saveSuccess')) || snackbarMessage.includes(t('pets.deleteSuccess'))
+                ? theme.colors.primary
+                : theme.colors.error
+            }}
+          />
+        </Portal>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

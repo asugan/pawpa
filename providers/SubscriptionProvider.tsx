@@ -47,13 +47,17 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   /**
    * Handle CustomerInfo updates from RevenueCat
    * After update, also refresh backend status
+   * Uses rate-limited refresh to prevent loops
    */
   const handleCustomerInfoUpdate = useCallback(async (info: CustomerInfo) => {
     console.log('[SubscriptionProvider] CustomerInfo updated');
     setCustomerInfo(info);
     // Refresh backend status when RevenueCat info changes
-    await fetchSubscriptionStatus();
-  }, [setCustomerInfo, fetchSubscriptionStatus]);
+    // Note: refreshSubscriptionStatus has built-in rate limiting
+    if (isAuthenticated) {
+      await fetchSubscriptionStatus();
+    }
+  }, [setCustomerInfo, fetchSubscriptionStatus, isAuthenticated]);
 
   /**
    * Migrate from local trial storage to backend
@@ -80,14 +84,17 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   /**
    * Initialize subscription status from backend
    * For new users (canStartTrial = true), auto-start trial
+   * Only runs when user is authenticated
    */
   const initializeSubscriptionStatus = useCallback(async () => {
-    if (trialInitRef.current || !isAuthenticated) {
+    if (trialInitRef.current || !isAuthenticated || isPending) {
       return;
     }
     trialInitRef.current = true;
 
     try {
+      console.log('[SubscriptionProvider] Initializing subscription status for authenticated user');
+      
       // Fetch current subscription status from backend
       await fetchSubscriptionStatus();
 
@@ -101,8 +108,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       }
     } catch (error) {
       console.error('[SubscriptionProvider] Error initializing subscription status:', error);
+      // Don't rethrow - allow app to continue even if subscription check fails
     }
-  }, [isAuthenticated, fetchSubscriptionStatus, startTrial]);
+  }, [isAuthenticated, isPending, fetchSubscriptionStatus, startTrial]);
 
   /**
    * Initialize the SDK
@@ -155,9 +163,16 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
   /**
    * Handle user login - sync identity with RevenueCat and fetch subscription status
+   * Includes guard to prevent duplicate calls
    */
   const handleUserLogin = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id || !isAuthenticated) return;
+
+    // Prevent duplicate calls - only sync once per login session
+    if (isInitialized) {
+      console.log('[SubscriptionProvider] User already logged in, skipping duplicate sync');
+      return;
+    }
 
     try {
       setLoading(true);
@@ -176,7 +191,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, setCustomerInfo, setLoading, setError, initializeSubscriptionStatus]);
+  }, [user?.id, isAuthenticated, isInitialized, setCustomerInfo, setLoading, setError, initializeSubscriptionStatus]);
 
   /**
    * Handle user logout - reset to anonymous
@@ -208,8 +223,15 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       return;
     }
 
+    // Only initialize SDK if user will potentially access subscription features
+    // Skip initialization entirely for unauthenticated users to prevent unnecessary API calls
+    if (!isAuthenticated) {
+      console.log('[SubscriptionProvider] Skipping SDK initialization - user not authenticated');
+      return;
+    }
+
     initializeSDK();
-  }, [isPending, initializeSDK]);
+  }, [isPending, isAuthenticated, initializeSDK]);
 
   // Handle auth state changes (login/logout)
   useEffect(() => {
@@ -221,7 +243,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     // The initializeSDK already handles the initial user ID
   }, [isAuthenticated, isInitialized, isPending]);
 
-  // Set up CustomerInfo update listener
+  // Set up CustomerInfo update listener (runs once after initialization)
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -231,14 +253,15 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     // This prevents the customLogHandler error during SDK initialization
     const setupTimer = setTimeout(() => {
       Purchases.addCustomerInfoUpdateListener(handleCustomerInfoUpdate);
-    }, 0);
+    }, 100); // Increased delay to ensure SDK is fully ready
 
     return () => {
       console.log('[SubscriptionProvider] Removing CustomerInfo listener');
       clearTimeout(setupTimer);
       Purchases.removeCustomerInfoUpdateListener(handleCustomerInfoUpdate);
     };
-  }, [isInitialized, handleCustomerInfoUpdate]);
+    // Note: handleCustomerInfoUpdate is stable due to useCallback with proper deps
+  }, [isInitialized]); // Removed handleCustomerInfoUpdate from deps to prevent re-registration
 
   // Handle explicit login (when user signs in after initial load)
   useEffect(() => {

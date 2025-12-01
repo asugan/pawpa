@@ -734,6 +734,14 @@
     "terms": "Kullanım Koşulları",
     "privacy": "Gizlilik Politikası",
     "unlockFeature": "{{feature}} Kilidini Aç",
+    "modal": {
+      "title": "Premium Özellik",
+      "description": "Bu özellik sadece Pro üyeler için",
+      "featureDescription": "{{feature}} sadece Pro üyeler için",
+      "upgradeNow": "Şimdi Yükselt",
+      "maybeLater": "Belki Daha Sonra",
+      "includes": "Pro üyelik şunları içerir:"
+    },
     "features": {
       "title": "Pro Özellikleri",
       "unlimited": "Sınırsız Evcil Hayvan",
@@ -743,7 +751,13 @@
       "export": "Veri Dışa Aktarma",
       "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
       "priority": "Öncelikli Destek",
-      "priorityDesc": "İhtiyacınız olduğunda yardım alın"
+      "priorityDesc": "İhtiyacınız olduğunda yardım alın",
+      "petManagement": "Evcil Hayvan Yönetimi",
+      "healthRecords": "Sağlık Kayıtları",
+      "calendar": "Takvim & Etkinlikler",
+      "feeding": "Besleme Programları",
+      "expenses": "Gider Takibi",
+      "budgets": "Bütçe Yönetimi"
     },
     "paywall": {
       "title": "PawPa Pro'nun Kilidini Açın",

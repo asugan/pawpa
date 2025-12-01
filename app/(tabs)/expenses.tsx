@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateExpenseInput, Expense } from '../../lib/types';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function ExpensesScreen() {
   const { theme } = useTheme();
@@ -192,11 +193,12 @@ export default function ExpensesScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          {t('expenses.title', 'Expenses')}
-        </Text>
+    <ProtectedRoute featureName={t('subscription.features.expenses')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={styles.title}>
+            {t('expenses.title', 'Expenses')}
+          </Text>
 
         {/* Pet Selector */}
         <ScrollView
@@ -336,7 +338,8 @@ export default function ExpensesScreen() {
         duration={3000}
         message={snackbarMessage}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

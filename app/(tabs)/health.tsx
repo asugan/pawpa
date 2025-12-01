@@ -13,6 +13,7 @@ import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
 import { HEALTH_RECORD_TYPES, TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, LAYOUT } from '../../constants';
 import type { HealthRecord } from '../../lib/types';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function HealthScreen() {
   const { theme } = useTheme();
@@ -218,80 +219,82 @@ export default function HealthScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-          {t('health.healthRecords')}
-        </Text>
-      </View>
+    <ProtectedRoute featureName={t('subscription.features.healthRecords')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
+            {t('health.healthRecords')}
+          </Text>
+        </View>
 
-      {renderPetSelector()}
+        {renderPetSelector()}
 
-      {selectedPetId && renderTypeFilter()}
+        {selectedPetId && renderTypeFilter()}
 
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : error ? (
-        <EmptyState
-          title={t('common.error')}
-          description={t('health.loadingError')}
-          icon="alert-circle"
-          buttonText={t('common.retry')}
-          onButtonPress={() => refetch()}
-        />
-      ) : !selectedPetId ? (
-        <EmptyState
-          title={t('health.selectPetToViewRecords')}
-          description={t('health.selectPetToViewRecordsMessage')}
-          icon="paw"
-        />
-      ) : filteredRecords.length === 0 ? (
-        <EmptyState
-          title={t('health.noRecordsShort')}
-          description={t('health.noRecordsMessage')}
-          icon="medical-bag"
-          buttonText={t('health.addFirstRecord')}
-          onButtonPress={handleAddHealthRecord}
-        />
-      ) : (
-        <FlatList
-          data={filteredRecords}
-          renderItem={renderHealthRecord}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.healthList}
-          showsVerticalScrollIndicator={false}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl
-              refreshing={isLoading}
-              onRefresh={refetch}
-              colors={[theme.colors.primary]}
-              tintColor={theme.colors.primary}
-            />
-          }
-        />
-      )}
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <EmptyState
+            title={t('common.error')}
+            description={t('health.loadingError')}
+            icon="alert-circle"
+            buttonText={t('common.retry')}
+            onButtonPress={() => refetch()}
+          />
+        ) : !selectedPetId ? (
+          <EmptyState
+            title={t('health.selectPetToViewRecords')}
+            description={t('health.selectPetToViewRecordsMessage')}
+            icon="paw"
+          />
+        ) : filteredRecords.length === 0 ? (
+          <EmptyState
+            title={t('health.noRecordsShort')}
+            description={t('health.noRecordsMessage')}
+            icon="medical-bag"
+            buttonText={t('health.addFirstRecord')}
+            onButtonPress={handleAddHealthRecord}
+          />
+        ) : (
+          <FlatList
+            data={filteredRecords}
+            renderItem={renderHealthRecord}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.healthList}
+            showsVerticalScrollIndicator={false}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={refetch}
+                colors={[theme.colors.primary]}
+                tintColor={theme.colors.primary}
+              />
+            }
+          />
+        )}
 
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.secondary }}
-        onPress={handleAddHealthRecord}
-        disabled={!selectedPetId}
-      />
-
-      {/* Health Record Form Modal */}
-      {selectedPetId && (
-        <HealthRecordForm
-          petId={selectedPetId}
-          visible={isFormVisible}
-          onSuccess={handleFormSuccess}
-          onCancel={handleFormCancel}
-          initialData={editingRecord}
+        <FAB
+          icon="add"
+          style={{ ...styles.fab, backgroundColor: theme.colors.secondary }}
+          onPress={handleAddHealthRecord}
+          disabled={!selectedPetId}
         />
-      )}
-    </SafeAreaView>
+
+        {/* Health Record Form Modal */}
+        {selectedPetId && (
+          <HealthRecordForm
+            petId={selectedPetId}
+            visible={isFormVisible}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+            initialData={editingRecord}
+          />
+        )}
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

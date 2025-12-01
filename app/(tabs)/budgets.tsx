@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
+import { ProtectedRoute } from '@/components/subscription';
 
 export default function BudgetsScreen() {
   const { theme } = useTheme();
@@ -183,11 +184,12 @@ export default function BudgetsScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          {t('budgets.title', 'Budgets')}
-        </Text>
+    <ProtectedRoute featureName={t('subscription.features.budgets')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={styles.title}>
+            {t('budgets.title', 'Budgets')}
+          </Text>
 
         {/* Pet Selector */}
         <ScrollView
@@ -322,7 +324,8 @@ export default function BudgetsScreen() {
         duration={3000}
         message={snackbarMessage}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

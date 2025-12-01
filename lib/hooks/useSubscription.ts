@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Alert } from 'react-native';
 import Purchases, { CustomerInfo, PurchasesOfferings, PurchasesPackage } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
@@ -6,6 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { useSubscriptionStore } from '@/stores/subscriptionStore';
 import { REVENUECAT_CONFIG } from '@/lib/revenuecat/config';
 import { restorePurchases as restorePurchasesApi } from '@/lib/revenuecat/initialize';
+
+// Rate limiting configuration
+const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_BASE = 1000; // 1 second base delay
 
 /**
  * Subscription status type
@@ -83,10 +88,16 @@ async function pollForSubscriptionUpdate(
  * - All status checks come from backend
  * - RevenueCat SDK used only for purchases and customer center
  * - Polling after purchase to wait for webhook processing
+ * - Added circuit breaker and rate limiting to prevent infinite loops
  */
 export function useSubscription(): UseSubscriptionReturn {
   const { t } = useTranslation();
   const store = useSubscriptionStore();
+  
+  // Rate limiting and circuit breaker refs
+  const lastRequestTimeRef = useRef<number>(0);
+  const retryCountRef = useRef<number>(0);
+  const isFetchingRef = useRef<boolean>(false);
 
   // Computed values from backend status
   const isProUser = store.isProUser();
@@ -359,9 +370,54 @@ export function useSubscription(): UseSubscriptionReturn {
 
   /**
    * Refresh subscription status from backend
+   * Implements circuit breaker and rate limiting to prevent infinite loops
    */
   const refreshSubscriptionStatus = useCallback(async (): Promise<void> => {
-    await store.fetchSubscriptionStatus();
+    // Prevent duplicate concurrent requests
+    if (isFetchingRef.current) {
+      console.log('[useSubscription] Skipping fetch - request already in progress');
+      return;
+    }
+
+    // Rate limiting: check if enough time has passed since last request
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTimeRef.current;
+    
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      console.log(`[useSubscription] Skipping fetch - too soon (${timeSinceLastRequest}ms < ${MIN_REQUEST_INTERVAL}ms)`);
+      return;
+    }
+
+    // Check if circuit breaker has been tripped (too many failures)
+    if (retryCountRef.current >= MAX_RETRY_ATTEMPTS) {
+      console.error(`[useSubscription] Circuit breaker tripped - too many failures (${retryCountRef.current})`);
+      // Only log once to avoid console spam
+      if (retryCountRef.current === MAX_RETRY_ATTEMPTS) {
+        console.error('[useSubscription] Subscription status checks paused. Will retry after app restart.');
+      }
+      return;
+    }
+
+    isFetchingRef.current = true;
+    lastRequestTimeRef.current = now;
+
+    try {
+      await store.fetchSubscriptionStatus();
+      // Success - reset retry counter
+      retryCountRef.current = 0;
+      console.log('[useSubscription] Subscription status refreshed successfully');
+    } catch (error) {
+      // Increment retry counter on failure
+      retryCountRef.current += 1;
+      const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
+      console.error(
+        `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
+        `next retry after ${delay}ms:`,
+        error
+      );
+    } finally {
+      isFetchingRef.current = false;
+    }
   }, [store]);
 
   return {

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { ProtectedRoute } from '@/components/subscription';
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -49,8 +50,9 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <ScrollView
+    <ProtectedRoute featureName={t('navigation.home')}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <ScrollView
         style={[styles.scrollView, { padding: layout.scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
@@ -181,13 +183,14 @@ export default function HomeScreen() {
         <UpcomingEventsSection />
       </ScrollView>
 
-      <TouchableOpacity
-        onPress={() => router.push("/pet/add")}
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-      >
-        <Ionicons name="add" size={32} color="#FFFFFF" />
-      </TouchableOpacity>
-    </SafeAreaView>
+        <TouchableOpacity
+          onPress={() => router.push("/pet/add")}
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        >
+          <Ionicons name="add" size={32} color="#FFFFFF" />
+        </TouchableOpacity>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
