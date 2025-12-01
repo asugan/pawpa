@@ -4,10 +4,12 @@ import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export function NetworkStatusBadge() {
   const netInfo = useNetInfo();
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   if (netInfo.isConnected === false) {
     return (
@@ -18,7 +20,7 @@ export function NetworkStatusBadge() {
           color={theme.colors.onErrorContainer}
         />
         <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onErrorContainer }]}>
-          Çevrimdışı
+          {t('common.offline')}
         </Text>
       </View>
     );
@@ -33,7 +35,7 @@ export function NetworkStatusBadge() {
           color={theme.colors.onPrimaryContainer}
         />
         <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onPrimaryContainer }]}>
-          Wi-Fi
+          {t('common.wifi')}
         </Text>
       </View>
     );
@@ -48,7 +50,7 @@ export function NetworkStatusBadge() {
           color={theme.colors.onSecondaryContainer}
         />
         <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onSecondaryContainer }]}>
-          Mobil
+          {t('common.cellular')}
         </Text>
       </View>
     );
