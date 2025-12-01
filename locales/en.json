@@ -762,6 +762,11 @@
     "paywall": {
       "title": "Unlock PawPa Pro",
       "subtitle": "Get the most out of PawPa"
+    },
+    "success": {
+      "title": "Subscription Successful!",
+      "message": "You are now a Pro member. Enjoy all premium features.",
+      "button": "Go to Homepage"
     }
   }
 }

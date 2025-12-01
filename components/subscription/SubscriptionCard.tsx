@@ -10,13 +10,14 @@ import { REVENUECAT_CONFIG } from '@/lib/revenuecat/config';
 interface SubscriptionCardProps {
   showManageButton?: boolean;
   compact?: boolean;
+  onUpgrade?: () => void;
 }
 
 /**
  * SubscriptionCard displays the current subscription status
  * Used in Settings screen and other places where subscription info is needed
  */
-export function SubscriptionCard({ showManageButton = true, compact = false }: SubscriptionCardProps) {
+export function SubscriptionCard({ showManageButton = true, compact = false, onUpgrade }: SubscriptionCardProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const router = useRouter();
@@ -83,7 +84,11 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
     : 0;
 
   const handleUpgrade = async () => {
-    await presentPaywall();
+    if (onUpgrade) {
+      onUpgrade();
+    } else {
+      await presentPaywall();
+    }
   };
 
   const handleManage = async () => {
@@ -91,7 +96,11 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
   };
 
   const handleNavigateToSubscription = () => {
-    router.push('/subscription');
+    if (onUpgrade) {
+      onUpgrade();
+    } else {
+      router.push('/subscription');
+    }
   };
 
   if (compact) {

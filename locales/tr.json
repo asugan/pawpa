@@ -762,6 +762,11 @@
     "paywall": {
       "title": "PawPa Pro'nun Kilidini Açın",
       "subtitle": "PawPa'dan en iyi şekilde yararlanın"
+    },
+    "success": {
+      "title": "Abonelik Başarılı!",
+      "message": "Artık Pro üyesiniz. Tüm premium özelliklerin keyfini çıkarın.",
+      "button": "Anasayfaya Dön"
     }
   }
 }

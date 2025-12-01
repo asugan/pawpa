@@ -2,11 +2,13 @@ import { View, StyleSheet, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, Button, Card, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { SubscriptionCard } from '@/components/subscription';
+import { SuccessSubscriptionModal } from '@/components/subscription/SuccessSubscriptionModal';
 
 /**
  * Subscription screen with RevenueCat paywall
@@ -16,14 +18,28 @@ export default function SubscriptionScreen() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const router = useRouter();
+  const [modalVisible, setModalVisible] = useState(false);
   const {
     isSubscribed,
     isLoading,
     restorePurchases,
+    presentPaywall,
   } = useSubscription();
 
   const handleRestore = async () => {
     await restorePurchases();
+  };
+
+  const handlePresentPaywall = async () => {
+    const success = await presentPaywall();
+    if (success) {
+      setModalVisible(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    router.push('/(tabs)');
   };
 
   const handleTerms = () => {
@@ -82,7 +98,7 @@ export default function SubscriptionScreen() {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Current Status Card */}
-        <SubscriptionCard />
+        <SubscriptionCard onUpgrade={handlePresentPaywall} />
 
         {/* Features List - Show if not subscribed */}
         {!isSubscribed && (
@@ -140,6 +156,12 @@ export default function SubscriptionScreen() {
         {/* Spacer for bottom */}
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Success Modal */}
+      <SuccessSubscriptionModal
+        visible={modalVisible}
+        onClose={handleModalClose}
+      />
     </SafeAreaView>
   );
 }

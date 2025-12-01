@@ -1,0 +1,118 @@
+import { Modal, View, StyleSheet, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Text, Button, Card } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+
+interface SuccessSubscriptionModalProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+/**
+ * SuccessSubscriptionModal - Shows a success modal after subscription completion
+ * with navigation to homepage option
+ */
+export function SuccessSubscriptionModal({ visible, onClose }: SuccessSubscriptionModalProps) {
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={handleClose}
+    >
+      <Pressable style={styles.overlay} onPress={handleClose}>
+        <View style={styles.centeredView}>
+          <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
+            <Card style={[styles.modalCard, { backgroundColor: theme.colors.surface }]}>
+              <View style={styles.cardContent}>
+                {/* Success Icon */}
+                <View style={styles.iconContainer}>
+                  <MaterialCommunityIcons
+                    name="check-circle"
+                    size={64}
+                    color={theme.colors.primary}
+                  />
+                </View>
+
+                {/* Title */}
+                <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+                  {t('subscription.success.title')}
+                </Text>
+
+                {/* Message */}
+                <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
+                  {t('subscription.success.message')}
+                </Text>
+
+                {/* Action Button */}
+                <Button
+                  mode="contained"
+                  onPress={handleClose}
+                  style={styles.button}
+                >
+                  {t('subscription.success.button')}
+                </Button>
+              </View>
+            </Card>
+          </Pressable>
+        </View>
+      </Pressable>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContainer: {
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalCard: {
+    width: '100%',
+    elevation: 8,
+    borderRadius: 16,
+  },
+  cardContent: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 179, 209, 0.2)',
+    marginBottom: 24,
+  },
+  title: {
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  message: {
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 20,
+  },
+  button: {
+    width: '100%',
+  },
+});
