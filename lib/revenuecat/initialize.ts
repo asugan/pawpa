@@ -21,6 +21,14 @@ export async function initializeRevenueCat(userId: string | null): Promise<void>
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   }
 
+  // Set a default log handler to prevent "customLogHandler is not a function" error
+  // This must be called before configure() to handle log events properly
+  Purchases.setLogHandler((logLevel: LOG_LEVEL, message: string) => {
+    if (__DEV__) {
+      console.log(`[RevenueCat][${LOG_LEVEL[logLevel]}] ${message}`);
+    }
+  });
+
   // Configure the SDK
   await Purchases.configure({
     apiKey: REVENUECAT_CONFIG.API_KEY,
