@@ -1,13 +1,12 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Text, Divider } from '@/components/ui';
+import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
   format,
   differenceInMinutes,
 } from 'date-fns';
-import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
 import { getEventColor } from '@/lib/utils/eventColors';
 
@@ -21,7 +20,6 @@ interface DayViewProps {
 const HOUR_HEIGHT = 80; // Height for each hour slot (larger than WeekView)
 const HOURS_START = 0; // Start at midnight (00:00)
 const HOURS_END = 23; // End at 11 PM (23:59)
-const TOTAL_HOURS = HOURS_END - HOURS_START + 1;
 
 export function DayView({
   currentDate,
@@ -29,9 +27,8 @@ export function DayView({
   onEventPress,
   testID,
 }: DayViewProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { theme } = useTheme();
-  const locale = i18n.language === 'tr' ? tr : enUS;
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Filter events for the current day

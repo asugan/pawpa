@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, IconButton, SegmentedButtons } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
-import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 
 export type CalendarViewType = 'month' | 'week' | 'day';

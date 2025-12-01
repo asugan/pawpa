@@ -35,7 +35,7 @@ export function MonthView({
   onDayPress,
   testID,
 }: MonthViewProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 

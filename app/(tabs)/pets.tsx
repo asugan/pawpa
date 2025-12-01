@@ -3,10 +3,8 @@ import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-nativ
 import { Text, FAB, Portal, Snackbar, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Pet } from '../../lib/types';
-import { usePetUIStore } from '../../stores/petStore';
-import { usePets, useCreatePet, useDeletePet, petKeys } from '../../lib/hooks/usePets';
+import { usePets, useDeletePet, petKeys } from '../../lib/hooks/usePets';
 import { useQueryClient } from '@tanstack/react-query';
 import PetCard from '../../components/PetCard';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
@@ -22,7 +20,6 @@ import { ENV } from '../../lib/config/env';
 export default function PetsScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   // Pagination state
@@ -31,24 +28,11 @@ export default function PetsScreen() {
   const [hasMore, setHasMore] = useState(true);
 
   // ✅ React Query hooks for server state with pagination
-  const { data: pets = [], isLoading, error, refetch, isFetching } = usePets({
+  const { data: pets = [], isLoading, error, isFetching } = usePets({
     page,
     limit: ENV.DEFAULT_LIMIT,
   });
-  const createPetMutation = useCreatePet();
   const deletePetMutation = useDeletePet();
-
-  // ✅ Zustand store for UI state only
-  const {
-    selectedPetId,
-    isCreatingPet,
-    filterStatus,
-    sortBy,
-    searchQuery,
-    setSelectedPet,
-    setCreatingPet,
-    setSearchQuery
-  } = usePetUIStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPetState] = useState<Pet | undefined>();

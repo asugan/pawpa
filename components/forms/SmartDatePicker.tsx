@@ -1,7 +1,7 @@
 import { Text as PaperText, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { parseISODate, toISODateString, toISOString, toTimeString } from '@/lib/utils/dateConversion';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';

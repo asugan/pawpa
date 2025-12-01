@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, ReactNode, useRef } from "react";
-import { Modal, View, StyleSheet, ViewStyle } from "react-native";
 
 interface PortalContextValue {
   mount: (key: string, children: ReactNode) => void;

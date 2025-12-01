@@ -22,7 +22,7 @@ interface WeekViewProps {
   testID?: string;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const HOUR_HEIGHT = 60; // Height for each hour slot
 const TIME_LABEL_WIDTH = 50; // Width for time labels column
 const DAY_WIDTH = (width - TIME_LABEL_WIDTH) / 7; // Divide remaining width by 7 days
@@ -36,7 +36,7 @@ export function WeekView({
   onEventPress,
   testID,
 }: WeekViewProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
   const scrollViewRef = useRef<ScrollView>(null);

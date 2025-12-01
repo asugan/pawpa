@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { View, StyleSheet, Animated, ViewStyle } from "react-native";
+import { StyleSheet, Animated, ViewStyle } from "react-native";
 import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
 import { Button } from "./Button";

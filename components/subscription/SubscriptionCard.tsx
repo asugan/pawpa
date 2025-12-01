@@ -23,7 +23,6 @@ export function SubscriptionCard({ showManageButton = true, compact = false }: S
   const {
     subscriptionStatus,
     isProUser,
-    isSubscribed,
     isTrialActive,
     isPaidSubscription,
     daysRemaining,

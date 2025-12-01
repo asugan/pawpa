@@ -27,7 +27,7 @@ interface PetFormProps {
 export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: PetFormProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { form, handleSubmit, isValid, isSubmitting } = usePetForm(pet);
+  const { form, handleSubmit, isValid } = usePetForm(pet);
 
   // Track if user has attempted to submit the form
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);

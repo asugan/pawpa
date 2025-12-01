@@ -50,14 +50,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   });
 
   const {
-    control,
     handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
   } = methods;
-
-  const selectedDate = watch('date');
 
   const handleFormSubmit = (data: ExpenseCreateInput) => {
     onSubmit(data as CreateExpenseInputType);

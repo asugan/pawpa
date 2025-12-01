@@ -1,6 +1,6 @@
 import { Button, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { filterUpcomingEvents, getEventGroupTranslationKey, groupEventsByTime } from '@/lib/utils/events';
+import { filterUpcomingEvents } from '@/lib/utils/events';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
@@ -52,17 +52,6 @@ export function UpcomingEvents({
     return filterUpcomingEvents(events, daysToShow, maxEvents);
   }, [events, daysToShow, maxEvents]);
 
-  // Group events by time categories using utility function
-  const eventGroups = useMemo(() => {
-    return groupEventsByTime(upcomingEvents);
-  }, [upcomingEvents]);
-
-  // Format group title using utility function
-  const formatGroupTitle = (group: string) => {
-    const translationKey = getEventGroupTranslationKey(group);
-    return translationKey ? t(translationKey) : '';
-  };
-
   // Render event item
   const renderEvent = ({ item }: { item: Event }) => (
     <EventCard
@@ -76,35 +65,6 @@ export function UpcomingEvents({
       testID={`upcoming-event-${item.id}`}
     />
   );
-
-  // Render group section
-  const renderSection = ({ title, events }: { title: string; events: Event[] }) => {
-    if (events.length === 0) return null;
-
-    return (
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text
-            variant="labelMedium"
-            style={[styles.sectionTitle, { color: theme.colors.primary }]}
-          >
-            {formatGroupTitle(title)}
-          </Text>
-          <Text
-            variant="labelSmall"
-            style={[styles.sectionCount, { color: theme.colors.onSurfaceVariant }]}
-          >
-            {events.length}
-          </Text>
-        </View>
-        {events.map((event) => (
-          <View key={event.id} style={styles.eventItem}>
-            {renderEvent({ item: event })}
-          </View>
-        ))}
-      </View>
-    );
-  };
 
   // Render list header
   const renderHeader = () => {

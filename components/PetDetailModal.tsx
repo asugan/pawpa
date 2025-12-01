@@ -25,7 +25,7 @@ interface PetDetailModalProps {
 
 export default function PetDetailModal({ visible, petId, onClose }: PetDetailModalProps) {
   const { theme } = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
   // React Query hooks for server state

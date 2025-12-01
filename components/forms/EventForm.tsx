@@ -6,10 +6,7 @@ import { FormProvider, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createEventTypeOptions } from '../../constants';
-import {
-  transformFormDataToAPI,
-  type EventFormData,
-} from '../../lib/schemas/eventSchema';
+import { type EventFormData } from '../../lib/schemas/eventSchema';
 import { Event, Pet } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
@@ -87,7 +84,7 @@ export function EventForm({
         setIsSubmitting(false);
       }
     },
-    [onSubmit]
+    [onSubmit, t]
   );
 
   // Form actions
@@ -107,7 +104,7 @@ export function EventForm({
     } else {
       onCancel();
     }
-  }, [isDirty, onCancel]);
+  }, [isDirty, onCancel, t]);
 
   const isEditMode = !!event;
 

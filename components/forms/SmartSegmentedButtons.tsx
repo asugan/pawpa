@@ -1,5 +1,4 @@
 import { HelperText, SegmentedButtons } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -31,7 +30,6 @@ export const SmartSegmentedButtons = ({
   testID,
 }: SmartSegmentedButtonsProps) => {
   const { control } = useFormContext();
-  const { theme } = useTheme();
 
   return (
     <Controller

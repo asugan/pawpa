@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@/lib/theme';
 import { useDeviceLanguage } from '@/lib/hooks/useDeviceLanguage';
-import { useLanguageStore, getLanguageNativeName, getSupportedLanguages, isLanguageSupported, SupportedLanguage } from '@/stores/languageStore';
+import { useLanguageStore, getLanguageNativeName, SupportedLanguage } from '@/stores/languageStore';
 import { useTranslation } from 'react-i18next';
 
 interface LanguageSettingsProps {

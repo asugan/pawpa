@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePets } from '../../lib/hooks/usePets';
 import { useBudgets, useBudgetAlerts, useBudgetStatuses, useCreateBudget, useUpdateBudget, useDeleteBudget, budgetKeys } from '../../lib/hooks/useBudgets';
+import { useQueryClient } from '@tanstack/react-query';
 import BudgetCard from '../../components/BudgetCard';
 import BudgetFormModal from '../../components/BudgetFormModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -29,6 +30,9 @@ export default function BudgetsScreen() {
   const [page, setPage] = useState(1);
   const [allBudgets, setAllBudgets] = useState<BudgetLimit[]>([]);
   const [hasMore, setHasMore] = useState(true);
+
+  // Query client
+  const queryClient = useQueryClient();
 
   // Fetch pets
   const { data: pets = [], isLoading: petsLoading } = usePets();

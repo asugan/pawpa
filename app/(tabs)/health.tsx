@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator, Pressable } from 'react-native';
-import { Text, Card, Button, FAB, Chip, IconButton, Divider } from '@/components/ui';
+import { Text, Card, FAB, Chip, IconButton } from '@/components/ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
-import { useHealthRecords, useCreateHealthRecord } from '../../lib/hooks/useHealthRecords';
+import { useHealthRecords } from '../../lib/hooks/useHealthRecords';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
@@ -34,8 +34,6 @@ export default function HealthScreen() {
     error,
     refetch
   } = useHealthRecords(selectedPetId || '');
-
-  const createMutation = useCreateHealthRecord();
 
   // Filter records by type
   const filteredRecords = selectedType === 'all'

@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Hooks and Services
-import { useCreateEvent, useDeleteEvent, useEvent, useUpdateEvent } from '@/lib/hooks/useEvents';
+import { useCreateEvent, useDeleteEvent, useEvent } from '@/lib/hooks/useEvents';
 import { usePet } from '@/lib/hooks/usePets';
 
 // Components
@@ -38,7 +38,6 @@ export default function EventDetailScreen() {
   const { data: pet } = usePet(event?.petId || '');
   const deleteEventMutation = useDeleteEvent();
   const createEventMutation = useCreateEvent();
-  const updateEventMutation = useUpdateEvent();
 
   // Local state
   const [snackbarVisible, setSnackbarVisible] = useState(false);

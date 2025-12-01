@@ -3,7 +3,6 @@ import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-nativ
 import { Text, FAB, Snackbar, Chip, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { usePets } from '../../lib/hooks/usePets';
 import { useExpenses, useExpenseStats, useCreateExpense, useUpdateExpense, useDeleteExpense, expenseKeys } from '../../lib/hooks/useExpenses';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,7 +19,6 @@ import { ENV } from '../../lib/config/env';
 export default function ExpensesScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
@@ -38,7 +36,7 @@ export default function ExpensesScreen() {
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
   // Fetch expenses for selected pet with pagination
-  const { data: expensesData, isLoading: expensesLoading, refetch, isFetching } = useExpenses(
+  const { data: expensesData, isLoading: expensesLoading, isFetching } = useExpenses(
     selectedPetId,
     {
       page,
@@ -54,8 +52,6 @@ export default function ExpensesScreen() {
   const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
 
-  const expenses = expensesData?.expenses || [];
-
   // Reset pagination when selected pet changes
   useEffect(() => {
     setPage(1);
@@ -65,26 +61,27 @@ export default function ExpensesScreen() {
 
   // Accumulate expenses when new data is loaded
   useEffect(() => {
-    if (expenses && expenses.length > 0) {
+    const currentExpenses = expensesData?.expenses || [];
+    if (currentExpenses && currentExpenses.length > 0) {
       if (page === 1) {
         // First page - replace all expenses
-        setAllExpenses(expenses);
+        setAllExpenses(currentExpenses);
       } else {
         // Subsequent pages - append new expenses
         setAllExpenses(prev => {
           // Avoid duplicates
-          const newExpenses = expenses.filter(e => !prev.some(existing => existing.id === e.id));
+          const newExpenses = currentExpenses.filter(e => !prev.some(existing => existing.id === e.id));
           return [...prev, ...newExpenses];
         });
       }
       // Check if there are more expenses to load
-      setHasMore(expenses.length === ENV.DEFAULT_LIMIT);
+      setHasMore(currentExpenses.length === ENV.DEFAULT_LIMIT);
     } else if (page === 1 && selectedPetId) {
       // No expenses on first page
       setAllExpenses([]);
       setHasMore(false);
     }
-  }, [expenses, page, selectedPetId]);
+  }, [expensesData, page, selectedPetId]);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -121,7 +118,7 @@ export default function ExpensesScreen() {
             try {
               await deleteExpense.mutateAsync(expense.id);
               showSnackbar(t('expenses.deleteSuccess', 'Expense deleted successfully'));
-            } catch (error) {
+            } catch {
               showSnackbar(t('expenses.deleteError', 'Failed to delete expense'));
             }
           },
@@ -141,7 +138,7 @@ export default function ExpensesScreen() {
       }
       setModalVisible(false);
       setEditingExpense(undefined);
-    } catch (error) {
+    } catch {
       showSnackbar(
         editingExpense
           ? t('expenses.updateError', 'Failed to update expense')

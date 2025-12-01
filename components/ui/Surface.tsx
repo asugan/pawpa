@@ -1,6 +1,6 @@
 import { useTheme } from "@/lib/theme";
 import React from "react";
-import { StyleSheet, View, ViewProps } from "react-native";
+import { View, ViewProps } from "react-native";
 
 export interface SurfaceProps extends ViewProps {
   elevation?: number;
@@ -40,5 +40,3 @@ export const Surface: React.FC<SurfaceProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({});

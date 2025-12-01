@@ -4,7 +4,7 @@ import { Text, FAB } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from 'date-fns';
+import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
 import { CalendarHeader, CalendarViewType } from '@/components/calendar/CalendarHeader';
 import { MonthView } from '@/components/calendar/MonthView';
 import { WeekView } from '@/components/calendar/WeekView';

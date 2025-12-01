@@ -1,5 +1,4 @@
 import { HelperText, TextInput } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -12,7 +11,6 @@ interface SmartInputProps extends React.ComponentProps<typeof TextInput> {
 
 export const SmartInput = ({ name, label, required, ...props }: SmartInputProps) => {
   const { control } = useFormContext();
-  const { theme } = useTheme();
 
   return (
     <Controller

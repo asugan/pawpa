@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Modal,
   Pressable,
-  Platform,
   LayoutChangeEvent,
   NativeSyntheticEvent,
   TextLayoutEventData

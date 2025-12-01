@@ -34,15 +34,6 @@ export default function NotificationPermissionPrompt({
     }
   };
 
-  const handleOpenSettings = () => {
-    if (Platform.OS === 'ios') {
-      Linking.openURL('app-settings:');
-    } else {
-      Linking.openSettings();
-    }
-    onDismiss();
-  };
-
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={onDismiss}>

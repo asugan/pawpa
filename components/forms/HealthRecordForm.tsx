@@ -1,8 +1,8 @@
-import { Card, Portal, Text } from '@/components/ui';
+import { Card, Portal } from '@/components/ui';
 import { useHealthRecordForm } from '@/hooks/useHealthRecordForm';
 import { useTheme } from '@/lib/theme';
 import React, { useState } from 'react';
-import { FormProvider, useWatch } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import { Alert, Modal as RNModal, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../constants';
@@ -44,7 +44,7 @@ export function HealthRecordForm({
   const isEditing = !!initialData;
 
   // Use the custom hook for form management
-  const { form, control, handleSubmit, reset, watch } = useHealthRecordForm(petId, initialData);
+  const { form, handleSubmit, reset, watch } = useHealthRecordForm(petId, initialData);
 
   // Watch form values for conditional rendering
   const watchedType = watch('type');

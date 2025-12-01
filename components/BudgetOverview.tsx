@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, ProgressBar, Badge } from '@/components/ui';
+import { Card, Text, Badge } from '@/components/ui';
 import { useTheme , gradients, gradientsDark } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';

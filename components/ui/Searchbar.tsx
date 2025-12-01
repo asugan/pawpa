@@ -1,6 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
-import { useTheme } from "@/lib/theme";
+import { View, StyleSheet } from "react-native";
 import { TextInput, TextInputProps } from "./TextInput";
 import { IconButton } from "./IconButton";
 
@@ -18,8 +17,6 @@ export const Searchbar: React.FC<SearchbarProps> = ({
   containerStyle,
   ...rest
 }) => {
-  const { theme } = useTheme();
-
   return (
     <View style={[styles.container, containerStyle]}>
       <TextInput

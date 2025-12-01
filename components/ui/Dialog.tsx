@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
-import { Button } from "./Button";
+
 
 export interface DialogProps {
   visible: boolean;
