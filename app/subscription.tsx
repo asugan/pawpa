@@ -3,7 +3,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import RevenueCatUI from 'react-native-purchases-ui';
 import { Text, Button, Card, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useSubscription } from '@/lib/hooks/useSubscription';
@@ -83,22 +82,7 @@ export default function SubscriptionScreen() {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Current Status Card */}
-        <SubscriptionCard showManageButton={isSubscribed} />
-
-        {/* Paywall - Only show if not subscribed */}
-        {!isSubscribed && (
-          <View style={styles.paywallContainer}>
-            <RevenueCatUI.Paywall
-              onDismiss={() => {
-                // Handle dismiss - stay on screen
-                console.log('[Subscription] Paywall dismissed');
-              }}
-              onRestoreCompleted={({ customerInfo }) => {
-                console.log('[Subscription] Restore completed from paywall');
-              }}
-            />
-          </View>
-        )}
+        <SubscriptionCard />
 
         {/* Features List - Show if not subscribed */}
         {!isSubscribed && (
@@ -174,12 +158,6 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     paddingHorizontal: 16,
-  },
-  paywallContainer: {
-    marginVertical: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    minHeight: 400,
   },
   featuresCard: {
     marginBottom: 16,
