@@ -69,25 +69,7 @@ export function EventForm({
 
   // Event type specific validation and suggestions
   const getEventTypeSuggestions = () => {
-    switch (eventType) {
-      case 'feeding':
-        return 'Öğün zamanı için mama miktarını ve türünü belirtin';
-      case 'vet_visit':
-        return 'Veteriner randevusu için klinik adı ve adresini ekleyin';
-      case 'exercise':
-      case 'walk':
-        return 'Egzersiz süresini ve yapılacak aktiviteleri belirtin';
-      case 'grooming':
-        return 'Bakım için neler yapılacağını not edin';
-      case 'play':
-        return 'Oyun zamanı için oyuncakları ve aktiviteleri belirtin';
-      case 'training':
-        return 'Eğitim için öğreneceği komutları yazın';
-      case 'bath':
-        return 'Banyo zamanı için gerekli malzemeleri not edin';
-      default:
-        return 'Etkinlik detaylarını belirtin';
-    }
+    return t(`eventForm.suggestions.${eventType || 'default'}`);
   };
 
   // Handle form submission
@@ -100,7 +82,7 @@ export function EventForm({
         await onSubmit(data);
       } catch (error) {
         console.error('Event form submission error:', error);
-        Alert.alert('Hata', 'Etkinlik kaydedilirken bir hata oluştu');
+        Alert.alert(t('common.error'), t('events.saveError'));
       } finally {
         setIsSubmitting(false);
       }
@@ -111,13 +93,13 @@ export function EventForm({
   // Form actions
   const handleCancel = React.useCallback(() => {
     if (isDirty) {
-      Alert.alert('Kaydedilmemiş Değişiklikler', 'Değişiklikleri kaydetmeden çıkmak istiyor musunuz?', [
+      Alert.alert(t('common.unsavedChanges'), t('common.unsavedChangesMessageShort'), [
         {
-          text: 'İptal',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Çık',
+          text: t('events.exit'),
           style: 'destructive',
           onPress: onCancel,
         },
@@ -139,36 +121,36 @@ export function EventForm({
       >
         {/* Form Header */}
         <FormSection
-          title={isEditMode ? 'Etkinliği Düzenle' : 'Yeni Etkinlik'}
-          subtitle="Evcil hayvanınız için etkinlik oluşturun"
+          title={isEditMode ? t('events.editTitle') : t('events.createTitle')}
+          subtitle={t('events.createSubtitle')}
         >
           {/* Pet Selection */}
           <SmartDropdown
             name="petId"
             required
             options={petOptions}
-            placeholder="Evcil hayvan seçin"
-            label="Evcil Hayvan"
+            placeholder={t('events.selectPet')}
+            label={t('events.pet')}
             testID={`${testID}-pet`}
           />
 
           {selectedPet && (
             <View style={[styles.selectedPetDisplay, { backgroundColor: theme.colors.primaryContainer }]}>
               <Text style={{ color: theme.colors.onPrimaryContainer }}>
-                Seçili: {selectedPet.label}
+                {t('common.selected')}: {selectedPet.label}
               </Text>
             </View>
           )}
         </FormSection>
 
         {/* Event Details */}
-        <FormSection title="Etkinlik Bilgileri">
+        <FormSection title={t('forms.sections.details')}>
           {/* Title */}
           <SmartInput
             name="title"
             required
-            placeholder="Etkinlik başlığı"
-            label="Başlık"
+            placeholder={t('events.titlePlaceholder')}
+            label={t('events.title')}
             testID={`${testID}-title`}
           />
 
@@ -177,8 +159,8 @@ export function EventForm({
             name="type"
             required
             options={eventTypeOptions}
-            placeholder="Etkinlik türü seçin"
-            label="Etkinlik Türü"
+            placeholder={t('events.typePlaceholder')}
+            label={t('events.type')}
             testID={`${testID}-type`}
           />
 
@@ -195,8 +177,8 @@ export function EventForm({
           {/* Description */}
           <SmartInput
             name="description"
-            placeholder="Etkinlik açıklaması (opsiyonel)"
-            label="Açıklama"
+            placeholder={t('events.descriptionPlaceholder')}
+            label={t('events.description')}
             multiline
             numberOfLines={3}
             testID={`${testID}-description`}
@@ -204,13 +186,13 @@ export function EventForm({
         </FormSection>
 
         {/* DateTime & Location */}
-        <FormSection title="Zaman ve Konum">
+        <FormSection title={t('common.dateTime')}>
           {/* Start DateTime */}
           <SmartDateTimePicker
             dateName="startDate"
             timeName="startTime"
             required
-            label="Başlangıç Zamanı"
+            label={t('events.startTime')}
             testID={`${testID}-start`}
           />
 
@@ -218,26 +200,26 @@ export function EventForm({
           <SmartDateTimePicker
             dateName="endDate"
             timeName="endTime"
-            label="Bitiş Zamanı (opsiyonel)"
+            label={t('events.endTime')}
             testID={`${testID}-end`}
           />
 
           {/* Location */}
           <SmartInput
             name="location"
-            placeholder="Konum (opsiyonel)"
-            label="Konum"
+            placeholder={t('events.locationPlaceholder')}
+            label={t('events.locationField')}
             testID={`${testID}-location`}
           />
         </FormSection>
 
         {/* Additional Options */}
-        <FormSection title="Ek Seçenekler">
+        <FormSection title={t('common.additionalOptions')}>
           {/* Reminder Switch */}
           <SmartSwitch
             name="reminder"
-            label="Hatırlatıcı Etkinleştir"
-            description="Etkinlikten önce bildirim alın"
+            label={t('events.enableReminder')}
+            description={t('events.reminderDescription')}
             disabled={loading || isSubmitting}
             testID={`${testID}-reminder`}
           />
@@ -245,7 +227,7 @@ export function EventForm({
           {/* Notes */}
           <SmartInput
             name="notes"
-            placeholder="Ek notlarınızı buraya yazın"
+            placeholder={t('events.notesPlaceholder')}
             multiline
             numberOfLines={3}
             maxLength={1000}
@@ -257,8 +239,8 @@ export function EventForm({
         <FormActions
           onCancel={handleCancel}
           onSubmit={handleSubmit(onFormSubmit)}
-          submitLabel={isEditMode ? 'Güncelle' : 'Oluştur'}
-          cancelLabel="İptal"
+          submitLabel={isEditMode ? t('common.update') : t('common.create')}
+          cancelLabel={t('common.cancel')}
           loading={isSubmitting}
           disabled={loading}
           testID={testID}

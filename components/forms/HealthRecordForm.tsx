@@ -4,6 +4,7 @@ import { useTheme } from '@/lib/theme';
 import React, { useState } from 'react';
 import { FormProvider, useWatch } from 'react-hook-form';
 import { Alert, Modal as RNModal, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../constants';
 import { useCreateHealthRecord, useUpdateHealthRecord } from '../../lib/hooks/useHealthRecords';
 import {
@@ -35,6 +36,7 @@ export function HealthRecordForm({
   onCancel,
   initialData,
 }: HealthRecordFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const createMutation = useCreateHealthRecord();
@@ -81,7 +83,7 @@ export function HealthRecordForm({
       if (!validationResult.success) {
         const formattedErrors = formatValidationErrors(validationResult.error);
         const errorMessage = formattedErrors.map((err) => err.message).join('\n');
-        Alert.alert('Validasyon Hatası', errorMessage);
+        Alert.alert(t('forms.validation.error'), errorMessage);
         return;
       }
 
@@ -97,7 +99,7 @@ export function HealthRecordForm({
       onSuccess?.();
     } catch (error) {
       console.error('Health record form error:', error);
-      Alert.alert('Hata', 'Sağlık kaydı kaydedilirken bir hata oluştu');
+      Alert.alert(t('common.error'), t('healthRecords.saveError'));
     } finally {
       setIsLoading(false);
     }
@@ -124,8 +126,8 @@ export function HealthRecordForm({
                 <View style={styles.cardContent}>
                   {/* Form Header */}
                   <FormSection
-                    title={isEditing ? 'Sağlık Kaydını Düzenle' : 'Yeni Sağlık Kaydı'}
-                    subtitle="Evcil hayvanınızın sağlık kayıtlarını yönetin"
+                    title={isEditing ? t('healthRecords.editTitle') : t('healthRecords.createTitle')}
+                    subtitle={t('healthRecords.createSubtitle')}
                   >
                     {/* Record Type */}
                     <SmartSegmentedButtons
@@ -138,28 +140,28 @@ export function HealthRecordForm({
                     <SmartInput
                       name="title"
                       required
-                      placeholder="Kayıt başlığı"
-                      label="Başlık"
+                      placeholder={t('healthRecords.titlePlaceholder')}
+                      label={t('healthRecords.titleField')}
                     />
 
                     {/* Description */}
                     <SmartInput
                       name="description"
-                      placeholder="Açıklama (opsiyonel)"
-                      label="Açıklama"
+                      placeholder={t('healthRecords.descriptionPlaceholder')}
+                      label={t('healthRecords.descriptionField')}
                       multiline
                       numberOfLines={3}
                     />
                   </FormSection>
 
                   {/* Date Information */}
-                  <FormSection title="Tarih Bilgileri">
-                    <SmartDatePicker name="date" required label="Kayıt Tarihi" mode="date" />
+                  <FormSection title={t('common.dateInformation')}>
+                    <SmartDatePicker name="date" required label={t('healthRecords.recordDate')} mode="date" />
 
                     {hasNextDueDate && (
                       <SmartDatePicker
                         name="nextDueDate"
-                        label="Sonraki Randevu Tarihi"
+                        label={t('healthRecords.nextAppointmentDate')}
                         mode="date"
                       />
                     )}
@@ -167,55 +169,55 @@ export function HealthRecordForm({
 
                   {/* Vaccination Specific Fields */}
                   {watchedType === 'vaccination' && (
-                    <FormSection title="Aşı Bilgileri">
-                      <SmartInput name="vaccineName" required label="Aşı Adı" placeholder="Aşı adı" />
+                    <FormSection title={t('healthRecords.vaccinationInfo')}>
+                      <SmartInput name="vaccineName" required label={t('healthRecords.vaccinationNameLabel')} placeholder={t('healthRecords.vaccinationNameLabel')} />
                       <SmartInput
                         name="vaccineManufacturer"
-                        label="Üretici"
-                        placeholder="Üretici firma"
+                        label={t('healthRecords.manufacturerLabel')}
+                        placeholder={t('healthRecords.manufacturerPlaceholder')}
                       />
-                      <SmartInput name="batchNumber" label="Lot Numarası" placeholder="Lot numarası" />
+                      <SmartInput name="batchNumber" label={t('healthRecords.batchNumberLabel')} placeholder={t('healthRecords.batchNumberPlaceholder')} />
                     </FormSection>
                   )}
 
                   {/* Medication Specific Fields */}
                   {watchedType === 'medication' && (
-                    <FormSection title="İlaç Bilgileri">
+                    <FormSection title={t('healthRecords.medicationInfo')}>
                       <SmartInput
                         name="medicationName"
                         required
-                        label="İlaç Adı"
-                        placeholder="İlaç adı"
+                        label={t('healthRecords.medicationName')}
+                        placeholder={t('healthRecords.medicationNamePlaceholder')}
                       />
                       <FormRow>
-                        <SmartInput name="dosage" label="Doz" placeholder="Doz miktarı" />
-                        <SmartInput name="frequency" label="Sıklık" placeholder="Kullanım sıklığı" />
+                        <SmartInput name="dosage" label={t('healthRecords.dosageLabel')} placeholder={t('healthRecords.dosagePlaceholder')} />
+                        <SmartInput name="frequency" label={t('healthRecords.frequencyLabel')} placeholder={t('healthRecords.frequencyPlaceholder')} />
                       </FormRow>
                       <FormRow>
-                        <SmartDatePicker name="startDate" label="Başlangıç" mode="date" />
-                        <SmartDatePicker name="endDate" label="Bitiş" mode="date" />
+                        <SmartDatePicker name="startDate" label={t('healthRecords.start')} mode="date" />
+                        <SmartDatePicker name="endDate" label={t('healthRecords.end')} mode="date" />
                       </FormRow>
                     </FormSection>
                   )}
 
                   {/* Veterinarian and Clinic */}
-                  <FormSection title="Veteriner Bilgileri">
+                  <FormSection title={t('healthRecords.veterinarianInfo')}>
                     <FormRow>
-                      <SmartInput name="veterinarian" label="Veteriner" placeholder="Veteriner adı" />
-                      <SmartInput name="clinic" label="Klinik" placeholder="Klinik adı" />
+                      <SmartInput name="veterinarian" label={t('healthRecords.veterinarianLabel')} placeholder={t('healthRecords.veterinarianPlaceholder')} />
+                      <SmartInput name="clinic" label={t('healthRecords.clinicLabel')} placeholder={t('healthRecords.clinicPlaceholder')} />
                     </FormRow>
                   </FormSection>
 
                   {/* Cost */}
-                  <FormSection title="Maliyet">
-                    <SmartCurrencyInput name="cost" label="Maliyet" placeholder="0.00" />
+                  <FormSection title={t('healthRecords.cost')}>
+                    <SmartCurrencyInput name="cost" label={t('healthRecords.cost')} placeholder={t('healthRecords.costPlaceholder')} />
                   </FormSection>
 
                   {/* Notes */}
-                  <FormSection title="Notlar">
+                  <FormSection title={t('common.notes')}>
                     <SmartInput
                       name="notes"
-                      placeholder="Ek notlar"
+                      placeholder={t('healthRecords.notesPlaceholder')}
                       multiline
                       numberOfLines={4}
                     />
@@ -225,8 +227,8 @@ export function HealthRecordForm({
                   <FormActions
                     onCancel={handleCancel}
                     onSubmit={handleSubmit(onSubmit)}
-                    submitLabel={isEditing ? 'Güncelle' : 'Kaydet'}
-                    cancelLabel="İptal"
+                    submitLabel={isEditing ? t('common.update') : t('common.save')}
+                    cancelLabel={t('common.cancel')}
                     loading={isLoading}
                     showDivider={false}
                   />

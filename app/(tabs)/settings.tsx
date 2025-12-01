@@ -118,7 +118,7 @@ export default function SettingsScreen() {
             />
             <ListItem
               title={t('settings.language')}
-              description={language === 'tr' ? 'Türkçe' : 'English'}
+              description={language === 'tr' ? t('settings.languages.turkish') : t('settings.languages.english')}
               left={<MaterialCommunityIcons name="translate" size={24} color={theme.colors.onSurfaceVariant} />}
               onPress={() => {
                 const newLanguage = language === 'en' ? 'tr' : 'en';

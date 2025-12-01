@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -12,6 +13,7 @@ import { HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, TURKCE_LABELS } from '../../
 import { useDeleteHealthRecord, useHealthRecord } from '../../lib/hooks/useHealthRecords';
 
 export default function HealthRecordDetailScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -37,15 +39,15 @@ export default function HealthRecordDetailScreen() {
 
   const handleDelete = () => {
     Alert.alert(
-      'Sağlık Kaydını Sil',
-      'Bu sağlık kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+      t('healthRecords.deleteRecord'),
+      t('healthRecords.deleteConfirmation'),
       [
         {
-          text: 'İptal',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sil',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: confirmDelete,
         },
@@ -59,7 +61,7 @@ export default function HealthRecordDetailScreen() {
       await deleteMutation.mutateAsync(id as string);
       router.back();
     } catch (error) {
-      Alert.alert('Hata', error instanceof Error ? error.message : 'Sağlık kaydı silinirken bir hata oluştu');
+      Alert.alert(t('common.error'), error instanceof Error ? error.message : t('healthRecords.deleteError'));
     } finally {
       setIsDeleting(false);
     }
@@ -70,19 +72,19 @@ export default function HealthRecordDetailScreen() {
 
     const shareContent = `
 ${healthRecord.title}
-Tür: ${TURKCE_LABELS.HEALTH_RECORD_TYPES[healthRecord.type as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES]}
-Tarih: ${new Date(healthRecord.date).toLocaleDateString('tr-TR')}
-${healthRecord.veterinarian ? `Veteriner: Dr. ${healthRecord.veterinarian}` : ''}
-${healthRecord.clinic ? `Klinik: ${healthRecord.clinic}` : ''}
-${healthRecord.cost ? `Maliyet: ₺${healthRecord.cost.toLocaleString('tr-TR')}` : ''}
-${healthRecord.description ? `Açıklama: ${healthRecord.description}` : ''}
-${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
+${t('pets.type')}: ${TURKCE_LABELS.HEALTH_RECORD_TYPES[healthRecord.type as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES]}
+${t('events.date')}: ${new Date(healthRecord.date).toLocaleDateString('tr-TR')}
+${healthRecord.veterinarian ? `${t('healthRecords.veterinarian')}: Dr. ${healthRecord.veterinarian}` : ''}
+${healthRecord.clinic ? `${t('healthRecords.clinic')}: ${healthRecord.clinic}` : ''}
+${healthRecord.cost ? `${t('healthRecords.cost')}: ₺${healthRecord.cost.toLocaleString('tr-TR')}` : ''}
+${healthRecord.description ? `${t('healthRecords.descriptionField')}: ${healthRecord.description}` : ''}
+${healthRecord.notes ? `${t('common.notes')}: ${healthRecord.notes}` : ''}
     `.trim();
 
     try {
       await Share.share({
         message: shareContent,
-        title: 'Sağlık Kaydı',
+        title: t('healthRecords.title'),
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -101,10 +103,10 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <EmptyState
-          title="Kayıt Bulunamadı"
-          description="Sağlık kaydı bulunamadı veya silinmiş"
+          title={t('healthRecords.notFound')}
+          description={t('healthRecords.notFoundDescription')}
           icon="alert-circle"
-          buttonText="Geri Dön"
+          buttonText={t('common.goBack')}
           onButtonPress={() => router.back()}
         />
       </SafeAreaView>
@@ -179,13 +181,13 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
           <Card style={styles.card}>
             <View style={styles.cardContent}>
               <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
-                Veteriner Bilgileri
+                {t('healthRecords.veterinarianInfo')}
               </Text>
 
               {healthRecord.veterinarian && (
                 <ListItem
                   title={healthRecord.veterinarian}
-                  description="Veteriner"
+                  description={t('healthRecords.veterinarian')}
                   left={<MaterialCommunityIcons name="doctor" size={24} color={theme.colors.onSurfaceVariant} />}
                 />
               )}
@@ -193,7 +195,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
               {healthRecord.clinic && (
                 <ListItem
                   title={healthRecord.clinic}
-                  description="Klinik"
+                  description={t('healthRecords.clinic')}
                   left={<MaterialCommunityIcons name="hospital-building" size={24} color={theme.colors.onSurfaceVariant} />}
                 />
               )}
@@ -207,7 +209,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
             <View style={styles.cardContent}>
               <ListItem
                 title={`₺${healthRecord.cost.toLocaleString('tr-TR')}`}
-                description="Maliyet"
+                description={t('healthRecords.cost')}
                 left={<MaterialCommunityIcons name="currency-try" size={24} color={theme.colors.onSurfaceVariant} />}
               />
             </View>
@@ -221,13 +223,13 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
               <Card style={styles.card}>
                 <View style={styles.cardContent}>
                   <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
-                    Aşı Bilgileri
+                    {t('healthRecords.vaccinationInfo')}
                   </Text>
 
                   {healthRecord.vaccineName && (
                     <ListItem
                       title={healthRecord.vaccineName}
-                      description="Aşı Adı"
+                      description={t('healthRecords.vaccineName')}
                       left={<MaterialCommunityIcons name="needle" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -235,7 +237,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.vaccineManufacturer && (
                     <ListItem
                       title={healthRecord.vaccineManufacturer}
-                      description="Aşı Üreticisi"
+                      description={t('healthRecords.vaccineManufacturer')}
                       left={<MaterialCommunityIcons name="factory" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -243,7 +245,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.batchNumber && (
                     <ListItem
                       title={healthRecord.batchNumber}
-                      description="Parti Numarası"
+                      description={t('healthRecords.batchNumber')}
                       left={<MaterialCommunityIcons name="barcode" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -260,7 +262,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                       month: 'long',
                       year: 'numeric',
                     })}
-                    description="Sonraki Aşı Tarihi"
+                    description={t('healthRecords.nextVaccinationDate')}
                     left={<MaterialCommunityIcons name="calendar-clock" size={24} color={theme.colors.onSurfaceVariant} />}
                     right={healthRecord.nextDueDate ? (
                       <Chip
@@ -268,7 +270,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                         style={{ alignSelf: 'center' }}
                         textStyle={{ fontSize: 10 }}
                       >
-                        {getDaysUntilDue(healthRecord.nextDueDate)} gün
+                        {getDaysUntilDue(healthRecord.nextDueDate)} {t('common.days')}
                       </Chip>
                     ) : null}
                   />
@@ -285,13 +287,13 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
               <Card style={styles.card}>
                 <View style={styles.cardContent}>
                   <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
-                    İlaç Bilgileri
+                    {t('healthRecords.medicationInfo')}
                   </Text>
 
                   {healthRecord.medicationName && (
                     <ListItem
                       title={healthRecord.medicationName}
-                      description="İlaç Adı"
+                      description={t('healthRecords.medicationName')}
                       left={<MaterialCommunityIcons name="pill" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -299,7 +301,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.dosage && (
                     <ListItem
                       title={healthRecord.dosage}
-                      description="Doz"
+                      description={t('healthRecords.dosage')}
                       left={<MaterialCommunityIcons name="scale-balance" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -307,7 +309,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.frequency && (
                     <ListItem
                       title={healthRecord.frequency}
-                      description="Sıklık"
+                      description={t('healthRecords.frequency')}
                       left={<MaterialCommunityIcons name="clock" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -315,7 +317,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.startDate && (
                     <ListItem
                       title={new Date(healthRecord.startDate).toLocaleDateString('tr-TR')}
-                      description="Başlangıç Tarihi"
+                      description={t('healthRecords.startDate')}
                       left={<MaterialCommunityIcons name="calendar-start" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -323,7 +325,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
                   {healthRecord.endDate && (
                     <ListItem
                       title={new Date(healthRecord.endDate).toLocaleDateString('tr-TR')}
-                      description="Bitiş Tarihi"
+                      description={t('healthRecords.endDate')}
                       left={<MaterialCommunityIcons name="calendar-end" size={24} color={theme.colors.onSurfaceVariant} />}
                     />
                   )}
@@ -338,7 +340,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
           <Card style={styles.card}>
             <View style={styles.cardContent}>
               <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 16 }}>
-                Notlar
+                {t('common.notes')}
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, lineHeight: 20 }}>
                 {healthRecord.notes}
@@ -351,7 +353,7 @@ ${healthRecord.notes ? `Notlar: ${healthRecord.notes}` : ''}
         <Card style={styles.card}>
           <View style={styles.cardContent}>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              Oluşturulma: {new Date(healthRecord.createdAt).toLocaleString('tr-TR')}
+              {t('common.created')}: {new Date(healthRecord.createdAt).toLocaleString('tr-TR')}
             </Text>
           </View>
         </Card>

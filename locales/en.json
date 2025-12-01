@@ -63,14 +63,20 @@
     "myPets": "My Pets",
     "noPetsYet": "No pets yet",
     "addFirstPet": "Press the + button to add your first pet",
+    "addFirstPetButton": "Add First Pet",
     "addNewPet": "Add New Pet",
     "editPet": "Edit Pet",
     "petName": "Pet Name",
     "type": "Type",
     "breed": "Breed",
+    "breedNotSpecified": "Breed not specified",
     "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
     "birthDate": "Birth Date",
+    "age": "Age",
     "weight": "Weight",
+    "addedDate": "Added Date",
     "cancel": "Cancel",
     "update": "Update",
     "add": "Add",
@@ -80,7 +86,18 @@
     "months": "months",
     "years": "years",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "deletePet": "Delete Pet",
+    "deleteConfirmation": "Are you sure you want to delete the pet named \"{{name}}\"? This operation cannot be undone.",
+    "deleteSuccess": "\"{{name}}\" successfully deleted",
+    "deleteError": "Pet could not be deleted",
+    "saveSuccess": "Pet successfully saved",
+    "loadError": "Error loading pet",
+    "updateSuccess": "Pet successfully updated",
+    "notFound": "Pet not found",
+    "detailedInfo": "Detailed Information",
+    "upcomingEvents": "📅 Upcoming Events",
+    "quickActions": "Quick Actions"
   },
   "health": {
     "healthRecords": "Health Records",
@@ -89,7 +106,68 @@
     "noRecords": "No health records yet",
     "petNameDate": "Pet Name • Date",
     "upcomingVaccinations": "Upcoming Vaccinations",
-    "addRecord": "Add Health Record"
+    "addRecord": "Add Health Record",
+    "noPets": "No Pets",
+    "addPetFirstToViewRecords": "Add a pet first to view health records",
+    "selectPet": "Select Pet",
+    "recordType": "Record Type",
+    "loadingError": "An error occurred while loading health records",
+    "selectPetToViewRecords": "Select Pet",
+    "selectPetToViewRecordsMessage": "Select a pet to view health records",
+    "noRecordsShort": "No Health Record",
+    "noRecordsMessage": "No health record added yet",
+    "addFirstRecord": "Add First Health Record"
+  },
+  "healthRecords": {
+    "title": "Health Record",
+    "deleteRecord": "Delete Health Record",
+    "deleteConfirmation": "Are you sure you want to delete this health record? This operation cannot be undone.",
+    "deleteError": "An error occurred while deleting the health record",
+    "notFound": "Record Not Found",
+    "notFoundDescription": "Health record not found or deleted",
+    "veterinarianInfo": "Veterinarian Information",
+    "veterinarian": "Veterinarian",
+    "clinic": "Clinic",
+    "cost": "Cost",
+    "vaccinationInfo": "Vaccination Information",
+    "vaccineName": "Vaccine Name",
+    "vaccineManufacturer": "Vaccine Manufacturer",
+    "batchNumber": "Batch Number",
+    "nextVaccinationDate": "Next Vaccination Date",
+    "medicationInfo": "Medication Information",
+    "medicationName": "Medication Name",
+    "dosage": "Dose",
+    "frequency": "Frequency",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "createTitle": "New Health Record",
+    "editTitle": "Edit Health Record",
+    "createSubtitle": "Manage your pet's health records",
+    "saveError": "An error occurred while saving the health record",
+    "titleField": "Title",
+    "titlePlaceholder": "Record title",
+    "descriptionField": "Description",
+    "descriptionPlaceholder": "Description (optional)",
+    "recordDate": "Record Date",
+    "nextAppointmentDate": "Next Appointment Date",
+    "vaccinationNameLabel": "Vaccine Name",
+    "manufacturerLabel": "Manufacturer",
+    "manufacturerPlaceholder": "Manufacturing company",
+    "batchNumberLabel": "Lot Number",
+    "batchNumberPlaceholder": "Lot number",
+    "medicationNamePlaceholder": "Medication name",
+    "dosageLabel": "Dose",
+    "dosagePlaceholder": "Dosage amount",
+    "frequencyLabel": "Frequency",
+    "frequencyPlaceholder": "Usage frequency",
+    "start": "Start",
+    "end": "End",
+    "veterinarianLabel": "Veterinarian",
+    "veterinarianPlaceholder": "Veterinarian name",
+    "clinicLabel": "Clinic",
+    "clinicPlaceholder": "Clinic name",
+    "costPlaceholder": "0.00",
+    "notesPlaceholder": "Additional notes"
   },
   "calendar": {
     "calendar": "Calendar",
@@ -135,7 +213,39 @@
     "statusCompleted": "Completed",
     "statusCancelled": "Cancelled",
     "viewPetProfile": "View Pet Profile",
-    "noUpcomingEvents": "No upcoming events"
+    "noUpcomingEvents": "No upcoming events",
+    "createTitle": "New Event",
+    "editTitle": "Edit Event",
+    "createSubtitle": "Create an event for your pet",
+    "selectPet": "Select pet",
+    "title": "Title",
+    "type": "Type",
+    "description": "Description",
+    "titlePlaceholder": "Event title",
+    "typePlaceholder": "Select event type",
+    "descriptionPlaceholder": "Event description (optional)",
+    "startTime": "Start Time",
+    "endTime": "End Time (optional)",
+    "locationField": "Location",
+    "locationPlaceholder": "Location (optional)",
+    "enableReminder": "Enable Reminder",
+    "reminderDescription": "Get notified before the event",
+    "notesPlaceholder": "Write your additional notes here",
+    "saveError": "An error occurred while saving the event",
+    "unsavedChangesMessageShort": "Are you sure you want to exit without saving changes?",
+    "exit": "Exit"
+  },
+  "eventForm": {
+    "suggestions": {
+      "feeding": "Regular feeding times are important for pet health. Adjust portions based on food type.",
+      "vetVisit": "Vet visits are essential for maintaining pet health. Don't forget regular checkups.",
+      "exercise": "Regular exercise is important for your pet's physical and mental health. Choose age-appropriate activities.",
+      "grooming": "Regular grooming is necessary for your pet's cleanliness and health. Don't forget fur, nail and dental care.",
+      "play": "Playtime is a great way to bond with your pet and get exercise.",
+      "training": "Training sessions are important for your pet's learning and socialization. Progress with patience and rewards.",
+      "bath": "Bathing is necessary for your pet's cleanliness. Adjust frequency based on pet type.",
+      "default": "This activity is important for your pet's health and happiness. Schedule regularly."
+    }
   },
   "eventList": {
     "today": "Today",
@@ -211,7 +321,16 @@
     "helpSupport": "Help & Support",
     "helpSupportDescription": "FAQ and contact",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "userPlaceholder": "User",
+    "turkishLanguage": "Türkçe",
+    "englishLanguage": "English",
+    "trIndicator": "TR",
+    "enIndicator": "EN",
+    "languages": {
+      "turkish": "Türkçe",
+      "english": "English"
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -241,7 +360,13 @@
     "weekdays": "Weekdays",
     "weekend": "Weekend",
     "loadMore": "Load More",
-    "all": "All"
+    "all": "All",
+    "selected": "Selected",
+    "dateTime": "Date & Time",
+    "additionalOptions": "Additional Options",
+    "dateInformation": "Date Information",
+    "days": "days",
+    "notSpecified": "Not specified"
   },
   "errors": {
     "loadingFailed": "Loading Failed"
@@ -467,6 +592,17 @@
       "takePhotoDescription": "Take a new photo",
       "removePhotoTitle": "Remove Photo",
       "removePhotoDescription": "Remove the current photo"
+    },
+    "healthRecord": {
+      "title": "Health Record Information",
+      "subtitle": "Enter health record details"
+    },
+    "actions": {
+      "submit": "Submit",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "error": "Validation Error"
     }
   },
   "expenses": {

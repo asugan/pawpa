@@ -63,14 +63,20 @@
     "myPets": "Evcil Dostlarım",
     "noPetsYet": "Henüz pet yok",
     "addFirstPet": "+ butonuna basarak ilk evcil dostunuzu ekleyin",
+    "addFirstPetButton": "İlk Peti Ekle",
     "addNewPet": "Yeni Pet Ekle",
     "editPet": "Pet Düzenle",
     "petName": "Pet Adı",
     "type": "Tür",
     "breed": "Cins",
+    "breedNotSpecified": "Cins belirtilmemiş",
     "gender": "Cinsiyet",
+    "male": "Erkek",
+    "female": "Dişi",
     "birthDate": "Doğum Tarihi",
+    "age": "Yaş",
     "weight": "Kilo",
+    "addedDate": "Eklenme Tarihi",
     "cancel": "İptal",
     "update": "Güncelle",
     "add": "Ekle",
@@ -80,7 +86,18 @@
     "months": "ay",
     "years": "yıl",
     "edit": "Düzenle",
-    "delete": "Sil"
+    "delete": "Sil",
+    "deletePet": "Pet Sil",
+    "deleteConfirmation": "\"{{name}}\" adlı pet'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteSuccess": "\"{{name}}\" başarıyla silindi",
+    "deleteError": "Pet silinemedi",
+    "saveSuccess": "Pet başarıyla kaydedildi",
+    "loadError": "Pet yüklenirken hata oluştu",
+    "updateSuccess": "Pet başarıyla güncellendi",
+    "notFound": "Pet bulunamadı",
+    "detailedInfo": "Detaylı Bilgiler",
+    "upcomingEvents": "📅 Yaklaşan Etkinlikler",
+    "quickActions": "Hızlı İşlemler"
   },
   "health": {
     "healthRecords": "Sağlık Kayıtları",
@@ -89,7 +106,68 @@
     "noRecords": "Henüz sağlık kaydı yok",
     "petNameDate": "Pet Adı • Tarih",
     "upcomingVaccinations": "Yaklaşan Aşılar",
-    "addRecord": "Sağlık Kaydı Ekle"
+    "addRecord": "Sağlık Kaydı Ekle",
+    "noPets": "Evcil Hayvan Yok",
+    "addPetFirstToViewRecords": "Sağlık kayıtlarını görüntülemek için önce bir evcil hayvan ekleyin",
+    "selectPet": "Evcil Hayvan Seçin",
+    "recordType": "Kayıt Türü",
+    "loadingError": "Sağlık kayıtları yüklenirken bir hata oluştu",
+    "selectPetToViewRecords": "Evcil Hayvan Seçin",
+    "selectPetToViewRecordsMessage": "Sağlık kayıtlarını görüntülemek için bir evcil hayvan seçin",
+    "noRecordsShort": "Sağlık Kaydı Yok",
+    "noRecordsMessage": "Henüz sağlık kaydı eklenmemiş",
+    "addFirstRecord": "İlk Sağlık Kaydını Ekle"
+  },
+  "healthRecords": {
+    "title": "Sağlık Kaydı",
+    "deleteRecord": "Sağlık Kaydını Sil",
+    "deleteConfirmation": "Bu sağlık kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteError": "Sağlık kaydı silinirken bir hata oluştu",
+    "notFound": "Kayıt Bulunamadı",
+    "notFoundDescription": "Sağlık kaydı bulunamadı veya silinmiş",
+    "veterinarianInfo": "Veteriner Bilgileri",
+    "veterinarian": "Veteriner",
+    "clinic": "Klinik",
+    "cost": "Maliyet",
+    "vaccinationInfo": "Aşı Bilgileri",
+    "vaccineName": "Aşı Adı",
+    "vaccineManufacturer": "Aşı Üreticisi",
+    "batchNumber": "Parti Numarası",
+    "nextVaccinationDate": "Sonraki Aşı Tarihi",
+    "medicationInfo": "İlaç Bilgileri",
+    "medicationName": "İlaç Adı",
+    "dosage": "Doz",
+    "frequency": "Sıklık",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "createTitle": "Yeni Sağlık Kaydı",
+    "editTitle": "Sağlık Kaydını Düzenle",
+    "createSubtitle": "Evcil hayvanınızın sağlık kayıtlarını yönetin",
+    "saveError": "Sağlık kaydı kaydedilirken bir hata oluştu",
+    "titleField": "Başlık",
+    "titlePlaceholder": "Kayıt başlığı",
+    "descriptionField": "Açıklama",
+    "descriptionPlaceholder": "Açıklama (opsiyonel)",
+    "recordDate": "Kayıt Tarihi",
+    "nextAppointmentDate": "Sonraki Randevu Tarihi",
+    "vaccinationNameLabel": "Aşı Adı",
+    "manufacturerLabel": "Üretici",
+    "manufacturerPlaceholder": "Üretici firma",
+    "batchNumberLabel": "Lot Numarası",
+    "batchNumberPlaceholder": "Lot numarası",
+    "medicationNamePlaceholder": "İlaç adı",
+    "dosageLabel": "Doz",
+    "dosagePlaceholder": "Doz miktarı",
+    "frequencyLabel": "Sıklık",
+    "frequencyPlaceholder": "Kullanım sıklığı",
+    "start": "Başlangıç",
+    "end": "Bitiş",
+    "veterinarianLabel": "Veteriner",
+    "veterinarianPlaceholder": "Veteriner adı",
+    "clinicLabel": "Klinik",
+    "clinicPlaceholder": "Klinik adı",
+    "costPlaceholder": "0.00",
+    "notesPlaceholder": "Ek notlar"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -135,7 +213,39 @@
     "statusCompleted": "Tamamlandı",
     "statusCancelled": "İptal Edildi",
     "viewPetProfile": "Pet Profilini Görüntüle",
-    "noUpcomingEvents": "Yaklaşan etkinlik yok"
+    "noUpcomingEvents": "Yaklaşan etkinlik yok",
+    "createTitle": "Yeni Etkinlik",
+    "editTitle": "Etkinliği Düzenle",
+    "createSubtitle": "Evcil hayvanınız için etkinlik oluşturun",
+    "selectPet": "Evcil hayvan seçin",
+    "title": "Başlık",
+    "type": "Tür",
+    "description": "Açıklama",
+    "titlePlaceholder": "Etkinlik başlığı",
+    "typePlaceholder": "Etkinlik türü seçin",
+    "descriptionPlaceholder": "Etkinlik açıklaması (opsiyonel)",
+    "startTime": "Başlangıç Zamanı",
+    "endTime": "Bitiş Zamanı (opsiyonel)",
+    "locationField": "Konum",
+    "locationPlaceholder": "Konum (opsiyonel)",
+    "enableReminder": "Hatırlatıcı Etkinleştir",
+    "reminderDescription": "Etkinlikten önce bildirim alın",
+    "notesPlaceholder": "Ek notlarınızı buraya yazın",
+    "saveError": "Etkinlik kaydedilirken bir hata oluştu",
+    "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
+    "exit": "Çık"
+  },
+  "eventForm": {
+    "suggestions": {
+      "feeding": "Düzenli besleme zamanları pet sağlığı için önemlidir. Mama türüne göre porsiyonları ayarlayın.",
+      "vetVisit": "Veteriner ziyaretleri pet sağlığının korunması için gereklidir. Düzenli kontrolleri unutmayın.",
+      "exercise": "Düzenli egzersiz petin fiziksel ve mental sağlığı için önemlidir. Yaşa uygun aktiviteler seçin.",
+      "grooming": "Düzenli bakım petin temizliği ve sağlığı için gereklidir. Tüy, tırnak ve diş bakımını unutmayın.",
+      "play": "Oyun zamanı petinizle bağ kurmanın ve egzersiz yapmanın harika bir yoludur.",
+      "training": "Eğitim seansları petinizin öğrenmesi ve sosyalleşmesi için önemlidir. Sabır ve ödülle ilerleyin.",
+      "bath": "Banyo petin temizliği için gereklidir. Sıklığı pet türüne göre ayarlayın.",
+      "default": "Bu etkinlik petinizin sağlık ve mutluluğu için önemlidir. Düzenli olarak planlayın."
+    }
   },
   "eventList": {
     "today": "Bugün",
@@ -211,7 +321,16 @@
     "helpSupport": "Yardım ve Destek",
     "helpSupportDescription": "SSS ve iletişim",
     "settings": "Ayarlar",
-    "logout": "Çıkış Yap"
+    "logout": "Çıkış Yap",
+    "userPlaceholder": "Kullanıcı",
+    "turkishLanguage": "Türkçe",
+    "englishLanguage": "English",
+    "trIndicator": "TR",
+    "enIndicator": "EN",
+    "languages": {
+      "turkish": "Türkçe",
+      "english": "English"
+    }
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -241,7 +360,13 @@
     "weekdays": "Hafta İçi",
     "weekend": "Hafta Sonu",
     "loadMore": "Daha Fazla Yükle",
-    "all": "Tümü"
+    "all": "Tümü",
+    "selected": "Seçili",
+    "dateTime": "Tarih ve Saat",
+    "additionalOptions": "Ek Seçenekler",
+    "dateInformation": "Tarih Bilgileri",
+    "days": "gün",
+    "notSpecified": "Belirtilmemiş"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -467,6 +592,17 @@
       "takePhotoDescription": "Yeni bir fotoğraf çekin",
       "removePhotoTitle": "Fotoğrafı Kaldır",
       "removePhotoDescription": "Mevcut fotoğrafı silin"
+    },
+    "healthRecord": {
+      "title": "Sağlık Kaydı Bilgileri",
+      "subtitle": "Sağlık kaydı detaylarını girin"
+    },
+    "actions": {
+      "submit": "Gönder",
+      "cancel": "İptal"
+    },
+    "validation": {
+      "error": "Validasyon Hatası"
     }
   },
   "expenses": {

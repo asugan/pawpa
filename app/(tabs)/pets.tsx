@@ -82,10 +82,10 @@ export default function PetsScreen() {
 
   useEffect(() => {
     if (error) {
-      setSnackbarMessage(error.message || 'Bir hata oluştu');
+      setSnackbarMessage(error.message || t('common.error'));
       setSnackbarVisible(true);
     }
-  }, [error]);
+  }, [error, t]);
 
   const showSnackbar = React.useCallback((message: string) => {
     setSnackbarMessage(message);
@@ -104,22 +104,22 @@ export default function PetsScreen() {
 
   const handleDeletePet = (pet: Pet) => {
     Alert.alert(
-      'Pet Sil',
-      `"${pet.name}" adlı pet\'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+      t('pets.deletePet'),
+      t('pets.deleteConfirmation', { name: pet.name }),
       [
         {
-          text: 'İptal',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sil',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deletePetMutation.mutateAsync(pet.id);
-              showSnackbar(`"${pet.name}" başarıyla silindi`);
+              showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
             } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'Pet silinemedi';
+              const errorMessage = error instanceof Error ? error.message : t('pets.deleteError');
               showSnackbar(errorMessage);
             }
           },
@@ -130,7 +130,7 @@ export default function PetsScreen() {
 
   const handleModalSuccess = () => {
     // React Query handles cache invalidation automatically
-    showSnackbar('Pet başarıyla kaydedildi');
+    showSnackbar(t('pets.saveSuccess'));
   };
 
   const handleSnackbarDismiss = () => {
@@ -221,7 +221,7 @@ export default function PetsScreen() {
               title={t('pets.noPetsYet')}
               description={t('pets.addFirstPet')}
               icon="paw"
-              buttonText={t('pets.addFirstPetButton', 'İlk Peti Ekle')}
+              buttonText={t('pets.addFirstPetButton')}
               onButtonPress={handleAddPet}
               buttonColor={theme.colors.primary}
               style={styles.emptyState}
@@ -290,7 +290,9 @@ export default function PetsScreen() {
           message={snackbarMessage}
           style={{
             ...styles.snackbar,
-            backgroundColor: snackbarMessage.includes('başarıyla') ? theme.colors.primary : theme.colors.error
+            backgroundColor: snackbarMessage.includes(t('pets.saveSuccess')) || snackbarMessage.includes(t('pets.deleteSuccess'))
+              ? theme.colors.primary
+              : theme.colors.error
           }}
         />
       </Portal>

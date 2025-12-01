@@ -142,8 +142,8 @@ export default function HealthScreen() {
     if (pets.length === 0) {
       return (
         <EmptyState
-          title="Evcil Hayvan Yok"
-          description="Sağlık kayıtlarını görüntülemek için önce bir evcil hayvan ekleyin"
+          title={t('health.noPets')}
+          description={t('health.addPetFirstToViewRecords')}
           icon="dog"
         />
       );
@@ -152,7 +152,7 @@ export default function HealthScreen() {
     return (
       <View style={styles.petSelector}>
         <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
-          Evcil Hayvan Seçin
+          {t('health.selectPet')}
         </Text>
         <View style={styles.petChips}>
           <Chip
@@ -160,7 +160,7 @@ export default function HealthScreen() {
             onPress={() => setSelectedPetId(undefined)}
             textStyle={{ fontSize: 12 }}
           >
-            Tümü
+            {t('common.all')}
           </Chip>
           {pets.map((pet) => (
             <Chip
@@ -180,7 +180,7 @@ export default function HealthScreen() {
   const renderTypeFilter = () => (
     <View style={styles.typeFilter}>
       <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
-        Kayıt Türü
+        {t('health.recordType')}
       </Text>
       <View style={styles.typeChips}>
         <Chip
@@ -188,7 +188,7 @@ export default function HealthScreen() {
           onPress={() => setSelectedType('all')}
           textStyle={{ fontSize: 12 }}
         >
-          Tümü
+          {t('common.all')}
         </Chip>
         {Object.entries(HEALTH_RECORD_TYPES).map(([key, value]) => (
           <Chip
@@ -235,24 +235,24 @@ export default function HealthScreen() {
         <LoadingSpinner />
       ) : error ? (
         <EmptyState
-          title="Hata"
-          description="Sağlık kayıtları yüklenirken bir hata oluştu"
+          title={t('common.error')}
+          description={t('health.loadingError')}
           icon="alert-circle"
-          buttonText="Tekrar Dene"
+          buttonText={t('common.retry')}
           onButtonPress={() => refetch()}
         />
       ) : !selectedPetId ? (
         <EmptyState
-          title="Evcil Hayvan Seçin"
-          description="Sağlık kayıtlarını görüntülemek için bir evcil hayvan seçin"
+          title={t('health.selectPetToViewRecords')}
+          description={t('health.selectPetToViewRecordsMessage')}
           icon="paw"
         />
       ) : filteredRecords.length === 0 ? (
         <EmptyState
-          title="Sağlık Kaydı Yok"
-          description="Henüz sağlık kaydı eklenmemiş"
+          title={t('health.noRecordsShort')}
+          description={t('health.noRecordsMessage')}
           icon="medical-bag"
-          buttonText="İlk Sağlık Kaydını Ekle"
+          buttonText={t('health.addFirstRecord')}
           onButtonPress={handleAddHealthRecord}
         />
       ) : (
