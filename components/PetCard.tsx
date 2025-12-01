@@ -1,11 +1,10 @@
 import { Avatar, Button, Surface, Text } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
+import { useTheme , gradients, gradientsDark } from '@/lib/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useResponsiveSize } from '../lib/hooks';
-import { gradients, gradientsDark } from '../lib/theme';
 import { Pet } from '../lib/types';
 
 interface PetCardProps {

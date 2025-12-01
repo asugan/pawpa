@@ -1,13 +1,11 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useThemeStore } from '../../stores/themeStore';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomTabHeader from '@/components/CustomTabHeader';
 
 export default function TabLayout() {
-  const { themeMode } = useThemeStore();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();

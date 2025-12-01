@@ -45,7 +45,7 @@ export default function LoginScreen() {
       } else {
         router.replace('/(tabs)');
       }
-    } catch (error) {
+    } catch {
       setError(t('auth.loginError'));
     } finally {
       setLoading(false);
@@ -58,7 +58,7 @@ export default function LoginScreen() {
 
     try {
       await signIn.google();
-    } catch (error) {
+    } catch {
       setError(t('auth.socialLoginError'));
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ export default function LoginScreen() {
 
     try {
       await signIn.apple();
-    } catch (error) {
+    } catch {
       setError(t('auth.socialLoginError'));
     } finally {
       setLoading(false);
