@@ -23,9 +23,9 @@ export interface UseEventFormReturn {
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: EventFormData) => void;
   setValue: <K extends Path<EventFormData>>(name: K, value: PathValue<EventFormData, K>) => void;
-  getValues: (name?: keyof EventFormData) => EventFormData | any;
+  getValues: (name?: keyof EventFormData) => EventFormData[keyof EventFormData] | EventFormData;
   trigger: (name?: keyof EventFormData) => Promise<boolean>;
-  watch: (name?: keyof EventFormData) => EventFormData | any;
+  watch: (name?: keyof EventFormData) => EventFormData[keyof EventFormData] | EventFormData;
 }
 
 // Main hook for event form - handles both create and edit modes

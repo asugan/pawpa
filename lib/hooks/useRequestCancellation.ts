@@ -86,7 +86,7 @@ export function useRequestCancellation() {
 // Hook for preventing duplicate requests
 export function useRequestDeduplication() {
   const queryClient = useQueryClient();
-  const pendingRequests = useRef<Map<string, Promise<any>>>(new Map());
+  const pendingRequests = useRef<Map<string, Promise<unknown>>>(new Map());
 
   const executeWithDeduplication = async <T>(
     key: string,

@@ -166,7 +166,67 @@ export interface YearlyExpense {
 }
 
 // Translation Function Type (i18next)
-export type TranslationFunction = (key: string, options?: Record<string, unknown>) => string;
+import { TFunction } from 'i18next';
+export type TranslationFunction = TFunction;
+
+// Network State Types - using NetInfo's own type
+import { NetInfoState } from '@react-native-community/netinfo';
+export type NetworkState = NetInfoState;
+
+// Form Handler Types
+export interface FormGetValues<T> {
+  (name?: keyof T): T[keyof T] | T;
+  (): T;
+}
+
+export interface FormWatch<T> {
+  (name?: keyof T): T[keyof T] | T;
+  (): T;
+}
+
+// Generic Form Handler Returns
+export interface FormHandlerReturn<T> {
+  getValues: FormGetValues<T>;
+  watch: FormWatch<T>;
+  setValue: <K extends keyof T>(name: K, value: T[K]) => void;
+  trigger: (name?: keyof T) => Promise<boolean>;
+  reset: (values?: T) => void;
+  handleSubmit: (onSubmit: (data: T) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+}
+
+// Budget Status Types
+export interface BudgetStatus {
+  budgetLimit: BudgetLimit;
+  currentSpending: number;
+  percentage: number;
+  remainingAmount: number;
+}
+
+// Subscription Types
+export interface SubscriptionOffering {
+  identifier: string;
+  packageType: string;
+  product: SubscriptionProduct;
+}
+
+export interface SubscriptionProduct {
+  identifier: string;
+  price: string;
+  title: string;
+  description: string;
+  currencyCode: string;
+  pricePerMonth?: string;
+}
+
+// API Service Function Type
+import { ApiResponse } from './api/client';
+export type ApiServiceFn<T, Args extends readonly unknown[] = readonly unknown[]> = (...args: Args) => Promise<ApiResponse<T>>;
+
+// Request Cache Type
+export interface RequestCache<T = unknown> {
+  timestamp: number;
+  promise: Promise<T>;
+}
 
 // Theme Type
 export interface AppTheme {

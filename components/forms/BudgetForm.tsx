@@ -41,8 +41,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   const selectedCategory = watch('category');
 
-  const handleFormSubmit = (data: any) => {
-    onSubmit(data as CreateBudgetLimitInput);
+  const handleFormSubmit = (data: CreateBudgetLimitInput) => {
+    onSubmit(data);
   };
 
   // Period buttons for SmartSegmentedButtons

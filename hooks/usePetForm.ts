@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import { PetCreateInput, PetCreateSchema, PetUpdateInput, PetUpdateSchema } from '../lib/schemas/petSchema';
-import { Pet, PetGender, PetType } from '../lib/types';
+import { FormHandlerReturn, Pet, PetGender, PetType } from '../lib/types';
 
 // Form hook types
 export interface UsePetFormReturn {
@@ -15,9 +15,9 @@ export interface UsePetFormReturn {
   handleSubmit: (onSubmit: (data: PetCreateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetCreateInput) => void;
   setValue: <K extends Path<PetCreateInput>>(name: K, value: PathValue<PetCreateInput, K>) => void;
-  getValues: (name?: keyof PetCreateInput) => PetCreateInput | any;
+  getValues: (name?: keyof PetCreateInput) => PetCreateInput[keyof PetCreateInput] | PetCreateInput;
   trigger: (name?: keyof PetCreateInput) => Promise<boolean>;
-  watch: (name?: keyof PetCreateInput) => PetCreateInput | any;
+  watch: (name?: keyof PetCreateInput) => PetCreateInput[keyof PetCreateInput] | PetCreateInput;
 }
 
 // Update form hook types
@@ -32,9 +32,9 @@ export interface UsePetUpdateFormReturn {
   handleSubmit: (onSubmit: (data: PetUpdateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: PetUpdateInput) => void;
   setValue: <K extends Path<PetUpdateInput>>(name: K, value: PathValue<PetUpdateInput, K>) => void;
-  getValues: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
+  getValues: (name?: keyof PetUpdateInput) => PetUpdateInput[keyof PetUpdateInput] | PetUpdateInput;
   trigger: (name?: keyof PetUpdateInput) => Promise<boolean>;
-  watch: (name?: keyof PetUpdateInput) => PetUpdateInput | any;
+  watch: (name?: keyof PetUpdateInput) => PetUpdateInput[keyof PetUpdateInput] | PetUpdateInput;
 }
 
 // Helper function to normalize pet type from database to form values
