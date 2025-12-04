@@ -15,7 +15,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
-import { ProtectedRoute } from '@/components/subscription';
+import { ProtectedRoute } from '../../components/subscription/ProtectedRoute';
 
 export default function BudgetsScreen() {
   const { theme } = useTheme();
@@ -184,146 +184,146 @@ export default function BudgetsScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('subscription.features.budgets')}>
+    <ProtectedRoute featureName="budgets" showPaywall={false} requirePro={true}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={styles.title}>
-            {t('budgets.title', 'Budgets')}
-          </Text>
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={styles.title}>
+          {t('budgets.title', 'Budgets')}
+        </Text>
 
-        {/* Pet Selector */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.petSelector}
-          contentContainerStyle={styles.petSelectorContent}
-        >
-          {pets.map((pet) => (
-            <Chip
-              key={pet.id}
-              selected={selectedPetId === pet.id}
-              onPress={() => setSelectedPetId(pet.id)}
-              style={styles.petChip}
-            >
-              {pet.name}
-            </Chip>
-          ))}
-        </ScrollView>
-
-        {/* Alert Banner */}
-        {selectedPetId && alerts.length > 0 && (
-          <Banner
-            visible={true}
-            icon={
-              <MaterialCommunityIcons
-                name="alert-circle"
-                size={24}
-                color={theme.colors.error}
-              />
-            }
-            style={{ ...styles.alertBanner, backgroundColor: theme.colors.errorContainer }}
-          >
-            <Text variant="bodyMedium" style={{ color: theme.colors.error, fontWeight: '600' }}>
-              {t('budgets.alertsFound', {
-                count: alerts.length,
-                defaultValue: `You have ${alerts.length} budget alert(s)!`,
-              })}
-            </Text>
-          </Banner>
-        )}
-      </View>
-
+      {/* Pet Selector */}
       <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && page === 1}
-            onRefresh={handleRefresh}
-            colors={[theme.colors.primary]}
-          />
-        }
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.petSelector}
+        contentContainerStyle={styles.petSelectorContent}
       >
-        {!selectedPetId ? (
-          <EmptyState
-            icon="paw"
-            title={t('budgets.selectPet', 'Select a pet')}
-            description={t('budgets.selectPetMessage', 'Choose a pet to view budgets')}
-          />
-        ) : allBudgets.length === 0 ? (
-          !budgetsLoading && (
-            <EmptyState
-              icon="wallet-outline"
-              title={t('budgets.noBudgets', 'No budgets yet')}
-              description={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
-            />
-          )
-        ) : (
-          <View style={styles.budgetList}>
-            {allBudgets.map((budget) => {
-              // Find budget status from statuses array
-              const status = statuses.find((s) => s.budgetLimit.id === budget.id) || null;
-
-              return (
-                <BudgetCard
-                  key={budget.id}
-                  budget={budget}
-                  status={status}
-                  onEdit={() => handleEditBudget(budget)}
-                  onDelete={() => handleDeleteBudget(budget)}
-                />
-              );
-            })}
-
-            {/* Load More Button */}
-            {hasMore && (
-              <View style={styles.loadMoreContainer}>
-                <Button
-                  mode="outlined"
-                  onPress={handleLoadMore}
-                  disabled={isFetching}
-                  style={styles.loadMoreButton}
-                >
-                  {isFetching ? t('common.loading') : t('common.loadMore')}
-                </Button>
-              </View>
-            )}
-
-            {/* Loading indicator */}
-            {isFetching && page > 1 && (
-              <View style={styles.loadingFooter}>
-                <LoadingSpinner size="small" />
-              </View>
-            )}
-          </View>
-        )}
+        {pets.map((pet) => (
+          <Chip
+            key={pet.id}
+            selected={selectedPetId === pet.id}
+            onPress={() => setSelectedPetId(pet.id)}
+            style={styles.petChip}
+          >
+            {pet.name}
+          </Chip>
+        ))}
       </ScrollView>
 
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-        onPress={handleAddBudget}
-      />
-
-      {selectedPetId && (
-        <BudgetFormModal
-          visible={modalVisible}
-          petId={selectedPetId}
-          budget={editingBudget}
-          onDismiss={() => {
-            setModalVisible(false);
-            setEditingBudget(undefined);
-          }}
-          onSubmit={handleSubmitBudget}
-          isSubmitting={createBudget.isPending || updateBudget.isPending}
-        />
+      {/* Alert Banner */}
+      {selectedPetId && alerts.length > 0 && (
+        <Banner
+          visible={true}
+          icon={
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={24}
+              color={theme.colors.error}
+            />
+          }
+          style={{ ...styles.alertBanner, backgroundColor: theme.colors.errorContainer }}
+        >
+          <Text variant="bodyMedium" style={{ color: theme.colors.error, fontWeight: '600' }}>
+            {t('budgets.alertsFound', {
+              count: alerts.length,
+              defaultValue: `You have ${alerts.length} budget alert(s)!`,
+            })}
+          </Text>
+        </Banner>
       )}
+    </View>
 
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-        message={snackbarMessage}
+    <ScrollView
+      style={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={isFetching && page === 1}
+          onRefresh={handleRefresh}
+          colors={[theme.colors.primary]}
+        />
+      }
+    >
+      {!selectedPetId ? (
+        <EmptyState
+          icon="paw"
+          title={t('budgets.selectPet', 'Select a pet')}
+          description={t('budgets.selectPetMessage', 'Choose a pet to view budgets')}
+        />
+      ) : allBudgets.length === 0 ? (
+        !budgetsLoading && (
+          <EmptyState
+            icon="wallet-outline"
+            title={t('budgets.noBudgets', 'No budgets yet')}
+            description={t('budgets.noBudgetsMessage', 'Set budget limits to track your spending')}
+          />
+        )
+      ) : (
+        <View style={styles.budgetList}>
+          {allBudgets.map((budget) => {
+            // Find budget status from statuses array
+            const status = statuses.find((s) => s.budgetLimit.id === budget.id) || null;
+
+            return (
+              <BudgetCard
+                key={budget.id}
+                budget={budget}
+                status={status}
+                onEdit={() => handleEditBudget(budget)}
+                onDelete={() => handleDeleteBudget(budget)}
+              />
+            );
+          })}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <View style={styles.loadMoreContainer}>
+              <Button
+                mode="outlined"
+                onPress={handleLoadMore}
+                disabled={isFetching}
+                style={styles.loadMoreButton}
+              >
+                {isFetching ? t('common.loading') : t('common.loadMore')}
+              </Button>
+            </View>
+          )}
+
+          {/* Loading indicator */}
+          {isFetching && page > 1 && (
+            <View style={styles.loadingFooter}>
+              <LoadingSpinner size="small" />
+            </View>
+          )}
+        </View>
+      )}
+    </ScrollView>
+
+    <FAB
+      icon="add"
+      style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+      onPress={handleAddBudget}
+    />
+
+    {selectedPetId && (
+      <BudgetFormModal
+        visible={modalVisible}
+        petId={selectedPetId}
+        budget={editingBudget}
+        onDismiss={() => {
+          setModalVisible(false);
+          setEditingBudget(undefined);
+        }}
+        onSubmit={handleSubmitBudget}
+        isSubmitting={createBudget.isPending || updateBudget.isPending}
       />
+    )}
+
+    <Snackbar
+      visible={snackbarVisible}
+      onDismiss={() => setSnackbarVisible(false)}
+      duration={3000}
+      message={snackbarMessage}
+    />
       </SafeAreaView>
     </ProtectedRoute>
   );

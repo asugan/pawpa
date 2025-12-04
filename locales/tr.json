@@ -27,10 +27,10 @@
   },
   "navigation": {
     "home": "Ana Sayfa",
-    "pets": "Evcil Dostlar",
-    "health": "Sağlık",
+    "pets": "Pet Yönetimi",
+    "health": "Sağlık Kayıtları",
     "calendar": "Takvim",
-    "feeding": "Besleme",
+    "feeding": "Besleme Planı",
     "expenses": "Harcamalar",
     "budgets": "Bütçeler",
     "settings": "Ayarlar"
@@ -718,7 +718,8 @@
     "trialExpired": "Deneme Süresi Doldu",
     "trialPrompt": "Deneme süreniz {{days}} gün sonra bitiyor",
     "upgrade": "Pro'ya Yükselt",
-    "upgradePrompt": "Pro ile tüm özelliklerin kilidini açın",
+    "proFeatureRequired": "Pro Özellik Gerekli",
+    "upgradePrompt": "{{feature}} sadece Pro üyeler için",
     "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükselt",
     "manageSubscription": "Aboneliği Yönet",
     "restorePurchases": "Satın Alımları Geri Yükle",
@@ -752,12 +753,13 @@
       "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
       "priority": "Öncelikli Destek",
       "priorityDesc": "İhtiyacınız olduğunda yardım alın",
+      "homeDashboard": "Ana Sayfa Paneli",
       "petManagement": "Evcil Hayvan Yönetimi",
       "healthRecords": "Sağlık Kayıtları",
-      "calendar": "Takvim & Etkinlikler",
-      "feeding": "Besleme Programları",
-      "expenses": "Gider Takibi",
-      "budgets": "Bütçe Yönetimi"
+      "calendar": "Takvim",
+      "feedingSchedule": "Besleme Programı",
+      "expenses": "Harcamalar",
+      "budgets": "Bütçeler"
     },
     "paywall": {
       "title": "PawPa Pro'nun Kilidini Açın",

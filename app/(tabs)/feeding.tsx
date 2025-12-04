@@ -16,7 +16,7 @@ import {
 import { usePets } from '@/lib/hooks/usePets';
 import { FeedingSchedule, Pet } from '@/lib/types';
 import { LAYOUT } from '@/constants';
-import { ProtectedRoute } from '@/components/subscription';
+import { ProtectedRoute } from '@/components/subscription/ProtectedRoute';
 
 type TabValue = 'today' | 'upcoming' | 'all';
 
@@ -188,125 +188,125 @@ export default function FeedingScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('subscription.features.feeding')}>
+    <ProtectedRoute featureName="feedingSchedule" showPaywall={false} requirePro={true}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-            {t('feedingSchedule.title')}
-          </Text>
-        </View>
-
-      {/* Tab Buttons */}
-      <View style={styles.tabContainer}>
-        <SegmentedButtons
-          value={selectedTab}
-          onValueChange={(value) => setSelectedTab(value as TabValue)}
-          buttons={[
-            {
-              value: 'today',
-              label: t('feedingSchedule.todaysSchedules'),
-              icon: 'calendar-today',
-            },
-            {
-              value: 'upcoming',
-              label: t('feedingSchedule.upcomingSchedules'),
-              icon: 'calendar-clock',
-            },
-            {
-              value: 'all',
-              label: t('feedingSchedule.allSchedules'),
-              icon: 'calendar-multiple',
-            },
-          ]}
-          style={styles.segmentedButtons}
-        />
+      {/* Header */}
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+          {t('feedingSchedule.title')}
+        </Text>
       </View>
 
-      {/* Pet Filter */}
-      {allPets.length > 1 && (
-        <View style={styles.filterContainer}>
-          <Menu
-            visible={petFilterVisible}
-            onDismiss={() => setPetFilterVisible(false)}
-            anchor={
-              <Button
-                mode="outlined"
-                onPress={() => setPetFilterVisible(true)}
-                icon="filter"
-                style={styles.filterButton}
-              >
-                {petFilterLabel}
-              </Button>
+    {/* Tab Buttons */}
+    <View style={styles.tabContainer}>
+      <SegmentedButtons
+        value={selectedTab}
+        onValueChange={(value) => setSelectedTab(value as TabValue)}
+        buttons={[
+          {
+            value: 'today',
+            label: t('feedingSchedule.todaysSchedules'),
+            icon: 'calendar-today',
+          },
+          {
+            value: 'upcoming',
+            label: t('feedingSchedule.upcomingSchedules'),
+            icon: 'calendar-clock',
+          },
+          {
+            value: 'all',
+            label: t('feedingSchedule.allSchedules'),
+            icon: 'calendar-multiple',
+          },
+        ]}
+        style={styles.segmentedButtons}
+      />
+    </View>
+
+    {/* Pet Filter */}
+    {allPets.length > 1 && (
+      <View style={styles.filterContainer}>
+        <Menu
+          visible={petFilterVisible}
+          onDismiss={() => setPetFilterVisible(false)}
+          anchor={
+            <Button
+              mode="outlined"
+              onPress={() => setPetFilterVisible(true)}
+              icon="filter"
+              style={styles.filterButton}
+            >
+              {petFilterLabel}
+            </Button>
+          }
+        >
+          <Menu.Item
+            onPress={() => handlePetFilter(null)}
+            title={t('feedingSchedule.allSchedules')}
+            leadingIcon={
+              selectedPetId === null ? (
+                <MaterialCommunityIcons name="check" size={20} color={theme.colors.primary} />
+              ) : undefined
             }
-          >
+          />
+          {allPets.map((pet) => (
             <Menu.Item
-              onPress={() => handlePetFilter(null)}
-              title={t('feedingSchedule.allSchedules')}
+              key={pet.id}
+              onPress={() => handlePetFilter(pet.id)}
+              title={pet.name}
               leadingIcon={
-                selectedPetId === null ? (
+                selectedPetId === pet.id ? (
                   <MaterialCommunityIcons name="check" size={20} color={theme.colors.primary} />
                 ) : undefined
               }
             />
-            {allPets.map((pet) => (
-              <Menu.Item
-                key={pet.id}
-                onPress={() => handlePetFilter(pet.id)}
-                title={pet.name}
-                leadingIcon={
-                  selectedPetId === pet.id ? (
-                    <MaterialCommunityIcons name="check" size={20} color={theme.colors.primary} />
-                  ) : undefined
-                }
-              />
-            ))}
-          </Menu>
-        </View>
+          ))}
+        </Menu>
+      </View>
+    )}
+
+    {/* Schedule List */}
+    <FlatList
+      data={schedules}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <FeedingScheduleCard
+          schedule={item}
+          onPress={handleSchedulePress}
+          onEdit={handleEditSchedule}
+          onDelete={handleDeleteSchedule}
+          onToggleActive={handleToggleActive}
+          showPetInfo={!selectedPetId}
+          showActions
+          testID={`schedule-card-${item.id}`}
+        />
       )}
+      contentContainerStyle={styles.listContainer}
+      ListEmptyComponent={renderEmptyState}
+      ListFooterComponent={renderFooter}
+      onEndReached={handleEndReached}
+      onEndReachedThreshold={0.5}
+      showsVerticalScrollIndicator={false}
+    />
 
-      {/* Schedule List */}
-      <FlatList
-        data={schedules}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <FeedingScheduleCard
-            schedule={item}
-            onPress={handleSchedulePress}
-            onEdit={handleEditSchedule}
-            onDelete={handleDeleteSchedule}
-            onToggleActive={handleToggleActive}
-            showPetInfo={!selectedPetId}
-            showActions
-            testID={`schedule-card-${item.id}`}
-          />
-        )}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={renderEmptyState}
-        ListFooterComponent={renderFooter}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.5}
-        showsVerticalScrollIndicator={false}
-      />
+    {/* FAB for adding new schedule */}
+    <FAB
+      icon="add"
+      style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+      onPress={handleAddSchedule}
+      testID="add-schedule-fab"
+    />
 
-      {/* FAB for adding new schedule */}
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-        onPress={handleAddSchedule}
-        testID="add-schedule-fab"
-      />
-
-      {/* Feeding Schedule Modal */}
-      <FeedingScheduleModal
-        visible={isModalVisible}
-        schedule={selectedSchedule}
-        initialPetId={selectedPetId || undefined}
-        onClose={handleModalClose}
-        onSuccess={handleModalSuccess}
-        pets={allPets}
-        testID="feeding-schedule-modal"
-      />
+    {/* Feeding Schedule Modal */}
+    <FeedingScheduleModal
+      visible={isModalVisible}
+      schedule={selectedSchedule}
+      initialPetId={selectedPetId || undefined}
+      onClose={handleModalClose}
+      onSuccess={handleModalSuccess}
+      pets={allPets}
+      testID="feeding-schedule-modal"
+    />
       </SafeAreaView>
     </ProtectedRoute>
   );

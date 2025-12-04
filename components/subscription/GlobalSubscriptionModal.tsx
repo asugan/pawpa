@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Modal, View, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -6,43 +7,50 @@ import { Text, Button, Card } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { SubscriptionCard } from './SubscriptionCard';
-
-interface SubscriptionModalProps {
-  visible: boolean;
-  onClose: () => void;
-  featureName?: string;
-}
+import { usePaywallStore } from '@/stores/paywallStore';
 
 /**
- * SubscriptionModal - Shows a modal for users without subscription
- * when they try to access premium features
+ * GlobalSubscriptionModal - Single global instance rendered at app root
+ * Replaces per-tab SubscriptionModal instances
  */
-export function SubscriptionModal({ visible, onClose, featureName }: SubscriptionModalProps) {
+export function GlobalSubscriptionModal() {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const router = useRouter();
   const { isLoading } = useSubscription();
-
+  const router = useRouter();
+  
+  // Global paywall state
+  const { isOpen, triggerReason, closePaywall } = usePaywallStore();
+  
   const handleUpgrade = () => {
-    onClose();
+    // Close the modal and navigate to subscription page
+    closePaywall();
     router.push('/subscription');
   };
-
+  
   const handleClose = () => {
-    onClose();
+    closePaywall();
   };
-
+  
+  // Log for debugging
+  useEffect(() => {
+    if (isOpen) {
+      console.log(`[GlobalSubscriptionModal] Modal opened - Reason: ${triggerReason}`);
+    }
+  }, [isOpen, triggerReason]);
+  
   return (
     <Modal
-      visible={visible}
+      visible={isOpen}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={handleClose}
     >
       <Pressable style={styles.overlay} onPress={handleClose}>
         <View style={styles.centeredView}>
           <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
             <Card style={[styles.modalCard, { backgroundColor: theme.colors.surface }]}>
+              {/* Content identical to original SubscriptionModal */}
               <View style={styles.cardContent}>
                 {/* Header */}
                 <View style={styles.header}>
@@ -60,8 +68,8 @@ export function SubscriptionModal({ visible, onClose, featureName }: Subscriptio
 
                 {/* Description */}
                 <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
-                  {featureName
-                    ? t('subscription.modal.featureDescription', { feature: featureName })
+                  {triggerReason
+                    ? t('subscription.modal.featureDescription', { feature: triggerReason })
                     : t('subscription.modal.description')}
                 </Text>
 
@@ -127,6 +135,7 @@ export function SubscriptionModal({ visible, onClose, featureName }: Subscriptio
   );
 }
 
+// Copy styles from SubscriptionModal.tsx
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -181,9 +190,6 @@ const styles = StyleSheet.create({
   },
   upgradeButton: {
     marginBottom: 8,
-  },
-  buttonContent: {
-    paddingVertical: 8,
   },
   laterButton: {
     alignSelf: 'center',

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { zustandStorage } from '@/lib/storage/zustandStorage';
 import i18n from '../lib/i18n';
 
 type SupportedLanguage = 'tr' | 'en' | 'ar';
@@ -77,6 +78,7 @@ export const useLanguageStore = create<LanguageState & LanguageActions>()(
     }),
     {
       name: LANGUAGE_STORAGE_KEY,
+      storage: zustandStorage,
       // Only persist essential data
       partialize: (state) => ({
         language: state.language,

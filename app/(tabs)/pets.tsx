@@ -16,7 +16,7 @@ import EmptyState from '../../components/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
-import { ProtectedRoute } from '@/components/subscription';
+import { ProtectedRoute } from '../../components/subscription/ProtectedRoute';
 
 export default function PetsScreen() {
   const { theme } = useTheme();
@@ -180,7 +180,7 @@ export default function PetsScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('subscription.features.petManagement')}>
+    <ProtectedRoute featureName="petManagement" showPaywall={false} requirePro={true}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
           <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>

@@ -7,6 +7,7 @@ import { SubscriptionProvider } from "../providers/SubscriptionProvider";
 import { NetworkStatus } from "../lib/components/NetworkStatus";
 import { ApiErrorBoundary } from "../lib/components/ApiErrorBoundary";
 import { useOnlineManager } from "../lib/hooks/useOnlineManager";
+import { GlobalSubscriptionModal } from '../components/subscription/GlobalSubscriptionModal';
 import { AppState, AppStateStatus } from 'react-native';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -40,6 +41,8 @@ function AppProviders({ children }: { children: React.ReactNode }) {
               <AuthProvider>
                 <SubscriptionProvider>
                   {children}
+                  {/* Global Single Instance Modal - Renders once at root */}
+                  <GlobalSubscriptionModal />
                 </SubscriptionProvider>
               </AuthProvider>
             </ApiErrorBoundary>

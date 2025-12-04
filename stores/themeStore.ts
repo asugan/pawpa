@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { zustandStorage } from '@/lib/storage/zustandStorage';
 import { lightTheme, darkTheme } from '@/lib/theme/themes';
 import type { ThemeMode, Theme } from '@/lib/theme/types';
 
@@ -51,6 +52,7 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
     }),
     {
       name: 'theme-storage',
+      storage: zustandStorage,
       // Only persist the mode, derive the rest on rehydration
       partialize: (state) => ({
         themeMode: state.themeMode,

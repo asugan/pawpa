@@ -23,7 +23,7 @@ export const useHomeData = () => {
 
   // Financial Calculations
   const monthlyExpense = expenseStats?.total || 0;
-  const monthlyBudget = budgetStatuses?.reduce((sum: any, b: any) => sum + (b.limit || 0), 0) || 800;
+  const monthlyBudget = budgetStatuses?.reduce((sum: number, b: { limit?: number }) => sum + (b.limit || 0), 0) || 800;
   const expensePercentage = monthlyBudget > 0 ? (monthlyExpense / monthlyBudget) * 100 : 0;
 
   const isLoading = petsLoading || eventsLoading || vaccinationsLoading;
@@ -51,12 +51,12 @@ export const useHomeData = () => {
 };
 
 // Helper Functions (Logic)
-export const getPetUpcomingEvents = (petId: string, events?: any[]) => {
+export const getPetUpcomingEvents = (petId: string, events?: { petId: string }[]) => {
   if (!events) return 0;
   return events.filter((event) => event.petId === petId).length;
 };
 
-export const getPetUpcomingVaccinations = (petId: string, vaccinations?: any[]) => {
+export const getPetUpcomingVaccinations = (petId: string, vaccinations?: { petId: string }[]) => {
   if (!vaccinations) return 0;
   return vaccinations.filter((vaccination) => vaccination.petId === petId).length;
 };

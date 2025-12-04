@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ProtectedRoute } from '@/components/subscription';
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -15,6 +14,7 @@ import { UpcomingEventsSection } from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 import { FinancialOverview } from "@/components/home/FinancialOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";
+import { ProtectedRoute } from "@/components/subscription/ProtectedRoute";
 import { Text } from "@/components/ui";
 import { getPetUpcomingEvents, getPetUpcomingVaccinations, useHomeData } from "@/lib/hooks/useHomeData";
 import { useTheme } from "@/lib/theme";
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  
+
   // Tüm mantık useHomeData hook'unda toplandı
   const { user, layout, data, financial, status } = useHomeData();
 
@@ -50,16 +50,16 @@ export default function HomeScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('navigation.home')}>
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ProtectedRoute showPaywall={true} featureName="homeDashboard">
         <ScrollView
         style={[styles.scrollView, { padding: layout.scrollPadding }]}
         showsVerticalScrollIndicator={false}
       >
-        <HomeHeader 
-          user={user} 
-          petsCount={data.pets?.length || 0} 
-          eventsCount={data.todayEvents?.length || 0} 
+        <HomeHeader
+          user={user}
+          petsCount={data.pets?.length || 0}
+          eventsCount={data.todayEvents?.length || 0}
         />
 
         {/* Stats Dashboard */}
@@ -141,7 +141,7 @@ export default function HomeScreen() {
                   />
                 </View>
               ))}
-              
+
               {/* Add Pet Button */}
               <TouchableOpacity
                 onPress={() => router.push("/pet/add")}
@@ -173,7 +173,7 @@ export default function HomeScreen() {
         <HealthOverview healthRecords={data.allHealthRecords || []} />
 
         {data.pets && data.pets.length > 0 && (
-          <FinancialOverview 
+          <FinancialOverview
             monthlyExpense={financial.monthlyExpense}
             monthlyBudget={financial.monthlyBudget}
             expensePercentage={financial.expensePercentage}
@@ -182,15 +182,15 @@ export default function HomeScreen() {
 
         <UpcomingEventsSection />
       </ScrollView>
+      </ProtectedRoute>
 
-        <TouchableOpacity
-          onPress={() => router.push("/pet/add")}
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
-      </SafeAreaView>
-    </ProtectedRoute>
+      <TouchableOpacity
+        onPress={() => router.push("/pet/add")}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+      >
+        <Ionicons name="add" size={32} color="#FFFFFF" />
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 

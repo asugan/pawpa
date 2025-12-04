@@ -407,6 +407,8 @@ The app implements advanced performance optimization specifically designed for m
 
 ## Active Technologies
 - TypeScript 5.9.2 with React Native 0.81.5 (strict mode) + React Native, Expo SDK ~54.0.20, React Native Paper (theme system) (001-responsive-stat-cards)
+- TypeScript 5.9.2 with React Native 0.81.5 (strict mode) + React Native, Expo SDK ~54.0.20, React Native Paper, RevenueCat React Native Purchases, Zustand, TanStack Query, Expo Router (001-subscription-paywall-refactor)
+- N/A (UI refactor only) (001-subscription-paywall-refactor)
 
 ## Recent Changes
 - 001-responsive-stat-cards: Added TypeScript 5.9.2 with React Native 0.81.5 (strict mode) + React Native, Expo SDK ~54.0.20, React Native Paper (theme system)

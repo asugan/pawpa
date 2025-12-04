@@ -27,10 +27,10 @@
   },
   "navigation": {
     "home": "Home",
-    "pets": "Pets",
-    "health": "Health",
+    "pets": "Pet Management",
+    "health": "Health Records",
     "calendar": "Calendar",
-    "feeding": "Feeding",
+    "feeding": "Feeding Schedule",
     "expenses": "Expenses",
     "budgets": "Budgets",
     "settings": "Settings"
@@ -718,7 +718,8 @@
     "trialExpired": "Trial Expired",
     "trialPrompt": "Your trial ends in {{days}} days",
     "upgrade": "Upgrade to Pro",
-    "upgradePrompt": "Unlock all features with Pro",
+    "proFeatureRequired": "Pro Feature Required",
+    "upgradePrompt": "{{feature}} is only available for Pro members",
     "upgradeBeforeTrialEnds": "Upgrade Before Trial Ends",
     "manageSubscription": "Manage Subscription",
     "restorePurchases": "Restore Purchases",
@@ -752,12 +753,13 @@
       "exportDesc": "Export your data in multiple formats",
       "priority": "Priority Support",
       "priorityDesc": "Get help when you need it",
+      "homeDashboard": "Home Dashboard",
       "petManagement": "Pet Management",
       "healthRecords": "Health Records",
-      "calendar": "Calendar & Events",
-      "feeding": "Feeding Schedules",
-      "expenses": "Expense Tracking",
-      "budgets": "Budget Management"
+      "calendar": "Calendar",
+      "feedingSchedule": "Feeding Schedule",
+      "expenses": "Expenses",
+      "budgets": "Budgets"
     },
     "paywall": {
       "title": "Unlock PawPa Pro",

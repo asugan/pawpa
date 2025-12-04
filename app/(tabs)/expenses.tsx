@@ -15,7 +15,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CreateExpenseInput, Expense } from '../../lib/types';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
-import { ProtectedRoute } from '@/components/subscription';
+import { ProtectedRoute } from '../../components/subscription/ProtectedRoute';
 
 export default function ExpensesScreen() {
   const { theme } = useTheme();
@@ -193,151 +193,151 @@ export default function ExpensesScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('subscription.features.expenses')}>
+    <ProtectedRoute featureName="expenses" showPaywall={false} requirePro={true}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={styles.title}>
-            {t('expenses.title', 'Expenses')}
-          </Text>
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={styles.title}>
+          {t('expenses.title', 'Expenses')}
+        </Text>
 
-        {/* Pet Selector */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.petSelector}
-          contentContainerStyle={styles.petSelectorContent}
-        >
-          {pets.map((pet) => (
-            <Chip
-              key={pet.id}
-              selected={selectedPetId === pet.id}
-              onPress={() => setSelectedPetId(pet.id)}
-              style={styles.petChip}
-            >
-              {pet.name}
-            </Chip>
-          ))}
-        </ScrollView>
-
-        {/* Stats Summary */}
-        {selectedPetId && stats && (
-          <View style={[styles.statsCard, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <View style={styles.statItem}>
-              <MaterialCommunityIcons name="cash-multiple" size={20} color={theme.colors.primary} />
-              <Text variant="bodySmall" style={styles.statLabel}>
-                {t('expenses.totalSpent', 'Total Spent')}
-              </Text>
-              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
-                {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(', ')}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <MaterialCommunityIcons name="chart-bar" size={20} color={theme.colors.secondary} />
-              <Text variant="bodySmall" style={styles.statLabel}>
-                {t('expenses.totalExpenses', 'Total Expenses')}
-              </Text>
-              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.secondary }]}>
-                {stats.count}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <MaterialCommunityIcons name="calculator" size={20} color={theme.colors.tertiary} />
-              <Text variant="bodySmall" style={styles.statLabel}>
-                {t('expenses.average', 'Average')}
-              </Text>
-              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.tertiary }]}>
-                {formatCurrency(stats.average, stats.byCurrency[0]?.currency || 'TRY')}
-              </Text>
-            </View>
-          </View>
-        )}
-      </View>
-
+      {/* Pet Selector */}
       <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && page === 1}
-            onRefresh={handleRefresh}
-            colors={[theme.colors.primary]}
-          />
-        }
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.petSelector}
+        contentContainerStyle={styles.petSelectorContent}
       >
-        {!selectedPetId ? (
-          <EmptyState
-            icon="paw"
-            title={t('expenses.selectPet', 'Select a pet')}
-            description={t('expenses.selectPetMessage', 'Choose a pet to view expenses')}
-          />
-        ) : allExpenses.length === 0 ? (
-          !expensesLoading && (
-            <EmptyState
-              icon="cash-remove"
-              title={t('expenses.noExpenses', 'No expenses yet')}
-              description={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
-            />
-          )
-        ) : (
-          <View style={styles.expenseList}>
-            {allExpenses.map((expense) => (
-              <ExpenseCard
-                key={expense.id}
-                expense={expense}
-                onEdit={() => handleEditExpense(expense)}
-                onDelete={() => handleDeleteExpense(expense)}
-              />
-            ))}
-
-            {/* Load More Button */}
-            {hasMore && (
-              <View style={styles.loadMoreContainer}>
-                <Button
-                  mode="outlined"
-                  onPress={handleLoadMore}
-                  disabled={isFetching}
-                  style={styles.loadMoreButton}
-                >
-                  {isFetching ? t('common.loading') : t('common.loadMore')}
-                </Button>
-              </View>
-            )}
-
-            {/* Loading indicator */}
-            {isFetching && page > 1 && (
-              <View style={styles.loadingFooter}>
-                <LoadingSpinner size="small" />
-              </View>
-            )}
-          </View>
-        )}
+        {pets.map((pet) => (
+          <Chip
+            key={pet.id}
+            selected={selectedPetId === pet.id}
+            onPress={() => setSelectedPetId(pet.id)}
+            style={styles.petChip}
+          >
+            {pet.name}
+          </Chip>
+        ))}
       </ScrollView>
 
-      <FAB
-        icon="add"
-        style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-        onPress={handleAddExpense}
-      />
-
-      {selectedPetId && (
-        <ExpenseFormModal
-          visible={modalVisible}
-          petId={selectedPetId}
-          expense={editingExpense}
-          onDismiss={() => {
-            setModalVisible(false);
-            setEditingExpense(undefined);
-          }}
-          onSubmit={handleSubmitExpense}
-          isSubmitting={createExpense.isPending || updateExpense.isPending}
-        />
+      {/* Stats Summary */}
+      {selectedPetId && stats && (
+        <View style={[styles.statsCard, { backgroundColor: theme.colors.surfaceVariant }]}>
+          <View style={styles.statItem}>
+            <MaterialCommunityIcons name="cash-multiple" size={20} color={theme.colors.primary} />
+            <Text variant="bodySmall" style={styles.statLabel}>
+              {t('expenses.totalSpent', 'Total Spent')}
+            </Text>
+            <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
+              {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(', ')}
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <MaterialCommunityIcons name="chart-bar" size={20} color={theme.colors.secondary} />
+            <Text variant="bodySmall" style={styles.statLabel}>
+              {t('expenses.totalExpenses', 'Total Expenses')}
+            </Text>
+            <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.secondary }]}>
+              {stats.count}
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <MaterialCommunityIcons name="calculator" size={20} color={theme.colors.tertiary} />
+            <Text variant="bodySmall" style={styles.statLabel}>
+              {t('expenses.average', 'Average')}
+            </Text>
+            <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.tertiary }]}>
+              {formatCurrency(stats.average, stats.byCurrency[0]?.currency || 'TRY')}
+            </Text>
+          </View>
+        </View>
       )}
+    </View>
 
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-        message={snackbarMessage}
+    <ScrollView
+      style={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={isFetching && page === 1}
+          onRefresh={handleRefresh}
+          colors={[theme.colors.primary]}
+        />
+      }
+    >
+      {!selectedPetId ? (
+        <EmptyState
+          icon="paw"
+          title={t('expenses.selectPet', 'Select a pet')}
+          description={t('expenses.selectPetMessage', 'Choose a pet to view expenses')}
+        />
+      ) : allExpenses.length === 0 ? (
+        !expensesLoading && (
+          <EmptyState
+            icon="cash-remove"
+            title={t('expenses.noExpenses', 'No expenses yet')}
+            description={t('expenses.noExpensesMessage', 'Start tracking your pet expenses')}
+          />
+        )
+      ) : (
+        <View style={styles.expenseList}>
+          {allExpenses.map((expense) => (
+            <ExpenseCard
+              key={expense.id}
+              expense={expense}
+              onEdit={() => handleEditExpense(expense)}
+              onDelete={() => handleDeleteExpense(expense)}
+            />
+          ))}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <View style={styles.loadMoreContainer}>
+              <Button
+                mode="outlined"
+                onPress={handleLoadMore}
+                disabled={isFetching}
+                style={styles.loadMoreButton}
+              >
+                {isFetching ? t('common.loading') : t('common.loadMore')}
+              </Button>
+            </View>
+          )}
+
+          {/* Loading indicator */}
+          {isFetching && page > 1 && (
+            <View style={styles.loadingFooter}>
+              <LoadingSpinner size="small" />
+            </View>
+          )}
+        </View>
+      )}
+    </ScrollView>
+
+    <FAB
+      icon="add"
+      style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+      onPress={handleAddExpense}
+    />
+
+    {selectedPetId && (
+      <ExpenseFormModal
+        visible={modalVisible}
+        petId={selectedPetId}
+        expense={editingExpense}
+        onDismiss={() => {
+          setModalVisible(false);
+          setEditingExpense(undefined);
+        }}
+        onSubmit={handleSubmitExpense}
+        isSubmitting={createExpense.isPending || updateExpense.isPending}
       />
+    )}
+
+    <Snackbar
+      visible={snackbarVisible}
+      onDismiss={() => setSnackbarVisible(false)}
+      duration={3000}
+      message={snackbarMessage}
+    />
       </SafeAreaView>
     </ProtectedRoute>
   );

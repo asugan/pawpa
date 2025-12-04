@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { zustandStorage } from '@/lib/storage/zustandStorage';
 
 // UI State interface - sadece client-side state
 export interface PetUIState {
@@ -46,6 +47,7 @@ export const usePetUIStore = create<PetUIState & PetUIActions>()(
     }),
     {
       name: 'pet-ui-storage',
+      storage: zustandStorage,
       partialize: (state) => ({
         selectedPetId: state.selectedPetId,
         filterStatus: state.filterStatus,
