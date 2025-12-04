@@ -87,7 +87,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         </FormSection>
 
         {/* Budget Details */}
-        <FormSection title={t('budgets.sections.details', 'Budget Details')}>
+        <FormSection title={t('common.additionalOptions', 'Budget Details')}>
           {/* Amount */}
           <SmartNumberInput
             name="amount"
@@ -107,7 +107,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         </FormSection>
 
         {/* Alert Settings */}
-        <FormSection title={t('budgets.sections.alerts', 'Alert Settings')}>
+        <FormSection title={t('notifications.reminder', 'Alert Settings')}>
           {/* Alert Threshold - Custom percentage input */}
           <View style={styles.inputContainer}>
             <Controller
