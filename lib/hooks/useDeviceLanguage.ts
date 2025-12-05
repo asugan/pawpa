@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Platform } from 'react-native';
-import * as Localization from 'expo-localization';
-import { useLanguageStore, isLanguageSupported } from '@/stores/languageStore';
+import { useState, useEffect } from "react";
+import { Platform } from "react-native";
+import * as Localization from "expo-localization";
+import { useLanguageStore, isLanguageSupported } from "@/stores/languageStore";
 
-type SupportedLanguage = 'tr' | 'en';
+type SupportedLanguage = "tr" | "en";
 
 export function useDeviceLanguage() {
-  const { language, setLanguage, hasUserExplicitlySetLanguage } = useLanguageStore();
-  const [deviceLanguage, setDeviceLanguage] = useState<SupportedLanguage>('en');
-  const [isDeviceLanguageSupported, setIsDeviceLanguageSupported] = useState(false);
+  const language = useLanguageStore((state) => state.language);
+  const setLanguage = useLanguageStore((state) => state.setLanguage);
+  const hasUserExplicitlySetLanguage = useLanguageStore(
+    (state) => state.hasUserExplicitlySetLanguage
+  );
+  const [deviceLanguage, setDeviceLanguage] = useState<SupportedLanguage>("en");
+  const [isDeviceLanguageSupported, setIsDeviceLanguageSupported] =
+    useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,23 +22,23 @@ export function useDeviceLanguage() {
       try {
         // Try multiple methods to get the language
         const deviceLocales = Localization.getLocales();
-        let deviceLocale = deviceLocales[0]?.languageCode || 'en';
+        let deviceLocale = deviceLocales[0]?.languageCode || "en";
 
         // Fallback for different platforms
-        if (Platform.OS === 'ios') {
+        if (Platform.OS === "ios") {
           // iOS specific logic if needed
           // On iOS, Localization.locale returns the preferred language set in Settings
           const preferredLanguages = Localization.getLocales();
           if (preferredLanguages.length > 0) {
             deviceLocale = preferredLanguages[0].languageCode || deviceLocale;
           }
-        } else if (Platform.OS === 'android') {
+        } else if (Platform.OS === "android") {
           // Android specific logic if needed
           // On Android, Localization.locale returns the system language
         }
 
         // Extract language code (tr-TR -> tr, en-US -> en)
-        const languageCode = deviceLocale.split('-')[0].toLowerCase();
+        const languageCode = deviceLocale.split("-")[0].toLowerCase();
 
         // Check if it's a supported language
         if (isLanguageSupported(languageCode)) {
@@ -41,10 +46,10 @@ export function useDeviceLanguage() {
         }
 
         // Default to English
-        return 'en';
+        return "en";
       } catch (error) {
-        console.warn('Error getting device language:', error);
-        return 'en';
+        console.warn("Error getting device language:", error);
+        return "en";
       }
     };
 
@@ -59,7 +64,10 @@ export function useDeviceLanguage() {
     // 1. User hasn't explicitly set a language before
     // 2. Device language is supported
     // 3. Device language is different from current language
-    const shouldAutoSet = !hasUserExplicitlySetLanguage && isSupported && detectedLanguage !== language;
+    const shouldAutoSet =
+      !hasUserExplicitlySetLanguage &&
+      isSupported &&
+      detectedLanguage !== language;
 
     if (shouldAutoSet) {
       // Set language as auto-detected (not explicit)

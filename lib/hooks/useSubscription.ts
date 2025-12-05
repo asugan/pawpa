@@ -1,11 +1,16 @@
-import { useCallback, useMemo, useRef } from 'react';
-import { Alert } from 'react-native';
-import Purchases, { CustomerInfo, PurchasesOfferings, PurchasesPackage } from 'react-native-purchases';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
-import { useTranslation } from 'react-i18next';
-import { useSubscriptionStore } from '@/stores/subscriptionStore';
-import { REVENUECAT_CONFIG } from '@/lib/revenuecat/config';
-import { restorePurchases as restorePurchasesApi } from '@/lib/revenuecat/initialize';
+import { useCallback, useMemo, useRef } from "react";
+import { Alert } from "react-native";
+import Purchases, {
+  CustomerInfo,
+  PurchasesOfferings,
+  PurchasesPackage,
+} from "react-native-purchases";
+import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
+import { useTranslation } from "react-i18next";
+import { useShallow } from "zustand/react/shallow";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { REVENUECAT_CONFIG } from "@/lib/revenuecat/config";
+import { restorePurchases as restorePurchasesApi } from "@/lib/revenuecat/initialize";
 
 // Rate limiting configuration
 const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
@@ -15,7 +20,7 @@ const RETRY_DELAY_BASE = 1000; // 1 second base delay
 /**
  * Subscription status type
  */
-export type SubscriptionStatusType = 'pro' | 'trial' | 'free';
+export type SubscriptionStatusType = "pro" | "trial" | "free";
 
 /**
  * useSubscription hook return type
@@ -31,7 +36,7 @@ export interface UseSubscriptionReturn {
   daysRemaining: number;
   subscriptionStatus: SubscriptionStatusType;
   canStartTrial: boolean;
-  provider: 'internal' | 'revenuecat' | null;
+  provider: "internal" | "revenuecat" | null;
   tier: string | null;
 
   // Customer Info (for RevenueCat operations)
@@ -77,7 +82,7 @@ async function pollForSubscriptionUpdate(
       return true;
     }
   }
-  console.log('[Subscription] Status update timeout - webhook may be delayed');
+  console.log("[Subscription] Status update timeout - webhook may be delayed");
   return false;
 }
 
@@ -92,89 +97,153 @@ async function pollForSubscriptionUpdate(
  */
 export function useSubscription(): UseSubscriptionReturn {
   const { t } = useTranslation();
-  const store = useSubscriptionStore();
-  
+
   // Rate limiting and circuit breaker refs
   const lastRequestTimeRef = useRef<number>(0);
   const retryCountRef = useRef<number>(0);
   const isFetchingRef = useRef<boolean>(false);
 
+  // Use useShallow to prevent unnecessary re-renders
+  const {
+    isProUser,
+    hasActiveSubscription,
+    isTrialActive,
+    isPaidSubscription,
+    isExpired,
+    isCancelled,
+    getDaysRemaining,
+    canStartTrial,
+    getProvider,
+    getTier,
+    getActiveEntitlement,
+    getExpirationDate,
+    willRenew,
+    setCustomerInfo,
+    fetchSubscriptionStatus,
+    setLoading,
+    setError,
+    startTrial,
+    resetSubscription,
+  } = useSubscriptionStore(
+    useShallow((state) => ({
+      isProUser: state.isProUser,
+      hasActiveSubscription: state.hasActiveSubscription,
+      isTrialActive: state.isTrialActive,
+      isPaidSubscription: state.isPaidSubscription,
+      isExpired: state.isExpired,
+      isCancelled: state.isCancelled,
+      getDaysRemaining: state.getDaysRemaining,
+      canStartTrial: state.canStartTrial,
+      getProvider: state.getProvider,
+      getTier: state.getTier,
+      getActiveEntitlement: state.getActiveEntitlement,
+      getExpirationDate: state.getExpirationDate,
+      willRenew: state.willRenew,
+      setCustomerInfo: state.setCustomerInfo,
+      fetchSubscriptionStatus: state.fetchSubscriptionStatus,
+      setLoading: state.setLoading,
+      setError: state.setError,
+      startTrial: state.startTrial,
+      resetSubscription: state.resetSubscription,
+    }))
+  );
+
+  // State values that need to be tracked individually
+  const customerInfo = useSubscriptionStore((state) => state.customerInfo);
+  const isInitialized = useSubscriptionStore((state) => state.isInitialized);
+  const isLoading = useSubscriptionStore((state) => state.isLoading);
+  const isStatusLoading = useSubscriptionStore(
+    (state) => state.isStatusLoading
+  );
+  const error = useSubscriptionStore((state) => state.error);
+  const statusError = useSubscriptionStore((state) => state.statusError);
+
   // Computed values from backend status
-  const isProUser = store.isProUser();
-  const isSubscribed = store.hasActiveSubscription();
-  const isTrialActive = store.isTrialActive();
-  const isPaidSubscription = store.isPaidSubscription();
-  const isExpired = store.isExpired();
-  const isCancelled = store.isCancelled();
-  const daysRemaining = store.getDaysRemaining();
-  const canStartTrial = store.canStartTrial();
-  const provider = store.getProvider();
-  const tier = store.getTier();
-  const activeEntitlement = store.getActiveEntitlement();
+  const isProUserValue = isProUser();
+  const isSubscribed = hasActiveSubscription();
+  const isTrialActiveValue = isTrialActive();
+  const isPaidSubscriptionValue = isPaidSubscription();
+  const isExpiredValue = isExpired();
+  const isCancelledValue = isCancelled();
+  const daysRemaining = getDaysRemaining();
+  const canStartTrialValue = canStartTrial();
+  const provider = getProvider();
+  const tier = getTier();
+  const activeEntitlement = getActiveEntitlement();
 
   const subscriptionStatus: SubscriptionStatusType = useMemo(() => {
-    if (isPaidSubscription) return 'pro';
-    if (isTrialActive) return 'trial';
-    return 'free';
-  }, [isPaidSubscription, isTrialActive]);
+    if (isPaidSubscriptionValue) return "pro";
+    if (isTrialActiveValue) return "trial";
+    return "free";
+  }, [isPaidSubscriptionValue, isTrialActiveValue]);
 
   const activeEntitlements = useMemo(() => {
-    if (!store.customerInfo) return [];
-    return Object.keys(store.customerInfo.entitlements.active);
-  }, [store.customerInfo]);
+    if (!customerInfo) return [];
+    return Object.keys(customerInfo.entitlements.active);
+  }, [customerInfo]);
 
   /**
    * Present the RevenueCat paywall
    * Returns true if a purchase or restore was made
    * Uses polling to wait for backend status update
    */
-  const presentPaywall = useCallback(async (offering?: PurchasesOfferings): Promise<boolean> => {
-    try {
-      store.setLoading(true);
-      store.setError(null);
+  const presentPaywall = useCallback(
+    async (offering?: PurchasesOfferings): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const result = await RevenueCatUI.presentPaywall({
-        offering: offering?.current || undefined,
-      });
+        const result = await RevenueCatUI.presentPaywall({
+          offering: offering?.current || undefined,
+        });
 
-      switch (result) {
-        case PAYWALL_RESULT.PURCHASED:
-        case PAYWALL_RESULT.RESTORED:
-          // Update RevenueCat customer info immediately
-          const info = await Purchases.getCustomerInfo();
-          store.setCustomerInfo(info);
+        switch (result) {
+          case PAYWALL_RESULT.PURCHASED:
+          case PAYWALL_RESULT.RESTORED:
+            // Update RevenueCat customer info immediately
+            const info = await Purchases.getCustomerInfo();
+            setCustomerInfo(info);
 
-          // Poll for backend status update (webhook processing)
-          await pollForSubscriptionUpdate(
-            () => store.fetchSubscriptionStatus(),
-            () => store.hasActiveSubscription()
-          );
-          return true;
+            // Poll for backend status update (webhook processing)
+            await pollForSubscriptionUpdate(
+              () => fetchSubscriptionStatus(),
+              () => hasActiveSubscription()
+            );
+            return true;
 
-        case PAYWALL_RESULT.CANCELLED:
-          console.log('[Subscription] Paywall cancelled by user');
-          return false;
+          case PAYWALL_RESULT.CANCELLED:
+            console.log("[Subscription] Paywall cancelled by user");
+            return false;
 
-        case PAYWALL_RESULT.ERROR:
-          console.error('[Subscription] Paywall error');
-          store.setError(t('subscription.paywallError'));
-          return false;
+          case PAYWALL_RESULT.ERROR:
+            console.error("[Subscription] Paywall error");
+            setError(t("subscription.paywallError"));
+            return false;
 
-        case PAYWALL_RESULT.NOT_PRESENTED:
-          console.log('[Subscription] Paywall not presented');
-          return false;
+          case PAYWALL_RESULT.NOT_PRESENTED:
+            console.log("[Subscription] Paywall not presented");
+            return false;
 
-        default:
-          return false;
+          default:
+            return false;
+        }
+      } catch (error) {
+        console.error("[Subscription] Error presenting paywall:", error);
+        setError((error as Error).message);
+        return false;
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('[Subscription] Error presenting paywall:', error);
-      store.setError((error as Error).message);
-      return false;
-    } finally {
-      store.setLoading(false);
-    }
-  }, [store, t]);
+    },
+    [
+      setLoading,
+      setError,
+      setCustomerInfo,
+      fetchSubscriptionStatus,
+      hasActiveSubscription,
+      t,
+    ]
+  );
 
   /**
    * Present paywall only if user doesn't have the Pro entitlement
@@ -182,197 +251,250 @@ export function useSubscription(): UseSubscriptionReturn {
    */
   const presentPaywallIfNeeded = useCallback(async (): Promise<boolean> => {
     try {
-      store.setLoading(true);
-      store.setError(null);
+      setLoading(true);
+      setError(null);
 
       const result = await RevenueCatUI.presentPaywallIfNeeded({
         requiredEntitlementIdentifier: REVENUECAT_CONFIG.ENTITLEMENT_ID,
       });
 
-      if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
+      if (
+        result === PAYWALL_RESULT.PURCHASED ||
+        result === PAYWALL_RESULT.RESTORED
+      ) {
         const info = await Purchases.getCustomerInfo();
-        store.setCustomerInfo(info);
+        setCustomerInfo(info);
 
         // Poll for backend status update
         await pollForSubscriptionUpdate(
-          () => store.fetchSubscriptionStatus(),
-          () => store.hasActiveSubscription()
+          () => fetchSubscriptionStatus(),
+          () => hasActiveSubscription()
         );
         return true;
       }
 
       return false;
     } catch (error) {
-      console.error('[Subscription] Error presenting paywall if needed:', error);
-      store.setError((error as Error).message);
+      console.error(
+        "[Subscription] Error presenting paywall if needed:",
+        error
+      );
+      setError((error as Error).message);
       return false;
     } finally {
-      store.setLoading(false);
+      setLoading(false);
     }
-  }, [store]);
+  }, [
+    setLoading,
+    setError,
+    setCustomerInfo,
+    fetchSubscriptionStatus,
+    hasActiveSubscription,
+  ]);
 
   /**
    * Present the Customer Center for subscription management
    */
   const presentCustomerCenter = useCallback(async (): Promise<void> => {
     try {
-      store.setLoading(true);
-      store.setError(null);
+      setLoading(true);
+      setError(null);
 
       await RevenueCatUI.presentCustomerCenter({
         callbacks: {
           onRestoreStarted: () => {
-            console.log('[Subscription] Restore started from Customer Center');
+            console.log("[Subscription] Restore started from Customer Center");
           },
           onRestoreCompleted: async ({ customerInfo }) => {
-            console.log('[Subscription] Restore completed from Customer Center');
-            store.setCustomerInfo(customerInfo);
+            console.log(
+              "[Subscription] Restore completed from Customer Center"
+            );
+            setCustomerInfo(customerInfo);
             // Refresh backend status
-            await store.fetchSubscriptionStatus();
+            await fetchSubscriptionStatus();
           },
           onRestoreFailed: ({ error }) => {
-            console.error('[Subscription] Restore failed from Customer Center:', error);
-            store.setError(error.message);
+            console.error(
+              "[Subscription] Restore failed from Customer Center:",
+              error
+            );
+            setError(error.message);
           },
           onShowingManageSubscriptions: () => {
-            console.log('[Subscription] Showing manage subscriptions');
+            console.log("[Subscription] Showing manage subscriptions");
           },
           onFeedbackSurveyCompleted: ({ feedbackSurveyOptionId }) => {
-            console.log('[Subscription] Feedback survey completed:', feedbackSurveyOptionId);
+            console.log(
+              "[Subscription] Feedback survey completed:",
+              feedbackSurveyOptionId
+            );
           },
         },
       });
     } catch (error) {
-      console.error('[Subscription] Error presenting Customer Center:', error);
-      store.setError((error as Error).message);
+      console.error("[Subscription] Error presenting Customer Center:", error);
+      setError((error as Error).message);
     } finally {
-      store.setLoading(false);
+      setLoading(false);
     }
-  }, [store]);
+  }, [setLoading, setError, setCustomerInfo, fetchSubscriptionStatus]);
 
   /**
    * Restore purchases for the current user
    */
   const restorePurchases = useCallback(async (): Promise<boolean> => {
     try {
-      store.setLoading(true);
-      store.setError(null);
+      setLoading(true);
+      setError(null);
 
       const customerInfo = await restorePurchasesApi();
-      store.setCustomerInfo(customerInfo);
+      setCustomerInfo(customerInfo);
 
-      const hasEntitlement = typeof customerInfo.entitlements.active[REVENUECAT_CONFIG.ENTITLEMENT_ID] !== 'undefined';
+      const hasEntitlement =
+        typeof customerInfo.entitlements.active[
+          REVENUECAT_CONFIG.ENTITLEMENT_ID
+        ] !== "undefined";
 
       if (hasEntitlement) {
         // Poll for backend status update
         await pollForSubscriptionUpdate(
-          () => store.fetchSubscriptionStatus(),
-          () => store.hasActiveSubscription()
+          () => fetchSubscriptionStatus(),
+          () => hasActiveSubscription()
         );
 
-        Alert.alert(
-          t('common.success'),
-          t('subscription.restoreSuccess')
-        );
+        Alert.alert(t("common.success"), t("subscription.restoreSuccess"));
         return true;
       } else {
         Alert.alert(
-          t('subscription.noPurchases'),
-          t('subscription.noPurchasesMessage')
+          t("subscription.noPurchases"),
+          t("subscription.noPurchasesMessage")
         );
         return false;
       }
     } catch (error) {
-      console.error('[Subscription] Error restoring purchases:', error);
-      store.setError((error as Error).message);
-      Alert.alert(
-        t('common.error'),
-        t('subscription.restoreError')
-      );
+      console.error("[Subscription] Error restoring purchases:", error);
+      setError((error as Error).message);
+      Alert.alert(t("common.error"), t("subscription.restoreError"));
       return false;
     } finally {
-      store.setLoading(false);
+      setLoading(false);
     }
-  }, [store, t]);
+  }, [
+    setLoading,
+    setError,
+    setCustomerInfo,
+    fetchSubscriptionStatus,
+    hasActiveSubscription,
+    t,
+  ]);
 
   /**
    * Purchase a specific package
    */
-  const purchasePackage = useCallback(async (pkg: PurchasesPackage): Promise<boolean> => {
-    try {
-      store.setLoading(true);
-      store.setError(null);
+  const purchasePackage = useCallback(
+    async (pkg: PurchasesPackage): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const { customerInfo } = await Purchases.purchasePackage(pkg);
-      store.setCustomerInfo(customerInfo);
+        const { customerInfo } = await Purchases.purchasePackage(pkg);
+        setCustomerInfo(customerInfo);
 
-      const hasEntitlement = typeof customerInfo.entitlements.active[REVENUECAT_CONFIG.ENTITLEMENT_ID] !== 'undefined';
+        const hasEntitlement =
+          typeof customerInfo.entitlements.active[
+            REVENUECAT_CONFIG.ENTITLEMENT_ID
+          ] !== "undefined";
 
-      if (hasEntitlement) {
-        console.log('[Subscription] Purchase successful');
-        // Poll for backend status update
-        await pollForSubscriptionUpdate(
-          () => store.fetchSubscriptionStatus(),
-          () => store.hasActiveSubscription()
-        );
-        return true;
-      }
-
-      return false;
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error) {
-        const errorCode = (error as { code: string }).code;
-        if (errorCode === Purchases.PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
-          console.log('[Subscription] Purchase cancelled by user');
-          return false;
+        if (hasEntitlement) {
+          console.log("[Subscription] Purchase successful");
+          // Poll for backend status update
+          await pollForSubscriptionUpdate(
+            () => fetchSubscriptionStatus(),
+            () => hasActiveSubscription()
+          );
+          return true;
         }
 
-        if (errorCode === Purchases.PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR) {
-          console.log('[Subscription] Product already purchased, restoring...');
-          return restorePurchases();
-        }
-      }
+        return false;
+      } catch (error: unknown) {
+        if (error && typeof error === "object" && "code" in error) {
+          const errorCode = (error as { code: string }).code;
+          if (
+            errorCode ===
+            Purchases.PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR
+          ) {
+            console.log("[Subscription] Purchase cancelled by user");
+            return false;
+          }
 
-      console.error('[Subscription] Purchase error:', error);
-      const errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message: string }).message 
-        : 'Purchase failed';
-      store.setError(errorMessage);
-      Alert.alert(t('common.error'), errorMessage);
-      return false;
-    } finally {
-      store.setLoading(false);
-    }
-  }, [store, t, restorePurchases]);
+          if (
+            errorCode ===
+            Purchases.PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR
+          ) {
+            console.log(
+              "[Subscription] Product already purchased, restoring..."
+            );
+            return restorePurchases();
+          }
+        }
+
+        console.error("[Subscription] Purchase error:", error);
+        const errorMessage =
+          error && typeof error === "object" && "message" in error
+            ? (error as { message: string }).message
+            : "Purchase failed";
+        setError(errorMessage);
+        Alert.alert(t("common.error"), errorMessage);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      setLoading,
+      setError,
+      setCustomerInfo,
+      fetchSubscriptionStatus,
+      hasActiveSubscription,
+      t,
+      restorePurchases,
+    ]
+  );
 
   /**
    * Get available offerings
    */
-  const getOfferings = useCallback(async (): Promise<PurchasesOfferings | null> => {
-    try {
-      const offerings = await Purchases.getOfferings();
-      return offerings;
-    } catch (error) {
-      console.error('[Subscription] Error getting offerings:', error);
-      return null;
-    }
-  }, []);
+  const getOfferings =
+    useCallback(async (): Promise<PurchasesOfferings | null> => {
+      try {
+        const offerings = await Purchases.getOfferings();
+        return offerings;
+      } catch (error) {
+        console.error("[Subscription] Error getting offerings:", error);
+        return null;
+      }
+    }, []);
 
   /**
    * Check if user has a specific entitlement (from RevenueCat)
    */
-  const checkEntitlement = useCallback((entitlementId: string = REVENUECAT_CONFIG.ENTITLEMENT_ID): boolean => {
-    if (!store.customerInfo) return false;
-    return typeof store.customerInfo.entitlements.active[entitlementId] !== 'undefined';
-  }, [store.customerInfo]);
+  const checkEntitlement = useCallback(
+    (entitlementId: string = REVENUECAT_CONFIG.ENTITLEMENT_ID): boolean => {
+      if (!customerInfo) return false;
+      return (
+        typeof customerInfo.entitlements.active[entitlementId] !== "undefined"
+      );
+    },
+    [customerInfo]
+  );
 
   /**
    * Start the free trial (via backend)
    * Returns true if trial was started successfully
    */
-  const startTrial = useCallback(async (): Promise<boolean> => {
-    return await store.startTrial();
-  }, [store]);
+  const startTrialAction = useCallback(async (): Promise<boolean> => {
+    return await startTrial();
+  }, [startTrial]);
 
   /**
    * Refresh subscription status from backend
@@ -381,25 +503,33 @@ export function useSubscription(): UseSubscriptionReturn {
   const refreshSubscriptionStatus = useCallback(async (): Promise<void> => {
     // Prevent duplicate concurrent requests
     if (isFetchingRef.current) {
-      console.log('[useSubscription] Skipping fetch - request already in progress');
+      console.log(
+        "[useSubscription] Skipping fetch - request already in progress"
+      );
       return;
     }
 
     // Rate limiting: check if enough time has passed since last request
     const now = Date.now();
     const timeSinceLastRequest = now - lastRequestTimeRef.current;
-    
+
     if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
-      console.log(`[useSubscription] Skipping fetch - too soon (${timeSinceLastRequest}ms < ${MIN_REQUEST_INTERVAL}ms)`);
+      console.log(
+        `[useSubscription] Skipping fetch - too soon (${timeSinceLastRequest}ms < ${MIN_REQUEST_INTERVAL}ms)`
+      );
       return;
     }
 
     // Check if circuit breaker has been tripped (too many failures)
     if (retryCountRef.current >= MAX_RETRY_ATTEMPTS) {
-      console.error(`[useSubscription] Circuit breaker tripped - too many failures (${retryCountRef.current})`);
+      console.error(
+        `[useSubscription] Circuit breaker tripped - too many failures (${retryCountRef.current})`
+      );
       // Only log once to avoid console spam
       if (retryCountRef.current === MAX_RETRY_ATTEMPTS) {
-        console.error('[useSubscription] Subscription status checks paused. Will retry after app restart.');
+        console.error(
+          "[useSubscription] Subscription status checks paused. Will retry after app restart."
+        );
       }
       return;
     }
@@ -408,51 +538,53 @@ export function useSubscription(): UseSubscriptionReturn {
     lastRequestTimeRef.current = now;
 
     try {
-      await store.fetchSubscriptionStatus();
+      await fetchSubscriptionStatus();
       // Success - reset retry counter
       retryCountRef.current = 0;
-      console.log('[useSubscription] Subscription status refreshed successfully');
+      console.log(
+        "[useSubscription] Subscription status refreshed successfully"
+      );
     } catch (error) {
       // Increment retry counter on failure
       retryCountRef.current += 1;
       const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
       console.error(
         `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
-        `next retry after ${delay}ms:`,
+          `next retry after ${delay}ms:`,
         error
       );
     } finally {
       isFetchingRef.current = false;
     }
-  }, [store]);
+  }, [fetchSubscriptionStatus]);
 
   return {
     // Status (from backend)
-    isProUser,
+    isProUser: isProUserValue,
     isSubscribed,
-    isTrialActive,
-    isPaidSubscription,
-    isExpired,
-    isCancelled,
+    isTrialActive: isTrialActiveValue,
+    isPaidSubscription: isPaidSubscriptionValue,
+    isExpired: isExpiredValue,
+    isCancelled: isCancelledValue,
     daysRemaining,
     subscriptionStatus,
-    canStartTrial,
+    canStartTrial: canStartTrialValue,
     provider,
     tier,
 
     // Customer Info (for RevenueCat operations)
-    customerInfo: store.customerInfo,
+    customerInfo,
     activeEntitlements,
-    expirationDate: store.getExpirationDate(),
-    willRenew: store.willRenew(),
+    expirationDate: getExpirationDate(),
+    willRenew: willRenew(),
     productIdentifier: activeEntitlement?.productIdentifier ?? null,
 
     // Loading states
-    isInitialized: store.isInitialized,
-    isLoading: store.isLoading,
-    isStatusLoading: store.isStatusLoading,
-    error: store.error,
-    statusError: store.statusError,
+    isInitialized,
+    isLoading,
+    isStatusLoading,
+    error,
+    statusError,
 
     // Actions
     presentPaywall,
@@ -462,7 +594,7 @@ export function useSubscription(): UseSubscriptionReturn {
     purchasePackage,
     getOfferings,
     checkEntitlement,
-    startTrial,
+    startTrial: startTrialAction,
     refreshSubscriptionStatus,
   };
 }
