@@ -134,7 +134,7 @@ export function useSubscription(): UseSubscriptionReturn {
       store.setError(null);
 
       const result = await RevenueCatUI.presentPaywall({
-        offering: offering as any,
+        offering: offering?.current || undefined,
       });
 
       switch (result) {
@@ -319,20 +319,26 @@ export function useSubscription(): UseSubscriptionReturn {
       }
 
       return false;
-    } catch (error: any) {
-      if (error.code === Purchases.PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
-        console.log('[Subscription] Purchase cancelled by user');
-        return false;
-      }
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        const errorCode = (error as { code: string }).code;
+        if (errorCode === Purchases.PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
+          console.log('[Subscription] Purchase cancelled by user');
+          return false;
+        }
 
-      if (error.code === Purchases.PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR) {
-        console.log('[Subscription] Product already purchased, restoring...');
-        return restorePurchases();
+        if (errorCode === Purchases.PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR) {
+          console.log('[Subscription] Product already purchased, restoring...');
+          return restorePurchases();
+        }
       }
 
       console.error('[Subscription] Purchase error:', error);
-      store.setError(error.message);
-      Alert.alert(t('common.error'), error.message);
+      const errorMessage = error && typeof error === 'object' && 'message' in error 
+        ? (error as { message: string }).message 
+        : 'Purchase failed';
+      store.setError(errorMessage);
+      Alert.alert(t('common.error'), errorMessage);
       return false;
     } finally {
       store.setLoading(false);

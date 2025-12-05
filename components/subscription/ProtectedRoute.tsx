@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { SubscriptionModal } from './SubscriptionModal';
 import LoadingSpinner from '../LoadingSpinner';
@@ -41,14 +42,17 @@ export function ProtectedRoute({ children, featureName, requirePro = true }: Pro
   } = useSubscription();
 
   const [showModal, setShowModal] = useState(false);
+  const isFocused = useIsFocused(); // Mevcut sayfanın odaklanıp odaklanmadığını kontrol et
 
   // Refresh subscription status and check whenever tab is focused
+  // useFocusEffect automatically runs only when the screen/tab is focused
   useFocusEffect(
     useCallback(() => {
       refreshSubscriptionStatus();
       
       // Re-check subscription and show modal if needed
       // This ensures modal reappears when navigating back to the tab
+      // No need for isFocused check here as useFocusEffect only runs when focused
       if (!isSubscriptionLoading && requirePro && !isProUser) {
         setShowModal(true);
       }
@@ -58,11 +62,12 @@ export function ProtectedRoute({ children, featureName, requirePro = true }: Pro
   );
 
   // Also control modal visibility based on subscription status changes
+  // FIX: Sadece sayfa odaklanmışsa modalı aç, aksi takdirde arka plandaki tüm sekmeler modal açar.
   useEffect(() => {
-    if (!isSubscriptionLoading && requirePro && !isProUser) {
+    if (isFocused && !isSubscriptionLoading && requirePro && !isProUser) {
       setShowModal(true);
     }
-  }, [isProUser, isSubscriptionLoading, requirePro]);
+  }, [isProUser, isSubscriptionLoading, requirePro, isFocused]);
 
   const handleCloseModal = () => {
     setShowModal(false);

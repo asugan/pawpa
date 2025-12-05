@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { budgetService } from '../services/budgetService';
-import type { BudgetLimit, CreateBudgetLimitInput, UpdateBudgetLimitInput } from '../types';
+import type { BudgetLimit, CreateBudgetLimitInput, UpdateBudgetLimitInput, BudgetAlert, BudgetStatus } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
 import { createQueryKeys } from './core/createQueryKeys';
@@ -66,7 +66,7 @@ export function useActiveBudgets(petId?: string) {
 
 // Hook for checking budget alerts
 export function useBudgetAlerts(petId?: string) {
-  return useResources<any>({
+  return useResources<BudgetAlert>({
     queryKey: budgetKeys.alerts(petId),
     queryFn: () => budgetService.checkBudgetAlerts(petId),
     staleTime: CACHE_TIMES.VERY_SHORT,
@@ -75,7 +75,7 @@ export function useBudgetAlerts(petId?: string) {
 
 // Hook for fetching budget status
 export function useBudgetStatus(budgetLimitId?: string) {
-  return useConditionalQuery<any>({
+  return useConditionalQuery<BudgetStatus | null>({
     queryKey: budgetKeys.status(budgetLimitId!),
     queryFn: () => budgetService.getBudgetStatus(budgetLimitId!),
     staleTime: CACHE_TIMES.VERY_SHORT,
@@ -87,7 +87,7 @@ export function useBudgetStatus(budgetLimitId?: string) {
 
 // Hook for fetching all budget statuses
 export function useBudgetStatuses(petId?: string) {
-  return useResources<any>({
+  return useResources<BudgetStatus>({
     queryKey: budgetKeys.statuses(petId),
     queryFn: () => budgetService.getAllBudgetStatuses(petId),
     staleTime: CACHE_TIMES.VERY_SHORT,

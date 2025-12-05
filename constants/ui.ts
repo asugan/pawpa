@@ -1,6 +1,7 @@
 import { gradients, gradientsDark } from '@/lib/theme';
+import { Theme } from '@/lib/theme/types';
 
-export const getGradientColors = (color: string, isDark: boolean, theme: any): readonly [string, string] => {
+export const getGradientColors = (color: string, isDark: boolean, theme: Theme): readonly [string, string] => {
   const gradientSet = isDark ? gradientsDark : gradients;
 
   // Match color to gradient

@@ -141,7 +141,7 @@ export function EventForm({
         </FormSection>
 
         {/* Event Details */}
-        <FormSection title={t('forms.sections.details')}>
+        <FormSection title={t('events.eventDetails')}>
           {/* Title */}
           <SmartInput
             name="title"

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
+import { NetworkState } from '@/lib/types';
 
 // Type for interval ref
 type IntervalRef = NodeJS.Timeout | null;
@@ -50,7 +51,7 @@ export function useRealtimeUpdates(
   }, []);
 
   // Handle network state changes
-  const handleNetworkChange = useCallback((state: any) => {
+  const handleNetworkChange = useCallback((state: NetworkState) => {
     if (state.isConnected && defaultConfig.refetchOnReconnect) {
       // Refetch all queries when coming back online
       queryKeys.forEach(queryKey => {

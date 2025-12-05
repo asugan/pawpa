@@ -1,12 +1,12 @@
 import { useTheme } from '@/lib/theme';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 interface FormSectionProps {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
-  style?: any;
+  style?: ViewStyle;
 }
 
 export const FormSection = ({ title, subtitle, children, style }: FormSectionProps) => {

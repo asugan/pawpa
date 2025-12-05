@@ -1,3 +1,5 @@
+import { TranslationFunction } from '@/lib/types';
+
 // Layout Constants
 export const LAYOUT = {
   TAB_BAR_HEIGHT: 60,
@@ -148,7 +150,7 @@ export const createHealthRecordTypeOptions = (t: (key: string, defaultValue?: st
     label: t(type, type),
   }));
 
-export const createEventTypeOptions = (t: any) =>
+export const createEventTypeOptions = (t: TranslationFunction) =>
   Object.values(EVENT_TYPES).map(type => ({
     value: type,
     label: t(type, type),

@@ -1,5 +1,6 @@
 import i18n from '../i18n';
 import { ZodIssue } from 'zod';
+import { TranslationFunction } from '../types';
 
 /**
  * Gets the translation function dynamically
@@ -10,7 +11,7 @@ const getT = () => {
     return i18n.t;
   } catch {
     // Fallback for when i18n is not available
-    return (key: string, options?: any) => key;
+    return (key: string, options?: string | Record<string, unknown>) => key;
   }
 };
 
@@ -69,7 +70,7 @@ export const createZodI18nErrorMap = () => {
  * @param options - Options for interpolation
  * @returns Translated message string
  */
-export const t = (key: string, options?: Record<string, any>) => {
+export const t = (key: string, options?: Record<string, unknown>) => {
   const translate = getT();
   return translate(key, options);
 };

@@ -1,4 +1,5 @@
 import { EVENT_TYPES } from './index';
+import { TranslationFunction } from '@/lib/types';
 
 // Event Type Icons
 export const EVENT_TYPE_ICONS = {
@@ -19,7 +20,7 @@ export const getEventTypeIcon = (eventType: string): string => {
 };
 
 // Helper function to get event type label with i18n support
-export const getEventTypeLabel = (eventType: string, t: any): string => {
+export const getEventTypeLabel = (eventType: string, t: TranslationFunction): string => {
   try {
     return t(`eventTypes.${eventType}`, eventType);
   } catch {

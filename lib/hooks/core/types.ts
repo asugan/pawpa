@@ -116,7 +116,9 @@ export interface ConditionalQueryOptions<TData, TError = Error> extends BaseReso
 /**
  * Helper type for service functions that return ApiResponse
  */
-export type ApiServiceFn<T> = (...args: any[]) => Promise<ApiResponse<T>>;
+import { ApiServiceFn as BaseApiServiceFn } from '@/lib/types';
+
+export type ApiServiceFn<T> = BaseApiServiceFn<T>;
 
 /**
  * Helper type for extracting the data type from an ApiResponse

@@ -1,9 +1,10 @@
 import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import { getDeviceId } from '../utils/deviceId';
+import { RequestCache } from '../types';
 
 // Request deduplication and rate limiting
-const REQUEST_CACHE = new Map<string, { timestamp: number; promise: Promise<any> }>();
+const REQUEST_CACHE = new Map<string, RequestCache>();
 const CACHE_TTL = 5000; // 5 seconds
 
 /**
@@ -31,7 +32,7 @@ function getCachedRequest<T>(key: string, factory: () => Promise<T>): Promise<T>
   const existing = REQUEST_CACHE.get(key);
   if (existing) {
     console.log(`[SubscriptionApiService] Using cached request for ${key}`);
-    return existing.promise;
+    return existing.promise as Promise<T>;
   }
   
   const promise = factory();

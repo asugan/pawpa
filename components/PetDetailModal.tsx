@@ -114,7 +114,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
 
   const getPetTypeLabel = (type: string) => {
     const typeKey = type.toLowerCase();
-    return t(typeKey, type);
+    return t('petTypes.' + typeKey, type);
   };
 
   const getAgeText = (birthDate: string | Date | null | undefined) => {

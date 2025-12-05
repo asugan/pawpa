@@ -22,9 +22,9 @@ export interface UseBudgetFormReturn {
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: BudgetCreateInput) => void;
   setValue: <K extends Path<BudgetCreateInput>>(name: K, value: PathValue<BudgetCreateInput, K>) => void;
-  getValues: (name?: keyof BudgetCreateInput) => BudgetCreateInput | any;
+  getValues: (name?: keyof BudgetCreateInput) => BudgetCreateInput[keyof BudgetCreateInput] | BudgetCreateInput;
   trigger: (name?: keyof BudgetCreateInput) => Promise<boolean>;
-  watch: (name?: keyof BudgetCreateInput) => BudgetCreateInput | any;
+  watch: (name?: keyof BudgetCreateInput) => BudgetCreateInput[keyof BudgetCreateInput] | BudgetCreateInput;
 }
 
 // Main hook for budget form - handles both create and edit modes

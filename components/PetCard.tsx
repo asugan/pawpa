@@ -29,7 +29,7 @@ const PetCard: React.FC<PetCardProps> = ({
 
   const getPetTypeLabel = (type: string) => {
     const typeKey = type.toLowerCase();
-    return t(typeKey, type); // Fallback to original type if translation not found
+    return t('petTypes.' + typeKey, type); // Fallback to original type if translation not found
   };
 
   const getPetTypeColor = (type: string): string => {
@@ -55,10 +55,10 @@ const PetCard: React.FC<PetCardProps> = ({
   // Get next activity text
   const getNextActivity = () => {
     if (upcomingVaccinations > 0) {
-      return { label: t('health.vaccination'), time: '10.05', color: theme.colors.accent };
+      return { label: t('healthRecordTypes.vaccination'), time: '10.05', color: theme.colors.accent };
     }
     if (upcomingEvents > 0) {
-      return { label: t('events.feeding'), time: '18:00', color: theme.colors.primary };
+      return { label: t('eventTypes.feeding'), time: '18:00', color: theme.colors.primary };
     }
     return null;
   };
