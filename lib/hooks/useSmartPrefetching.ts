@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePrefetchData } from './usePrefetchData';
-import { petKeys, healthRecordKeys, eventKeys, feedingScheduleKeys } from './';
+import { petKeys } from './usePets';
+import { healthRecordKeys } from './useHealthRecords';
+import { eventKeys } from './useEvents';
+import { feedingScheduleKeys } from './useFeedingSchedules';
 
 interface PrefetchStrategy {
   priority: 'high' | 'medium' | 'low';

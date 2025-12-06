@@ -3,7 +3,7 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
+
 
 export default function Index() {
   const { isAuthenticated, isPending } = useAuth();
@@ -21,10 +21,7 @@ export default function Index() {
 
   // Show onboarding if not completed
   if (!hasSeenOnboarding) {
-    return <OnboardingWrapper onComplete={() => {
-      // After onboarding, redirect based on auth state
-      return <Redirect href={isAuthenticated ? "/(tabs)" : "/(auth)/login"} />;
-    }} />;
+    return <Redirect href="/(onboarding)" />;
   }
 
   // Redirect based on auth state

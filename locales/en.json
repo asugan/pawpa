@@ -713,59 +713,39 @@
     }
   },
   "onboarding": {
-    "skip": "Skip",
-    "previous": "Previous",
-    "next": "Next",
-    "getStarted": "Get Started",
-    "signIn": "Sign In",
-    "createAccount": "Create Account",
     "screen1": {
-      "title": "Welcome to PawPa!",
-      "subtitle": "Start Your Pet Care Journey",
-      "description": "Manage your pet's care all in one place. Save time, reduce stress, and spend more quality time together.",
-      "features": {
-        "reminders": "✨ Smart reminders",
-        "expenses": "💰 Expense tracking",
-        "health": "🏥 Health records",
-        "calendar": "📅 Care calendar"
-      },
-      "action": "getStarted"
+      "title": "Welcome to Our App",
+      "description": "Easily track your pet's health and happiness.",
+      "button": "Start"
     },
     "screen2": {
-      "title": "Pet Care Made Easy",
-      "subtitle": "Complete Pet Management",
-      "description": "Manage all your pets in one app:",
+      "title": "What App Offers",
+      "description": "Discover the key features of the application.",
+      "skip": "Skip",
+      "next": "Next",
       "features": {
-        "feeding": "• Feeding schedules and automatic reminders",
-        "vet": "• Vet appointments and vaccination tracking",
-        "weight": "• Weight and health progress charts",
-        "photos": "• Photo albums to collect memories"
-      },
-      "action": "next"
+        "tracking": {
+          "title": "Pet Tracking",
+          "description": "Discover location tracking and activity monitoring features."
+        },
+        "health": {
+          "title": "Health Management",
+          "description": "Vaccination schedule, vet appointments, and health records."
+        },
+        "events": {
+          "title": "Event Planning",
+          "description": "Social events like park meetups or play dates."
+        },
+        "finance": {
+          "title": "Financial Overview",
+          "description": "Tracking food, vet, and other expenses."
+        }
+      }
     },
     "screen3": {
-      "title": "Smart Financial Management",
-      "subtitle": "Track Your Pet Expenses",
-      "description": "Make your pet expenses visible:",
-      "features": {
-        "categories": "• Vet, food, care categories",
-        "budget": "• Monthly/yearly budget planning",
-        "trends": "• Expense trend analysis",
-        "emergency": "• Emergency fund recommendations"
-      },
-      "action": "next"
-    },
-    "screen4": {
-      "title": "You're All Set!",
-      "subtitle": "Ready to Transform Pet Care",
-      "description": "Features designed for you:",
-      "features": {
-        "notifications": "• 📱 Instant notifications",
-        "theme": "• 🌙 Night/day mode",
-        "language": "• 🌍 Turkish language support",
-        "sync": "• ☁️ Cloud synchronization"
-      },
-      "action": "createAccount"
+      "title": "You Are Ready!",
+      "description": "Everything is ready to manage your pet's care and health data.",
+      "button": "Go to Home"
     }
   },
   "subscription": {

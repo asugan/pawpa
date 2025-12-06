@@ -713,59 +713,39 @@
     }
   },
   "onboarding": {
-    "skip": "Atla",
-    "previous": "Önceki",
-    "next": "İleri",
-    "getStarted": "Hadi Başlayalım",
-    "signIn": "Giriş Yap",
-    "createAccount": "Hesap Oluştur",
     "screen1": {
-      "title": "PawPa'ya Hoş Geldiniz!",
-      "subtitle": "Pet Bakım Yolculuğuna Başlayın",
-      "description": "Evcil dostunuzun bakımını tek yerden yönetin. Zaman kazan, stres azalt, daha çok vakit geçir.",
-      "features": {
-        "reminders": "✨ Akıllı hatırlatıcılar",
-        "expenses": "💰 Gider takibi",
-        "health": "🏥 Sağlık kayıtları",
-        "calendar": "📅 Bakım takvimi"
-      },
-      "action": "getStarted"
+      "title": "Uygulamamıza Hoş Geldiniz",
+      "description": "Evcil dostunuzun sağlığını ve mutluluğunu kolayca takip edin.",
+      "button": "Başla"
     },
     "screen2": {
-      "title": "Pet Bakımı Kolaylaştı",
-      "subtitle": "Tam Pet Yönetimi",
-      "description": "Tüm petlerinizi tek uygulamada yönetin:",
+      "title": "Uygulamanın Sundukları",
+      "description": "Uygulamanın temel özelliklerini keşfedin.",
+      "skip": "Atla",
+      "next": "İleri",
       "features": {
-        "feeding": "• Beslenme saatleri ve otomatik hatırlatıcılar",
-        "vet": "• Veteriner randevuları ve aşı takibi",
-        "weight": "• Kilo ve sağlık gelişim grafikleri",
-        "photos": "• Fotoğraf albümleri ile anılar biriktirin"
-      },
-      "action": "next"
+        "tracking": {
+          "title": "Evcil Hayvan Takibi",
+          "description": "Konum takibi ve aktivite izleme özelliklerini keşfedin."
+        },
+        "health": {
+          "title": "Sağlık Yönetimi",
+          "description": "Aşı takvimi, veteriner randevuları ve sağlık kayıtları."
+        },
+        "events": {
+          "title": "Etkinlik Planlama",
+          "description": "Park buluşmaları veya oyun tarihleri gibi sosyal etkinlikler."
+        },
+        "finance": {
+          "title": "Finansal Genel Bakış",
+          "description": "Mama, veteriner ve diğer harcamaların takibi."
+        }
+      }
     },
     "screen3": {
-      "title": "Akıllı Finans Yönetimi",
-      "subtitle": "Pet Giderlerinizi Takip Edin",
-      "description": "Pet giderlerinizi görünür kılın:",
-      "features": {
-        "categories": "• Veteriner, mama, bakım kategorileri",
-        "budget": "• Aylık/yıllık bütçe planlama",
-        "trends": "• Gider trend analizi",
-        "emergency": "• Acil durum fonu önerileri"
-      },
-      "action": "next"
-    },
-    "screen4": {
-      "title": "Hazırsınız!",
-      "subtitle": "Pet Bakımını Dönüştürmeye Hazır",
-      "description": "Size özel özellikler:",
-      "features": {
-        "notifications": "• 📱 Anlık bildirimler",
-        "theme": "• 🌙 Gece/gündüz modu",
-        "language": "• 🌍 Türkçe dil desteği",
-        "sync": "• ☁️ Bulut senkronizasyonu"
-      },
-      "action": "createAccount"
+      "title": "Artık Hazırsınız!",
+      "description": "Evcil hayvanınızın bakım ve sağlık verilerini yönetmek için her şey hazır.",
+      "button": "Ana Sayfaya Git"
     }
   },
   "subscription": {

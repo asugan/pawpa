@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hoş Geldiniz Ekranı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#13ec5b",
+              "background-light": "#f6f8f6",
+              "background-dark": "#102216",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-dark dark group/design-root overflow-x-hidden">
+<!-- Main container with vertical flex layout -->
+<div class="flex flex-col flex-1">
+<!-- HeaderImage Component -->
+<div class="@container flex-grow">
+<div class="@[480px]:px-4 @[480px]:py-3">
+<div class="w-full h-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden @[480px]:rounded-xl min-h-[45vh]" data-alt="A happy golden retriever smiling and looking at the camera, symbolizing pet happiness." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDDvLNHd_lGDVB9hD2VKsLzWkQrNAzRueOkSQO1UNc61uVLpn3Od0G4CAOsth5B0WUXdQXv2G5JlLTOdaBfQM41agELxjkPRlK1b2XSD365aC8X3DLNwQWmepGd55ZPPuRjUy4veRzJWJl7Z2kQlkI7VSBRGuUbmyv_zpaEm0WCX0wZK11OLd06eg3wmZDUdnHi2ABAepkA1_PvTaWatWGingFRfys2PJTYdH7Qk8sTWzRy7X_SrDu4i1jIcqjLpHRyIYZez5peNRUY");'>
+<!-- Gradient overlay for text legibility -->
+<div class="w-full h-full bg-gradient-to-t from-background-dark via-background-dark/70 to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Text content section -->
+<div class="flex flex-col justify-end pb-4">
+<!-- HeadlineText Component -->
+<h1 class="text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">Uygulamamıza Hoş Geldiniz</h1>
+<!-- BodyText Component -->
+<p class="text-white/80 text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">Evcil dostunuzun sağlığını ve mutluluğunu kolayca takip edin.</p>
+<!-- PageIndicators Component -->
+<div class="flex w-full flex-row items-center justify-center gap-3 py-5">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+<div class="h-2 w-2 rounded-full bg-white/20"></div>
+<div class="h-2 w-2 rounded-full bg-white/20"></div>
+</div>
+</div>
+</div>
+<!-- Footer/Button section fixed at the bottom -->
+<div class="sticky bottom-0 bg-background-dark pt-2 pb-6">
+<!-- SingleButton Component -->
+<div class="flex px-4 py-3 justify-center">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Başla</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>
