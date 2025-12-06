@@ -58,13 +58,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="health"
+        name="care"
         options={{
-          title: t('navigation.health'),
+          title: t('navigation.care'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="heart" size={size} color={color} />
+            <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />
           ),
-          headerTitle: () => <CustomTabHeader pageTitle={t('health.healthRecords')} />,
+          headerTitle: () => <CustomTabHeader pageTitle={t('care.title')} />,
         }}
       />
       <Tabs.Screen
@@ -78,33 +78,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="feeding"
+        name="finance"
         options={{
-          title: t('navigation.feeding'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bowl" size={size} color={color} />
-          ),
-          headerTitle: () => <CustomTabHeader pageTitle={t('feedingSchedule.title')} />,
-        }}
-      />
-      <Tabs.Screen
-        name="expenses"
-        options={{
-          title: t('navigation.expenses'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cash-multiple" size={size} color={color} />
-          ),
-          headerTitle: () => <CustomTabHeader pageTitle={t('expenses.title')} />,
-        }}
-      />
-      <Tabs.Screen
-        name="budgets"
-        options={{
-          title: t('navigation.budgets'),
+          title: t('navigation.finance'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="wallet" size={size} color={color} />
           ),
-          headerTitle: () => <CustomTabHeader pageTitle={t('budgets.title')} />,
+          headerTitle: () => <CustomTabHeader pageTitle={t('finance.title')} />,
         }}
       />
       <Tabs.Screen

@@ -28,11 +28,9 @@
   "navigation": {
     "home": "Home",
     "pets": "Pets",
-    "health": "Health",
+    "care": "Care",
     "calendar": "Calendar",
-    "feeding": "Feeding",
-    "expenses": "Expenses",
-    "budgets": "Budgets",
+    "finance": "Finance",
     "settings": "Settings"
   },
   "home": {
@@ -57,7 +55,13 @@
     "nextActivity": "Next Activity"
   },
   "finance": {
+    "title": "Finance",
     "monthlyExpenses": "Monthly Expenses"
+  },
+  "care": {
+    "title": "Care",
+    "health": "Health",
+    "feeding": "Feeding"
   },
   "pets": {
     "myPets": "My Pets",

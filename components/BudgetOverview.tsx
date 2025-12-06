@@ -62,7 +62,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
     : null;
 
   return (
-    <Pressable onPress={() => router.push('/budgets')}>
+    <Pressable onPress={() => router.push('/(tabs)/finance')}>
       <Card
         style={[
           styles.card,
