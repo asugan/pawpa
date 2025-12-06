@@ -144,7 +144,7 @@ export default function HomeScreen() {
               
               {/* Add Pet Button */}
               <TouchableOpacity
-                onPress={() => router.push("/pet/add")}
+                onPress={() => router.push("/(tabs)/pets")}
                 style={[styles.addPetButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }]}
               >
                 <View style={[styles.addPetIconContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
@@ -161,7 +161,7 @@ export default function HomeScreen() {
               title={t("home.noPetsYet")}
               description={t("pets.addFirstPetDescription")}
               actionLabel={t("pets.addFirstPet")}
-              onAction={() => router.push("/pet/add")}
+              onAction={() => router.push("/(tabs)/pets")}
             />
           )}
         </View>
@@ -184,7 +184,7 @@ export default function HomeScreen() {
       </ScrollView>
 
         <TouchableOpacity
-          onPress={() => router.push("/pet/add")}
+          onPress={() => router.push("/(tabs)/pets")}
           style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         >
           <Ionicons name="add" size={32} color="#FFFFFF" />
