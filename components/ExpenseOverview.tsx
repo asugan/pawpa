@@ -46,7 +46,7 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
     : null;
 
   return (
-    <Pressable onPress={() => router.push('/expenses')}>
+    <Pressable onPress={() => router.push('/(tabs)/finance')}>
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={4}>
         <View style={styles.cardContent}>
           <View style={styles.header}>

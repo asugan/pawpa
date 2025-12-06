@@ -1,31 +1,21 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { NetworkStatusBadge } from './NetworkStatusBadge';
 
 interface CustomTabHeaderProps {
-  showNetworkBadge?: boolean;
   pageTitle?: string;
 }
 
-export default function CustomTabHeader({ showNetworkBadge = true, pageTitle }: CustomTabHeaderProps) {
+export default function CustomTabHeader({ pageTitle }: CustomTabHeaderProps) {
   const { theme } = useTheme();
 
   return (
     <View style={styles.container}>
-      {/* Logo - Left */}
+      {/* Network Badge - Left */}
       <View style={styles.left}>
-        <Image
-          source={require('@/assets/images/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* Network Badge - Center */}
-      <View style={styles.center}>
-        {showNetworkBadge && <NetworkStatusBadge />}
+        <NetworkStatusBadge />
       </View>
 
       {/* Page Title - Right */}
@@ -52,33 +42,19 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 16,
     height: 56,
-    position: 'relative',
   },
   left: {
     alignItems: 'flex-start',
-    paddingRight: 60,
-  },
-  center: {
-    position: 'absolute',
-    left: '50%',
-    transform: [{ translateX: -50 }],
-    width: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
+    flex: 1,
   },
   right: {
     alignItems: 'flex-end',
-    paddingLeft: 60,
-    minWidth: 60,
-  },
-  logo: {
-    width: 120,
-    height: 40,
-    resizeMode: 'contain',
+    flex: 1,
+    minWidth: 100,
   },
   pageTitle: {
     fontWeight: '600',
     fontSize: 14,
+    textAlign: 'right',
   },
 });

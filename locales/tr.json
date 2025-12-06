@@ -28,11 +28,9 @@
   "navigation": {
     "home": "Ana Sayfa",
     "pets": "Evcil Dostlar",
-    "health": "Sağlık",
+    "care": "Bakım",
     "calendar": "Takvim",
-    "feeding": "Besleme",
-    "expenses": "Harcamalar",
-    "budgets": "Bütçeler",
+    "finance": "Finans",
     "settings": "Ayarlar"
   },
   "home": {
@@ -57,7 +55,13 @@
     "nextActivity": "Sonraki Aktivite"
   },
   "finance": {
+    "title": "Finans",
     "monthlyExpenses": "Bu Ayki Harcamalar"
+  },
+  "care": {
+    "title": "Bakım",
+    "health": "Sağlık",
+    "feeding": "Besleme"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",

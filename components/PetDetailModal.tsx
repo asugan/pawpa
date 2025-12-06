@@ -379,7 +379,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                   icon="heart"
                   onPress={() => {
                     onClose();
-                    router.push('/(tabs)/health');
+                    router.push('/(tabs)/care');
                   }}
                   style={styles.quickActionButton}
                 >

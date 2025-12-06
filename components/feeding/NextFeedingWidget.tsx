@@ -22,7 +22,7 @@ export function NextFeedingWidget() {
   } = useNextFeedingWithDetails(i18n.language);
 
   const handlePress = () => {
-    router.push('/(tabs)/feeding');
+    router.push('/(tabs)/care');
   };
 
   // Loading state

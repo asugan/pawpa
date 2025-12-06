@@ -89,7 +89,7 @@ export default function HomeScreen() {
                     value={data.upcomingVaccinations?.length || 0}
                     icon="needle"
                     color={theme.colors.primary}
-                    onPress={() => router.push("/(tabs)/health")}
+                    onPress={() => router.push("/(tabs)/care")}
                   />
                 </ScrollView>
             ) : (
@@ -115,7 +115,7 @@ export default function HomeScreen() {
                   value={data.upcomingVaccinations?.length || 0}
                   icon="needle"
                   color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/health")}
+                  onPress={() => router.push("/(tabs)/care")}
                   flexGrow
                 />
               </>
