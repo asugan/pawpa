@@ -712,6 +712,62 @@
       "yearly": "Yıllık"
     }
   },
+  "onboarding": {
+    "skip": "Atla",
+    "previous": "Önceki",
+    "next": "İleri",
+    "getStarted": "Hadi Başlayalım",
+    "signIn": "Giriş Yap",
+    "createAccount": "Hesap Oluştur",
+    "screen1": {
+      "title": "PawPa'ya Hoş Geldiniz!",
+      "subtitle": "Pet Bakım Yolculuğuna Başlayın",
+      "description": "Evcil dostunuzun bakımını tek yerden yönetin. Zaman kazan, stres azalt, daha çok vakit geçir.",
+      "features": {
+        "reminders": "✨ Akıllı hatırlatıcılar",
+        "expenses": "💰 Gider takibi",
+        "health": "🏥 Sağlık kayıtları",
+        "calendar": "📅 Bakım takvimi"
+      },
+      "action": "getStarted"
+    },
+    "screen2": {
+      "title": "Pet Bakımı Kolaylaştı",
+      "subtitle": "Tam Pet Yönetimi",
+      "description": "Tüm petlerinizi tek uygulamada yönetin:",
+      "features": {
+        "feeding": "• Beslenme saatleri ve otomatik hatırlatıcılar",
+        "vet": "• Veteriner randevuları ve aşı takibi",
+        "weight": "• Kilo ve sağlık gelişim grafikleri",
+        "photos": "• Fotoğraf albümleri ile anılar biriktirin"
+      },
+      "action": "next"
+    },
+    "screen3": {
+      "title": "Akıllı Finans Yönetimi",
+      "subtitle": "Pet Giderlerinizi Takip Edin",
+      "description": "Pet giderlerinizi görünür kılın:",
+      "features": {
+        "categories": "• Veteriner, mama, bakım kategorileri",
+        "budget": "• Aylık/yıllık bütçe planlama",
+        "trends": "• Gider trend analizi",
+        "emergency": "• Acil durum fonu önerileri"
+      },
+      "action": "next"
+    },
+    "screen4": {
+      "title": "Hazırsınız!",
+      "subtitle": "Pet Bakımını Dönüştürmeye Hazır",
+      "description": "Size özel özellikler:",
+      "features": {
+        "notifications": "• 📱 Anlık bildirimler",
+        "theme": "• 🌙 Gece/gündüz modu",
+        "language": "• 🌍 Türkçe dil desteği",
+        "sync": "• ☁️ Bulut senkronizasyonu"
+      },
+      "action": "createAccount"
+    }
+  },
   "subscription": {
     "title": "Abonelik",
     "pro": "Pro",
@@ -720,52 +776,52 @@
     "trialActive": "Ücretsiz Deneme Aktif",
     "trialDaysRemaining": "{{days}} gün kaldı",
     "trialExpired": "Deneme Süresi Doldu",
-    "trialPrompt": "Deneme süreniz {{days}} gün sonra bitiyor",
+    "trialPrompt": "Denemeniz {{days}} gün içinde sona eriyor",
     "upgrade": "Pro'ya Yükselt",
-    "upgradePrompt": "Pro ile tüm özelliklerin kilidini açın",
-    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükselt",
+    "upgradePrompt": "Tüm özellikleri Pro ile açın",
+    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükseltin",
     "manageSubscription": "Aboneliği Yönet",
     "restorePurchases": "Satın Alımları Geri Yükle",
     "restoreSuccess": "Satın alımlar başarıyla geri yüklendi",
     "restoreError": "Satın alımlar geri yüklenemedi",
     "noPurchases": "Satın Alım Bulunamadı",
-    "noPurchasesMessage": "Hesabınızda önceki satın alım bulunamadı",
+    "noPurchasesMessage": "Hesabınız için önceki satın alım bulunamadı",
     "currentPlan": "Mevcut Plan",
     "expiresOn": "{{date}} tarihinde sona eriyor",
     "autoRenews": "{{date}} tarihinde otomatik yenilenir",
     "cancelled": "İptal edildi - {{date}} tarihinde sona eriyor",
-    "paywallError": "Abonelik seçenekleri yüklenemedi",
-    "terms": "Kullanım Koşulları",
+    "paywallError": "Abonelik seçenekleri yüklenemiyor",
+    "terms": "Hizmet Şartları",
     "privacy": "Gizlilik Politikası",
-    "unlockFeature": "{{feature}} Kilidini Aç",
+    "unlockFeature": "{{feature}} Özelliğini Aç",
     "modal": {
       "title": "Premium Özellik",
-      "description": "Bu özellik sadece Pro üyeler için",
-      "featureDescription": "{{feature}} sadece Pro üyeler için",
+      "description": "Bu özellik sadece Pro üyeleri için kullanılabilir",
+      "featureDescription": "{{feature}} sadece Pro üyeleri için kullanılabilir",
       "upgradeNow": "Şimdi Yükselt",
-      "maybeLater": "Belki Daha Sonra",
-      "includes": "Pro üyelik şunları içerir:"
+      "maybeLater": "Belki Sonra",
+      "includes": "Pro üyeliği şunları içerir:"
     },
     "features": {
-      "title": "Pro Özellikleri",
-      "unlimited": "Sınırsız Evcil Hayvan",
-      "unlimitedDesc": "İstediğiniz kadar evcil hayvan ekleyin",
+      "title": "Pro Özellikler",
+      "unlimited": "Sınırsız Pet",
+      "unlimitedDesc": "İstediğiniz kadar pet ekleyin",
       "advanced": "Gelişmiş Sağlık Takibi",
-      "advancedDesc": "Detaylı sağlık analizleri ve içgörüler",
+      "advancedDesc": "Detaylı sağlık analizi ve içgörüler",
       "export": "Veri Dışa Aktarma",
-      "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
+      "exportDesc": "Verilerinizi birden çok formatta dışa aktarın",
       "priority": "Öncelikli Destek",
       "priorityDesc": "İhtiyacınız olduğunda yardım alın",
-      "petManagement": "Evcil Hayvan Yönetimi",
+      "petManagement": "Pet Yönetimi",
       "healthRecords": "Sağlık Kayıtları",
-      "calendar": "Takvim & Etkinlikler",
+      "calendar": "Takvim ve Etkinlikler",
       "feeding": "Besleme Programları",
       "expenses": "Gider Takibi",
       "budgets": "Bütçe Yönetimi"
     },
     "paywall": {
-      "title": "PawPa Pro'nun Kilidini Açın",
-      "subtitle": "PawPa'dan en iyi şekilde yararlanın"
+      "title": "PawPa Pro'yu Açın",
+      "subtitle": "PawPa'dan en iyi şekilde faydalanın"
     },
     "success": {
       "title": "Abonelik Başarılı!",

@@ -712,6 +712,62 @@
       "yearly": "Yearly"
     }
   },
+  "onboarding": {
+    "skip": "Skip",
+    "previous": "Previous",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "screen1": {
+      "title": "Welcome to PawPa!",
+      "subtitle": "Start Your Pet Care Journey",
+      "description": "Manage your pet's care all in one place. Save time, reduce stress, and spend more quality time together.",
+      "features": {
+        "reminders": "✨ Smart reminders",
+        "expenses": "💰 Expense tracking",
+        "health": "🏥 Health records",
+        "calendar": "📅 Care calendar"
+      },
+      "action": "getStarted"
+    },
+    "screen2": {
+      "title": "Pet Care Made Easy",
+      "subtitle": "Complete Pet Management",
+      "description": "Manage all your pets in one app:",
+      "features": {
+        "feeding": "• Feeding schedules and automatic reminders",
+        "vet": "• Vet appointments and vaccination tracking",
+        "weight": "• Weight and health progress charts",
+        "photos": "• Photo albums to collect memories"
+      },
+      "action": "next"
+    },
+    "screen3": {
+      "title": "Smart Financial Management",
+      "subtitle": "Track Your Pet Expenses",
+      "description": "Make your pet expenses visible:",
+      "features": {
+        "categories": "• Vet, food, care categories",
+        "budget": "• Monthly/yearly budget planning",
+        "trends": "• Expense trend analysis",
+        "emergency": "• Emergency fund recommendations"
+      },
+      "action": "next"
+    },
+    "screen4": {
+      "title": "You're All Set!",
+      "subtitle": "Ready to Transform Pet Care",
+      "description": "Features designed for you:",
+      "features": {
+        "notifications": "• 📱 Instant notifications",
+        "theme": "• 🌙 Night/day mode",
+        "language": "• 🌍 Turkish language support",
+        "sync": "• ☁️ Cloud synchronization"
+      },
+      "action": "createAccount"
+    }
+  },
   "subscription": {
     "title": "Subscription",
     "pro": "Pro",
