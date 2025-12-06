@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,8 +22,17 @@ export default function OnboardingStep1() {
   const router = useRouter();
   const { t } = useTranslation();
 
+
+
+  const swipeLeft = Gesture.Fling()
+    .direction(Directions.LEFT)
+    .onEnd(() => {
+      scheduleOnRN(router.push, '/(onboarding)/step2');
+    });
+
   return (
-    <View style={styles.container}>
+    <GestureDetector gesture={swipeLeft}>
+      <View style={styles.container}>
       <StatusBar style="light" />
       
       {/* Background Section with Image */}
@@ -65,6 +76,8 @@ export default function OnboardingStep1() {
         </View>
       </SafeAreaView>
     </View>
+    </GestureDetector>
+
   );
 }
 

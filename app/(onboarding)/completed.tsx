@@ -5,6 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useOnboardingStore } from '../../stores/onboardingStore';
 import { useTranslation } from 'react-i18next';
+import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 
 // Design Constants
 const COLORS = {
@@ -26,11 +28,19 @@ export default function OnboardingCompleted() {
     setHasSeenOnboarding(true);
     
     // Navigate to root, which will handle redirection based on auth state
+
     router.replace('/(auth)/login');
   };
 
+  const swipeRight = Gesture.Fling()
+    .direction(Directions.RIGHT)
+    .onEnd(() => {
+      scheduleOnRN(router.back);
+    });
+
   return (
-    <View style={styles.container}>
+    <GestureDetector gesture={swipeRight}>
+      <View style={styles.container}>
       <StatusBar style="light" />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
@@ -62,7 +72,8 @@ export default function OnboardingCompleted() {
           </Pressable>
         </View>
       </SafeAreaView>
-    </View>
+      </View>
+    </GestureDetector>
   );
 }
 

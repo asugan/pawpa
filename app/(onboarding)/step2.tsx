@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 
 // Design Constants
 const COLORS = {
@@ -46,8 +48,23 @@ export default function OnboardingStep2() {
     router.push('/(onboarding)/completed');
   };
 
+  const swipeLeft = Gesture.Fling()
+    .direction(Directions.LEFT)
+    .onEnd(() => {
+      scheduleOnRN(router.push, '/(onboarding)/completed');
+    });
+
+  const swipeRight = Gesture.Fling()
+    .direction(Directions.RIGHT)
+    .onEnd(() => {
+      scheduleOnRN(router.back);
+    });
+
+  const gestures = Gesture.Race(swipeLeft, swipeRight);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <GestureDetector gesture={gestures}>
+      <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       
       {/* Header */}
@@ -105,7 +122,9 @@ export default function OnboardingStep2() {
           <Text style={styles.buttonText}>{t('onboarding.screen2.next')}</Text>
         </Pressable>
       </View>
+
     </SafeAreaView>
+    </GestureDetector>
   );
 }
 
