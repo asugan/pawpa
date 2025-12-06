@@ -712,6 +712,42 @@
       "yearly": "Yearly"
     }
   },
+  "onboarding": {
+    "screen1": {
+      "title": "Welcome to Our App",
+      "description": "Easily track your pet's health and happiness.",
+      "button": "Start"
+    },
+    "screen2": {
+      "title": "What App Offers",
+      "description": "Discover the key features of the application.",
+      "skip": "Skip",
+      "next": "Next",
+      "features": {
+        "tracking": {
+          "title": "Pet Tracking",
+          "description": "Discover location tracking and activity monitoring features."
+        },
+        "health": {
+          "title": "Health Management",
+          "description": "Vaccination schedule, vet appointments, and health records."
+        },
+        "events": {
+          "title": "Event Planning",
+          "description": "Social events like park meetups or play dates."
+        },
+        "finance": {
+          "title": "Financial Overview",
+          "description": "Tracking food, vet, and other expenses."
+        }
+      }
+    },
+    "screen3": {
+      "title": "You Are Ready!",
+      "description": "Everything is ready to manage your pet's care and health data.",
+      "button": "Go to Home"
+    }
+  },
   "subscription": {
     "title": "Subscription",
     "pro": "Pro",

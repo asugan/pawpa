@@ -712,6 +712,42 @@
       "yearly": "Yıllık"
     }
   },
+  "onboarding": {
+    "screen1": {
+      "title": "Uygulamamıza Hoş Geldiniz",
+      "description": "Evcil dostunuzun sağlığını ve mutluluğunu kolayca takip edin.",
+      "button": "Başla"
+    },
+    "screen2": {
+      "title": "Uygulamanın Sundukları",
+      "description": "Uygulamanın temel özelliklerini keşfedin.",
+      "skip": "Atla",
+      "next": "İleri",
+      "features": {
+        "tracking": {
+          "title": "Evcil Hayvan Takibi",
+          "description": "Konum takibi ve aktivite izleme özelliklerini keşfedin."
+        },
+        "health": {
+          "title": "Sağlık Yönetimi",
+          "description": "Aşı takvimi, veteriner randevuları ve sağlık kayıtları."
+        },
+        "events": {
+          "title": "Etkinlik Planlama",
+          "description": "Park buluşmaları veya oyun tarihleri gibi sosyal etkinlikler."
+        },
+        "finance": {
+          "title": "Finansal Genel Bakış",
+          "description": "Mama, veteriner ve diğer harcamaların takibi."
+        }
+      }
+    },
+    "screen3": {
+      "title": "Artık Hazırsınız!",
+      "description": "Evcil hayvanınızın bakım ve sağlık verilerini yönetmek için her şey hazır.",
+      "button": "Ana Sayfaya Git"
+    }
+  },
   "subscription": {
     "title": "Abonelik",
     "pro": "Pro",
@@ -720,52 +756,52 @@
     "trialActive": "Ücretsiz Deneme Aktif",
     "trialDaysRemaining": "{{days}} gün kaldı",
     "trialExpired": "Deneme Süresi Doldu",
-    "trialPrompt": "Deneme süreniz {{days}} gün sonra bitiyor",
+    "trialPrompt": "Denemeniz {{days}} gün içinde sona eriyor",
     "upgrade": "Pro'ya Yükselt",
-    "upgradePrompt": "Pro ile tüm özelliklerin kilidini açın",
-    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükselt",
+    "upgradePrompt": "Tüm özellikleri Pro ile açın",
+    "upgradeBeforeTrialEnds": "Deneme Bitmeden Yükseltin",
     "manageSubscription": "Aboneliği Yönet",
     "restorePurchases": "Satın Alımları Geri Yükle",
     "restoreSuccess": "Satın alımlar başarıyla geri yüklendi",
     "restoreError": "Satın alımlar geri yüklenemedi",
     "noPurchases": "Satın Alım Bulunamadı",
-    "noPurchasesMessage": "Hesabınızda önceki satın alım bulunamadı",
+    "noPurchasesMessage": "Hesabınız için önceki satın alım bulunamadı",
     "currentPlan": "Mevcut Plan",
     "expiresOn": "{{date}} tarihinde sona eriyor",
     "autoRenews": "{{date}} tarihinde otomatik yenilenir",
     "cancelled": "İptal edildi - {{date}} tarihinde sona eriyor",
-    "paywallError": "Abonelik seçenekleri yüklenemedi",
-    "terms": "Kullanım Koşulları",
+    "paywallError": "Abonelik seçenekleri yüklenemiyor",
+    "terms": "Hizmet Şartları",
     "privacy": "Gizlilik Politikası",
-    "unlockFeature": "{{feature}} Kilidini Aç",
+    "unlockFeature": "{{feature}} Özelliğini Aç",
     "modal": {
       "title": "Premium Özellik",
-      "description": "Bu özellik sadece Pro üyeler için",
-      "featureDescription": "{{feature}} sadece Pro üyeler için",
+      "description": "Bu özellik sadece Pro üyeleri için kullanılabilir",
+      "featureDescription": "{{feature}} sadece Pro üyeleri için kullanılabilir",
       "upgradeNow": "Şimdi Yükselt",
-      "maybeLater": "Belki Daha Sonra",
-      "includes": "Pro üyelik şunları içerir:"
+      "maybeLater": "Belki Sonra",
+      "includes": "Pro üyeliği şunları içerir:"
     },
     "features": {
-      "title": "Pro Özellikleri",
-      "unlimited": "Sınırsız Evcil Hayvan",
-      "unlimitedDesc": "İstediğiniz kadar evcil hayvan ekleyin",
+      "title": "Pro Özellikler",
+      "unlimited": "Sınırsız Pet",
+      "unlimitedDesc": "İstediğiniz kadar pet ekleyin",
       "advanced": "Gelişmiş Sağlık Takibi",
-      "advancedDesc": "Detaylı sağlık analizleri ve içgörüler",
+      "advancedDesc": "Detaylı sağlık analizi ve içgörüler",
       "export": "Veri Dışa Aktarma",
-      "exportDesc": "Verilerinizi birçok formatta dışa aktarın",
+      "exportDesc": "Verilerinizi birden çok formatta dışa aktarın",
       "priority": "Öncelikli Destek",
       "priorityDesc": "İhtiyacınız olduğunda yardım alın",
-      "petManagement": "Evcil Hayvan Yönetimi",
+      "petManagement": "Pet Yönetimi",
       "healthRecords": "Sağlık Kayıtları",
-      "calendar": "Takvim & Etkinlikler",
+      "calendar": "Takvim ve Etkinlikler",
       "feeding": "Besleme Programları",
       "expenses": "Gider Takibi",
       "budgets": "Bütçe Yönetimi"
     },
     "paywall": {
-      "title": "PawPa Pro'nun Kilidini Açın",
-      "subtitle": "PawPa'dan en iyi şekilde yararlanın"
+      "title": "PawPa Pro'yu Açın",
+      "subtitle": "PawPa'dan en iyi şekilde faydalanın"
     },
     "success": {
       "title": "Abonelik Başarılı!",

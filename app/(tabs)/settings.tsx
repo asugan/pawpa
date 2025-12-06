@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LAYOUT } from "../../constants";
 import { useLanguageStore } from "../../stores/languageStore";
 import { useThemeStore } from "../../stores/themeStore";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
@@ -20,6 +21,7 @@ export default function SettingsScreen() {
   const { language, setLanguage } = useLanguageStore();
   const { user, signOut } = useAuth();
   const { isLoading, setLoading } = useAuthStore();
+  const { resetOnboarding } = useOnboardingStore();
   const isDarkMode = themeMode === "dark";
 
   const handleLogout = () => {
@@ -289,6 +291,59 @@ export default function SettingsScreen() {
                   color={theme.colors.onSurfaceVariant}
                 />
               }
+              right={
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={24}
+                  color={theme.colors.onSurfaceVariant}
+                />
+              }
+            />
+          </View>
+        </Card>
+
+        {/* Debug / Development */}
+        <Card
+          style={[
+            styles.sectionCard,
+            { backgroundColor: theme.colors.surface },
+          ]}
+        >
+          <View style={styles.cardContent}>
+            <Text
+              variant="titleMedium"
+              style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+            >
+              Development
+            </Text>
+            <ListItem
+              title="Reset Onboarding"
+              description="Unlocks the onboarding flow for testing"
+              left={
+                <MaterialCommunityIcons
+                  name="restart"
+                  size={24}
+                  color={theme.colors.onSurfaceVariant}
+                />
+              }
+              onPress={() => {
+                Alert.alert(
+                  "Reset Onboarding",
+                  "Are you sure? Typically this is only for testing.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { 
+                      text: "Reset", 
+                      style: "destructive", 
+                      onPress: () => {
+                        resetOnboarding();
+                        // Navigate directly to onboarding to avoid race conditions with root redirector
+                        router.replace('/(onboarding)');
+                      }
+                    }
+                  ]
+                );
+              }}
               right={
                 <MaterialCommunityIcons
                   name="chevron-right"

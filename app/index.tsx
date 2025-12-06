@@ -2,10 +2,13 @@ import { Redirect } from "expo-router";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
+import { useOnboardingStore } from "@/stores/onboardingStore";
+
 
 export default function Index() {
   const { isAuthenticated, isPending } = useAuth();
   const { theme } = useTheme();
+  const { hasSeenOnboarding } = useOnboardingStore();
 
   // Show loading while checking auth state
   if (isPending) {
@@ -14,6 +17,11 @@ export default function Index() {
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
+  }
+
+  // Show onboarding if not completed
+  if (!hasSeenOnboarding) {
+    return <Redirect href="/(onboarding)" />;
   }
 
   // Redirect based on auth state

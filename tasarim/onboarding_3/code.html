@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hazırsınız Ekranı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec5b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 48;
+            font-size: 80px; /* Custom size for the hero icon */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-screen w-full flex-col dark group/design-root overflow-hidden">
+<main class="flex flex-1 flex-col items-center justify-center p-6 text-center">
+<!-- Hero Icon Container -->
+<div class="mb-8 flex h-40 w-40 items-center justify-center rounded-full bg-primary/20">
+<div class="flex h-32 w-32 items-center justify-center rounded-full bg-primary/30">
+<span class="material-symbols-outlined text-primary">
+                        pets
+                    </span>
+</div>
+</div>
+<!-- HeadlineText -->
+<h1 class="text-slate-900 dark:text-white tracking-light text-[32px] font-bold leading-tight pb-3">Artık Hazırsınız!</h1>
+<!-- BodyText -->
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal max-w-sm">Evcil hayvanınızın bakım ve sağlık verilerini yönetmek için her şey hazır.</p>
+</main>
+<footer class="w-full p-4 pb-8">
+<!-- SingleButton -->
+<div class="flex justify-center">
+<button class="flex min-w-[84px] w-full max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Ana Sayfaya Git</span>
+</button>
+</div>
+</footer>
+</div>
+</body></html>
