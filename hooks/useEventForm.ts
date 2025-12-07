@@ -3,10 +3,10 @@ import React from 'react';
 import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import {
   eventFormSchema,
-  getMinimumEventDateTime,
   type EventFormData,
 } from '../lib/schemas/eventSchema';
 import { Event } from '../lib/types';
+import { toISODateString, toTimeString } from '../lib/utils/dateConversion';
 
 // Form hook types
 export interface UseEventFormReturn {
@@ -32,14 +32,18 @@ export interface UseEventFormReturn {
 export const useEventForm = (event?: Event, initialPetId?: string): UseEventFormReturn => {
   // Default values - parse datetime for date/time pickers
   const defaultValues: EventFormData = React.useMemo(() => {
+    // Parse dates to local time objects
     const startDateTime = event?.startTime
-      ? event.startTime.slice(0, 16)
-      : getMinimumEventDateTime();
-    const endDateTime = event?.endTime ? event.endTime.slice(0, 16) : '';
+      ? new Date(event.startTime)
+      : new Date(Date.now() + 60000); // Now + 1 minute
 
-    // Split datetime into date and time parts
-    const [startDate, startTime] = startDateTime.split('T');
-    const [endDate, endTime] = endDateTime ? endDateTime.split('T') : ['', ''];
+    const endDateTime = event?.endTime ? new Date(event.endTime) : null;
+
+    const startDate = toISODateString(startDateTime) || '';
+    const startTime = toTimeString(startDateTime) || '';
+    
+    const endDate = endDateTime ? toISODateString(endDateTime) : '';
+    const endTime = endDateTime ? toTimeString(endDateTime) : '';
 
     return {
       title: event?.title || '',

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ExpenseCreateInput, ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
 import { CreateExpenseInput as CreateExpenseInputType, Currency, Expense, ExpenseCategory } from '../lib/types';
+import { toISODateString } from '../lib/utils/dateConversion';
 import { SmartCategoryPicker } from './forms/SmartCategoryPicker';
 import { SmartCurrencyPicker } from './forms/SmartCurrencyPicker';
 import { SmartDatePicker } from './forms/SmartDatePicker';
@@ -39,7 +40,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     currency: (initialData?.currency as Currency) || ('TRY' as Currency),
     paymentMethod: initialData?.paymentMethod || undefined,
     description: initialData?.description || '',
-    date: initialData?.date || new Date().toISOString().split('T')[0],
+    date: initialData?.date || toISODateString(new Date()) || '',
     vendor: initialData?.vendor || '',
     notes: initialData?.notes || '',
   };
