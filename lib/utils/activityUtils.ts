@@ -6,6 +6,7 @@ import { tr, enUS } from 'date-fns/locale';
 export interface NextActivity {
   label: string;
   time: string;
+  date: Date;
   color: string;
   priority: number;
   type: 'vaccination' | 'medication' | 'vet' | 'feeding' | 'event';
@@ -117,6 +118,7 @@ export const getNextActivityForPet = ({
         type: record.type as NextActivity['type'],
         label: record.type === 'vaccination' ? 'Vaccination' : 'Medication',
         time: formatActivityTime(recordDate, locale),
+        date: recordDate,
         priority: calculateActivityPriority(record.type as NextActivity['type']),
         color: record.type === 'vaccination' ? '#FF6B35' : '#F7931E', // Orange tones
         originalData: record
@@ -142,6 +144,7 @@ export const getNextActivityForPet = ({
         type: isVetAppointment ? 'vet' : 'event',
         label: event.title,
         time: formatActivityTime(eventDate, locale),
+        date: eventDate,
         priority: calculateActivityPriority(isVetAppointment ? 'vet' : 'event'),
         color: isVetAppointment ? '#9C27B0' : '#2196F3', // Purple for vet, blue for events
         originalData: event
@@ -157,7 +160,6 @@ export const getNextActivityForPet = ({
 
   if (activeFeedingSchedules.length > 0) {
     // Calculate next feeding times for each active schedule
-    const now = new Date();
     const nextFeedings = activeFeedingSchedules
       .map(schedule => {
         // Get the next feeding time based on the schedule
@@ -186,48 +188,39 @@ export const getNextActivityForPet = ({
           nextTime: nextFeedingTime
         };
       })
-      .filter(feeding => feeding !== null); // Remove invalid feeding schedules
+      .filter((feeding): feeding is { schedule: FeedingSchedule; nextTime: Date } => feeding !== null); // Remove invalid feeding schedules
 
     if (nextFeedings.length > 0) {
       // Find the soonest feeding time
       const soonestFeeding = nextFeedings.reduce((soonest, current) =>
-        current!.nextTime < soonest!.nextTime ? current : soonest
+        current.nextTime < soonest.nextTime ? current : soonest
       );
 
-      const feedingTime = formatActivityTime(soonestFeeding!.nextTime, locale);
+      const feedingTime = formatActivityTime(soonestFeeding.nextTime, locale);
       if (feedingTime !== '') { // Only add if time formatting is valid
         activities.push({
           type: 'feeding',
           label: 'Feeding',
           time: feedingTime,
+          date: soonestFeeding.nextTime,
           priority: calculateActivityPriority('feeding'),
           color: '#4CAF50', // Green for feeding
-          originalData: soonestFeeding!.schedule
+          originalData: soonestFeeding.schedule
         } as NextActivity);
       }
     }
   }
 
-  // Sort by priority (ascending) and then by time (ascending)
+  // Sort by date (ascending) primarily, then by priority for ties
   activities.sort((a, b) => {
-    if (a.priority !== b.priority) {
-      return a.priority - b.priority;
+    const timeDiff = a.date.getTime() - b.date.getTime();
+    
+    // If times are essentially the same (within a minute), prioritize important activities
+    if (Math.abs(timeDiff) < 60000) {
+       return a.priority - b.priority;
     }
-
-    // If priorities are equal, sort by time
-    const timeA = a.originalData ?
-      ('startTime' in a.originalData ? new Date(a.originalData.startTime) :
-       'date' in a.originalData ? new Date(a.originalData.date) :
-       'time' in a.originalData ? new Date(a.originalData.time) : new Date()) :
-      new Date();
-
-    const timeB = b.originalData ?
-      ('startTime' in b.originalData ? new Date(b.originalData.startTime) :
-       'date' in b.originalData ? new Date(b.originalData.date) :
-       'time' in b.originalData ? new Date(b.originalData.time) : new Date()) :
-      new Date();
-
-    return timeA.getTime() - timeB.getTime();
+    
+    return timeDiff;
   });
 
   return activities.length > 0 ? activities[0] : null;

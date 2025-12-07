@@ -16,7 +16,7 @@ import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 import { FinancialOverview } from "@/components/home/FinancialOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { Text } from "@/components/ui";
-import { getPetUpcomingEvents, getPetUpcomingVaccinations, useHomeData } from "@/lib/hooks/useHomeData";
+import { useHomeData } from "@/lib/hooks/useHomeData";
 import { useTheme } from "@/lib/theme";
 
 export default function HomeScreen() {
@@ -134,9 +134,8 @@ export default function HomeScreen() {
                 <View key={pet.id} style={styles.petCardWrapper}>
                   <PetCard
                     pet={pet}
+                    petId={pet.id}
                     onPress={() => router.push(`/pet/${pet.id}`)}
-                    upcomingEvents={getPetUpcomingEvents(pet.id, data.todayEvents)}
-                    upcomingVaccinations={getPetUpcomingVaccinations(pet.id, data.upcomingVaccinations)}
                     showActions={false}
                   />
                 </View>

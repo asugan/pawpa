@@ -4,7 +4,7 @@ import { useActiveFeedingSchedulesByPet } from './useFeedingSchedules';
 import { useDeviceLanguage } from './useDeviceLanguage';
 import { useMemo } from 'react';
 import { NextActivity, getNextActivityForPet } from '@/lib/utils/activityUtils';
-import { filterUpcomingEvents } from '@/lib/utils/events';
+
 
 interface UsePetNextActivityReturn {
   nextActivity: NextActivity | null;
@@ -27,52 +27,18 @@ export const usePetNextActivity = (petId: string): UsePetNextActivityReturn => {
   const { data: healthRecords = [], isLoading: isLoadingHealth, error: healthError } = useHealthRecords(petId);
   const { data: feedingSchedules = [], isLoading: isLoadingFeeding, error: feedingError } = useActiveFeedingSchedulesByPet(petId);
 
-  // Pre-filter events for only upcoming activities to reduce computational load
-  // using stable reference pattern for better performance
-  const upcomingEvents = useMemo(() => {
-    if (!events.length) return [];
-
-    const filtered = filterUpcomingEvents(events, 30, 20); // Look ahead 30 days, max 20 events
-
-    // Additional client-side filtering by pet if needed
-    // (events should already be filtered by petId from useEvents)
-    return filtered;
-  }, [events]);
-
-  // Filter health records for only relevant types and upcoming dates
-  // Use stable timestamp comparison to avoid unnecessary recalculations
-  const upcomingHealthRecords = useMemo(() => {
-    if (!healthRecords.length) return [];
-
-    const now = new Date();
-    const healthFilter = healthRecords.filter(record => {
-      if (record.type !== 'vaccination' && record.type !== 'medication') {
-        return false;
-      }
-      const recordDate = new Date(record.date);
-      return recordDate >= now;
-    });
-
-    return healthFilter;
-  }, [healthRecords]);
-
-  // Memoize feeding schedules (they should already be filtered by petId)
-  const activeFeedingSchedules = useMemo(() => {
-    return feedingSchedules.filter(schedule => schedule.isActive);
-  }, [feedingSchedules]);
-
   // Calculate next activity using deep memoization to prevent unnecessary re-calculations
-  // Only recalculate when actual data changes, not when dependencies are recreated
+  // The filtering logic is now centralized in getNextActivityForPet to ensure consistency and correctness
   const nextActivity = useMemo(() => {
     if (!petId) return null;
 
     return getNextActivityForPet({
-      events: upcomingEvents,
-      healthRecords: upcomingHealthRecords,
-      feedingSchedules: activeFeedingSchedules,
+      events,
+      healthRecords,
+      feedingSchedules,
       locale: currentLanguage
     });
-  }, [petId, upcomingEvents, upcomingHealthRecords, activeFeedingSchedules, currentLanguage]);
+  }, [petId, events, healthRecords, feedingSchedules, currentLanguage]);
 
   // Combine loading states with optimized checking
   const isLoading = useMemo(() => {
