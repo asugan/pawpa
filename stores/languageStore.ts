@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../lib/i18n';
 
 type SupportedLanguage = 'tr' | 'en' | 'ar';
@@ -35,7 +36,6 @@ export const useLanguageStore = create<LanguageState & LanguageActions>()(
           isRTL: language === 'ar', // For future Arabic support
           hasUserExplicitlySetLanguage: get().hasUserExplicitlySetLanguage || isExplicit,
         });
-        i18n.changeLanguage(language);
       },
 
       toggleLanguage: () => {
@@ -46,7 +46,6 @@ export const useLanguageStore = create<LanguageState & LanguageActions>()(
           isRTL: false,
           hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
         });
-        i18n.changeLanguage(newLanguage);
       },
 
       initializeLanguage: () => {
@@ -63,7 +62,6 @@ export const useLanguageStore = create<LanguageState & LanguageActions>()(
           isRTL: false,
           hasUserExplicitlySetLanguage: false,
         });
-        i18n.changeLanguage('en');
       },
 
       setExplicitLanguage: (language) => {
@@ -72,11 +70,11 @@ export const useLanguageStore = create<LanguageState & LanguageActions>()(
           isRTL: false,
           hasUserExplicitlySetLanguage: true, // Mark as explicit user choice
         });
-        i18n.changeLanguage(language);
       },
     }),
     {
       name: LANGUAGE_STORAGE_KEY,
+      storage: createJSONStorage(() => AsyncStorage),
       // Only persist essential data
       partialize: (state) => ({
         language: state.language,
