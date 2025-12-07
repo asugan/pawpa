@@ -146,13 +146,10 @@ export default function PetsScreen() {
   const renderPetCard = (pet: Pet) => (
     <PetCard
       pet={pet}
+      petId={pet.id} // Enable hook usage for real activity data
       onPress={() => handleViewPet(pet)}
       onEdit={() => handleEditPet(pet)}
       onDelete={() => handleDeletePet(pet)}
-      // Mock data for upcoming events and vaccinations
-      // In a real app, this would come from your API
-      upcomingEvents={Math.floor(Math.random() * 3)}
-      upcomingVaccinations={Math.floor(Math.random() * 2)}
     />
   );
 

@@ -52,7 +52,9 @@
     "viewMoreVaccinations": "+{{count}} more vaccinations",
     "financialOverview": "Financial Overview",
     "greeting": "Hello",
-    "nextActivity": "Next Activity"
+    "nextActivity": "Next Activity",
+    "noActivity": "No Activity",
+    "allSet": "All Set"
   },
   "finance": {
     "title": "Finance",
