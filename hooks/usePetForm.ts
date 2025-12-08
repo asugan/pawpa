@@ -1,40 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
-import { PetCreateInput, PetCreateSchema, PetUpdateInput, PetUpdateSchema } from '../lib/schemas/petSchema';
+import { PetCreateInput, PetCreateSchema, PetCreateFormInput, PetCreateFormSchema, PetUpdateInput, PetUpdateSchema, PetUpdateFormInput, PetUpdateFormSchema } from '../lib/schemas/petSchema';
 import { FormHandlerReturn, Pet, PetGender, PetType } from '../lib/types';
 
 // Form hook types
 export interface UsePetFormReturn {
-  form: UseFormReturn<PetCreateInput>;
-  control: Control<PetCreateInput>;
-  errors: FieldErrors<PetCreateInput>;
+  form: UseFormReturn<PetCreateFormInput>;
+  control: Control<PetCreateFormInput>;
+  errors: FieldErrors<PetCreateFormInput>;
   isSubmitting: boolean;
   isValid: boolean;
   touchedFields: Record<string, boolean>;
   dirtyFields: Record<string, boolean>;
-  handleSubmit: (onSubmit: (data: PetCreateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
-  reset: (values?: PetCreateInput) => void;
-  setValue: <K extends Path<PetCreateInput>>(name: K, value: PathValue<PetCreateInput, K>) => void;
-  getValues: (name?: keyof PetCreateInput) => PetCreateInput[keyof PetCreateInput] | PetCreateInput;
-  trigger: (name?: keyof PetCreateInput) => Promise<boolean>;
-  watch: (name?: keyof PetCreateInput) => PetCreateInput[keyof PetCreateInput] | PetCreateInput;
+  handleSubmit: (onSubmit: (data: PetCreateFormInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+  reset: (values?: PetCreateFormInput) => void;
+  setValue: <K extends Path<PetCreateFormInput>>(name: K, value: PathValue<PetCreateFormInput, K>) => void;
+  getValues: (name?: keyof PetCreateFormInput) => PetCreateFormInput[keyof PetCreateFormInput] | PetCreateFormInput;
+  trigger: (name?: keyof PetCreateFormInput) => Promise<boolean>;
+  watch: (name?: keyof PetCreateFormInput) => PetCreateFormInput[keyof PetCreateFormInput] | PetCreateFormInput;
 }
 
 // Update form hook types
 export interface UsePetUpdateFormReturn {
-  form: UseFormReturn<PetUpdateInput>;
-  control: Control<PetUpdateInput>;
-  errors: FieldErrors<PetUpdateInput>;
+  form: UseFormReturn<PetUpdateFormInput>;
+  control: Control<PetUpdateFormInput>;
+  errors: FieldErrors<PetUpdateFormInput>;
   isSubmitting: boolean;
   isValid: boolean;
   touchedFields: Record<string, boolean>;
   dirtyFields: Record<string, boolean>;
-  handleSubmit: (onSubmit: (data: PetUpdateInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
-  reset: (values?: PetUpdateInput) => void;
-  setValue: <K extends Path<PetUpdateInput>>(name: K, value: PathValue<PetUpdateInput, K>) => void;
-  getValues: (name?: keyof PetUpdateInput) => PetUpdateInput[keyof PetUpdateInput] | PetUpdateInput;
-  trigger: (name?: keyof PetUpdateInput) => Promise<boolean>;
-  watch: (name?: keyof PetUpdateInput) => PetUpdateInput[keyof PetUpdateInput] | PetUpdateInput;
+  handleSubmit: (onSubmit: (data: PetUpdateFormInput) => void | Promise<void>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+  reset: (values?: PetUpdateFormInput) => void;
+  setValue: <K extends Path<PetUpdateFormInput>>(name: K, value: PathValue<PetUpdateFormInput, K>) => void;
+  getValues: (name?: keyof PetUpdateFormInput) => PetUpdateFormInput[keyof PetUpdateFormInput] | PetUpdateFormInput;
+  trigger: (name?: keyof PetUpdateFormInput) => Promise<boolean>;
+  watch: (name?: keyof PetUpdateFormInput) => PetUpdateFormInput[keyof PetUpdateFormInput] | PetUpdateFormInput;
 }
 
 // Helper function to normalize pet type from database to form values
@@ -84,8 +84,8 @@ const normalizeGender = (gender: string): PetGender => {
 
 // Main hook for pet form - for creating new pets
 export const usePetForm = (pet?: Pet): UsePetFormReturn => {
-  const form = useForm<PetCreateInput>({
-    resolver: zodResolver(PetCreateSchema),
+  const form = useForm<PetCreateFormInput>({
+    resolver: zodResolver(PetCreateFormSchema),
     defaultValues: pet ? {
       name: pet.name || '',
       type: normalizePetType(pet.type),
@@ -126,8 +126,8 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
 
 // Hook for updating existing pets
 export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
-  const form = useForm<PetUpdateInput>({
-    resolver: zodResolver(PetUpdateSchema),
+  const form = useForm<PetUpdateFormInput>({
+    resolver: zodResolver(PetUpdateFormSchema),
     defaultValues: {
       name: pet.name || '',
       type: normalizePetType(pet.type),

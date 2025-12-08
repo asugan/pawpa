@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,8 +8,6 @@ import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handl
 import { scheduleOnRN } from 'react-native-worklets';
 import { useTheme } from '@/lib/theme';
 import { useMemo } from 'react';
-
-const { width, height } = Dimensions.get('window');
 
 export default function OnboardingStep1() {
   const router = useRouter();

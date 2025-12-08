@@ -30,7 +30,7 @@ const PetCard: React.FC<PetCardProps> = ({
   const { t } = useTranslation();
 
   // Use hook if petId is provided, otherwise use prop for backward compatibility
-  const { nextActivity: hookNextActivity, isLoading, error } = usePetNextActivity(petId || pet.id);
+  const { nextActivity: hookNextActivity, isLoading } = usePetNextActivity(petId || pet.id);
   const nextActivity = petId ? hookNextActivity : propNextActivity;
 
   const getPetTypeLabel = (type: string) => {

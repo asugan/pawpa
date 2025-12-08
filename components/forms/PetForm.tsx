@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { createGenderOptions, createPetTypeOptions } from '../../constants';
 import { usePetForm } from '../../hooks/usePetForm';
-import { PetCreateInput } from '../../lib/schemas/petSchema';
+import { PetCreateFormInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
 import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
@@ -18,7 +18,7 @@ import { SmartPetPhotoPicker } from './SmartPetPhotoPicker';
 
 interface PetFormProps {
   pet?: Pet;
-  onSubmit: (data: PetCreateInput) => void | Promise<void>;
+  onSubmit: (data: PetCreateFormInput) => void | Promise<void>;
   onCancel: () => void;
   loading?: boolean;
   testID?: string;
@@ -33,7 +33,7 @@ export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: Pe
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
 
   const onFormSubmit = React.useCallback(
-    async (data: PetCreateInput) => {
+    async (data: PetCreateFormInput) => {
       try {
         await onSubmit(data);
       } catch (error) {

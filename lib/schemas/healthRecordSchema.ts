@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { toUTCWithOffset, isValidUTCISOString } from '@/lib/utils/dateConversion';
 // import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
@@ -67,8 +68,24 @@ const BaseHealthRecordSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   date: z
-    .string()
-    .datetime('Geçersiz tarih formatı')
+    .union([z.string(), z.date()])
+    .transform((val): string => {
+      // If it's a Date object, convert to UTC ISO
+      if (val instanceof Date) {
+        return toUTCWithOffset(val);
+      }
+      // If it's a string without timezone info, convert to UTC
+      if (typeof val === 'string') {
+        if (!val.endsWith('Z') && !val.includes('+')) {
+          return toUTCWithOffset(new Date(val));
+        }
+        return val;
+      }
+      throw new Error('Invalid date type');
+    })
+    .refine((val) => isValidUTCISOString(val), {
+      message: 'Sağlık kayıt tarihi geçersiz format. UTC formatında olmalı'
+    })
     .refine(validateHealthDate, {
       message: 'Tarih gelecekte olamaz'
     }),
@@ -105,11 +122,144 @@ const BaseHealthRecordSchema = z.object({
     .transform(val => val?.trim() || undefined),
 
   nextDueDate: z
-    .string()
-    .datetime('Geçersiz tarih formatı')
+    .union([z.string(), z.date()])
     .optional()
-    .nullable(),
+    .nullable()
+    .transform((val): string | null | undefined => {
+      if (!val) return val;
+      // If it's a Date object, convert to UTC ISO
+      if (val instanceof Date) {
+        return toUTCWithOffset(val);
+      }
+      // If it's a string without timezone info, convert to UTC
+      if (typeof val === 'string') {
+        if (!val.endsWith('Z') && !val.includes('+')) {
+          return toUTCWithOffset(new Date(val));
+        }
+        return val;
+      }
+      throw new Error('Invalid date type');
+    })
+    .refine((val) => !val || isValidUTCISOString(val), {
+      message: 'Sonraki tarih geçersiz format. UTC formatında olmalı'
+    }),
 });
+
+// Base schema for form input (before transformation)
+const BaseHealthRecordFormSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Başlık zorunludur')
+    .max(100, 'Başlık en fazla 100 karakter olabilir')
+    .regex(/^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/, 'Başlık geçersiz karakterler içeriyor'),
+
+  type: z.enum(['medication', 'other', 'vaccination', 'grooming', 'checkup', 'surgery', 'dental'] as const),
+
+  date: z
+    .union([z.string(), z.date()])
+    .refine((val) => {
+      if (val instanceof Date) return !isNaN(val.getTime());
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      }
+      return false;
+    }, {
+      message: 'Geçerli bir tarih giriniz'
+    })
+    .refine((val) => {
+      const date = val instanceof Date ? val : new Date(val);
+      const now = new Date();
+      return date <= now;
+    }, {
+      message: 'Tarih gelecekte olamaz'
+    }),
+
+  description: z
+    .string()
+    .max(1000, 'Açıklama en fazla 1000 karakter olabilir')
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  petId: z
+    .string()
+    .min(1, 'Evcil hayvan seçimi zorunludur'),
+
+  veterinarian: z
+    .string()
+    .max(100)
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  clinic: z
+    .string()
+    .max(100)
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  cost: z
+    .number()
+    .positive()
+    .max(100000)
+    .optional()
+    .transform(val => val === undefined ? undefined : parseFloat(val.toFixed(2))),
+
+  notes: z
+    .string()
+    .max(2000, 'Notlar en fazla 2000 karakter olabilir')
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  nextDueDate: z
+    .union([z.string(), z.date()])
+    .optional()
+    .nullable()
+    .refine((val) => {
+      if (!val) return true;
+      if (val instanceof Date) return !isNaN(val.getTime());
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      }
+      return false;
+    }, {
+      message: 'Geçerli bir tarih giriniz'
+    }),
+});
+
+// Schema for form input (before transformation)
+export const HealthRecordCreateFormSchema = BaseHealthRecordFormSchema.refine(
+  (data) => {
+    // If nextDueDate is provided, it must be after the health record date
+    if (data.nextDueDate && data.date) {
+      const recordDate = data.date instanceof Date ? data.date : new Date(data.date);
+      const dueDate = data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate);
+      return validateNextDueDate(dueDate.toISOString(), recordDate.toISOString());
+    }
+    return true;
+  },
+  {
+    message: 'Sonraki tarih sağlık kaydından önce olamaz',
+    path: ["nextDueDate"]
+  }
+);
+
+// Schema for updating an existing health record form (before transformation)
+export const HealthRecordUpdateFormSchema = BaseHealthRecordFormSchema.partial().refine(
+  (data) => {
+    // If both dates are provided, nextDueDate must be after date
+    if (data.nextDueDate && data.date) {
+      const recordDate = data.date instanceof Date ? data.date : new Date(data.date);
+      const dueDate = data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate);
+      return validateNextDueDate(dueDate.toISOString(), recordDate.toISOString());
+    }
+    return true;
+  },
+  {
+    message: 'Sonraki tarih sağlık kaydından önce olamaz',
+    path: ["nextDueDate"]
+  }
+);
 
 // Full HealthRecord schema including server-side fields
 export const HealthRecordSchema = BaseHealthRecordSchema.extend({
@@ -271,6 +421,8 @@ export const MedicationSchema = BaseHealthRecordSchema.extend({
 export type HealthRecord = z.infer<typeof HealthRecordSchema>;
 export type HealthRecordCreateInput = z.infer<typeof HealthRecordCreateSchema>;
 export type HealthRecordUpdateInput = z.infer<typeof HealthRecordUpdateSchema>;
+export type HealthRecordCreateFormInput = z.infer<typeof HealthRecordCreateFormSchema>;
+export type HealthRecordUpdateFormInput = z.infer<typeof HealthRecordUpdateFormSchema>;
 export type VaccinationInput = z.infer<typeof VaccinationSchema>;
 export type MedicationInput = z.infer<typeof MedicationSchema>;
 

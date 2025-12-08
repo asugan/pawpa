@@ -65,7 +65,38 @@
           "photosPermission": "Uygulamanın fotoğraflarınıza erişmesine izin verin."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-community/datetimepicker",
+        {
+          "android": {
+            "datePicker": {
+              "colorAccent": {
+                "light": "#007AFF",
+                "dark": "#0A84FF"
+              },
+              "textColorPrimary": {
+                "light": "#007AFF",
+                "dark": "#0A84FF"
+              }
+            },
+            "timePicker": {
+              "background": {
+                "light": "#FFFFFF",
+                "dark": "#1C1C1E"
+              },
+              "numbersBackgroundColor": {
+                "light": "#007AFF",
+                "dark": "#0A84FF"
+              },
+              "numbersTextColor": {
+                "light": "#FFFFFF",
+                "dark": "#FFFFFF"
+              }
+            }
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

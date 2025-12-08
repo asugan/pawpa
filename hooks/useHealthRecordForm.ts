@@ -2,34 +2,35 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { Control, FieldErrors, FieldValues, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
 import {
-  getHealthRecordSchema,
   type HealthRecordCreateInput,
+  type HealthRecordCreateFormInput,
+  HealthRecordCreateFormSchema,
 } from '../lib/schemas/healthRecordSchema';
 import { HealthRecord } from '../lib/types';
 
 // Form hook types
 export interface UseHealthRecordFormReturn {
-  form: UseFormReturn<HealthRecordCreateInput>;
-  control: Control<HealthRecordCreateInput>;
-  errors: FieldErrors<HealthRecordCreateInput>;
+  form: UseFormReturn<HealthRecordCreateFormInput>;
+  control: Control<HealthRecordCreateFormInput>;
+  errors: FieldErrors<HealthRecordCreateFormInput>;
   isSubmitting: boolean;
   isValid: boolean;
   isDirty: boolean;
   touchedFields: Record<string, boolean>;
   dirtyFields: Record<string, boolean>;
   handleSubmit: (
-    onSubmit: (data: HealthRecordCreateInput) => void | Promise<void>
+    onSubmit: (data: HealthRecordCreateFormInput) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
-  reset: (values?: HealthRecordCreateInput) => void;
-  setValue: <K extends Path<HealthRecordCreateInput>>(name: K, value: PathValue<HealthRecordCreateInput, K>) => void;
+  reset: (values?: HealthRecordCreateFormInput) => void;
+  setValue: <K extends Path<HealthRecordCreateFormInput>>(name: K, value: PathValue<HealthRecordCreateFormInput, K>) => void;
   getValues: {
-    (): HealthRecordCreateInput;
-    <K extends keyof HealthRecordCreateInput>(name: K): HealthRecordCreateInput[K];
+    (): HealthRecordCreateFormInput;
+    <K extends keyof HealthRecordCreateFormInput>(name: K): HealthRecordCreateFormInput[K];
   };
-  trigger: (name?: keyof HealthRecordCreateInput) => Promise<boolean>;
+  trigger: (name?: keyof HealthRecordCreateFormInput) => Promise<boolean>;
   watch: {
-    (): HealthRecordCreateInput;
-    <K extends keyof HealthRecordCreateInput>(name: K): HealthRecordCreateInput[K];
+    (): HealthRecordCreateFormInput;
+    <K extends keyof HealthRecordCreateFormInput>(name: K): HealthRecordCreateFormInput[K];
   };
 }
 
@@ -39,13 +40,13 @@ export const useHealthRecordForm = (
   initialData?: HealthRecord
 ): UseHealthRecordFormReturn => {
   // Default values - comprehensive for all health record types
-  const defaultValues: HealthRecordCreateInput = React.useMemo(() => {
+  const defaultValues: HealthRecordCreateFormInput = React.useMemo(() => {
     return {
       petId,
       type: initialData?.type || 'checkup',
       title: initialData?.title || '',
       description: initialData?.description || '',
-      date: initialData?.date || new Date().toISOString(),
+      date: initialData?.date || new Date(),
       veterinarian: initialData?.veterinarian || '',
       clinic: initialData?.clinic || '',
       cost: initialData?.cost || undefined,
@@ -61,11 +62,11 @@ export const useHealthRecordForm = (
       frequency: initialData?.frequency || '',
       startDate: initialData?.startDate || undefined,
       endDate: initialData?.endDate || undefined,
-    } as HealthRecordCreateInput;
+    };
   }, [petId, initialData]);
 
-  const form = useForm<HealthRecordCreateInput>({
-    resolver: zodResolver(getHealthRecordSchema(defaultValues.type)),
+  const form = useForm<HealthRecordCreateFormInput>({
+    resolver: zodResolver(HealthRecordCreateFormSchema),
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',

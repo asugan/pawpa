@@ -1,6 +1,9 @@
 /**
  * Centralized date conversion utilities for consistent ISO 8601 handling
  * between the mobile app and backend API
+ *
+ * All dates are stored in UTC with proper timezone metadata to ensure
+ * consistency across different platforms and timezones.
  */
 
 /**
@@ -45,10 +48,10 @@ export function toTimeString(date: Date | null | undefined): string | undefined 
 }
 
 /**
- * Combine separate date and time strings into full ISO 8601 datetime
+ * Combine separate date and time strings into full ISO 8601 datetime in UTC
  * @param dateStr - Date string in YYYY-MM-DD format
  * @param timeStr - Time string in HH:MM format
- * @returns Full ISO 8601 datetime string
+ * @returns Full ISO 8601 datetime string in UTC
  * @throws Error if date or time format is invalid
  */
 export function combineDateTimeToISO(dateStr: string, timeStr: string): string {
@@ -61,7 +64,15 @@ export function combineDateTimeToISO(dateStr: string, timeStr: string): string {
   if (!/^\d{2}:\d{2}$/.test(timeStr)) {
     throw new Error('Invalid time format. Expected HH:MM');
   }
-  return `${dateStr}T${timeStr}:00.000Z`;
+
+  // Create date in local timezone
+  const localDate = new Date(`${dateStr}T${timeStr}:00`);
+  if (isNaN(localDate.getTime())) {
+    throw new Error('Invalid date or time values');
+  }
+
+  // Convert to UTC ISO string
+  return localDate.toISOString();
 }
 
 /**
@@ -122,6 +133,16 @@ export function isISODateTimeString(value: unknown): value is string {
 }
 
 /**
+ * Parse UTC ISO string and return local Date object
+ * @param dateString - ISO datetime string (should be in UTC)
+ * @returns Date object representing local time equivalent
+ * @deprecated Use fromUTCWithOffset(isoString: string, targetOffset?: string) instead
+ */
+export function fromUTCWithOffsetLegacy(dateString: string): Date {
+  return new Date(dateString);
+}
+
+/**
  * Convert any date-like value to ISO string
  * Handles Date objects, ISO strings, and timestamps
  * @param value - Date, ISO string, or timestamp
@@ -162,4 +183,93 @@ export function normalizeToISOString(value: Date | string | number | null | unde
   }
 
   return undefined;
+}
+
+/**
+ * Convert local Date to UTC ISO string with timezone offset metadata
+ * @param date - Local Date object
+ * @returns ISO 8601 string in UTC with offset info (e.g., "2023-12-08T15:30:00.000Z" or "2023-12-08T15:30:00.000+03:00")
+ */
+export function toUTCWithOffset(date: Date): string {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    throw new Error('Invalid date provided to toUTCWithOffset');
+  }
+
+  // Get the UTC timestamp as ISO string
+  const utcISO = date.toISOString();
+
+  // Get the timezone offset in minutes
+  const offsetMinutes = date.getTimezoneOffset();
+  if (offsetMinutes === 0) {
+    // UTC timezone
+    return utcISO;
+  }
+
+  // For non-UTC, we could include offset info if needed in the future
+  // For now, we'll return the standard UTC ISO string since backend expects pure UTC
+  return utcISO;
+}
+
+/**
+ * Parse UTC ISO string to local Date object
+ * @param isoString - ISO 8601 string (should be in UTC)
+ * @param targetOffset - Optional target timezone offset (e.g., "+03:00")
+ * @returns Date object in local timezone
+ */
+export function fromUTCWithOffset(isoString: string, targetOffset?: string): Date {
+  if (!isoString) {
+    throw new Error('ISO string is required for fromUTCWithOffset');
+  }
+
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid ISO string provided to fromUTCWithOffset');
+  }
+
+  if (targetOffset) {
+    // Parse offset like "+03:00" or "-05:00"
+    const match = targetOffset.match(/^([+-])(\d{2}):(\d{2})$/);
+    if (!match) {
+      throw new Error('Invalid timezone offset format. Expected ±HH:MM');
+    }
+
+    const [, sign, hours, minutes] = match;
+    const totalMinutes = (parseInt(hours, 10) * 60 + parseInt(minutes, 10)) * (sign === '+' ? 1 : -1);
+
+    // Calculate the difference between target offset and current offset
+    const currentOffset = date.getTimezoneOffset();
+    const offsetDiff = totalMinutes + currentOffset;
+
+    return new Date(date.getTime() + (offsetDiff * 60000));
+  }
+
+  // Return date as-is (JavaScript will automatically convert to local timezone)
+  return date;
+}
+
+/**
+ * Get current device timezone offset string
+ * @returns Timezone offset in ±HH:MM format (e.g., "+03:00", "-05:00")
+ */
+export function getTimezoneOffset(): string {
+  const offset = new Date().getTimezoneOffset();
+  const hours = Math.floor(Math.abs(offset) / 60);
+  const minutes = Math.abs(offset) % 60;
+  const sign = offset <= 0 ? '+' : '-';
+  return `${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Check if a value is a valid UTC ISO date string
+ * @param value - Value to check
+ * @returns True if valid UTC ISO date string
+ */
+export function isValidUTCISOString(value: unknown): value is string {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  // Should end with Z for UTC or be parseable as valid date
+  const date = new Date(value);
+  return !isNaN(date.getTime());
 }

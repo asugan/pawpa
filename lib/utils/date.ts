@@ -1,8 +1,10 @@
 import i18n from '@/lib/i18n';
 import { addDays, addHours, endOfDay, format, formatDistanceToNow, isAfter, isToday, isTomorrow, isYesterday, startOfDay } from 'date-fns';
+import { fromUTCWithOffset } from './dateConversion';
 
 // Re-export ISO 8601 conversion utilities
 export * from './dateConversion';
+
 import { enUS, tr } from 'date-fns/locale';
 import type { TranslationFunction } from '../types';
 
@@ -11,23 +13,58 @@ const getLocale = () => {
 };
 
 export const formatDate = (date: Date | string | number, formatStr: string = 'dd MMMM yyyy') => {
-  const dateObj = new Date(date);
+  // Ensure we handle UTC dates properly for display
+  let dateObj: Date;
+
+  if (typeof date === 'string' && date.includes('T')) {
+    // If it's an ISO string, convert properly to local time
+    dateObj = fromUTCWithOffset(date);
+  } else {
+    dateObj = new Date(date);
+  }
+
   return format(dateObj, formatStr, { locale: getLocale() });
 };
 
 export const formatTime = (date: Date | string | number) => {
-  const dateObj = new Date(date);
+  // Ensure we handle UTC dates properly for display
+  let dateObj: Date;
+
+  if (typeof date === 'string' && date.includes('T')) {
+    // If it's an ISO string, convert properly to local time
+    dateObj = fromUTCWithOffset(date);
+  } else {
+    dateObj = new Date(date);
+  }
+
   return format(dateObj, 'HH:mm', { locale: getLocale() });
 };
 
 export const getRelativeTime = (date: Date | string | number) => {
-  const dateObj = new Date(date);
+  // Ensure we handle UTC dates properly for relative time
+  let dateObj: Date;
+
+  if (typeof date === 'string' && date.includes('T')) {
+    // If it's an ISO string, convert properly to local time
+    dateObj = fromUTCWithOffset(date);
+  } else {
+    dateObj = new Date(date);
+  }
+
   return formatDistanceToNow(dateObj, { addSuffix: true, locale: getLocale() });
 };
 
 export const formatEventDate = (date: Date | string | number, t: TranslationFunction) => {
-  const dateObj = new Date(date);
-  
+  // Ensure we handle UTC dates properly for event date
+  let dateObj: Date;
+
+  if (typeof date === 'string' && date.includes('T')) {
+    // If it's an ISO string, convert properly to local time
+    dateObj = fromUTCWithOffset(date);
+  } else {
+    dateObj = new Date(date);
+  }
+
   if (isToday(dateObj)) {
     return t('eventCard.today');
   } else if (isTomorrow(dateObj)) {

@@ -3,7 +3,7 @@ import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { Modal as RNModal, StyleSheet, Text, View } from 'react-native';
 import { useCreatePet, useUpdatePet } from '../lib/hooks/usePets';
-import { PetCreateInput } from '../lib/schemas/petSchema';
+import { PetCreateInput, PetCreateFormInput, PetCreateSchema } from '../lib/schemas/petSchema';
 import { Pet } from '../lib/types';
 import { PetForm } from './forms/PetForm';
 
@@ -36,32 +36,19 @@ export function PetModal({
     setSnackbarVisible(true);
   }, []);
 
-  const handleSubmit = React.useCallback(async (data: PetCreateInput) => {
+  const handleSubmit = React.useCallback(async (data: PetCreateFormInput) => {
     setLoading(true);
     try {
+      // Transform form data to API format using the schema transformation
+      const apiData: PetCreateInput = PetCreateSchema.parse(data);
+
       if (pet) {
-        // Pet güncelleme - breed undefined'ı null'a çevir
-        const updateData = {
-          ...data,
-          breed: data.breed || undefined,
-          birthDate: data.birthDate ? data.birthDate : undefined,
-          weight: data.weight || undefined,
-          gender: data.gender || undefined,
-          profilePhoto: data.profilePhoto || undefined,
-        };
-        await updatePetMutation.mutateAsync({ id: pet.id, data: updateData });
+        // Pet güncelleme
+        await updatePetMutation.mutateAsync({ id: pet.id, data: apiData });
         showSnackbar('Pet başarıyla güncellendi');
       } else {
-        // Yeni pet oluşturma - breed undefined'ı null'a çevir
-        const createData = {
-          ...data,
-          breed: data.breed || undefined,
-          birthDate: data.birthDate ? data.birthDate : undefined,
-          weight: data.weight || undefined,
-          gender: data.gender || undefined,
-          profilePhoto: data.profilePhoto || undefined,
-        };
-        await createPetMutation.mutateAsync(createData);
+        // Yeni pet oluşturma
+        await createPetMutation.mutateAsync(apiData);
         showSnackbar('Pet başarıyla eklendi');
       }
 
