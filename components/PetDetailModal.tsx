@@ -6,6 +6,7 @@ import {
   Alert,
   Modal as RNModal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, Card, Avatar, Divider, Portal, Snackbar, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { Event } from '../lib/types';
@@ -409,9 +410,9 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
         onDismiss={onClose}
         onRequestClose={onClose}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           {renderContent()}
-        </View>
+        </SafeAreaView>
       </RNModal>
 
       <Portal>
