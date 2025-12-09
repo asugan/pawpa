@@ -2,6 +2,7 @@ import { Portal, Snackbar } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { Modal as RNModal, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreatePet, useUpdatePet } from '../lib/hooks/usePets';
 import { PetCreateInput, PetCreateFormInput, PetCreateSchema } from '../lib/schemas/petSchema';
 import { Pet } from '../lib/types';
@@ -83,7 +84,7 @@ export function PetModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.colors.onSurface }]}>
               {pet ? 'Pet Düzenle' : 'Yeni Pet Ekle'}
@@ -96,7 +97,7 @@ export function PetModal({
             onCancel={handleClose}
             testID="pet-form-in-modal"
           />
-        </View>
+        </SafeAreaView>
       </RNModal>
 
       <Portal>

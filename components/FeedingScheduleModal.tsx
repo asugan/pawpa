@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Modal as RNModal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Portal, Snackbar, Text, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
@@ -93,7 +94,7 @@ export function FeedingScheduleModal({
         onRequestClose={handleClose}
         testID={testID}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.colors.onSurface }]}>
               {schedule ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
@@ -116,7 +117,7 @@ export function FeedingScheduleModal({
             pets={pets}
             testID="feeding-schedule-form-in-modal"
           />
-        </View>
+        </SafeAreaView>
       </RNModal>
 
       <Portal>

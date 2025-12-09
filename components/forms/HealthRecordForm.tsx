@@ -4,6 +4,7 @@ import { useTheme } from '@/lib/theme';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Alert, Modal as RNModal, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../constants';
 import { useCreateHealthRecord, useUpdateHealthRecord } from '../../lib/hooks/useHealthRecords';
@@ -120,7 +121,7 @@ export function HealthRecordForm({
   return (
     <Portal>
       <RNModal visible={visible} animationType="slide" onRequestClose={handleCancel}>
-        <View style={[styles.modalContainer, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: theme.colors.background }]}>
           <FormProvider {...form}>
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               <Card style={styles.card}>
@@ -237,7 +238,7 @@ export function HealthRecordForm({
               </Card>
             </ScrollView>
           </FormProvider>
-        </View>
+        </SafeAreaView>
       </RNModal>
     </Portal>
   );
@@ -246,7 +247,6 @@ export function HealthRecordForm({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    paddingTop: 50,
   },
   content: {
     flex: 1,

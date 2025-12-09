@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal as RNModal, View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import BudgetForm from './forms/BudgetForm';
@@ -31,7 +32,7 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onDismiss}
     >
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.onSurface }]}>
             {budget ? 'Edit Budget' : 'Add Budget'}
@@ -53,7 +54,7 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
           onCancel={onDismiss}
           isSubmitting={isSubmitting}
         />
-      </View>
+      </SafeAreaView>
     </RNModal>
   );
 };
