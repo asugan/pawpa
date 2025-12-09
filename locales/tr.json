@@ -52,7 +52,9 @@
     "viewMoreVaccinations": "+{{count}} daha fazla aşı",
     "financialOverview": "Finansal Genel Bakış",
     "greeting": "Merhaba",
-    "nextActivity": "Sonraki Aktivite"
+    "nextActivity": "Sonraki Aktivite",
+    "noActivity": "Aktivite Yok",
+    "allSet": "Her Şey Tamam"
   },
   "finance": {
     "title": "Finans",

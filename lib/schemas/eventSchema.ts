@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EVENT_TYPES } from '../../constants';
-import { combineDateTimeToISO } from '../utils/dateConversion';
+import { combineDateTimeToISO, toUTCWithOffset, isValidUTCISOString } from '../utils/dateConversion';
 
 // Form input schema (matches the form structure with separate date/time fields)
 export const eventFormSchema = z.object({
@@ -141,13 +141,46 @@ export const eventSchema = z.object({
     .min(1, 'Etkinlik türü zorunludur'),
 
   startTime: z
-    .string()
-    .datetime('Geçersiz başlangıç zamanı formatı'),
+    .union([z.string(), z.date()])
+    .transform((val): string => {
+      // If it's a Date object, convert to UTC ISO
+      if (val instanceof Date) {
+        return toUTCWithOffset(val);
+      }
+      // If it's a string without timezone info, convert to UTC
+      if (typeof val === 'string') {
+        if (!val.endsWith('Z') && !val.includes('+')) {
+          return toUTCWithOffset(new Date(val));
+        }
+        return val;
+      }
+      throw new Error('Invalid date type');
+    })
+    .refine((val) => isValidUTCISOString(val), {
+      message: 'Başlangıç zamanı geçersiz format. UTC formatında olmalı'
+    }),
 
   endTime: z
-    .string()
-    .datetime('Geçersiz bitiş zamanı formatı')
-    .optional(),
+    .union([z.string(), z.date()])
+    .optional()
+    .transform((val): string | undefined => {
+      if (!val) return val;
+      // If it's a Date object, convert to UTC ISO
+      if (val instanceof Date) {
+        return toUTCWithOffset(val);
+      }
+      // If it's a string without timezone info, convert to UTC
+      if (typeof val === 'string') {
+        if (!val.endsWith('Z') && !val.includes('+')) {
+          return toUTCWithOffset(new Date(val));
+        }
+        return val;
+      }
+      throw new Error('Invalid date type');
+    })
+    .refine((val) => !val || isValidUTCISOString(val), {
+      message: 'Bitiş zamanı geçersiz format. UTC formatında olmalı'
+    }),
 
   location: z
     .string()

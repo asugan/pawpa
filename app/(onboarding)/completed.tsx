@@ -7,29 +7,27 @@ import { useOnboardingStore } from '../../stores/onboardingStore';
 import { useTranslation } from 'react-i18next';
 import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
-
-// Design Constants
-const COLORS = {
-  primary: '#13ec5b',
-  backgroundDark: '#102216',
-  white: '#FFFFFF',
-  textSecondary: 'rgba(255, 255, 255, 0.6)', // Keeping consistent with previous steps, though design says slate-600/slate-400 which is gray. Dark mode uses slate-400.
-  circleOuter: 'rgba(19, 236, 91, 0.2)',
-  circleInner: 'rgba(19, 236, 91, 0.3)',
-};
+import { useTheme } from '@/lib/theme';
+import { useAuth } from '@/lib/auth/useAuth';
+import { useMemo } from 'react';
 
 export default function OnboardingCompleted() {
   const router = useRouter();
   const { setHasSeenOnboarding } = useOnboardingStore();
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
 
   const handleComplete = async () => {
     // Mark onboarding as seen
     setHasSeenOnboarding(true);
-    
-    // Navigate to root, which will handle redirection based on auth state
 
-    router.replace('/(auth)/login');
+    // Navigate based on authentication state
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    } else {
+      router.replace('/(auth)/login');
+    }
   };
 
   const swipeRight = Gesture.Fling()
@@ -37,6 +35,75 @@ export default function OnboardingCompleted() {
     .onEnd(() => {
       scheduleOnRN(router.back);
     });
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    safeArea: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 24,
+    },
+    heroContainer: {
+      marginBottom: 32,
+    },
+    outerCircle: {
+      width: 160,
+      height: 160,
+      borderRadius: 80,
+      backgroundColor: theme.colors.primary + '33',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    innerCircle: {
+      width: 128,
+      height: 128,
+      borderRadius: 64,
+      backgroundColor: theme.colors.primary + '4D',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: theme.colors.onBackground,
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    description: {
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      lineHeight: 24,
+      maxWidth: 300,
+    },
+    footer: {
+      padding: 16,
+      paddingBottom: 32,
+      width: '100%',
+      alignItems: 'center',
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      height: 48,
+      borderRadius: theme.roundness / 2,
+      width: '100%',
+      maxWidth: 480,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonText: {
+      color: theme.colors.onPrimary,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+  }), [theme]);
 
   return (
     <GestureDetector gesture={swipeRight}>
@@ -49,7 +116,7 @@ export default function OnboardingCompleted() {
           <View style={styles.heroContainer}>
             <View style={styles.outerCircle}>
               <View style={styles.innerCircle}>
-                <MaterialIcons name="pets" size={64} color={COLORS.primary} />
+                <MaterialIcons name="pets" size={64} color={theme.colors.primary} />
               </View>
             </View>
           </View>
@@ -77,71 +144,3 @@ export default function OnboardingCompleted() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundDark,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  heroContainer: {
-    marginBottom: 32,
-  },
-  outerCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: COLORS.circleOuter,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  innerCircle: {
-    width: 128,
-    height: 128,
-    borderRadius: 64,
-    backgroundColor: COLORS.circleInner,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: COLORS.white,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-  },
-  footer: {
-    padding: 16,
-    paddingBottom: 32,
-    width: '100%',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    height: 48,
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 480,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: COLORS.backgroundDark,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-});

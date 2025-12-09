@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Text as PaperText,  } from '@/components/ui';
+import { Platform, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import ReactNativeDateTimePicker from '@react-native-community/datetimepicker';
+import { Text as PaperText, } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
 interface DateTimePickerProps {
@@ -42,7 +42,29 @@ export function DateTimePicker({
 
   const handleConfirm = (date: Date) => {
     onChange(date);
-    hidePicker();
+    if (Platform.OS !== 'ios') {
+      hidePicker();
+    }
+  };
+
+  const handlePickerChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'ios') {
+      setPickerVisible(true); // Keep picker open on iOS
+    }
+
+    if (event.type === 'dismissed' || (event.type === 'set' && selectedDate)) {
+      if (selectedDate) {
+        handleConfirm(selectedDate);
+      }
+      if (Platform.OS !== 'ios') {
+        hidePicker();
+      }
+    }
+
+    // Handle Android picker errors
+    if (event.type === 'error') {
+      console.error('DateTimePicker error:', event.nativeEvent?.error || 'Unknown error');
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -112,18 +134,20 @@ export function DateTimePicker({
         </Text>
       )}
 
-      <DateTimePickerModal
-        isVisible={isPickerVisible}
-        mode={mode}
-        date={value}
-        onConfirm={handleConfirm}
-        onCancel={hidePicker}
-        minimumDate={minimumDate}
-        maximumDate={maximumDate}
-        locale="tr_TR"
-        confirmTextIOS="Tamam"
-        cancelTextIOS="İptal"
-      />
+      {isPickerVisible && (
+        <ReactNativeDateTimePicker
+          mode={mode}
+          value={value}
+          onChange={handlePickerChange}
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          onError={(error: any) => {
+            if (Platform.OS === 'android' && error) {
+              console.error('DateTimePicker error:', error);
+            }
+          }}
+        />
+      )}
     </View>
   );
 }

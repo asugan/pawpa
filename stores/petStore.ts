@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // UI State interface - sadece client-side state
 export interface PetUIState {
@@ -46,6 +47,7 @@ export const usePetUIStore = create<PetUIState & PetUIActions>()(
     }),
     {
       name: 'pet-ui-storage',
+      storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         selectedPetId: state.selectedPetId,
         filterStatus: state.filterStatus,

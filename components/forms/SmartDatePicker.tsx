@@ -1,12 +1,12 @@
 import { Text as PaperText, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { parseISODate, toISODateString, toISOString, toTimeString } from '@/lib/utils/dateConversion';
+import { fromUTCWithOffset, parseISODate, toTimeString, toUTCWithOffset } from '@/lib/utils/dateConversion';
 import React, { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-type OutputFormat = 'iso' | 'iso-date' | 'iso-time' | 'date-object';
+type OutputFormat = 'iso' | 'iso-date' | 'iso-time' | 'date-object' | 'yyyy-mm-dd';
 
 interface SmartDatePickerProps {
   name: string;
@@ -53,25 +53,41 @@ export const SmartDatePicker = ({
       if (outputFormat === 'iso-time' || /^\d{1,2}:\d{2}$/.test(val)) {
         return parseTimeStringToDate(val) ?? new Date();
       }
-      // Handle ISO date/datetime format
+      // Handle simple date format (YYYY-MM-DD)
+      if (outputFormat === 'yyyy-mm-dd' || /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        return parseISODate(val) ?? new Date();
+      }
+      // Handle ISO date/datetime format - convert from UTC to local
+      if (val.includes('T')) {
+        return fromUTCWithOffset(val);
+      }
       return parseISODate(val) ?? new Date();
     }
     return new Date();
   };
 
-  // Convert selected date to the desired output format
+  // Convert selected date to the desired output format (always store as UTC)
   const convertToOutputFormat = (date: Date): Date | string => {
     switch (outputFormat) {
       case 'iso':
-        return toISOString(date) ?? date.toISOString();
+        return toUTCWithOffset(date);
       case 'iso-date':
-        return toISODateString(date) ?? date.toISOString().split('T')[0];
+        // For date-only, still store as UTC with time set to 00:00:00
+        const utcDate = new Date(date);
+        utcDate.setHours(0, 0, 0, 0);
+        return toUTCWithOffset(utcDate);
+      case 'yyyy-mm-dd':
+        // Return simple date string in YYYY-MM-DD format (local date)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
       case 'iso-time':
         return toTimeString(date) ?? date.toISOString().split('T')[1].slice(0, 5);
       case 'date-object':
         return date;
       default:
-        return toISOString(date) ?? date.toISOString();
+        return toUTCWithOffset(date);
     }
   };
 
@@ -105,6 +121,25 @@ export const SmartDatePicker = ({
         month: '2-digit',
         year: 'numeric',
       });
+    }
+  };
+
+  const handlePickerChange = (onChange: (value: any) => void) => (event: any, selectedDate?: Date) => {
+    setPickerVisible(Platform.OS === 'ios'); // Keep picker open on iOS
+
+    if (event.type === 'dismissed' || (event.type === 'set' && selectedDate)) {
+      if (selectedDate) {
+        const outputValue = convertToOutputFormat(selectedDate);
+        onChange(outputValue);
+      }
+      if (Platform.OS !== 'ios') {
+        hidePicker();
+      }
+    }
+
+    // Handle Android picker errors
+    if (event.type === 'error') {
+      console.error('DateTimePicker error:', event.nativeEvent?.error || 'Unknown error');
     }
   };
 
@@ -158,22 +193,22 @@ export const SmartDatePicker = ({
             </Text>
           )}
 
-          <DateTimePickerModal
-            isVisible={isPickerVisible}
-            mode={mode}
-            date={value ? getDisplayDate(value) : new Date()}
-            onConfirm={(selectedDate) => {
-              const outputValue = convertToOutputFormat(selectedDate);
-              onChange(outputValue);
-              hidePicker();
-            }}
-            onCancel={hidePicker}
-            minimumDate={minimumDate}
-            maximumDate={maximumDate}
-            locale="tr_TR"
-            confirmTextIOS="Tamam"
-            cancelTextIOS="İptal"
-          />
+          {isPickerVisible && (
+            <DateTimePicker
+              mode={mode}
+              value={value ? getDisplayDate(value) : new Date()}
+              onChange={handlePickerChange(onChange)}
+              minimumDate={minimumDate}
+              maximumDate={maximumDate}
+              locale={Platform.OS === 'ios' ? 'tr_TR' : undefined}
+              timeZoneName={Platform.OS === 'ios' ? 'Europe/Istanbul' : undefined}
+              onError={(error) => {
+                if (Platform.OS === 'android' && error) {
+                  console.error('DateTimePicker error:', error);
+                }
+              }}
+            />
+          )}
         </View>
       )}
     />

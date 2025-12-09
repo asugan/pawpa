@@ -2,8 +2,10 @@ import { Avatar, Surface, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Pet } from '../lib/types';
+import { usePetNextActivity } from '@/lib/hooks/usePetNextActivity';
+import { NextActivity } from '@/lib/utils/activityUtils';
 
 interface PetCardProps {
   pet: Pet;
@@ -11,8 +13,8 @@ interface PetCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   showActions?: boolean;
-  upcomingEvents?: number;
-  upcomingVaccinations?: number;
+  petId?: string; // Optional petId for hook usage
+  nextActivity?: NextActivity | null; // Backward compatibility
 }
 
 const PetCard: React.FC<PetCardProps> = ({
@@ -21,11 +23,15 @@ const PetCard: React.FC<PetCardProps> = ({
   onEdit,
   onDelete,
   showActions = true,
-  upcomingEvents = 0,
-  upcomingVaccinations = 0,
+  petId,
+  nextActivity: propNextActivity,
 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
+
+  // Use hook if petId is provided, otherwise use prop for backward compatibility
+  const { nextActivity: hookNextActivity, isLoading } = usePetNextActivity(petId || pet.id);
+  const nextActivity = petId ? hookNextActivity : propNextActivity;
 
   const getPetTypeLabel = (type: string) => {
     const typeKey = type.toLowerCase();
@@ -46,24 +52,19 @@ const PetCard: React.FC<PetCardProps> = ({
     return typeColors[type.toLowerCase() as keyof typeof typeColors] || typeColors.default;
   };
 
-  // Determine ring color based on upcoming activities
+  // Determine ring color based on next activity priority or type
   const getRingColor = () => {
-    if (upcomingVaccinations > 0) return theme.colors.accent; // Orange for vaccinations
-    return theme.colors.primary; // Cyan for general
-  };
-
-  // Get next activity text
-  const getNextActivity = () => {
-    if (upcomingVaccinations > 0) {
-      return { label: t('healthRecordTypes.vaccination'), time: '10.05', color: theme.colors.accent };
+    if (nextActivity) {
+      if (nextActivity.type === 'vaccination' || nextActivity.type === 'medication') {
+        return theme.colors.accent; // Orange for health priority
+      }
+      if (nextActivity.type === 'vet') {
+        return theme.colors.secondary; // Purple for vet appointments
+      }
+      return nextActivity.color || theme.colors.primary; // Use activity color or default
     }
-    if (upcomingEvents > 0) {
-      return { label: t('eventTypes.feeding'), time: '18:00', color: theme.colors.primary };
-    }
-    return null;
+    return theme.colors.primary; // Default cyan
   };
-
-  const nextActivity = getNextActivity();
 
   return (
     <Pressable onPress={onPress} style={styles.pressable}>
@@ -116,7 +117,19 @@ const PetCard: React.FC<PetCardProps> = ({
             </View>
 
             {/* Next Activity */}
-            {nextActivity && (
+            {petId && isLoading && (
+              <View style={styles.activityContainer}>
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <Text
+                  variant="bodySmall"
+                  style={[styles.activityLabel, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('common.loading')}
+                </Text>
+              </View>
+            )}
+
+            {!isLoading && nextActivity && (
               <View style={styles.activityContainer}>
                 <Text
                   variant="bodySmall"
@@ -130,6 +143,23 @@ const PetCard: React.FC<PetCardProps> = ({
                   numberOfLines={1}
                 >
                   {nextActivity.label} ({nextActivity.time})
+                </Text>
+              </View>
+            )}
+
+            {!isLoading && !nextActivity && petId && (
+              <View style={styles.activityContainer}>
+                <Text
+                  variant="bodySmall"
+                  style={[styles.activityLabel, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('home.noActivity')}:
+                </Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.activityText, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('home.allSet')}
                 </Text>
               </View>
             )}

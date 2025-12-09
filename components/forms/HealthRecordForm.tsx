@@ -11,6 +11,7 @@ import {
   formatValidationErrors,
   getHealthRecordSchema,
   type HealthRecordCreateInput,
+  type HealthRecordCreateFormInput,
 } from '../../lib/schemas/healthRecordSchema';
 import type { HealthRecord } from '../../lib/types';
 import { FormActions } from './FormActions';
@@ -72,7 +73,7 @@ export function HealthRecordForm({
     }
   }, [visible, initialData, reset, petId]);
 
-  const onSubmit = async (data: HealthRecordCreateInput) => {
+  const onSubmit = async (data: HealthRecordCreateFormInput) => {
     try {
       setIsLoading(true);
 

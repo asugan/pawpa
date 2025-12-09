@@ -183,7 +183,7 @@ export default function SettingsScreen() {
               }
               onPress={() => {
                 const newLanguage = language === "en" ? "tr" : "en";
-                setLanguage(newLanguage);
+                setLanguage(newLanguage, true);
               }}
               right={
                 <View style={styles.languageIndicator}>

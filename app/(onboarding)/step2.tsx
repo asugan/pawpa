@@ -6,16 +6,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
-
-// Design Constants
-const COLORS = {
-  primary: '#13ec5b',
-  backgroundDark: '#102216',
-  white: '#FFFFFF',
-  textSecondary: 'rgba(255, 255, 255, 0.6)',
-  cardBg: 'rgba(255, 255, 255, 0.05)',
-  iconBg: 'rgba(19, 236, 91, 0.2)', // primary with opacity
-};
+import { useTheme } from '@/lib/theme';
+import { useOnboardingStore } from '../../stores/onboardingStore';
+import { useMemo } from 'react';
 
 const FEATURES = [
   {
@@ -39,12 +32,15 @@ const FEATURES = [
 export default function OnboardingStep2() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const { skipOnboarding } = useOnboardingStore();
 
   const handleNext = () => {
     router.push('/(onboarding)/completed');
   };
 
   const handleSkip = () => {
+    skipOnboarding();
     router.push('/(onboarding)/completed');
   };
 
@@ -62,6 +58,127 @@ export default function OnboardingStep2() {
 
   const gestures = Gesture.Race(swipeLeft, swipeRight);
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    backButton: {
+      width: 48,
+      height: 48,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    skipButton: {
+      height: 48,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    skipText: {
+      color: theme.colors.onSurfaceVariant,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    indicatorContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 16,
+    },
+    indicatorActive: {
+      height: 6,
+      width: 24,
+      borderRadius: 3,
+      backgroundColor: theme.colors.primary,
+    },
+    indicatorInactive: {
+      height: 6,
+      width: 24,
+      borderRadius: 3,
+      backgroundColor: theme.colors.primary + '4D',
+    },
+    content: {
+      paddingHorizontal: 16,
+    },
+    headerTextContainer: {
+      paddingVertical: 16,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: theme.colors.onBackground,
+      marginBottom: 8,
+    },
+    description: {
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+    },
+    featureList: {
+      gap: 12,
+      paddingVertical: 8,
+    },
+    featureCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.roundness / 2,
+      padding: 16,
+      minHeight: 72,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    featureIconContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+      flex: 1,
+    },
+    iconCircle: {
+      width: 48,
+      height: 48,
+      borderRadius: theme.roundness / 3,
+      backgroundColor: theme.colors.primary + '33',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    featureTextContent: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    featureTitle: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: theme.colors.onBackground,
+      marginBottom: 2,
+    },
+    featureDescription: {
+      fontSize: 14,
+      color: theme.colors.onSurfaceVariant,
+    },
+    footer: {
+      padding: 16,
+      paddingBottom: 24,
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      height: 56, // Slightly taller as per design
+      borderRadius: theme.roundness / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonText: {
+      color: theme.colors.onPrimary,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+  }), [theme]);
+
   return (
     <GestureDetector gesture={gestures}>
       <SafeAreaView style={styles.container}>
@@ -70,7 +187,7 @@ export default function OnboardingStep2() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back-ios-new" size={24} color={COLORS.white} />
+          <MaterialIcons name="arrow-back-ios-new" size={24} color={theme.colors.onBackground} />
         </Pressable>
         <Pressable onPress={handleSkip} style={styles.skipButton}>
           <Text style={styles.skipText}>{t('onboarding.screen2.skip')}</Text>
@@ -81,7 +198,6 @@ export default function OnboardingStep2() {
       <View style={styles.indicatorContainer}>
         <View style={styles.indicatorInactive} />
         <View style={styles.indicatorActive} />
-        <View style={styles.indicatorInactive} />
         <View style={styles.indicatorInactive} />
       </View>
 
@@ -96,8 +212,7 @@ export default function OnboardingStep2() {
             <View key={index} style={styles.featureCard}>
               <View style={styles.featureIconContainer}>
                 <View style={styles.iconCircle}>
-                  {/* @ts-ignore: icon names are loose strings here */}
-                  <MaterialIcons name={item.icon} size={28} color={COLORS.primary} />
+                  <MaterialIcons name={item.icon as any} size={28} color={theme.colors.primary} />
                 </View>
                 <View style={styles.featureTextContent}>
                   <Text style={styles.featureTitle} numberOfLines={1}>
@@ -128,123 +243,3 @@ export default function OnboardingStep2() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundDark,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  backButton: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  skipButton: {
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  skipText: {
-    color: COLORS.textSecondary,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  indicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 16,
-  },
-  indicatorActive: {
-    height: 6,
-    width: 24,
-    borderRadius: 3,
-    backgroundColor: COLORS.primary,
-  },
-  indicatorInactive: {
-    height: 6,
-    width: 24,
-    borderRadius: 3,
-    backgroundColor: 'rgba(19, 236, 91, 0.3)',
-  },
-  content: {
-    paddingHorizontal: 16,
-  },
-  headerTextContainer: {
-    paddingVertical: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: COLORS.white,
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-  },
-  featureList: {
-    gap: 12,
-    paddingVertical: 8,
-  },
-  featureCard: {
-    backgroundColor: COLORS.cardBg,
-    borderRadius: 12,
-    padding: 16,
-    minHeight: 72,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  featureIconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    flex: 1,
-  },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: COLORS.iconBg,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  featureTextContent: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.white,
-    marginBottom: 2,
-  },
-  featureDescription: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  footer: {
-    padding: 16,
-    paddingBottom: 24,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    height: 56, // Slightly taller as per design
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: COLORS.backgroundDark,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-});

@@ -16,7 +16,7 @@ import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 import { FinancialOverview } from "@/components/home/FinancialOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { Text } from "@/components/ui";
-import { getPetUpcomingEvents, getPetUpcomingVaccinations, useHomeData } from "@/lib/hooks/useHomeData";
+import { useHomeData } from "@/lib/hooks/useHomeData";
 import { useTheme } from "@/lib/theme";
 
 export default function HomeScreen() {
@@ -134,9 +134,8 @@ export default function HomeScreen() {
                 <View key={pet.id} style={styles.petCardWrapper}>
                   <PetCard
                     pet={pet}
+                    petId={pet.id}
                     onPress={() => router.push(`/pet/${pet.id}`)}
-                    upcomingEvents={getPetUpcomingEvents(pet.id, data.todayEvents)}
-                    upcomingVaccinations={getPetUpcomingVaccinations(pet.id, data.upcomingVaccinations)}
                     showActions={false}
                   />
                 </View>
@@ -144,7 +143,7 @@ export default function HomeScreen() {
               
               {/* Add Pet Button */}
               <TouchableOpacity
-                onPress={() => router.push("/pet/add")}
+                onPress={() => router.push("/(tabs)/pets")}
                 style={[styles.addPetButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }]}
               >
                 <View style={[styles.addPetIconContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
@@ -161,7 +160,7 @@ export default function HomeScreen() {
               title={t("home.noPetsYet")}
               description={t("pets.addFirstPetDescription")}
               actionLabel={t("pets.addFirstPet")}
-              onAction={() => router.push("/pet/add")}
+              onAction={() => router.push("/(tabs)/pets")}
             />
           )}
         </View>
@@ -184,7 +183,7 @@ export default function HomeScreen() {
       </ScrollView>
 
         <TouchableOpacity
-          onPress={() => router.push("/pet/add")}
+          onPress={() => router.push("/(tabs)/pets")}
           style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         >
           <Ionicons name="add" size={32} color="#FFFFFF" />
