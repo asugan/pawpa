@@ -10,7 +10,7 @@ export const EXPENSE_CATEGORY_CONFIG: Record<ExpenseCategory, { icon: IconName; 
   toys: { icon: 'soccer', color: 'primaryContainer' },
   accessories: { icon: 'shopping', color: 'secondaryContainer' },
   training: { icon: 'school', color: 'surfaceVariant' },
-  insurance: { icon: 'shield-check', color: 'outline' },
+  insurance: { icon: 'shield-check', color: 'onSurfaceVariant' },
   emergency: { icon: 'alert-circle', color: 'errorContainer' },
   other: { icon: 'dots-horizontal', color: 'surface' },
 };
