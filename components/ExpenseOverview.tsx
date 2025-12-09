@@ -1,117 +1,75 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, Chip } from '@/components/ui';
-import { useTheme , gradients, gradientsDark } from '@/lib/theme';
+import { Card, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useExpenseStats } from '../lib/hooks/useExpenses';
-import { ExpenseCategory } from '../lib/types';
+import { useRecentExpenses } from '../lib/hooks/useRecentExpenses';
+import CompactExpenseItem from './CompactExpenseItem';
 
-interface ExpenseOverviewProps {
-  petId?: string;
-}
-
-const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
+/**
+ * ExpenseOverview - Displays the most recent 3 expenses across all pets
+ * Provides quick visibility into spending activity without budget information
+ */
+const ExpenseOverview: React.FC = () => {
   const { theme } = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
-  const { data: stats, isLoading } = useExpenseStats({ petId });
+  const { data: recentExpenses = [], isLoading } = useRecentExpenses();
 
-  const formatCurrency = (amount: number, currency: string): string => {
-    const currencySymbols: Record<string, string> = {
-      TRY: '₺',
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-    };
-
-    const symbol = currencySymbols[currency] || currency;
-    const formatted = amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-
-    return `${symbol}${formatted}`;
-  };
-
-  if (isLoading || !stats) {
+  if (isLoading || recentExpenses.length === 0) {
     return null;
   }
 
-  const topCategory = stats.byCategory.length > 0
-    ? stats.byCategory.reduce((prev: { category: ExpenseCategory; total: number; count: number }, current: { category: ExpenseCategory; total: number; count: number }) => (prev.total > current.total ? prev : current))
-    : null;
-
   return (
     <Pressable onPress={() => router.push('/(tabs)/finance')}>
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={4}>
+      <Card
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.colors.surface,
+          },
+        ]}
+        elevation={4}
+      >
         <View style={styles.cardContent}>
           <View style={styles.header}>
-            <LinearGradient
-              colors={theme.dark ? gradientsDark.accent : gradients.accent}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.iconContainer}
-            >
-              <Text style={styles.emojiIcon}>💰</Text>
-            </LinearGradient>
             <View style={styles.headerText}>
               <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-                {t('expenses.title', 'Expenses')}
+                {t('expenses.recent', 'Recent Expenses')}
               </Text>
               <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('expenses.thisMonth', 'This month')}
+                {t('expenses.lastThree', 'Last 3 expenses')}
               </Text>
             </View>
+            <MaterialCommunityIcons
+              name="history"
+              size={20}
+              color={theme.colors.onSurfaceVariant}
+              style={{ marginLeft: 8 }}
+            />
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={theme.colors.onSurfaceVariant}
+              style={{ marginLeft: 8 }}
             />
           </View>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <LinearGradient
-                colors={theme.dark ? gradientsDark.primary : gradients.primary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.amountContainer}
-              >
-                <Text variant="headlineSmall" style={[styles.statValue, { color: '#FFFFFF', fontWeight: '800' }]}>
-                  {stats.byCurrency.map((c: { currency: string; total: number }) => formatCurrency(c.total, c.currency)).join(' + ')}
-                </Text>
-                <Text variant="bodySmall" style={{ color: '#FFFFFF', opacity: 0.9, fontWeight: '600' }}>
-                  {t('expenses.totalSpent', 'Total Spent')}
-                </Text>
-              </LinearGradient>
-            </View>
-            <View style={styles.statItem}>
-              <Text variant="headlineSmall" style={{ fontWeight: '800' }}>
-                {stats.count}
-              </Text>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('expenses.transactions', 'Transactions')}
-              </Text>
-            </View>
+          <View style={styles.recentExpensesList}>
+            {recentExpenses.slice(0, 3).map((expense, index) => (
+              <View key={expense.id}>
+                <CompactExpenseItem
+                  expense={expense}
+                />
+                {index < 2 && recentExpenses.length > index + 1 && (
+                  <View style={[styles.separator, { backgroundColor: theme.colors.outlineVariant }]} />
+                )}
+              </View>
+            ))}
           </View>
-
-          {topCategory && (
-            <View style={styles.topCategory}>
-              <Chip
-                mode="flat"
-                compact
-                style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}
-                textStyle={{ fontWeight: '600' }}
-              >
-                🏷️ {String(t(`expenses.categories.${topCategory.category}`, topCategory.category))} •{' '}
-                {formatCurrency(topCategory.total, stats.byCurrency[0]?.currency || 'TRY')}
-              </Chip>
-            </View>
-          )}
         </View>
       </Card>
     </Pressable>
@@ -119,59 +77,30 @@ const ExpenseOverview: React.FC<ExpenseOverviewProps> = ({ petId }) => {
 };
 
 const styles = StyleSheet.create({
-  cardContent: {
-    padding: 16,
-  },
   card: {
     marginVertical: 8,
     borderRadius: 20,
     overflow: 'hidden',
+  },
+  cardContent: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  emojiIcon: {
-    fontSize: 24,
-  },
   headerText: {
     flex: 1,
   },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 12,
-    gap: 12,
+  recentExpensesList: {
+    gap: 0,
   },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  amountContainer: {
-    width: '100%',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  statValue: {
-    marginBottom: 4,
-  },
-  topCategory: {
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  chip: {
-    alignSelf: 'center',
+  separator: {
+    height: 1,
+    marginVertical: 2,
+    marginHorizontal: 8,
+    alignSelf: 'stretch',
   },
 });
 

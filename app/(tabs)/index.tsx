@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ProtectedRoute } from '@/components/subscription';
-import BudgetOverview from '@/components/BudgetOverview';
+import ExpenseOverview from '@/components/ExpenseOverview';
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -172,11 +172,11 @@ export default function HomeScreen() {
 
         <HealthOverview healthRecords={data.allHealthRecords || []} />
 
-        {/* Test: Add BudgetOverview to see if it works */}
-        <BudgetOverview />
+        <ExpenseOverview />
 
         {data.pets && data.pets.length > 0 && (
           <FinancialOverview
+            petId={data.pets[0]?.id} // Pass first pet's ID for budget tracking
             monthlyExpense={financial.monthlyExpense}
             monthlyBudget={financial.monthlyBudget}
             expensePercentage={financial.expensePercentage}
