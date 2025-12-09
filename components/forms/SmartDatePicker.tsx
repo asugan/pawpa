@@ -6,7 +6,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-type OutputFormat = 'iso' | 'iso-date' | 'iso-time' | 'date-object';
+type OutputFormat = 'iso' | 'iso-date' | 'iso-time' | 'date-object' | 'yyyy-mm-dd';
 
 interface SmartDatePickerProps {
   name: string;
@@ -53,6 +53,10 @@ export const SmartDatePicker = ({
       if (outputFormat === 'iso-time' || /^\d{1,2}:\d{2}$/.test(val)) {
         return parseTimeStringToDate(val) ?? new Date();
       }
+      // Handle simple date format (YYYY-MM-DD)
+      if (outputFormat === 'yyyy-mm-dd' || /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        return parseISODate(val) ?? new Date();
+      }
       // Handle ISO date/datetime format - convert from UTC to local
       if (val.includes('T')) {
         return fromUTCWithOffset(val);
@@ -72,6 +76,12 @@ export const SmartDatePicker = ({
         const utcDate = new Date(date);
         utcDate.setHours(0, 0, 0, 0);
         return toUTCWithOffset(utcDate);
+      case 'yyyy-mm-dd':
+        // Return simple date string in YYYY-MM-DD format (local date)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
       case 'iso-time':
         return toTimeString(date) ?? date.toISOString().split('T')[1].slice(0, 5);
       case 'date-object':

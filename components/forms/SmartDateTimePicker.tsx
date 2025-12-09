@@ -42,14 +42,57 @@ export const SmartDateTimePicker = ({
 
   const locale = i18n.language === 'tr' ? tr : enUS;
 
+  // Helper to normalize date value to YYYY-MM-DD format
+  const normalizeDateValue = (value: string): string => {
+    if (value.includes('T')) {
+      // Handle ISO format (backward compatibility)
+      const date = new Date(value);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid ISO date value');
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    // Already in YYYY-MM-DD format from yyyy-mm-dd output
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      throw new Error('Invalid date format. Expected YYYY-MM-DD');
+    }
+    return value;
+  };
+
+  // Helper to normalize time value to HH:MM format
+  const normalizeTimeValue = (value: string): string => {
+    if (value.includes('T')) {
+      // Handle ISO format (backward compatibility)
+      const date = new Date(value);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid ISO time value');
+      }
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    // Already in HH:MM format from iso-time output
+    if (!/^\d{2}:\d{2}$/.test(value)) {
+      throw new Error('Invalid time format. Expected HH:MM');
+    }
+    return value;
+  };
+
   // Automatically combine date and time into ISO string if combinedOutputName is provided
   useEffect(() => {
     if (combinedOutputName && dateValue && timeValue) {
       try {
-        const isoDateTime = combineDateTimeToISO(dateValue, timeValue);
+        // Normalize values to expected formats
+        const normalizedDate = normalizeDateValue(dateValue);
+        const normalizedTime = normalizeTimeValue(timeValue);
+        const isoDateTime = combineDateTimeToISO(normalizedDate, normalizedTime);
         setValue(combinedOutputName, isoDateTime);
       } catch (error) {
-        console.warn('Invalid date/time combination:', error);
+        console.warn('Invalid date/time combination:', { dateValue, timeValue, error });
+        // Don't set invalid value, just log the error
       }
     }
   }, [dateValue, timeValue, combinedOutputName, setValue]);
@@ -58,21 +101,55 @@ export const SmartDateTimePicker = ({
   const getCombinedDateTime = () => {
     if (!dateValue || !timeValue) return null;
 
-    const [year, month, day] = dateValue.split('-').map(Number);
-    const [hours, minutes] = timeValue.split(':').map(Number);
+    try {
+      // Use the normalize helpers to ensure proper format
+      const normalizedDate = normalizeDateValue(dateValue);
+      const normalizedTime = normalizeTimeValue(timeValue);
 
-    const date = new Date(year, month - 1, day, hours, minutes);
-    return date;
+      // Parse the normalized values
+      const [year, month, day] = normalizedDate.split('-').map(Number);
+      const [hours, minutes] = normalizedTime.split(':').map(Number);
+
+      const date = new Date(year, month - 1, day, hours, minutes);
+
+      // Validate the date
+      if (isNaN(date.getTime())) {
+        console.error('Invalid combined date:', { year, month, day, hours, minutes });
+        return null;
+      }
+
+      return date;
+    } catch (error) {
+      console.error('Error in getCombinedDateTime:', error);
+      return null;
+    }
   };
 
   const formatDateTimeDisplay = () => {
     if (!dateValue || !timeValue) return '';
 
-    const [year, month, day] = dateValue.split('-').map(Number);
-    const [hours, minutes] = timeValue.split(':').map(Number);
+    try {
+      // Use the normalize helpers to ensure proper format
+      const normalizedDate = normalizeDateValue(dateValue);
+      const normalizedTime = normalizeTimeValue(timeValue);
 
-    const date = new Date(year, month - 1, day, hours, minutes);
-    return format(date, 'dd MMMM yyyy HH:mm', { locale });
+      // Parse the normalized values
+      const [year, month, day] = normalizedDate.split('-').map(Number);
+      const [hours, minutes] = normalizedTime.split(':').map(Number);
+
+      const date = new Date(year, month - 1, day, hours, minutes);
+
+      // Validate the date before formatting
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date constructed:', { year, month, day, hours, minutes });
+        return '';
+      }
+
+      return format(date, 'dd MMMM yyyy HH:mm', { locale });
+    } catch (error) {
+      console.error('Error in formatDateTimeDisplay:', error);
+      return '';
+    }
   };
 
   return (
@@ -97,7 +174,7 @@ export const SmartDateTimePicker = ({
             disabled={disabled}
             testID={`${testID}-date`}
             mode="date"
-            outputFormat="iso-date"
+            outputFormat="yyyy-mm-dd"
           />
         </View>
 
