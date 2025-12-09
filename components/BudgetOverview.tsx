@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useBudgetAlerts } from '../lib/hooks/useBudgets';
+import { useRecentExpenses } from '../lib/hooks/useRecentExpenses';
+import CompactExpenseItem from './CompactExpenseItem';
 
 interface BudgetOverviewProps {
   petId?: string;
@@ -18,6 +20,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
   const router = useRouter();
 
   const { data: alerts = [], isLoading } = useBudgetAlerts(petId);
+  const { data: recentExpenses = [] } = useRecentExpenses();
 
   const formatCurrency = (amount: number, currency: string): string => {
     const currencySymbols: Record<string, string> = {
@@ -76,14 +79,6 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
       >
         <View style={styles.cardContent}>
           <View style={styles.header}>
-            <LinearGradient
-              colors={theme.dark ? gradientsDark.tertiary : gradients.tertiary}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.iconContainer}
-            >
-              <Text style={styles.emojiIcon}>📊</Text>
-            </LinearGradient>
             <View style={styles.headerText}>
               <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
                 {t('budgets.title', 'Budgets')}
@@ -165,13 +160,47 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ petId }) => {
             </View>
           ) : (
             <View style={styles.noBudgets}>
-              <Text style={styles.bigEmoji}>✅</Text>
+              <View style={[styles.checkIconContainer, { backgroundColor: theme.colors.secondary }]}>
+                <MaterialCommunityIcons
+                  name="check-circle"
+                  size={32}
+                  color={theme.colors.onSecondary}
+                />
+              </View>
               <Text
                 variant="bodyMedium"
                 style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}
               >
                 {t('budgets.allGood', 'All budgets are on track')}
               </Text>
+            </View>
+          )}
+
+          {/* Recent Expenses Section */}
+          {recentExpenses.length > 0 && (
+            <View style={styles.recentExpensesSection}>
+              <View style={styles.recentExpensesHeader}>
+                <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {t('expenses.recent', 'Recent Expenses')}
+                </Text>
+                <MaterialCommunityIcons
+                  name="history"
+                  size={16}
+                  color={theme.colors.onSurfaceVariant}
+                />
+              </View>
+              <View style={styles.recentExpensesList}>
+                {recentExpenses.map((expense, index) => (
+                  <View key={expense.id}>
+                    <CompactExpenseItem
+                      expense={expense}
+                    />
+                    {index < recentExpenses.length - 1 && (
+                      <View style={[styles.separator, { backgroundColor: theme.colors.outlineVariant }]} />
+                    )}
+                  </View>
+                ))}
+              </View>
             </View>
           )}
         </View>
@@ -193,17 +222,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  emojiIcon: {
-    fontSize: 24,
   },
   headerText: {
     flex: 1,
@@ -237,8 +255,34 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     gap: 8,
   },
-  bigEmoji: {
-    fontSize: 48,
+  checkIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recentExpensesSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  recentExpensesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  recentExpensesList: {
+    gap: 0,
+  },
+  separator: {
+    height: 1,
+    marginVertical: 2,
+    marginHorizontal: 8,
+    alignSelf: 'stretch',
   },
 });
 
