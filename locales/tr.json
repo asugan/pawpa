@@ -122,7 +122,16 @@
     "selectPetToViewRecordsMessage": "Sağlık kayıtlarını görüntülemek için bir evcil hayvan seçin",
     "noRecordsShort": "Sağlık Kaydı Yok",
     "noRecordsMessage": "Henüz sağlık kaydı eklenmemiş",
-    "addFirstRecord": "İlk Sağlık Kaydını Ekle"
+    "addFirstRecord": "İlk Sağlık Kaydını Ekle",
+    "types": {
+      "vaccination": "Aşı",
+      "checkup": "Kontrol",
+      "medication": "İlaç",
+      "surgery": "Cerrahi",
+      "dental": "Diş",
+      "grooming": "Bakım",
+      "other": "Diğer"
+    }
   },
   "healthRecords": {
     "title": "Sağlık Kaydı",
@@ -190,6 +199,7 @@
     }
   },
   "events": {
+    "status": "Durum",
     "upcoming": "Yaklaşan Etkinlikler",
     "today": "Bugün",
     "addEvent": "Etkinlik Ekle",
@@ -214,7 +224,6 @@
     "reminder": "Hatırlatıcı",
     "reminderEnabled": "Hatırlatıcı aktif",
     "notes": "Notlar",
-    "status": "Durum",
     "statusUpcoming": "Yaklaşan",
     "statusCompleted": "Tamamlandı",
     "statusCancelled": "İptal Edildi",
@@ -275,6 +284,7 @@
   },
   "upcomingEvents": {
     "viewAll": "Tümünü Görüntüle",
+    "viewAllEvents": "Tüm Etkinlikleri Görüntüle",
     "noUpcomingTitle": "Yaklaşan Etkinlik Yok",
     "noUpcomingMessage": "Şu anda yaklaşan bir etkinlik bulunmamaktadır",
     "refresh": "Yenile",
@@ -376,7 +386,8 @@
     "dateInformation": "Tarih Bilgileri",
     "days": "gün",
     "notSpecified": "Belirtilmemiş",
-    "optional": "Opsiyonel"
+    "optional": "Opsiyonel",
+    "daysAgo": "{{count}} gün önce"
   },
   "errors": {
     "loadingFailed": "Yükleme Başarısız"
@@ -623,6 +634,8 @@
     "noExpenses": "Henüz harcama yok",
     "noExpensesMessage": "Evcil hayvan harcamalarınızı takip etmeye başlayın",
     "addExpense": "Harcama Ekle",
+    "recent": "Son Harcamalar",
+    "lastThree": "Son 3 harcama",
     "featureComingSoon": "Özellik yakında gelecek",
     "totalSpent": "Toplam Harcama",
     "totalExpenses": "Toplam Harcama Sayısı",

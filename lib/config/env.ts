@@ -1,49 +1,58 @@
 // Environment configuration for PawPa app
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
-  API_BASE_URL: __DEV__ ? 'https://a41a992b349c.ngrok-free.app' : 'https://your-production-api.com',
+  API_BASE_URL: __DEV__
+    ? "https://fe5a2d734988.ngrok-free.app"
+    : "https://your-production-api.com",
 
   // Auth configuration
   AUTH: {
-    SCHEME: 'pawpa',
-    STORAGE_PREFIX: 'pawpa-auth',
+    SCHEME: "pawpa",
+    STORAGE_PREFIX: "pawpa-auth",
   },
 
   // API Endpoints
   ENDPOINTS: {
     // Pet endpoints
-    PETS: '/api/pets',
+    PETS: "/api/pets",
     PET_BY_ID: (id: string) => `/api/pets/${id}`,
     PET_PHOTO: (id: string) => `/api/pets/${id}/photo`,
 
     // Health record endpoints
-    HEALTH_RECORDS: '/api/health-records',
-    HEALTH_RECORDS_BY_PET: (petId: string) => `/api/pets/${petId}/health-records`,
+    HEALTH_RECORDS: "/api/health-records",
+    HEALTH_RECORDS_BY_PET: (petId: string) =>
+      `/api/pets/${petId}/health-records`,
     HEALTH_RECORD_BY_ID: (id: string) => `/api/health-records/${id}`,
-    UPCOMING_VACCINATIONS: '/api/health-records/upcoming',
+    UPCOMING_VACCINATIONS: "/api/health-records/upcoming",
 
     // Event endpoints
-    EVENTS: '/api/events',
+    EVENTS: "/api/events",
     EVENTS_BY_PET: (petId: string) => `/api/pets/${petId}/events`,
     EVENT_BY_ID: (id: string) => `/api/events/${id}`,
     EVENTS_BY_DATE: (date: string) => `/api/events/calendar/${date}`,
-    UPCOMING_EVENTS: '/api/events/upcoming',
-    TODAY_EVENTS: '/api/events/today',
+    UPCOMING_EVENTS: "/api/events/upcoming",
+    TODAY_EVENTS: "/api/events/today",
 
     // Feeding schedule endpoints
-    FEEDING_SCHEDULES: '/api/feeding-schedules',
-    FEEDING_SCHEDULES_BY_PET: (petId: string) => `/api/pets/${petId}/feeding-schedules`,
+    FEEDING_SCHEDULES: "/api/feeding-schedules",
+    FEEDING_SCHEDULES_BY_PET: (petId: string) =>
+      `/api/pets/${petId}/feeding-schedules`,
     FEEDING_SCHEDULE_BY_ID: (id: string) => `/api/feeding-schedules/${id}`,
-    ACTIVE_FEEDING_SCHEDULES: '/api/feeding-schedules/active',
-    TODAY_FEEDING_SCHEDULES: '/api/feeding-schedules/today',
-    NEXT_FEEDING: '/api/feeding-schedules/next',
+    ACTIVE_FEEDING_SCHEDULES: "/api/feeding-schedules/active",
+    TODAY_FEEDING_SCHEDULES: "/api/feeding-schedules/today",
+    NEXT_FEEDING: "/api/feeding-schedules/next",
+
+    // User Budget endpoints (NEW SIMPLIFIED SYSTEM)
+    BUDGET: "/api/budget",
+    BUDGET_STATUS: "/api/budget/status",
+    BUDGET_ALERTS: "/api/budget/alerts",
 
     // Subscription endpoints
-    SUBSCRIPTION_STATUS: '/api/subscription/status', // Unified status endpoint
-    SUBSCRIPTION_TRIAL_STATUS: '/api/subscription/trial-status', // Deprecated
-    SUBSCRIPTION_START_TRIAL: '/api/subscription/start-trial',
-    SUBSCRIPTION_CHECK_DEVICE: '/api/subscription/check-device',
-    SUBSCRIPTION_DEACTIVATE_TRIAL: '/api/subscription/deactivate-trial', // Deprecated
+    SUBSCRIPTION_STATUS: "/api/subscription/status", // Unified status endpoint
+    SUBSCRIPTION_TRIAL_STATUS: "/api/subscription/trial-status", // Deprecated
+    SUBSCRIPTION_START_TRIAL: "/api/subscription/start-trial",
+    SUBSCRIPTION_CHECK_DEVICE: "/api/subscription/check-device",
+    SUBSCRIPTION_DEACTIVATE_TRIAL: "/api/subscription/deactivate-trial", // Deprecated
   },
 
   // Request timeout

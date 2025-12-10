@@ -8,7 +8,7 @@ import { CreateExpenseInput, Expense } from '../lib/types';
 
 interface ExpenseFormModalProps {
   visible: boolean;
-  petId: string;
+  petId?: string;
   expense?: Expense;
   onDismiss: () => void;
   onSubmit: (data: CreateExpenseInput) => void;

@@ -18,6 +18,9 @@ export interface SubscriptionState {
   // RevenueCat customer info (only for purchase operations, not status)
   customerInfo: CustomerInfo | null;
 
+  // Trial activation state
+  isTrialActivating: boolean;
+
   // SDK state
   isInitialized: boolean;
   isLoading: boolean;
@@ -33,6 +36,7 @@ export interface SubscriptionActions {
 
   // Trial management
   startTrial: () => Promise<boolean>;
+  startTrialOptimistic: () => Promise<boolean>;
 
   // Computed getters (from backend status)
   isProUser: () => boolean;
@@ -66,6 +70,7 @@ const initialState: SubscriptionState = {
   isStatusLoading: false,
   statusError: null,
   customerInfo: null,
+  isTrialActivating: false,
   isInitialized: false,
   isLoading: false,
   error: null,
@@ -120,6 +125,47 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Trial başlatılamadı';
         set({ statusError: errorMessage, isStatusLoading: false });
+        console.error('[Subscription] Error starting trial:', error);
+        return false;
+      }
+    },
+
+    // Start trial with optimistic UI updates
+    startTrialOptimistic: async () => {
+      set({ isStatusLoading: true, statusError: null, isTrialActivating: true });
+      try {
+        const response = await subscriptionApiService.startTrial();
+        if (response.success && response.data) {
+          console.log('[Subscription] Trial started:', response.data.subscription);
+
+          // Optimistically update state before refresh
+          const currentStatus = get().subscriptionStatus;
+          if (currentStatus) {
+            set({
+              subscriptionStatus: {
+                ...currentStatus,
+                hasActiveSubscription: true,
+                subscriptionType: 'trial',
+                canStartTrial: false,
+                expiresAt: response.data.subscription.expiresAt,
+                daysRemaining: 7, // Default trial days
+              },
+              isStatusLoading: false,
+              isTrialActivating: false,
+            });
+          }
+
+          // Then refresh to get accurate data
+          await get().fetchSubscriptionStatus();
+          return true;
+        } else {
+          set({ statusError: response.error as string, isStatusLoading: false, isTrialActivating: false });
+          console.error('[Subscription] Failed to start trial:', response.error);
+          return false;
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Trial başlatılamadı';
+        set({ statusError: errorMessage, isStatusLoading: false, isTrialActivating: false });
         console.error('[Subscription] Error starting trial:', error);
         return false;
       }
@@ -230,6 +276,7 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
         isStatusLoading: false,
         statusError: null,
         customerInfo: null,
+        isTrialActivating: false,
         isInitialized: false,
         error: null,
       });

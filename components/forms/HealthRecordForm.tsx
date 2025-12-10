@@ -22,9 +22,10 @@ import { SmartCurrencyInput } from './SmartCurrencyInput';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartInput } from './SmartInput';
 import { SmartSegmentedButtons } from './SmartSegmentedButtons';
+import { PetSelector } from './PetSelector';
 
 interface HealthRecordFormProps {
-  petId: string;
+  petId?: string;
   visible: boolean;
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -46,7 +47,7 @@ export function HealthRecordForm({
   const isEditing = !!initialData;
 
   // Use the custom hook for form management
-  const { form, handleSubmit, reset, watch } = useHealthRecordForm(petId, initialData);
+  const { form, handleSubmit, reset, watch } = useHealthRecordForm(petId || '', initialData);
 
   // Watch form values for conditional rendering
   const watchedType = watch('type');
@@ -55,22 +56,22 @@ export function HealthRecordForm({
   // Reset form when modal visibility changes
   React.useEffect(() => {
     if (visible) {
-      reset(
-        initialData
-          ? ({
-              petId,
-              type: initialData.type,
-              title: initialData.title || '',
-              description: initialData.description || '',
-              date: initialData.date,
-              veterinarian: initialData.veterinarian || '',
-              clinic: initialData.clinic || '',
-              cost: initialData.cost || undefined,
-              notes: initialData.notes || '',
-              nextDueDate: initialData.nextDueDate || undefined,
-            } as HealthRecordCreateInput)
-          : undefined
-      );
+      if (initialData) {
+        reset({
+          petId: initialData.petId,
+          type: initialData.type,
+          title: initialData.title || '',
+          description: initialData.description || '',
+          date: initialData.date,
+          veterinarian: initialData.veterinarian || '',
+          clinic: initialData.clinic || '',
+          cost: initialData.cost || undefined,
+          notes: initialData.notes || '',
+          nextDueDate: initialData.nextDueDate || undefined,
+        } as HealthRecordCreateInput);
+      } else {
+        reset(undefined);
+      }
     }
   }, [visible, initialData, reset, petId]);
 
@@ -126,6 +127,17 @@ export function HealthRecordForm({
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               <Card style={styles.card}>
                 <View style={styles.cardContent}>
+                  {/* Pet Selection */}
+                  {!isEditing && (
+                    <FormSection title={t('healthRecords.petSelection')}>
+                      <PetSelector
+                        selectedPetId={watch('petId')}
+                        onPetSelect={(petId) => form.setValue('petId', petId)}
+                        error={form.formState.errors.petId?.message}
+                      />
+                    </FormSection>
+                  )}
+
                   {/* Form Header */}
                   <FormSection
                     title={isEditing ? t('healthRecords.editTitle') : t('healthRecords.createTitle')}

@@ -16,6 +16,7 @@ import { restorePurchases as restorePurchasesApi } from "@/lib/revenuecat/initia
 const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_BASE = 1000; // 1 second base delay
+const TRIAL_START_BYPASS_KEY = 'trial-start-in-progress';
 
 /**
  * Subscription status type
@@ -63,6 +64,7 @@ export interface UseSubscriptionReturn {
   checkEntitlement: (entitlementId?: string) => boolean;
   startTrial: () => Promise<boolean>;
   refreshSubscriptionStatus: () => Promise<void>;
+  refreshSubscriptionStatusImmediate: () => Promise<void>;
 }
 
 /**
@@ -489,11 +491,23 @@ export function useSubscription(): UseSubscriptionReturn {
   );
 
   /**
-   * Start the free trial (via backend)
-   * Returns true if trial was started successfully
+   * Start trial with immediate status refresh (bypasses rate limiting)
    */
   const startTrialAction = useCallback(async (): Promise<boolean> => {
-    return await startTrial();
+    // Mark trial start in progress
+    localStorage.setItem(TRIAL_START_BYPASS_KEY, Date.now().toString());
+
+    const success = await startTrial();
+
+    if (success) {
+      // Immediate refresh bypassing rate limiting
+      await refreshSubscriptionStatusImmediate();
+    }
+
+    // Clear bypass flag
+    localStorage.removeItem(TRIAL_START_BYPASS_KEY);
+
+    return success;
   }, [startTrial]);
 
   /**
@@ -558,6 +572,18 @@ export function useSubscription(): UseSubscriptionReturn {
     }
   }, [fetchSubscriptionStatus]);
 
+  /**
+   * Immediate refresh that bypasses rate limiting for trial activation
+   */
+  const refreshSubscriptionStatusImmediate = useCallback(async (): Promise<void> => {
+    // Bypass rate limiting and circuit breaker for trial activation
+    isFetchingRef.current = false;
+    retryCountRef.current = 0;
+    lastRequestTimeRef.current = 0;
+
+    await fetchSubscriptionStatus();
+  }, [fetchSubscriptionStatus]);
+
   return {
     // Status (from backend)
     isProUser: isProUserValue,
@@ -596,5 +622,6 @@ export function useSubscription(): UseSubscriptionReturn {
     checkEntitlement,
     startTrial: startTrialAction,
     refreshSubscriptionStatus,
+    refreshSubscriptionStatusImmediate,
   };
 }

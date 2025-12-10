@@ -44,6 +44,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   // Track if we've started trial initialization to prevent double-calls
   const trialInitRef = useRef(false);
 
+  // Track trial activation state to prevent race conditions
+  const isActivatingTrialRef = useRef(false);
+
   /**
    * Handle CustomerInfo updates from RevenueCat
    * After update, also refresh backend status
@@ -94,7 +97,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
     try {
       console.log('[SubscriptionProvider] Initializing subscription status for authenticated user');
-      
+
       // Fetch current subscription status from backend
       await fetchSubscriptionStatus();
 
@@ -102,12 +105,23 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       const currentStatus = useSubscriptionStore.getState().subscriptionStatus;
 
       // If user can start a trial (new user, device not used before), auto-start it
-      if (currentStatus?.canStartTrial) {
+      if (currentStatus?.canStartTrial && !isActivatingTrialRef.current) {
         console.log('[SubscriptionProvider] New user detected, starting trial...');
-        await startTrial();
+        isActivatingTrialRef.current = true;
+
+        const success = await startTrial();
+
+        if (success) {
+          // Immediate refresh without rate limiting using the store method
+          const store = useSubscriptionStore.getState();
+          await store.fetchSubscriptionStatus();
+        }
+
+        isActivatingTrialRef.current = false;
       }
     } catch (error) {
       console.error('[SubscriptionProvider] Error initializing subscription status:', error);
+      isActivatingTrialRef.current = false;
       // Don't rethrow - allow app to continue even if subscription check fails
     }
   }, [isAuthenticated, isPending, fetchSubscriptionStatus, startTrial]);

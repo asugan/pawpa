@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ProtectedRoute } from '@/components/subscription';
-import ExpenseOverview from '@/components/ExpenseOverview';
+import { ProtectedRoute } from "@/components/subscription";
+import ExpenseOverview from "@/components/ExpenseOverview";
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -14,7 +14,7 @@ import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { UpcomingEventsSection } from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
-import { FinancialOverview } from "@/components/home/FinancialOverview";
+import { SimpleBudgetOverview } from "@/components/home/SimpleBudgetOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { Text } from "@/components/ui";
 import { useHomeData } from "@/lib/hooks/useHomeData";
@@ -24,13 +24,15 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  
+
   // Tüm mantık useHomeData hook'unda toplandı
-  const { user, layout, data, financial, status } = useHomeData();
+  const { user, layout, data, status } = useHomeData();
 
   if (status.isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <LoadingSpinner />
       </SafeAreaView>
     );
@@ -38,7 +40,9 @@ export default function HomeScreen() {
 
   if (status.error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <EmptyState
           icon="alert-circle"
           title={t("common.error")}
@@ -51,48 +55,56 @@ export default function HomeScreen() {
   }
 
   return (
-    <ProtectedRoute featureName={t('navigation.home')}>
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <ScrollView
-        style={[styles.scrollView, { padding: layout.scrollPadding }]}
-        showsVerticalScrollIndicator={false}
+    <ProtectedRoute featureName={t("navigation.home")}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <HomeHeader 
-          user={user} 
-          petsCount={data.pets?.length || 0} 
-          eventsCount={data.todayEvents?.length || 0} 
-        />
+        <ScrollView
+          style={[styles.scrollView, { padding: layout.scrollPadding }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <HomeHeader
+            user={user}
+            petsCount={data.pets?.length || 0}
+            eventsCount={data.todayEvents?.length || 0}
+          />
 
-        {/* Stats Dashboard */}
-        <View style={layout.layoutMode === 'horizontal-scroll' ? styles.statsScrollView : styles.statsGrid}>
-            {layout.layoutMode === 'horizontal-scroll' ? (
-               <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.statsContainer}
-                >
-                  <StatCard
-                    title={t("home.totalPets")}
-                    value={data.pets?.length || 0}
-                    icon="paw"
-                    color={theme.colors.primary}
-                    onPress={() => router.push("/(tabs)/pets")}
-                  />
-                  <StatCard
-                    title={t("events.today")}
-                    value={data.todayEvents?.length || 0}
-                    icon="calendar"
-                    color={theme.colors.primary}
-                    onPress={() => router.push("/(tabs)/calendar")}
-                  />
-                  <StatCard
-                    title={t("health.upcomingVaccinations")}
-                    value={data.upcomingVaccinations?.length || 0}
-                    icon="needle"
-                    color={theme.colors.primary}
-                    onPress={() => router.push("/(tabs)/care")}
-                  />
-                </ScrollView>
+          {/* Stats Dashboard */}
+          <View
+            style={
+              layout.layoutMode === "horizontal-scroll"
+                ? styles.statsScrollView
+                : styles.statsGrid
+            }
+          >
+            {layout.layoutMode === "horizontal-scroll" ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.statsContainer}
+              >
+                <StatCard
+                  title={t("home.totalPets")}
+                  value={data.pets?.length || 0}
+                  icon="paw"
+                  color={theme.colors.primary}
+                  onPress={() => router.push("/(tabs)/pets")}
+                />
+                <StatCard
+                  title={t("events.today")}
+                  value={data.todayEvents?.length || 0}
+                  icon="calendar"
+                  color={theme.colors.primary}
+                  onPress={() => router.push("/(tabs)/calendar")}
+                />
+                <StatCard
+                  title={t("health.upcomingVaccinations")}
+                  value={data.upcomingVaccinations?.length || 0}
+                  icon="needle"
+                  color={theme.colors.primary}
+                  onPress={() => router.push("/(tabs)/care")}
+                />
+              </ScrollView>
             ) : (
               <>
                 <StatCard
@@ -121,70 +133,87 @@ export default function HomeScreen() {
                 />
               </>
             )}
-        </View>
+          </View>
 
-        {/* My Pets Section */}
-        <View style={styles.section}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
-            {t("home.myPets")}
-          </Text>
+          {/* My Pets Section */}
+          <View style={styles.section}>
+            <Text
+              variant="titleLarge"
+              style={[
+                styles.sectionTitle,
+                { color: theme.colors.onBackground },
+              ]}
+            >
+              {t("home.myPets")}
+            </Text>
 
-          {data.pets && data.pets.length > 0 ? (
-            <View style={styles.petList}>
-              {data.pets.map((pet) => (
-                <View key={pet.id} style={styles.petCardWrapper}>
-                  <PetCard
-                    pet={pet}
-                    petId={pet.id}
-                    onPress={() => router.push(`/pet/${pet.id}`)}
-                    showActions={false}
-                  />
-                </View>
-              ))}
-              
-              {/* Add Pet Button */}
-              <TouchableOpacity
-                onPress={() => router.push("/(tabs)/pets")}
-                style={[styles.addPetButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }]}
-              >
-                <View style={[styles.addPetIconContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
-                  <Ionicons name="add" size={24} color={theme.colors.onSurfaceVariant} />
-                </View>
-                <Text variant="titleMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {t("pets.addNewPet")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <EmptyState
-              icon="paw"
-              title={t("home.noPetsYet")}
-              description={t("pets.addFirstPetDescription")}
-              actionLabel={t("pets.addFirstPet")}
-              onAction={() => router.push("/(tabs)/pets")}
-            />
-          )}
-        </View>
+            {data.pets && data.pets.length > 0 ? (
+              <View style={styles.petList}>
+                {data.pets.map((pet) => (
+                  <View key={pet.id} style={styles.petCardWrapper}>
+                    <PetCard
+                      pet={pet}
+                      petId={pet.id}
+                      onPress={() => router.push(`/pet/${pet.id}`)}
+                      showActions={false}
+                    />
+                  </View>
+                ))}
 
-        <View style={styles.section}>
-          <NextFeedingWidget />
-        </View>
+                {/* Add Pet Button */}
+                <TouchableOpacity
+                  onPress={() => router.push("/(tabs)/pets")}
+                  style={[
+                    styles.addPetButton,
+                    {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.outlineVariant,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.addPetIconContainer,
+                      { backgroundColor: theme.colors.surfaceVariant },
+                    ]}
+                  >
+                    <Ionicons
+                      name="add"
+                      size={24}
+                      color={theme.colors.onSurfaceVariant}
+                    />
+                  </View>
+                  <Text
+                    variant="titleMedium"
+                    style={{ color: theme.colors.onSurfaceVariant }}
+                  >
+                    {t("pets.addNewPet")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <EmptyState
+                icon="paw"
+                title={t("home.noPetsYet")}
+                description={t("pets.addFirstPetDescription")}
+                actionLabel={t("pets.addFirstPet")}
+                onAction={() => router.push("/(tabs)/pets")}
+              />
+            )}
+          </View>
 
-        <HealthOverview healthRecords={data.allHealthRecords || []} />
+          <View style={styles.section}>
+            <NextFeedingWidget />
+          </View>
 
-        <ExpenseOverview />
+          <HealthOverview healthRecords={data.allHealthRecords || []} />
 
-        {data.pets && data.pets.length > 0 && (
-          <FinancialOverview
-            petId={data.pets[0]?.id} // Pass first pet's ID for budget tracking
-            monthlyExpense={financial.monthlyExpense}
-            monthlyBudget={financial.monthlyBudget}
-            expensePercentage={financial.expensePercentage}
-          />
-        )}
+          <ExpenseOverview />
 
-        <UpcomingEventsSection />
-      </ScrollView>
+          <SimpleBudgetOverview />
+
+          <UpcomingEventsSection />
+        </ScrollView>
 
         <TouchableOpacity
           onPress={() => router.push("/(tabs)/pets")}
@@ -202,7 +231,7 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   statsScrollView: { marginBottom: 24 },
   statsContainer: { gap: 12, paddingHorizontal: 0 },
-  statsGrid: { flexDirection: 'row', gap: 12, marginBottom: 24 },
+  statsGrid: { flexDirection: "row", gap: 12, marginBottom: 24 },
   section: { marginBottom: 24 },
   sectionTitle: { fontWeight: "600", marginBottom: 16 },
   petList: { gap: 12 },

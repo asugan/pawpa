@@ -1,5 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { expenseService } from '../services/expenseService';
+import { petService } from '../services/petService';
 import type { CreateExpenseInput, Expense, ExpenseStats, MonthlyExpense, YearlyExpense, UpdateExpenseInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
@@ -61,13 +62,54 @@ export const expenseKeys = {
 
 // Hook for fetching expenses by pet ID with filters
 export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId'> = {}) {
-  return useConditionalQuery<{ expenses: Expense[]; total: number }>({
+  return useQuery({
     queryKey: expenseKeys.list({ petId, ...filters }),
-    queryFn: () => expenseService.getExpensesByPetId(petId!, filters),
+    initialData: { expenses: [], total: 0 },
+    queryFn: async () => {
+      if (!petId) {
+        // If no petId, fetch all pets and combine their expenses
+        const petsResult = await petService.getPets();
+        if (!petsResult.success) {
+          throw new Error('Pets could not be loaded');
+        }
+
+        const pets = petsResult.data || [];
+        const allExpenses = await Promise.all(
+          pets.map(async (pet: any) => {
+            const result = await expenseService.getExpensesByPetId(pet.id, filters);
+            return result.success ? (result.data?.expenses || []) : [];
+          })
+        );
+
+        // Combine and sort by date (newest first)
+        const combined = allExpenses.flat().sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA; // Newest first
+        });
+        const total = combined.length;
+
+        // Apply pagination manually
+        const page = filters.page || 1;
+        const limit = filters.limit || 20;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        const paginated = combined.slice(startIndex, endIndex);
+
+        return {
+          expenses: paginated,
+          total
+        };
+      } else {
+        const result = await expenseService.getExpensesByPetId(petId, filters);
+        if (!result.success) {
+          throw new Error('Failed to load expenses');
+        }
+        return result.data || { expenses: [], total: 0 };
+      }
+    },
     staleTime: CACHE_TIMES.SHORT,
-    enabled: !!petId,
-    defaultValue: { expenses: [], total: 0 },
-    errorMessage: 'Failed to load expenses',
+    placeholderData: (previousData) => previousData, // Important for pagination
   });
 }
 

@@ -11,6 +11,8 @@ Pawpa is a modern pet management application built with React Native and Expo, d
 - 🐕 **Pet Profile Management** - Create and manage profiles for all your pets
 - 🏥 **Health Records** - Track vaccinations, medications, and vet visits
 - 📅 **Event Tracking** - Schedule and remember important pet events
+- 💰 **Simplified Budget Management** - Single user-level monthly budget with pet spending breakdown
+- 💳 **Expense Tracking** - Monitor and categorize pet-related expenses with multi-currency support
 - 🌍 **Multi-language Support** - English and Turkish languages
 - 🌙 **Dark Mode** - Beautiful light and dark theme support
 - 🔐 **Secure Authentication** - Better Auth integration for secure login
@@ -19,20 +21,24 @@ Pawpa is a modern pet management application built with React Native and Expo, d
 ## 🛠 Tech Stack
 
 ### Core Technologies
+
 - **React Native 0.81.5** with Expo SDK ~54.0.20
 - **TypeScript** with strict mode for type safety
 - **Expo Router** for file-based navigation
 
 ### State Management
+
 - **Zustand** for client state management
 - **TanStack Query** for server state with mobile-optimized caching
 
 ### Development & Build
+
 - **ESLint** for code quality
 - **EAS Build** for deployment
 - **TypeScript Path Aliases** for clean imports
 
 ### Third-party Integrations
+
 - **Better Auth** for authentication
 - **RevenueCat** for subscription management
 - **i18next** for internationalization
@@ -56,8 +62,14 @@ pawpa/
 │   ├── api/              # API client and endpoints
 │   ├── auth/             # Authentication utilities
 │   ├── hooks/            # Custom React hooks
+│   │   ├── useUserBudget.ts    # Simplified budget management hooks
+│   │   └── ...                  # Other feature hooks
 │   ├── services/         # Business logic services
+│   │   ├── userBudgetService.ts # Simplified budget API service
+│   │   └── ...                  # Other feature services
 │   ├── schemas/          # Zod validation schemas
+│   │   ├── userBudgetSchema.ts  # Budget validation schemas
+│   │   └── ...                  # Other feature schemas
 │   ├── theme/            # Theme system
 │   ├── types.ts          # Central TypeScript definitions
 │   └── i18n.ts           # Internationalization setup
@@ -80,12 +92,14 @@ pawpa/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/pawpa.git
    cd pawpa
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -132,31 +146,75 @@ npm run reset-project
 ## 🌐 Features Overview
 
 ### Navigation
+
 - File-based routing with Expo Router
 - Route groups for authentication (`(auth)`) and main app (`(tabs)`)
 - Modal presentation for subscription screen
 - Deep linking with `pawpa://` scheme
 
 ### Internationalization
+
 - Support for English and Turkish languages
 - Namespace-based translations in `locales/`
 - Dynamic language switching via Zustand store
 
 ### Theme System
+
 - Custom light/dark theme implementation
 - System-responsive theme switching
 - Zustand store for theme state
 
 ### API Integration
+
 - Axios-based client with interceptors
 - Mobile-optimized TanStack Query configuration
 - Intelligent caching and retry logic for mobile networks
 
+### Budget System (New Simplified Architecture)
+
+- **User-Level Budgets**: Single monthly budget per user covering all pets
+- **Pet Spending Breakdown**: Detailed expense analysis per pet within the unified budget
+- **Real-Time Alerts**: Configurable alert thresholds with automatic notifications
+- **Multi-Currency Support**: Track expenses in multiple currencies with proper conversion
+- **Simplified Setup**: 2-step budget creation process (amount + alert threshold)
+- **Progress Tracking**: Visual progress bars with color-coded spending indicators
+
 ## 📱 Screenshots
 
-*[Add screenshots here when available]*
+_[Add screenshots here when available]_
 
-## 🔧 Configuration
+## 💰 Budget System
+
+The Pawpa app features a newly simplified budget management system designed for ease of use and comprehensive expense tracking.
+
+### Key Features
+
+- **Unified Budget Management**: Single budget per user instead of complex per-pet budgets
+- **Pet Expense Breakdown**: See which pets contribute most to your spending
+- **Smart Alerts**: Get notified when approaching or exceeding budget limits
+- **Multi-Currency Support**: Track expenses in TRY, USD, EUR, GBP, and more
+- **Visual Progress Tracking**: Intuitive progress bars and spending indicators
+- **Quick Setup**: Set up your monthly budget in under 60 seconds
+
+### Budget Components
+
+- **SimpleBudgetOverview**: Home screen widget for quick budget overview
+- **UserBudgetCard**: Detailed budget display with progress tracking
+- **UserBudgetForm**: Intuitive budget setup and editing interface
+
+### API Endpoints
+
+```
+GET /api/budget          # Get user's budget
+PUT /api/budget          # Set/update budget
+DELETE /api/budget       # Remove budget
+GET /api/budget/status   # Get spending status with pet breakdown
+GET /api/budget/alerts   # Check budget alerts
+```
+
+For detailed technical documentation, see [Budget Simplification Implementation Summary](docs/budget-simplification-implementation-summary.md).
+
+## � Configuration
 
 ### Environment Variables
 

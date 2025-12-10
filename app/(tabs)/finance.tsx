@@ -1,37 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
-import { Text, FAB, Snackbar, Chip, Button, Card } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { usePets } from '../../lib/hooks/usePets';
-import { useExpenses, useExpenseStats, useCreateExpense, useUpdateExpense, useDeleteExpense } from '../../lib/hooks/useExpenses';
-import { useBudgets, useBudgetAlerts, useCreateBudget, useUpdateBudget, useDeleteBudget } from '../../lib/hooks/useBudgets';
-import { useQueryClient } from '@tanstack/react-query';
-import ExpenseCard from '../../components/ExpenseCard';
-import BudgetCard from '../../components/BudgetCard';
-import ExpenseFormModal from '../../components/ExpenseFormModal';
-import BudgetFormModal from '../../components/BudgetFormModal';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import EmptyState from '../../components/EmptyState';
-import { useTranslation } from 'react-i18next';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { CreateExpenseInput, Expense, CreateBudgetLimitInput, BudgetLimit } from '../../lib/types';
-import { LAYOUT } from '../../constants';
-import { ENV } from '../../lib/config/env';
-import { ProtectedRoute } from '@/components/subscription';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  Alert,
+} from "react-native";
+import { Text, FAB, Snackbar, Chip, Button, Card, SegmentedButtons } from "@/components/ui";
+import { useTheme } from "@/lib/theme";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { usePets } from "../../lib/hooks/usePets";
+import {
+  useExpenses,
+  useExpenseStats,
+  useCreateExpense,
+  useUpdateExpense,
+  useDeleteExpense,
+  expenseKeys,
+} from "../../lib/hooks/useExpenses";
+import {
+  useUserBudget,
+  useUserBudgetStatus,
+  useSetUserBudget,
+  useDeleteUserBudget,
+} from "../../lib/hooks/useUserBudget";
+import { useQueryClient } from "@tanstack/react-query";
+import ExpenseCard from "../../components/ExpenseCard";
+import ExpenseFormModal from "../../components/ExpenseFormModal";
+import UserBudgetCard from "../../components/UserBudgetCard";
+import UserBudgetFormModal from "../../components/UserBudgetFormModal";
+import { SimpleBudgetOverview } from "../../components/home/SimpleBudgetOverview";
+import LoadingSpinner from "../../components/LoadingSpinner";
+import EmptyState from "../../components/EmptyState";
+import { useTranslation } from "react-i18next";
+import {
+  CreateExpenseInput,
+  Expense,
+  SetUserBudgetInput,
+  UserBudget,
+} from "../../lib/types";
+import { LAYOUT } from "../../constants";
+import { ENV } from "../../lib/config/env";
+import { ProtectedRoute } from "@/components/subscription";
 
-type FinanceTabValue = 'expenses' | 'budgets';
+type FinanceTabValue = 'budget' | 'expenses';
 
 export default function FinanceScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<FinanceTabValue>('expenses');
 
-  // Shared state
+  // Tab state
+  const [activeTab, setActiveTab] = useState<FinanceTabValue>('budget');
+
+  // Shared state - default to undefined to show all pets
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Expenses state
   const [expenseModalVisible, setExpenseModalVisible] = useState(false);
@@ -39,45 +64,38 @@ export default function FinanceScreen() {
   const [page, setPage] = useState(1);
   const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Budgets state
+  // Budget state
   const [budgetModalVisible, setBudgetModalVisible] = useState(false);
-  const [editingBudget, setEditingBudget] = useState<BudgetLimit | undefined>();
-  const [budgetPage, setBudgetPage] = useState(1);
-  const [allBudgets, setAllBudgets] = useState<BudgetLimit[]>([]);
-  const [budgetsHasMore, setBudgetsHasMore] = useState(true);
+  const [editingBudget, setEditingBudget] = useState<UserBudget | undefined>();
 
   // Fetch pets
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
   // Fetch expenses
-  const { data: expensesData, isLoading: expensesLoading, isFetching: expensesFetching } = useExpenses(
-    selectedPetId,
-    {
-      page,
-      limit: ENV.DEFAULT_LIMIT,
-    }
-  );
+  const {
+    data: expensesData = { expenses: [], total: 0 },
+    isLoading: expensesLoading,
+    isFetching: expensesFetching,
+  } = useExpenses(selectedPetId, {
+    page,
+    limit: ENV.DEFAULT_LIMIT,
+  });
 
   // Fetch expense stats
   const { data: expenseStats } = useExpenseStats({ petId: selectedPetId });
 
-  // Fetch budgets
-  const { data: budgetsData, isLoading: budgetsLoading, isFetching: budgetsFetching } = useBudgets(selectedPetId, {
-    page: budgetPage,
-    limit: ENV.DEFAULT_LIMIT,
-  });
-
-  // Fetch budget alerts
-  const { data: budgetAlerts = [] } = useBudgetAlerts(selectedPetId);
+  // Fetch user budget (new simplified system)
+  const { data: budget, isLoading: budgetLoading } = useUserBudget();
+  const { data: budgetStatus } = useUserBudgetStatus();
 
   // Mutations
   const createExpenseMutation = useCreateExpense();
   const updateExpenseMutation = useUpdateExpense();
   const deleteExpenseMutation = useDeleteExpense();
-  const createBudgetMutation = useCreateBudget();
-  const updateBudgetMutation = useUpdateBudget();
-  const deleteBudgetMutation = useDeleteBudget();
+  const setBudgetMutation = useSetUserBudget();
+  const deleteBudgetMutation = useDeleteUserBudget();
 
   // Effects for pagination
   useEffect(() => {
@@ -85,39 +103,16 @@ export default function FinanceScreen() {
       if (page === 1) {
         setAllExpenses(expensesData.expenses);
       } else {
-        setAllExpenses(prev => [...prev, ...expensesData.expenses]);
+        setAllExpenses((prev) => [...prev, ...expensesData.expenses]);
       }
       setHasMore(expensesData.expenses.length >= ENV.DEFAULT_LIMIT);
     }
   }, [expensesData, page]);
 
-  useEffect(() => {
-    if (budgetsData?.budgetLimits) {
-      if (budgetPage === 1) {
-        setAllBudgets(budgetsData.budgetLimits);
-      } else {
-        setAllBudgets(prev => [...prev, ...budgetsData.budgetLimits]);
-      }
-      setBudgetsHasMore(budgetsData.budgetLimits.length >= ENV.DEFAULT_LIMIT);
-    }
-  }, [budgetsData, budgetPage]);
-
-  // Reset pagination when pet changes
-  useEffect(() => {
-    setPage(1);
-    setAllExpenses([]);
-    setHasMore(true);
-    setBudgetPage(1);
-    setAllBudgets([]);
-    setBudgetsHasMore(true);
-  }, [selectedPetId]);
-
   // Expense handlers
   const handleAddExpense = () => {
-    if (selectedPetId) {
-      setEditingExpense(undefined);
-      setExpenseModalVisible(true);
-    }
+    setEditingExpense(undefined);
+    setExpenseModalVisible(true);
   };
 
   const handleEditExpense = (expense: Expense) => {
@@ -126,112 +121,100 @@ export default function FinanceScreen() {
   };
 
   const handleDeleteExpense = (expense: Expense) => {
-    Alert.alert(
-      t('expenses.deleteExpense'),
-      t('expenses.deleteConfirmation'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteExpenseMutation.mutateAsync(expense.id);
-              setSnackbarMessage(t('expenses.deleteSuccess'));
-              setSnackbarVisible(true);
-            } catch {
-              setSnackbarMessage(t('expenses.deleteError'));
-              setSnackbarVisible(true);
-            }
-          },
+    Alert.alert(t("expenses.deleteExpense"), t("expenses.deleteConfirmation"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteExpenseMutation.mutateAsync(expense.id);
+            setSnackbarMessage(t("expenses.deleteSuccess"));
+            setSnackbarVisible(true);
+          } catch {
+            setSnackbarMessage(t("expenses.deleteError"));
+            setSnackbarVisible(true);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleExpenseFormSubmit = async (data: CreateExpenseInput) => {
     try {
       if (editingExpense) {
-        await updateExpenseMutation.mutateAsync({ id: editingExpense.id, data });
-        setSnackbarMessage(t('expenses.updateSuccess'));
+        await updateExpenseMutation.mutateAsync({
+          id: editingExpense.id,
+          data,
+        });
+        setSnackbarMessage(t("expenses.updateSuccess"));
       } else {
         await createExpenseMutation.mutateAsync(data);
-        setSnackbarMessage(t('expenses.createSuccess'));
+        setSnackbarMessage(t("expenses.createSuccess"));
       }
       setExpenseModalVisible(false);
       setEditingExpense(undefined);
       setSnackbarVisible(true);
     } catch {
-      setSnackbarMessage(editingExpense ? t('expenses.updateError') : t('expenses.createError'));
+      setSnackbarMessage(
+        editingExpense ? t("expenses.updateError") : t("expenses.createError")
+      );
       setSnackbarVisible(true);
     }
   };
 
-  // Budget handlers
-  const handleAddBudget = () => {
-    if (selectedPetId) {
-      setEditingBudget(undefined);
+  // Budget handlers (new simplified system)
+  const handleSetBudget = () => {
+    setEditingBudget(budget || undefined);
+    setBudgetModalVisible(true);
+  };
+
+  const handleEditBudget = () => {
+    if (budget) {
+      setEditingBudget(budget);
       setBudgetModalVisible(true);
     }
   };
 
-  const handleEditBudget = (budget: BudgetLimit) => {
-    setEditingBudget(budget);
-    setBudgetModalVisible(true);
-  };
+  const handleDeleteBudget = () => {
+    if (!budget) return;
 
-  const handleDeleteBudget = (budget: BudgetLimit) => {
-    Alert.alert(
-      t('budgets.deleteBudget'),
-      t('budgets.deleteConfirmation'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteBudgetMutation.mutateAsync(budget.id);
-              setSnackbarMessage(t('budgets.deleteSuccess'));
-              setSnackbarVisible(true);
-            } catch {
-              setSnackbarMessage(t('budgets.deleteError'));
-              setSnackbarVisible(true);
-            }
-          },
+    Alert.alert(t("budgets.deleteBudget"), t("budgets.deleteConfirmation"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteBudgetMutation.mutateAsync();
+            setSnackbarMessage(t("budgets.deleteSuccess"));
+            setSnackbarVisible(true);
+          } catch {
+            setSnackbarMessage(t("budgets.deleteError"));
+            setSnackbarVisible(true);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
-  const handleBudgetFormSubmit = async (data: CreateBudgetLimitInput) => {
+  const handleBudgetFormSubmit = async (data: SetUserBudgetInput) => {
     try {
-      if (editingBudget) {
-        await updateBudgetMutation.mutateAsync({ id: editingBudget.id, data });
-        setSnackbarMessage(t('budgets.updateSuccess'));
-      } else {
-        await createBudgetMutation.mutateAsync(data);
-        setSnackbarMessage(t('budgets.createSuccess'));
-      }
+      await setBudgetMutation.mutateAsync(data);
       setBudgetModalVisible(false);
       setEditingBudget(undefined);
+      setSnackbarMessage(t("budgets.budgetSetSuccess"));
       setSnackbarVisible(true);
     } catch {
-      setSnackbarMessage(editingBudget ? t('budgets.updateError') : t('budgets.createError'));
+      setSnackbarMessage(t("budgets.budgetSetError"));
       setSnackbarVisible(true);
     }
   };
 
-  // Load more handlers
+  // Load more handler
   const handleLoadMoreExpenses = () => {
     if (!expensesFetching && hasMore) {
-      setPage(prev => prev + 1);
-    }
-  };
-
-  const handleLoadMoreBudgets = () => {
-    if (!budgetsFetching && budgetsHasMore) {
-      setBudgetPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
@@ -244,8 +227,8 @@ export default function FinanceScreen() {
     if (pets.length === 0) {
       return (
         <EmptyState
-          title={t('expenses.noPets')}
-          description={t('expenses.addPetFirst')}
+          title={t("expenses.noPets")}
+          description={t("expenses.addPetFirst")}
           icon="dog"
         />
       );
@@ -253,8 +236,11 @@ export default function FinanceScreen() {
 
     return (
       <View style={styles.petSelector}>
-        <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
-          {t('expenses.selectPet')}
+        <Text
+          variant="labelMedium"
+          style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}
+        >
+          {t("expenses.selectPet")}
         </Text>
         <View style={styles.petChips}>
           <Chip
@@ -262,7 +248,7 @@ export default function FinanceScreen() {
             onPress={() => setSelectedPetId(undefined)}
             textStyle={{ fontSize: 12 }}
           >
-            {t('common.all')}
+            {t("common.all")}
           </Chip>
           {pets.map((pet) => (
             <Chip
@@ -279,18 +265,52 @@ export default function FinanceScreen() {
     );
   };
 
-  // Render expenses content
-  const renderExpensesContent = () => {
-    if (!selectedPetId) {
-      return (
-        <EmptyState
-          title={t('expenses.selectPet')}
-          description={t('expenses.selectPetMessage')}
-          icon="paw"
-        />
-      );
-    }
+  // Render budget tab content
+  const renderBudgetContent = () => (
+    <View style={styles.content}>
+      <View style={styles.budgetSection}>
+        <SimpleBudgetOverview onPress={handleSetBudget} />
 
+        {/* Set Budget Button - shown when no budget exists */}
+        {!budget && !budgetLoading && (
+          <Button
+            mode="outlined"
+            onPress={handleSetBudget}
+            style={[
+              styles.setBudgetButton,
+              { borderColor: theme.colors.primary },
+            ]}
+            textColor={theme.colors.primary}
+          >
+            {t("budgets.setBudget", "Set Budget")}
+          </Button>
+        )}
+
+        {/* Budget Card with Actions - shown when budget exists */}
+        {budget && budgetStatus && (
+          <UserBudgetCard
+            budget={budget}
+            status={budgetStatus}
+            onEdit={handleEditBudget}
+            onDelete={handleDeleteBudget}
+          />
+        )}
+      </View>
+    </View>
+  );
+
+  // Render expenses tab content
+  const renderExpensesContent = () => (
+    <View style={styles.content}>
+      {renderPetSelector()}
+      <View style={styles.expensesSection}>
+        {renderExpensesList()}
+      </View>
+    </View>
+  );
+
+  // Render expenses list with responsive grid
+  const renderExpensesList = () => {
     if (expensesLoading && page === 1) {
       return <LoadingSpinner />;
     }
@@ -298,10 +318,10 @@ export default function FinanceScreen() {
     if (allExpenses.length === 0 && page === 1) {
       return (
         <EmptyState
-          title={t('expenses.noExpenses')}
-          description={t('expenses.noExpensesMessage')}
+          title={t("expenses.noExpenses")}
+          description={t("expenses.noExpensesMessage")}
           icon="cash"
-          buttonText={t('expenses.addExpense')}
+          buttonText={t("expenses.addExpense")}
           onButtonPress={handleAddExpense}
         />
       );
@@ -309,15 +329,27 @@ export default function FinanceScreen() {
 
     return (
       <ScrollView
-        style={styles.content}
+        style={styles.expensesScroll}
         contentContainerStyle={styles.listContainer}
         refreshControl={
           <RefreshControl
-            refreshing={expensesFetching}
-            onRefresh={() => {
+            refreshing={refreshing || expensesFetching}
+            onRefresh={async () => {
+              setRefreshing(true);
               setPage(1);
-              setAllExpenses([]);
-              queryClient.invalidateQueries({ queryKey: ['expenses'] });
+
+              // Don't clear allExpenses immediately - let placeholderData handle it
+
+              // Invalidate specific query instead of all expenses
+              const queryKey = expenseKeys.list({
+                petId: selectedPetId,
+                page: 1,
+                limit: ENV.DEFAULT_LIMIT
+              });
+
+              await queryClient.invalidateQueries({ queryKey });
+              await queryClient.refetchQueries({ queryKey });
+              setRefreshing(false);
             }}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
@@ -325,7 +357,9 @@ export default function FinanceScreen() {
         }
         onScroll={({ nativeEvent }) => {
           const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
+          const isCloseToBottom =
+            layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - 100;
           if (isCloseToBottom) {
             handleLoadMoreExpenses();
           }
@@ -333,170 +367,103 @@ export default function FinanceScreen() {
         scrollEventThrottle={400}
       >
         {expenseStats && (
-          <Card style={[styles.statsCard, { backgroundColor: theme.colors.surface }]}>
+          <Card
+            style={[
+              styles.statsCard,
+              { backgroundColor: theme.colors.surface },
+            ]}
+          >
             <View style={styles.statsContent}>
-              <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-                {t('expenses.totalSpent')}: {expenseStats.total || 0} {expenseStats.byCurrency?.[0]?.currency || 'TRY'}
+              <Text
+                variant="titleMedium"
+                style={{ color: theme.colors.onSurface }}
+              >
+                {t("expenses.totalSpent")}: {expenseStats.total || 0}{" "}
+                {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('expenses.average')}: {expenseStats.average || 0} {expenseStats.byCurrency?.[0]?.currency || 'TRY'}
+              <Text
+                variant="bodyMedium"
+                style={{ color: theme.colors.onSurfaceVariant }}
+              >
+                {t("expenses.average")}: {expenseStats.average || 0}{" "}
+                {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
             </View>
           </Card>
         )}
 
-        {allExpenses.map((expense) => (
-          <ExpenseCard
-            key={expense.id}
-            expense={expense}
-            onEdit={() => handleEditExpense(expense)}
-            onDelete={() => handleDeleteExpense(expense)}
-          />
-        ))}
+        <View style={styles.expensesGrid}>
+          {allExpenses.map((expense) => (
+            <ExpenseCard
+              key={expense.id}
+              expense={expense}
+              onEdit={() => handleEditExpense(expense)}
+              onDelete={() => handleDeleteExpense(expense)}
+            />
+          ))}
+        </View>
 
         {expensesFetching && page > 1 && <LoadingSpinner />}
       </ScrollView>
     );
   };
 
-  // Render budgets content
-  const renderBudgetsContent = () => {
-    if (!selectedPetId) {
-      return (
-        <EmptyState
-          title={t('budgets.selectPet')}
-          description={t('budgets.selectPetMessage')}
-          icon="paw"
-        />
-      );
-    }
-
-    if (budgetsLoading && budgetPage === 1) {
-      return <LoadingSpinner />;
-    }
-
-    if (allBudgets.length === 0 && budgetPage === 1) {
-      return (
-        <EmptyState
-          title={t('budgets.noBudgets')}
-          description={t('budgets.noBudgetsMessage')}
-          icon="wallet"
-          buttonText={t('budgets.addBudget')}
-          onButtonPress={handleAddBudget}
-        />
-      );
-    }
-
-    return (
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.listContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={budgetsFetching}
-            onRefresh={() => {
-              setBudgetPage(1);
-              setAllBudgets([]);
-              queryClient.invalidateQueries({ queryKey: ['budgets'] });
-            }}
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
-          />
-        }
-        onScroll={({ nativeEvent }) => {
-          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
-          if (isCloseToBottom) {
-            handleLoadMoreBudgets();
-          }
-        }}
-        scrollEventThrottle={400}
-      >
-        {budgetAlerts.length > 0 && (
-          <Card style={[styles.alertCard, { backgroundColor: theme.colors.errorContainer }]}>
-            <View style={styles.alertContent}>
-              <MaterialCommunityIcons name="alert" size={20} color={theme.colors.error} />
-              <Text variant="bodyMedium" style={{ color: theme.colors.onErrorContainer, marginLeft: 8 }}>
-                {t('budgets.alertsFound', { count: budgetAlerts.length })}
-              </Text>
-            </View>
-          </Card>
-        )}
-
-        {allBudgets.map((budget) => (
-          <BudgetCard
-            key={budget.id}
-            budget={budget}
-            onEdit={() => handleEditBudget(budget)}
-            onDelete={() => handleDeleteBudget(budget)}
-          />
-        ))}
-
-        {budgetsFetching && budgetPage > 1 && <LoadingSpinner />}
-      </ScrollView>
-    );
-  };
-
   return (
-    <ProtectedRoute featureName={t('subscription.features.expenses')}>
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <ProtectedRoute featureName={t("subscription.features.expenses")}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-            {t('finance.title')}
+          <Text
+            variant="titleLarge"
+            style={{ color: theme.colors.onBackground }}
+          >
+            {t("finance.title")}
           </Text>
         </View>
 
-        <View style={styles.segmentedContainer}>
-          <View style={styles.buttonGroup}>
-            <Button
-              mode={activeTab === 'expenses' ? 'contained' : 'outlined'}
-              onPress={() => setActiveTab('expenses')}
-              style={[styles.tabButton, activeTab === 'expenses' && styles.activeTabButton]}
-            >
-              {t('expenses.title')}
-            </Button>
-            <Button
-              mode={activeTab === 'budgets' ? 'contained' : 'outlined'}
-              onPress={() => setActiveTab('budgets')}
-              style={[styles.tabButton, activeTab === 'budgets' && styles.activeTabButton]}
-            >
-              {t('budgets.title')}
-            </Button>
-          </View>
+        <View style={styles.tabsContainer}>
+          <SegmentedButtons
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as FinanceTabValue)}
+            buttons={[
+              {
+                value: 'budget',
+                label: t('finance.budget', 'Budget'),
+                icon: 'wallet'
+              },
+              {
+                value: 'expenses',
+                label: t('finance.expenses', 'Expenses'),
+                icon: 'receipt'
+              }
+            ]}
+          />
         </View>
 
-        {renderPetSelector()}
+        {activeTab === 'budget' ? renderBudgetContent() : renderExpensesContent()}
 
-        <View style={styles.content}>
-          {activeTab === 'expenses' ? renderExpensesContent() : renderBudgetsContent()}
-        </View>
-
-        {/* FABs */}
-        {selectedPetId && (
-          <>
-            {activeTab === 'expenses' && (
-              <FAB
-                icon="add"
-                style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-                onPress={handleAddExpense}
-              />
-            )}
-
-            {activeTab === 'budgets' && (
-              <FAB
-                icon="add"
-                style={{ ...styles.fab, backgroundColor: theme.colors.secondary }}
-                onPress={handleAddBudget}
-              />
-            )}
-          </>
+        {/* Conditional FABs */}
+        {activeTab === 'budget' && !budget && (
+          <FAB
+            icon="plus"
+            style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+            onPress={handleSetBudget}
+          />
+        )}
+        {activeTab === 'expenses' && (
+          <FAB
+            icon="add"
+            style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+            onPress={handleAddExpense}
+          />
         )}
 
         {/* Modals */}
         <ExpenseFormModal
           visible={expenseModalVisible}
           expense={editingExpense}
-          petId={selectedPetId || ''}
+          petId={editingExpense?.petId}
           onDismiss={() => {
             setExpenseModalVisible(false);
             setEditingExpense(undefined);
@@ -504,15 +471,15 @@ export default function FinanceScreen() {
           onSubmit={handleExpenseFormSubmit}
         />
 
-        <BudgetFormModal
+        <UserBudgetFormModal
           visible={budgetModalVisible}
           budget={editingBudget}
-          petId={selectedPetId || ''}
           onDismiss={() => {
             setBudgetModalVisible(false);
             setEditingBudget(undefined);
           }}
           onSubmit={handleBudgetFormSubmit}
+          isSubmitting={setBudgetMutation.isPending}
         />
 
         {/* Snackbar */}
@@ -522,7 +489,7 @@ export default function FinanceScreen() {
           onDismiss={() => setSnackbarVisible(false)}
           duration={3000}
           action={{
-            label: t('common.close'),
+            label: t("common.close"),
             onPress: () => setSnackbarVisible(false),
           }}
         />
@@ -539,56 +506,57 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 8,
   },
-  segmentedContainer: {
+  tabsContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  tabButton: {
-    flex: 1,
-    borderRadius: 0,
-  },
-  activeTabButton: {
-    zIndex: 1,
+    paddingBottom: 16,
   },
   petSelector: {
     padding: 16,
     paddingBottom: 8,
   },
   petChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   content: {
     flex: 1,
   },
+  budgetSection: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  expensesSection: {
+    flex: 1,
+  },
+  expensesScroll: {
+    flex: 1,
+  },
+  expensesGrid: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  sectionTitle: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    fontWeight: "600",
+  },
+  setBudgetButton: {
+    marginTop: 8,
+  },
   listContainer: {
-    padding: 16,
     paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   statsCard: {
+    marginHorizontal: 16,
     marginBottom: 16,
     elevation: 2,
   },
   statsContent: {
     padding: 16,
   },
-  alertCard: {
-    marginBottom: 16,
-    elevation: 2,
-  },
-  alertContent: {
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,

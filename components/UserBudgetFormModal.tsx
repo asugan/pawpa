@@ -1,23 +1,21 @@
-import React from 'react';
-import { Modal as RNModal, View, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, Button } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
-import BudgetForm from './forms/BudgetForm';
-import { CreateBudgetLimitInput, BudgetLimit } from '../lib/types';
+import React from "react";
+import { Modal as RNModal, View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, Button } from "@/components/ui";
+import { useTheme } from "@/lib/theme";
+import UserBudgetForm from "./UserBudgetForm";
+import { SetUserBudgetInput, UserBudget } from "@/lib/types";
 
-interface BudgetFormModalProps {
+interface UserBudgetFormModalProps {
   visible: boolean;
-  petId: string;
-  budget?: BudgetLimit;
+  budget?: UserBudget;
   onDismiss: () => void;
-  onSubmit: (data: CreateBudgetLimitInput) => void;
+  onSubmit: (data: SetUserBudgetInput) => void;
   isSubmitting?: boolean;
 }
 
-const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
+const UserBudgetFormModal: React.FC<UserBudgetFormModalProps> = ({
   visible,
-  petId,
   budget,
   onDismiss,
   onSubmit,
@@ -32,10 +30,12 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onDismiss}
     >
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.surface }]}
+      >
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-            {budget ? 'Edit Budget' : 'Add Budget'}
+            {budget ? "Edit Budget" : "Set Budget"}
           </Text>
           <Button
             mode="text"
@@ -47,8 +47,7 @@ const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
           </Button>
         </View>
 
-        <BudgetForm
-          petId={petId}
+        <UserBudgetForm
           initialData={budget}
           onSubmit={onSubmit}
           onCancel={onDismiss}
@@ -64,18 +63,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 
-export default BudgetFormModal;
+export default UserBudgetFormModal;

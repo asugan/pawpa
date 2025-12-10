@@ -122,7 +122,16 @@
     "selectPetToViewRecordsMessage": "Select a pet to view health records",
     "noRecordsShort": "No Health Record",
     "noRecordsMessage": "No health record added yet",
-    "addFirstRecord": "Add First Health Record"
+    "addFirstRecord": "Add First Health Record",
+    "types": {
+      "vaccination": "Vaccination",
+      "checkup": "Checkup",
+      "medication": "Medication",
+      "surgery": "Surgery",
+      "dental": "Dental",
+      "grooming": "Grooming",
+      "other": "Other"
+    }
   },
   "healthRecords": {
     "title": "Health Record",
@@ -190,6 +199,7 @@
     }
   },
   "events": {
+    "status": "Status",
     "upcoming": "Upcoming Events",
     "today": "Today",
     "addEvent": "Add Event",
@@ -214,7 +224,6 @@
     "reminder": "Reminder",
     "reminderEnabled": "Reminder enabled",
     "notes": "Notes",
-    "status": "Status",
     "statusUpcoming": "Upcoming",
     "statusCompleted": "Completed",
     "statusCancelled": "Cancelled",
@@ -275,6 +284,7 @@
   },
   "upcomingEvents": {
     "viewAll": "View All",
+    "viewAllEvents": "View All Events",
     "noUpcomingTitle": "No Upcoming Events",
     "noUpcomingMessage": "There are no upcoming events at the moment",
     "refresh": "Refresh",
@@ -376,7 +386,8 @@
     "dateInformation": "Date Information",
     "days": "days",
     "notSpecified": "Not specified",
-    "optional": "Optional"
+    "optional": "Optional",
+    "daysAgo": "{{count}} days ago"
   },
   "errors": {
     "loadingFailed": "Loading Failed"
@@ -623,6 +634,8 @@
     "noExpenses": "No expenses yet",
     "noExpensesMessage": "Start tracking your pet expenses",
     "addExpense": "Add Expense",
+    "recent": "Recent Expenses",
+    "lastThree": "Last 3 expenses",
     "featureComingSoon": "Feature coming soon",
     "totalSpent": "Total Spent",
     "totalExpenses": "Total Expenses",

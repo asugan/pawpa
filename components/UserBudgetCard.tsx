@@ -1,21 +1,21 @@
-import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Text, IconButton, ProgressBar, Chip, Badge } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
-import { BudgetLimit, BudgetStatus } from '../lib/types';
-import { useTranslation } from 'react-i18next';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React from "react";
+import { View, StyleSheet, Pressable } from "react-native";
+import { Card, Text, IconButton, ProgressBar, Badge } from "@/components/ui";
+import { useTheme } from "@/lib/theme";
+import { UserBudget, UserBudgetStatus } from "@/lib/types";
+import { useTranslation } from "react-i18next";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-interface BudgetCardProps {
-  budget: BudgetLimit;
-  status?: BudgetStatus | null;
+interface UserBudgetCardProps {
+  budget: UserBudget;
+  status?: UserBudgetStatus | null;
   onPress?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   showActions?: boolean;
 }
 
-const BudgetCard: React.FC<BudgetCardProps> = ({
+const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
   budget,
   status,
   onPress,
@@ -28,17 +28,20 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
   const formatCurrency = (amount: number, currency: string): string => {
     const currencySymbols: Record<string, string> = {
-      TRY: '₺',
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
+      TRY: "₺",
+      USD: "$",
+      EUR: "€",
+      GBP: "£",
     };
 
     const symbol = currencySymbols[currency] || currency;
-    const formatted = amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    const formatted = amount.toLocaleString(
+      i18n.language === "tr" ? "tr-TR" : "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    );
 
     return `${symbol}${formatted}`;
   };
@@ -50,10 +53,12 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     return theme.colors.secondary;
   };
 
-  const getStatusIcon = (percentage: number): keyof typeof MaterialCommunityIcons.glyphMap => {
-    if (percentage >= 100) return 'alert-circle';
-    if (percentage >= budget.alertThreshold * 100) return 'alert';
-    return 'check-circle';
+  const getStatusIcon = (
+    percentage: number
+  ): keyof typeof MaterialCommunityIcons.glyphMap => {
+    if (percentage >= 100) return "alert-circle";
+    if (percentage >= budget.alertThreshold * 100) return "alert";
+    return "check-circle";
   };
 
   const percentage = status ? status.percentage : 0;
@@ -67,7 +72,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
         {
           backgroundColor: theme.colors.surface,
           borderLeftWidth: 4,
-          borderLeftColor: budget.isActive ? getProgressColor(percentage) : theme.colors.surfaceDisabled,
+          borderLeftColor: budget.isActive
+            ? getProgressColor(percentage)
+            : theme.colors.surfaceDisabled,
         },
       ]}
       elevation={2}
@@ -76,51 +83,44 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <MaterialCommunityIcons
-              name={budget.category ? 'tag' : 'wallet'}
+              name="wallet"
               size={24}
               color={theme.colors.primary}
               style={styles.icon}
             />
             <View style={styles.headerText}>
-              <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-                {budget.category
-                  ? t(`expenses.categories.${budget.category}`, budget.category)
-                  : t('budgets.overallBudget', 'Overall Budget')}
+              <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+                {t("budgets.monthlyBudget", "Monthly Budget")}
               </Text>
-              <Chip
-                mode="outlined"
-                compact
-                style={styles.periodChip}
-                textStyle={{ fontSize: 11 }}
+              <Text
+                variant="bodySmall"
+                style={{ color: theme.colors.onSurfaceVariant }}
               >
-                {t(`budgets.periods.${budget.period}`, budget.period)}
-              </Chip>
+                {budget.currency}
+              </Text>
             </View>
           </View>
           {!budget.isActive && (
-            <Badge size={20} style={{ backgroundColor: theme.colors.surfaceDisabled }}>
-              {t('budgets.inactive', 'Inactive')}
+            <Badge
+              size={20}
+              style={{ backgroundColor: theme.colors.surfaceDisabled }}
+            >
+              {t("budgets.inactive", "Inactive")}
             </Badge>
           )}
         </View>
 
         <View style={styles.amountSection}>
-          <View style={styles.amountRow}>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('budgets.spent', 'Spent')}
-            </Text>
-            <Text variant="titleMedium" style={{ fontWeight: 'bold', color: getProgressColor(percentage) }}>
-              {formatCurrency(currentSpending, budget.currency)}
-            </Text>
-          </View>
-          <View style={styles.amountRow}>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('budgets.limit', 'Limit')}
-            </Text>
-            <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {formatCurrency(budget.amount, budget.currency)}
-            </Text>
-          </View>
+          <Text variant="headlineLarge" style={styles.budgetAmount}>
+            {formatCurrency(budget.amount, budget.currency)}
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={{ color: theme.colors.onSurfaceVariant }}
+          >
+            {t("budgets.currentSpending", "Current spending")}:{" "}
+            {formatCurrency(currentSpending, budget.currency)}
+          </Text>
         </View>
 
         <View style={styles.progressSection}>
@@ -138,15 +138,22 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
               />
               <Text
                 variant="bodySmall"
-                style={{ color: getProgressColor(percentage), marginLeft: 4, fontWeight: 'bold' }}
+                style={{
+                  color: getProgressColor(percentage),
+                  marginLeft: 4,
+                  fontWeight: "bold",
+                }}
               >
                 {percentage.toFixed(1)}%
               </Text>
             </View>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text
+              variant="bodySmall"
+              style={{ color: theme.colors.onSurfaceVariant }}
+            >
               {remainingAmount >= 0
-                ? `${formatCurrency(remainingAmount, budget.currency)} ${t('budgets.remaining', 'remaining')}`
-                : `${formatCurrency(Math.abs(remainingAmount), budget.currency)} ${t('budgets.exceeded', 'exceeded')}`}
+                ? `${formatCurrency(remainingAmount, budget.currency)} ${t("budgets.remaining", "remaining")}`
+                : `${formatCurrency(Math.abs(remainingAmount), budget.currency)} ${t("budgets.exceeded", "exceeded")}`}
             </Text>
           </View>
         </View>
@@ -157,26 +164,33 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
               styles.alertBanner,
               {
                 backgroundColor:
-                  percentage >= 100 ? theme.colors.errorContainer : theme.colors.tertiaryContainer,
+                  percentage >= 100
+                    ? theme.colors.errorContainer
+                    : theme.colors.tertiaryContainer,
               },
             ]}
           >
             <MaterialCommunityIcons
               name="alert"
               size={16}
-              color={percentage >= 100 ? theme.colors.error : theme.colors.tertiary}
+              color={
+                percentage >= 100 ? theme.colors.error : theme.colors.tertiary
+              }
             />
             <Text
               variant="bodySmall"
               style={{
                 marginLeft: 8,
-                color: percentage >= 100 ? theme.colors.error : theme.colors.tertiary,
-                fontWeight: '600',
+                color:
+                  percentage >= 100
+                    ? theme.colors.error
+                    : theme.colors.tertiary,
+                fontWeight: "600",
               }}
             >
               {percentage >= 100
-                ? t('budgets.budgetExceeded', 'Budget exceeded!')
-                : t('budgets.approachingLimit', 'Approaching budget limit')}
+                ? t("budgets.budgetExceeded", "Budget exceeded!")
+                : t("budgets.approachingLimit", "Approaching budget limit")}
             </Text>
           </View>
         )}
@@ -228,14 +242,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 16,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   icon: {
@@ -245,19 +259,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
-  periodChip: {
-    alignSelf: 'flex-start',
-    height: 24,
-    marginTop: 4,
-  },
   amountSection: {
     marginBottom: 16,
-    gap: 8,
+    alignItems: "center",
   },
-  amountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  budgetAmount: {
+    fontWeight: "bold",
+    marginBottom: 4,
   },
   progressSection: {
     marginBottom: 12,
@@ -268,27 +276,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   progressLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   alertBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
   },
   actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginTop: 8,
     marginRight: -8,
   },
 });
 
-export default BudgetCard;
+export default UserBudgetCard;
