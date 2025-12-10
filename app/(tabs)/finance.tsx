@@ -64,6 +64,7 @@ export default function FinanceScreen() {
   const [page, setPage] = useState(1);
   const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Budget state
   const [budgetModalVisible, setBudgetModalVisible] = useState(false);
@@ -332,23 +333,23 @@ export default function FinanceScreen() {
         contentContainerStyle={styles.listContainer}
         refreshControl={
           <RefreshControl
-            refreshing={expensesFetching}
+            refreshing={refreshing || expensesFetching}
             onRefresh={async () => {
+              setRefreshing(true);
               setPage(1);
-              setAllExpenses([]);
 
-              // Invalidate all expense queries to ensure fresh data
-              await queryClient.invalidateQueries({
-                queryKey: ['expenses']
-              });
+              // Don't clear allExpenses immediately - let placeholderData handle it
 
-              // Then refetch the current query
+              // Invalidate specific query instead of all expenses
               const queryKey = expenseKeys.list({
                 petId: selectedPetId,
                 page: 1,
                 limit: ENV.DEFAULT_LIMIT
               });
+
+              await queryClient.invalidateQueries({ queryKey });
               await queryClient.refetchQueries({ queryKey });
+              setRefreshing(false);
             }}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
