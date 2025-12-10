@@ -6,17 +6,6 @@ import { TFunction } from "i18next";
 import { NetInfoState } from "@react-native-community/netinfo";
 import { ApiResponse } from "./api/client";
 import {
-  BudgetCreateInput,
-  BudgetLimit,
-  BudgetPeriod,
-  BudgetUpdateInput,
-} from "./schemas/budgetSchema";
-import {
-  CreateEventInput,
-  Event,
-  UpdateEventInput,
-} from "./schemas/eventSchema";
-import {
   Currency,
   Expense,
   ExpenseCategory,
@@ -24,6 +13,11 @@ import {
   ExpenseUpdateInput,
   PaymentMethod,
 } from "./schemas/expenseSchema";
+import {
+  CreateEventInput,
+  Event,
+  UpdateEventInput,
+} from "./schemas/eventSchema";
 import {
   CreateFeedingScheduleInput,
   FeedingSchedule,
@@ -40,9 +34,6 @@ import { Pet, PetCreateInput, PetUpdateInput } from "./schemas/petSchema";
 // SCHEMA TYPE RE-EXPORTLERİ
 // ============================================================================
 export type {
-  BudgetLimit,
-  BudgetPeriod,
-  BudgetCreateInput as CreateBudgetLimitInput,
   CreateEventInput,
   ExpenseCreateInput as CreateExpenseInput,
   CreateFeedingScheduleInput,
@@ -56,7 +47,6 @@ export type {
   HealthRecord,
   PaymentMethod,
   Pet,
-  BudgetUpdateInput as UpdateBudgetLimitInput,
   UpdateEventInput,
   ExpenseUpdateInput as UpdateExpenseInput,
   UpdateFeedingScheduleInput,
@@ -65,8 +55,6 @@ export type {
 };
 
 export type {
-  BudgetCreateInput,
-  BudgetUpdateInput,
   ExpenseCreateInput,
   ExpenseUpdateInput,
   HealthRecordCreateInput,
@@ -133,24 +121,48 @@ export interface ExpenseStats {
   }[];
 }
 
-export interface BudgetAlert {
-  budgetLimit: BudgetLimit;
-  currentSpending: number;
-  percentage: number;
-  isExceeded: boolean;
-  remainingAmount: number;
+// ============================================================================
+// USER BUDGET TYPES (NEW SIMPLIFIED SYSTEM)
+// ============================================================================
+
+export interface UserBudget {
+  id: string;
+  userId: string;
+  amount: number;
+  currency: Currency;
+  alertThreshold: number; // 0.1 - 1.0 range
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface BudgetStatus {
-  budgetLimit: BudgetLimit;
+export interface PetBreakdown {
+  petId: string;
+  petName: string;
+  spending: number;
+  percentage: number;
+}
+
+export interface UserBudgetStatus {
+  budget: UserBudget;
   currentSpending: number;
   percentage: number;
   remainingAmount: number;
+  isAlert: boolean;
+  petBreakdown: PetBreakdown[];
+}
+
+export interface SetUserBudgetInput {
+  amount: number;
+  currency: Currency;
+  alertThreshold?: number; // Optional, defaults to 0.8
+  isActive?: boolean; // Optional, defaults to true
 }
 
 export type PetWithFinances = Pet & {
   expenses?: Expense[];
-  budgetLimits?: BudgetLimit[];
+  userBudget?: UserBudget;
+  userBudgetStatus?: UserBudgetStatus;
 };
 
 // ============================================================================
@@ -252,7 +264,7 @@ export interface FormHandlerReturn<T> {
   trigger: (name?: keyof T) => Promise<boolean>;
   reset: (values?: T) => void;
   handleSubmit: (
-    onSubmit: (data: T) => void | Promise<void>,
+    onSubmit: (data: T) => void | Promise<void>
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
 }
 

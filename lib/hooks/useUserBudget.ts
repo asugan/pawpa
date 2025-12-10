@@ -1,0 +1,272 @@
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { userBudgetService } from "../services/userBudgetService";
+import type {
+  UserBudget,
+  UserBudgetStatus,
+  SetUserBudgetInput,
+  PetBreakdown,
+} from "../types";
+import { CACHE_TIMES } from "../config/queryConfig";
+import { createQueryKeys } from "./core/createQueryKeys";
+import { useConditionalQuery } from "./core/useConditionalQuery";
+
+// Query keys factory for user budget
+const baseUserBudgetKeys = createQueryKeys("budget");
+
+// Extended query keys with custom keys for user budget operations
+export const userBudgetKeys = {
+  ...baseUserBudgetKeys,
+  status: () => [...baseUserBudgetKeys.all, "status"] as const,
+  alerts: () => [...baseUserBudgetKeys.all, "alerts"] as const,
+  petBreakdown: () => [...baseUserBudgetKeys.all, "pet-breakdown"] as const,
+  isActive: () => [...baseUserBudgetKeys.all, "is-active"] as const,
+  summary: () => [...baseUserBudgetKeys.all, "summary"] as const,
+};
+
+/**
+ * Hook for fetching current user's budget
+ * Returns the user's single budget with proper caching
+ */
+export function useUserBudget() {
+  return useConditionalQuery<UserBudget | null>({
+    queryKey: userBudgetKeys.all,
+    queryFn: () => userBudgetService.getBudget(),
+    staleTime: CACHE_TIMES.MEDIUM,
+    gcTime: CACHE_TIMES.LONG,
+    defaultValue: null,
+    errorMessage: "User budget could not be loaded",
+  });
+}
+
+/**
+ * Hook for fetching budget status with current spending and pet breakdown
+ * Depends on budget data and provides comprehensive spending analysis
+ */
+export function useUserBudgetStatus() {
+  const { data: budget } = useUserBudget();
+
+  return useConditionalQuery<UserBudgetStatus | null>({
+    queryKey: userBudgetKeys.status(),
+    queryFn: () => userBudgetService.getBudgetStatus(),
+    staleTime: CACHE_TIMES.SHORT,
+    gcTime: CACHE_TIMES.MEDIUM,
+    enabled: !!budget && budget.isActive,
+    defaultValue: null,
+    errorMessage: "Budget status could not be loaded",
+  });
+}
+
+/**
+ * Hook for setting/updating user budget (UPSERT operation)
+ * Includes optimistic updates and proper cache invalidation
+ */
+export function useSetUserBudget() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SetUserBudgetInput) =>
+      userBudgetService.setBudget(data).then((res) => res.data!),
+
+    // Optimistic update
+    onMutate: async (newBudgetData) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: userBudgetKeys.all });
+
+      // Snapshot the previous value
+      const previousBudget = queryClient.getQueryData(userBudgetKeys.all);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(userBudgetKeys.all, (old: UserBudget | null) => {
+        if (!old) {
+          // Create optimistic budget for new budgets
+          return {
+            id: "temp-id",
+            userId: "current-user",
+            amount: newBudgetData.amount,
+            currency: newBudgetData.currency,
+            alertThreshold: newBudgetData.alertThreshold ?? 0.8,
+            isActive: newBudgetData.isActive ?? true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as UserBudget;
+        }
+
+        // Update existing budget
+        return {
+          ...old,
+          amount: newBudgetData.amount,
+          currency: newBudgetData.currency,
+          alertThreshold: newBudgetData.alertThreshold ?? old.alertThreshold,
+          isActive: newBudgetData.isActive ?? old.isActive,
+          updatedAt: new Date().toISOString(),
+        } as UserBudget;
+      });
+
+      return { previousBudget };
+    },
+
+    // Rollback on error
+    onError: (err, newBudgetData, context) => {
+      if (context?.previousBudget) {
+        queryClient.setQueryData(userBudgetKeys.all, context.previousBudget);
+      }
+    },
+
+    // Refetch on success
+    onSuccess: () => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.status() });
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.alerts() });
+      queryClient.invalidateQueries({
+        queryKey: userBudgetKeys.petBreakdown(),
+      });
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.isActive() });
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.summary() });
+    },
+
+    // Always refetch after settle
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook for deleting user budget
+ * Includes optimistic updates and comprehensive cache cleanup
+ */
+export function useDeleteUserBudget() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => userBudgetService.deleteBudget().then((res) => res.data),
+
+    // Optimistic update
+    onMutate: async () => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: userBudgetKeys.all });
+
+      // Snapshot the previous value
+      const previousBudget = queryClient.getQueryData(userBudgetKeys.all);
+
+      // Optimistically remove the budget
+      queryClient.setQueryData(userBudgetKeys.all, null);
+
+      return { previousBudget };
+    },
+
+    // Rollback on error
+    onError: (err, variables, context) => {
+      if (context?.previousBudget) {
+        queryClient.setQueryData(userBudgetKeys.all, context.previousBudget);
+      }
+    },
+
+    // Clear all related queries on success
+    onSuccess: () => {
+      // Clear all budget-related queries
+      queryClient.setQueryData(userBudgetKeys.status(), null);
+      queryClient.setQueryData(userBudgetKeys.alerts(), null);
+      queryClient.setQueryData(userBudgetKeys.petBreakdown(), null);
+      queryClient.setQueryData(userBudgetKeys.isActive(), false);
+      queryClient.setQueryData(userBudgetKeys.summary(), null);
+
+      // Remove queries from cache
+      queryClient.removeQueries({ queryKey: userBudgetKeys.status() });
+      queryClient.removeQueries({ queryKey: userBudgetKeys.alerts() });
+      queryClient.removeQueries({ queryKey: userBudgetKeys.petBreakdown() });
+      queryClient.removeQueries({ queryKey: userBudgetKeys.isActive() });
+      queryClient.removeQueries({ queryKey: userBudgetKeys.summary() });
+    },
+
+    // Always refetch after settle
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: userBudgetKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook for checking budget alerts
+ * Returns alert information with short cache time for real-time monitoring
+ */
+export function useBudgetAlerts() {
+  const { data: budget } = useUserBudget();
+
+  return useConditionalQuery<{
+    isAlert: boolean;
+    alertType?: "warning" | "critical";
+    message?: string;
+    percentage?: number;
+    remainingAmount?: number;
+  } | null>({
+    queryKey: userBudgetKeys.alerts(),
+    queryFn: () => userBudgetService.checkBudgetAlerts(),
+    staleTime: CACHE_TIMES.VERY_SHORT,
+    gcTime: CACHE_TIMES.SHORT,
+    enabled: !!budget && budget.isActive,
+    refetchInterval: CACHE_TIMES.VERY_SHORT, // Refetch every 30 seconds for real-time alerts
+    defaultValue: null,
+    errorMessage: "Budget alerts could not be checked",
+  });
+}
+
+/**
+ * Hook for getting pet spending breakdown
+ * Extracted from budget status for focused pet-specific spending analysis
+ */
+export function usePetSpendingBreakdown() {
+  const { data: budget } = useUserBudget();
+
+  return useConditionalQuery<PetBreakdown[]>({
+    queryKey: userBudgetKeys.petBreakdown(),
+    queryFn: () => userBudgetService.getPetSpendingBreakdown(),
+    staleTime: CACHE_TIMES.SHORT,
+    gcTime: CACHE_TIMES.MEDIUM,
+    enabled: !!budget && budget.isActive,
+    defaultValue: [],
+    errorMessage: "Pet spending breakdown could not be loaded",
+  });
+}
+
+/**
+ * Hook for checking if user has an active budget
+ * Quick boolean check for conditional rendering and feature access
+ */
+export function useHasActiveBudget() {
+  return useConditionalQuery<boolean>({
+    queryKey: userBudgetKeys.isActive(),
+    queryFn: () => userBudgetService.hasActiveBudget(),
+    staleTime: CACHE_TIMES.MEDIUM,
+    gcTime: CACHE_TIMES.LONG,
+    defaultValue: false,
+    errorMessage: "Active budget status could not be checked",
+  });
+}
+
+/**
+ * Hook for getting comprehensive budget summary
+ * Combines budget info, status, and alerts for dashboard views
+ */
+export function useBudgetSummary() {
+  return useConditionalQuery<{
+    budget: UserBudget | null;
+    status: UserBudgetStatus | null;
+    hasActiveBudget: boolean;
+    alerts: {
+      isAlert: boolean;
+      alertType?: "warning" | "critical";
+      message?: string;
+    } | null;
+  } | null>({
+    queryKey: userBudgetKeys.summary(),
+    queryFn: () => userBudgetService.getBudgetSummary(),
+    staleTime: CACHE_TIMES.SHORT,
+    gcTime: CACHE_TIMES.MEDIUM,
+    defaultValue: null,
+    errorMessage: "Budget summary could not be loaded",
+  });
+}
+
+// Export types for external use
+export type { UserBudget, UserBudgetStatus, SetUserBudgetInput, PetBreakdown };
