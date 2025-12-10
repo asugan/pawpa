@@ -19,7 +19,24 @@ export const SmartCurrencyInput = ({
   placeholder,
   testID,
 }: SmartCurrencyInputProps) => {
-  const { control } = useFormContext();
+  const formContext = useFormContext();
+  const { control } = formContext || { control: undefined };
+
+  // If no form context, render as a simple currency input
+  if (!control) {
+    return (
+      <CurrencyInput
+        label={label}
+        value={0}
+        onChange={() => {}}
+        disabled={disabled}
+        error={false}
+        errorText={undefined}
+        placeholder={placeholder}
+        testID={testID}
+      />
+    );
+  }
 
   return (
     <Controller

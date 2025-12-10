@@ -5,8 +5,9 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
+  useWindowDimensions,
 } from "react-native";
-import { Text, FAB, Snackbar, Chip, Button, Card } from "@/components/ui";
+import { Text, FAB, Snackbar, Chip, Button, Card, SegmentedButtons } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePets } from "../../lib/hooks/usePets";
@@ -42,10 +43,16 @@ import { LAYOUT } from "../../constants";
 import { ENV } from "../../lib/config/env";
 import { ProtectedRoute } from "@/components/subscription";
 
+type FinanceTabValue = 'budget' | 'expenses';
+
 export default function FinanceScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { width } = useWindowDimensions();
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState<FinanceTabValue>('budget');
 
   // Shared state
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
@@ -265,8 +272,52 @@ export default function FinanceScreen() {
     );
   };
 
-  // Render content
-  const renderContent = () => {
+  // Render budget tab content
+  const renderBudgetContent = () => (
+    <View style={styles.content}>
+      <View style={styles.budgetSection}>
+        <SimpleBudgetOverview onPress={handleSetBudget} />
+
+        {/* Set Budget Button - shown when no budget exists */}
+        {!budget && !budgetLoading && (
+          <Button
+            mode="outlined"
+            onPress={handleSetBudget}
+            style={[
+              styles.setBudgetButton,
+              { borderColor: theme.colors.primary },
+            ]}
+            textColor={theme.colors.primary}
+          >
+            {t("budgets.setBudget", "Set Budget")}
+          </Button>
+        )}
+
+        {/* Budget Card with Actions - shown when budget exists */}
+        {budget && budgetStatus && (
+          <UserBudgetCard
+            budget={budget}
+            status={budgetStatus}
+            onEdit={handleEditBudget}
+            onDelete={handleDeleteBudget}
+          />
+        )}
+      </View>
+    </View>
+  );
+
+  // Render expenses tab content
+  const renderExpensesContent = () => (
+    <View style={styles.content}>
+      {renderPetSelector()}
+      <View style={styles.expensesSection}>
+        {renderExpensesList()}
+      </View>
+    </View>
+  );
+
+  // Render expenses list with responsive grid
+  const renderExpensesList = () => {
     if (expensesLoading && page === 1) {
       return <LoadingSpinner />;
     }
@@ -283,9 +334,11 @@ export default function FinanceScreen() {
       );
     }
 
+    const numColumns = width > 600 ? 2 : 1;
+
     return (
       <ScrollView
-        style={styles.content}
+        style={styles.expensesScroll}
         contentContainerStyle={styles.listContainer}
         refreshControl={
           <RefreshControl
@@ -336,14 +389,23 @@ export default function FinanceScreen() {
           </Card>
         )}
 
-        {allExpenses.map((expense) => (
-          <ExpenseCard
-            key={expense.id}
-            expense={expense}
-            onEdit={() => handleEditExpense(expense)}
-            onDelete={() => handleDeleteExpense(expense)}
-          />
-        ))}
+        <View style={styles.expensesGrid}>
+          {allExpenses.map((expense) => (
+            <View
+              key={expense.id}
+              style={[
+                styles.expenseCardContainer,
+                { width: numColumns === 2 ? '50%' : '100%' }
+              ]}
+            >
+              <ExpenseCard
+                expense={expense}
+                onEdit={() => handleEditExpense(expense)}
+                onDelete={() => handleDeleteExpense(expense)}
+              />
+            </View>
+          ))}
+        </View>
 
         {expensesFetching && page > 1 && <LoadingSpinner />}
       </ScrollView>
@@ -364,60 +426,42 @@ export default function FinanceScreen() {
           </Text>
         </View>
 
-        {renderPetSelector()}
-
-        <View style={styles.content}>
-          {/* Budget Overview Section */}
-          <View style={styles.budgetSection}>
-            <SimpleBudgetOverview onPress={handleSetBudget} />
-
-            {/* Set Budget Button - shown when no budget exists */}
-            {!budget && !budgetLoading && (
-              <Button
-                mode="outlined"
-                onPress={handleSetBudget}
-                style={[
-                  styles.setBudgetButton,
-                  { borderColor: theme.colors.primary },
-                ]}
-                textColor={theme.colors.primary}
-              >
-                {t("budgets.setBudget", "Set Budget")}
-              </Button>
-            )}
-
-            {/* Budget Card with Actions - shown when budget exists */}
-            {budget && budgetStatus && (
-              <UserBudgetCard
-                budget={budget}
-                status={budgetStatus}
-                onEdit={handleEditBudget}
-                onDelete={handleDeleteBudget}
-              />
-            )}
-          </View>
-
-          {/* Expenses Section */}
-          <View style={styles.expensesSection}>
-            <Text
-              variant="titleMedium"
-              style={[
-                styles.sectionTitle,
-                { color: theme.colors.onBackground },
-              ]}
-            >
-              {t("expenses.recentExpenses", "Recent Expenses")}
-            </Text>
-            {renderContent()}
-          </View>
+        <View style={styles.tabsContainer}>
+          <SegmentedButtons
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as FinanceTabValue)}
+            buttons={[
+              {
+                value: 'budget',
+                label: t('finance.budget', 'Budget'),
+                icon: 'wallet'
+              },
+              {
+                value: 'expenses',
+                label: t('finance.expenses', 'Expenses'),
+                icon: 'receipt'
+              }
+            ]}
+          />
         </View>
 
-        {/* Single FAB for adding expenses */}
-        <FAB
-          icon="add"
-          style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
-          onPress={handleAddExpense}
-        />
+        {activeTab === 'budget' ? renderBudgetContent() : renderExpensesContent()}
+
+        {/* Conditional FABs */}
+        {activeTab === 'budget' && !budget && (
+          <FAB
+            icon="plus"
+            style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+            onPress={handleSetBudget}
+          />
+        )}
+        {activeTab === 'expenses' && (
+          <FAB
+            icon="add"
+            style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
+            onPress={handleAddExpense}
+          />
+        )}
 
         {/* Modals */}
         <ExpenseFormModal
@@ -466,6 +510,10 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 8,
   },
+  tabsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
   petSelector: {
     padding: 16,
     paddingBottom: 8,
@@ -484,6 +532,17 @@ const styles = StyleSheet.create({
   },
   expensesSection: {
     flex: 1,
+  },
+  expensesScroll: {
+    flex: 1,
+  },
+  expensesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 8,
+  },
+  expenseCardContainer: {
+    padding: 8,
   },
   sectionTitle: {
     paddingHorizontal: 16,

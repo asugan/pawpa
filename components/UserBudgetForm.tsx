@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { FormSection } from "./forms/FormSection";
@@ -31,11 +31,7 @@ const UserBudgetForm: React.FC<UserBudgetFormProps> = ({
   const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isValid },
-  } = useForm<SetUserBudgetInput>({
+  const form = useForm<SetUserBudgetInput>({
     resolver: zodResolver(SetUserBudgetSchema),
     defaultValues: {
       amount: initialData?.amount || 0,
@@ -46,13 +42,16 @@ const UserBudgetForm: React.FC<UserBudgetFormProps> = ({
     mode: "onChange",
   });
 
+  const { control, handleSubmit, formState: { isValid } } = form;
+
   const handleFormSubmit = (data: SetUserBudgetInput) => {
     onSubmit(data);
   };
 
   return (
-    <View style={styles.container}>
-      <FormSection title={t("budgets.budgetDetails", "Budget Details")}>
+    <FormProvider {...form}>
+      <View style={styles.container}>
+        <FormSection title={t("budgets.budgetDetails", "Budget Details")}>
         {/* Amount Input */}
         <SmartCurrencyInput
           name="amount"
@@ -134,14 +133,15 @@ const UserBudgetForm: React.FC<UserBudgetFormProps> = ({
         />
       </FormSection>
 
-      <FormActions
-        onCancel={onCancel}
-        onSubmit={handleSubmit(handleFormSubmit)}
-        loading={isSubmitting}
-        disabled={!isValid}
-        testID="user-budget-form"
-      />
-    </View>
+        <FormActions
+          onCancel={onCancel}
+          onSubmit={handleSubmit(handleFormSubmit)}
+          loading={isSubmitting}
+          disabled={!isValid}
+          testID="user-budget-form"
+        />
+      </View>
+    </FormProvider>
   );
 };
 
