@@ -14,9 +14,11 @@ import { SmartDatePicker } from './forms/SmartDatePicker';
 import { SmartInput } from './forms/SmartInput';
 import { SmartNumberInput } from './forms/SmartNumberInput';
 import { SmartPaymentMethodPicker } from './forms/SmartPaymentMethodPicker';
+import { PetSelector } from './forms/PetSelector';
+import { FormSection } from './forms/FormSection';
 
 interface ExpenseFormProps {
-  petId: string;
+  petId?: string;
   initialData?: Expense;
   onSubmit: (data: CreateExpenseInputType) => void;
   onCancel?: () => void;
@@ -52,6 +54,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   const {
     handleSubmit,
+    watch,
   } = methods;
 
   const handleFormSubmit = (data: ExpenseCreateInput) => {
@@ -61,6 +64,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   return (
     <FormProvider {...methods}>
       <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.form}>
+        {/* Pet Selection */}
+        {!initialData && (
+          <FormSection title={t('forms.petSelection', 'Pet Selection')}>
+            <PetSelector
+              selectedPetId={watch('petId')}
+              onPetSelect={(petId) => methods.setValue('petId', petId)}
+              error={methods.formState.errors.petId?.message}
+            />
+          </FormSection>
+        )}
+
         {/* Category Picker */}
         <SmartCategoryPicker name="category" />
 

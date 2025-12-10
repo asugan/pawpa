@@ -29,7 +29,7 @@ export default function CareScreen() {
   const [activeTab, setActiveTab] = useState<CareTabValue>('health');
   
   // Health state
-  const [selectedPetId, setSelectedPetId] = useState<string>();
+  const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [isHealthFormVisible, setIsHealthFormVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<HealthRecord | undefined>();
   
@@ -46,7 +46,7 @@ export default function CareScreen() {
     isLoading: healthLoading,
     error: healthError,
     refetch: refetchHealth
-  } = useHealthRecords(selectedPetId || '');
+  } = useHealthRecords(selectedPetId);
 
   // Feeding data
   const { data: todaySchedules = [], isLoading: feedingLoading } = useTodayFeedingSchedules();
@@ -63,9 +63,7 @@ export default function CareScreen() {
 
   // Health handlers
   const handleAddHealthRecord = () => {
-    if (selectedPetId) {
-      setIsHealthFormVisible(true);
-    }
+    setIsHealthFormVisible(true);
   };
 
   const handleHealthFormSuccess = () => {
@@ -82,7 +80,10 @@ export default function CareScreen() {
 
 
   const handleEditRecord = (record: HealthRecord) => {
-    setEditingRecord(record);
+    setEditingRecord({
+      ...record,
+      petId: record.petId, // Ensure petId is preserved when editing
+    });
     setIsHealthFormVisible(true);
   };
 
@@ -138,15 +139,7 @@ export default function CareScreen() {
       );
     }
 
-    if (!selectedPetId) {
-      return (
-        <EmptyState
-          title={t('health.selectPetToViewRecords')}
-          description={t('health.selectPetToViewRecordsMessage')}
-          icon="paw"
-        />
-      );
-    }
+    // Don't require pet selection - show all records when no pet is selected
 
     if (healthLoading) {
       return <LoadingSpinner />;
@@ -304,12 +297,13 @@ export default function CareScreen() {
           </View>
         )}
 
+
         <View style={styles.content}>
           {activeTab === 'health' ? renderHealthContent() : renderFeedingContent()}
         </View>
 
         {/* FABs */}
-        {activeTab === 'health' && selectedPetId && (
+        {activeTab === 'health' && (
           <FAB
             icon="add"
             style={{ ...styles.fab, backgroundColor: theme.colors.secondary }}
@@ -326,15 +320,12 @@ export default function CareScreen() {
         )}
 
         {/* Modals */}
-        {selectedPetId && (
-          <HealthRecordForm
-            petId={selectedPetId}
-            visible={isHealthFormVisible}
-            onSuccess={handleHealthFormSuccess}
-            onCancel={handleHealthFormCancel}
-            initialData={editingRecord}
-          />
-        )}
+        <HealthRecordForm
+          visible={isHealthFormVisible}
+          onSuccess={handleHealthFormSuccess}
+          onCancel={handleHealthFormCancel}
+          initialData={editingRecord}
+        />
 
         <FeedingScheduleModal
           visible={isFeedingModalVisible}

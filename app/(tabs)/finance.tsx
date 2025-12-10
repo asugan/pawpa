@@ -54,7 +54,7 @@ export default function FinanceScreen() {
   // Tab state
   const [activeTab, setActiveTab] = useState<FinanceTabValue>('budget');
 
-  // Shared state
+  // Shared state - default to undefined to show all pets
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -467,7 +467,7 @@ export default function FinanceScreen() {
         <ExpenseFormModal
           visible={expenseModalVisible}
           expense={editingExpense}
-          petId={selectedPetId || ""}
+          petId={editingExpense?.petId}
           onDismiss={() => {
             setExpenseModalVisible(false);
             setEditingExpense(undefined);

@@ -1,5 +1,6 @@
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { healthRecordService } from '../services/healthRecordService';
+import { petService } from '../services/petService';
 import type { CreateHealthRecordInput, HealthRecord, UpdateHealthRecordInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
@@ -11,8 +12,6 @@ import { useConditionalQuery } from './core/useConditionalQuery';
 // Type-safe filters for health records
 interface HealthRecordFilters {
   type?: string;
-  dateFrom?: string;
-  dateTo?: string;
   veterinarian?: string;
   sortBy?: 'date' | 'type' | 'veterinarian' | 'title';
   sortOrder?: 'asc' | 'desc';
@@ -36,21 +35,38 @@ export const healthRecordKeys = {
 // Get all health records for a pet with type-safe filters
 // Note: This hook has complex client-side sorting logic,
 // so it uses useQuery directly instead of generic hooks
-export function useHealthRecords(petId: string, filters: HealthRecordFilters = {}) {
+export function useHealthRecords(petId?: string, filters: HealthRecordFilters = {}) {
   return useQuery({
-    queryKey: healthRecordKeys.list(petId, filters),
+    queryKey: healthRecordKeys.list(petId || 'all', filters),
     queryFn: async () => {
-      const result = await healthRecordService.getHealthRecordsByPetId(petId);
-      if (!result.success) {
-        const errorMessage = typeof result.error === 'string'
-          ? result.error
-          : result.error?.message || 'Sağlık kayıtları yüklenemedi';
-        throw new Error(errorMessage);
+      if (!petId) {
+        // If no petId, fetch all pets and combine their records
+        const petsResult = await petService.getPets();
+        if (!petsResult.success) {
+          throw new Error('Pets could not be loaded');
+        }
+
+        const pets = petsResult.data || [];
+        const allRecords = await Promise.all(
+          pets.map(async (pet: any) => {
+            const result = await healthRecordService.getHealthRecordsByPetId(pet.id);
+            return result.success ? (result.data || []) : [];
+          })
+        );
+
+        return allRecords.flat();
+      } else {
+        const result = await healthRecordService.getHealthRecordsByPetId(petId);
+        if (!result.success) {
+          const errorMessage = typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Sağlık kayıtları yüklenemedi';
+          throw new Error(errorMessage);
+        }
+        return result.data || [];
       }
-      return result.data || [];
     },
     staleTime: CACHE_TIMES.MEDIUM,
-    enabled: !!petId,
     select: (data) => {
       // Apply client-side sorting if specified
       if (filters.sortBy) {
