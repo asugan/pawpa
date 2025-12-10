@@ -38,7 +38,10 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   }, [expense.date]);
 
   const cardContent = (
-    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={2}>
+    <Card style={[styles.card, {
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.outline
+    }]} elevation={3}>
       <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -80,7 +83,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                 mode="outlined"
                 compact
                 style={styles.chip}
-                textStyle={{ fontSize: 11 }}
+                textStyle={{ fontSize: 12 }}
               >
                 {t(`expenses.paymentMethods.${expense.paymentMethod}`, expense.paymentMethod)}
               </Chip>
@@ -90,7 +93,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                 mode="outlined"
                 compact
                 style={styles.chip}
-                textStyle={{ fontSize: 11 }}
+                textStyle={{ fontSize: 12 }}
                 icon="store"
               >
                 {expense.vendor}
@@ -136,14 +139,14 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
 
 const styles = StyleSheet.create({
   pressable: {
-    marginVertical: 6,
   },
   card: {
     marginVertical: 6,
-    borderRadius: 12,
+    borderRadius: 16,
+    borderWidth: 0.5,
   },
   cardContent: {
-    padding: 16,
+    padding: 18,
   },
   header: {
     flexDirection: 'row',
@@ -157,9 +160,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

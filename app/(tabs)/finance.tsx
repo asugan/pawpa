@@ -5,7 +5,6 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
-  useWindowDimensions,
 } from "react-native";
 import { Text, FAB, Snackbar, Chip, Button, Card, SegmentedButtons } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
@@ -17,6 +16,7 @@ import {
   useCreateExpense,
   useUpdateExpense,
   useDeleteExpense,
+  expenseKeys,
 } from "../../lib/hooks/useExpenses";
 import {
   useUserBudget,
@@ -49,7 +49,6 @@ export default function FinanceScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { width } = useWindowDimensions();
 
   // Tab state
   const [activeTab, setActiveTab] = useState<FinanceTabValue>('budget');
@@ -75,7 +74,7 @@ export default function FinanceScreen() {
 
   // Fetch expenses
   const {
-    data: expensesData,
+    data: expensesData = { expenses: [], total: 0 },
     isLoading: expensesLoading,
     isFetching: expensesFetching,
   } = useExpenses(selectedPetId, {
@@ -108,13 +107,6 @@ export default function FinanceScreen() {
       setHasMore(expensesData.expenses.length >= ENV.DEFAULT_LIMIT);
     }
   }, [expensesData, page]);
-
-  // Reset pagination when pet changes
-  useEffect(() => {
-    setPage(1);
-    setAllExpenses([]);
-    setHasMore(true);
-  }, [selectedPetId]);
 
   // Expense handlers
   const handleAddExpense = () => {
@@ -334,8 +326,6 @@ export default function FinanceScreen() {
       );
     }
 
-    const numColumns = width > 600 ? 2 : 1;
-
     return (
       <ScrollView
         style={styles.expensesScroll}
@@ -343,10 +333,22 @@ export default function FinanceScreen() {
         refreshControl={
           <RefreshControl
             refreshing={expensesFetching}
-            onRefresh={() => {
+            onRefresh={async () => {
               setPage(1);
               setAllExpenses([]);
-              queryClient.invalidateQueries({ queryKey: ["expenses"] });
+
+              // Invalidate all expense queries to ensure fresh data
+              await queryClient.invalidateQueries({
+                queryKey: ['expenses']
+              });
+
+              // Then refetch the current query
+              const queryKey = expenseKeys.list({
+                petId: selectedPetId,
+                page: 1,
+                limit: ENV.DEFAULT_LIMIT
+              });
+              await queryClient.refetchQueries({ queryKey });
             }}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
@@ -391,19 +393,12 @@ export default function FinanceScreen() {
 
         <View style={styles.expensesGrid}>
           {allExpenses.map((expense) => (
-            <View
+            <ExpenseCard
               key={expense.id}
-              style={[
-                styles.expenseCardContainer,
-                { width: numColumns === 2 ? '50%' : '100%' }
-              ]}
-            >
-              <ExpenseCard
-                expense={expense}
-                onEdit={() => handleEditExpense(expense)}
-                onDelete={() => handleDeleteExpense(expense)}
-              />
-            </View>
+              expense={expense}
+              onEdit={() => handleEditExpense(expense)}
+              onDelete={() => handleDeleteExpense(expense)}
+            />
           ))}
         </View>
 
@@ -537,12 +532,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expensesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 8,
-  },
-  expenseCardContainer: {
-    padding: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   sectionTitle: {
     paddingHorizontal: 16,
