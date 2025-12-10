@@ -12,6 +12,14 @@ const CACHE_TTL = 5000; // 5 seconds
  */
 
 /**
+ * Invalidate specific cache entry
+ */
+function invalidateCache(key: string): void {
+  REQUEST_CACHE.delete(key);
+  console.log(`[SubscriptionApiService] Cache invalidated for ${key}`);
+}
+
+/**
  * Clear expired cache entries
  */
 function clearExpiredCache() {
@@ -168,17 +176,30 @@ export class SubscriptionApiService {
   }
 
   /**
-   * Start a new trial for the user
+   * Invalidate subscription status cache - called after trial start
+   */
+  public async invalidateSubscriptionStatusCache(): Promise<void> {
+    const deviceId = await getDeviceId();
+    invalidateCache(`subscription-status-${deviceId}`);
+  }
+
+  /**
+   * Start a new trial for the user with immediate cache invalidation
    */
   async startTrial(): Promise<ApiResponse<StartTrialResponse>> {
     try {
       const deviceId = await getDeviceId();
+
+      // Don't use cache for trial start - always fresh request
       const response = await api.post<StartTrialResponse>(
         ENV.ENDPOINTS.SUBSCRIPTION_START_TRIAL,
         { deviceId }
       );
 
-      console.log('✅ Trial started successfully');
+      // Immediately invalidate subscription status cache
+      await this.invalidateSubscriptionStatusCache();
+
+      console.log('✅ Trial started successfully, cache invalidated');
       return {
         success: true,
         data: response.data!,
