@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ProtectedRoute } from "@/components/subscription";
-import ExpenseOverview from "@/components/ExpenseOverview";
 import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -14,7 +13,7 @@ import PetCard from "@/components/PetCard";
 import StatCard from "@/components/StatCard";
 import { UpcomingEventsSection } from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
-import { SimpleBudgetOverview } from "@/components/home/SimpleBudgetOverview";
+import { FinancialOverview } from "@/components/home/FinancialOverview";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { Text } from "@/components/ui";
 import { useHomeData } from "@/lib/hooks/useHomeData";
@@ -26,7 +25,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   // Tüm mantık useHomeData hook'unda toplandı
-  const { user, layout, data, status } = useHomeData();
+  const { user, layout, data, status, financial } = useHomeData();
 
   if (status.isLoading) {
     return (
@@ -206,13 +205,14 @@ export default function HomeScreen() {
             <NextFeedingWidget />
           </View>
 
-          <HealthOverview healthRecords={data.allHealthRecords || []} />
-
-          <ExpenseOverview />
-
-          <SimpleBudgetOverview />
-
           <UpcomingEventsSection />
+
+          <FinancialOverview
+            budgetStatus={financial.budgetStatus || undefined}
+            recentExpenses={data.recentExpenses}
+          />
+
+          <HealthOverview healthRecords={data.allHealthRecords || []} />
         </ScrollView>
 
         <TouchableOpacity

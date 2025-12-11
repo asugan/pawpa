@@ -29,7 +29,6 @@ import ExpenseCard from "../../components/ExpenseCard";
 import ExpenseFormModal from "../../components/ExpenseFormModal";
 import UserBudgetCard from "../../components/UserBudgetCard";
 import UserBudgetFormModal from "../../components/UserBudgetFormModal";
-import { SimpleBudgetOverview } from "../../components/home/SimpleBudgetOverview";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import EmptyState from "../../components/EmptyState";
 import { useTranslation } from "react-i18next";
@@ -266,38 +265,41 @@ export default function FinanceScreen() {
   };
 
   // Render budget tab content
-  const renderBudgetContent = () => (
-    <View style={styles.content}>
-      <View style={styles.budgetSection}>
-        <SimpleBudgetOverview onPress={handleSetBudget} />
+  const renderBudgetContent = () => {
+    if (budgetLoading) {
+      return <LoadingSpinner />;
+    }
 
-        {/* Set Budget Button - shown when no budget exists */}
-        {!budget && !budgetLoading && (
-          <Button
-            mode="outlined"
-            onPress={handleSetBudget}
-            style={[
-              styles.setBudgetButton,
-              { borderColor: theme.colors.primary },
-            ]}
-            textColor={theme.colors.primary}
-          >
-            {t("budgets.setBudget", "Set Budget")}
-          </Button>
-        )}
+    return (
+      <View style={styles.content}>
+        <View style={styles.budgetSection}>
+          {/* Empty State - shown when no budget exists */}
+          {!budget && (
+            <EmptyState
+              title={t("budgets.noBudgetSet", "No Budget Set")}
+              description={t(
+                "budgets.setBudgetDescription",
+                "Set a monthly budget to track your pet expenses"
+              )}
+              icon="wallet-plus"
+              buttonText={t("budgets.setBudget", "Set Budget")}
+              onButtonPress={handleSetBudget}
+            />
+          )}
 
-        {/* Budget Card with Actions - shown when budget exists */}
-        {budget && budgetStatus && (
-          <UserBudgetCard
-            budget={budget}
-            status={budgetStatus}
-            onEdit={handleEditBudget}
-            onDelete={handleDeleteBudget}
-          />
-        )}
+          {/* Budget Card with Actions - shown when budget exists */}
+          {budget && budgetStatus && (
+            <UserBudgetCard
+              budget={budget}
+              status={budgetStatus}
+              onEdit={handleEditBudget}
+              onDelete={handleDeleteBudget}
+            />
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   // Render expenses tab content
   const renderExpensesContent = () => (

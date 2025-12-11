@@ -2,7 +2,7 @@
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__
-    ? "https://fe5a2d734988.ngrok-free.app"
+    ? "https://c6d54234237d.ngrok-free.app"
     : "https://your-production-api.com",
 
   // Auth configuration
