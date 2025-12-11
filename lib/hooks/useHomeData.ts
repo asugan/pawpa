@@ -2,11 +2,9 @@ import { useAuth } from "@/lib/auth";
 import { useUserBudgetStatus } from "@/lib/hooks/useUserBudget";
 import { useTodayEvents } from "@/lib/hooks/useEvents";
 import { useExpenseStats } from "@/lib/hooks/useExpenses";
-import {
-  useAllPetsHealthRecords,
-  useUpcomingVaccinations,
-} from "@/lib/hooks/useHealthRecords";
+import { useAllPetsHealthRecords, useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
+import { useRecentExpenses } from "@/lib/hooks/useRecentExpenses";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
 import { UserBudgetStatus, Event, HealthRecord } from "@/lib/types";
 
@@ -26,6 +24,8 @@ export const useHomeData = () => {
     useUpcomingVaccinations();
   const { data: expenseStats } = useExpenseStats();
   const { data: budgetStatus } = useUserBudgetStatus();
+  const { data: recentExpenses, isLoading: recentExpensesLoading } =
+    useRecentExpenses();
 
   // Derived Data
   const petIds = (pets || []).map((p) => p.id);
@@ -37,7 +37,11 @@ export const useHomeData = () => {
   const expensePercentage =
     monthlyBudget > 0 ? (monthlyExpense / monthlyBudget) * 100 : 0;
 
-  const isLoading = petsLoading || eventsLoading || vaccinationsLoading;
+  const isLoading =
+    petsLoading ||
+    eventsLoading ||
+    vaccinationsLoading ||
+    recentExpensesLoading;
 
   return {
     user,
@@ -47,11 +51,13 @@ export const useHomeData = () => {
       todayEvents,
       upcomingVaccinations,
       allHealthRecords,
+      recentExpenses,
     },
     financial: {
       monthlyExpense,
       monthlyBudget,
       expensePercentage,
+      budgetStatus,
     },
     status: {
       isLoading,
