@@ -4,7 +4,6 @@ import { Text, Card, ProgressBar } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { UserBudgetStatus, Expense } from "@/lib/types";
 import CompactExpenseItem from "@/components/CompactExpenseItem";
 
@@ -75,7 +74,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
       >
         <View style={styles.content}>
           <Text variant="titleMedium" style={styles.title}>
-            {t("finance.overview", "Finansal Genel Bakış")}
+            {t("home.financialOverview", "Finansal Genel Bakış")}
           </Text>
 
           {/* Budget Section */}
@@ -86,7 +85,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
                   variant="bodyMedium"
                   style={{ color: theme.colors.onSurfaceVariant }}
                 >
-                  {t("finance.thisMonthExpenses", "Bu Ayki Harcamalar")}
+                  {t("finance.monthlyExpenses", "Bu Ayki Harcamalar")}
                 </Text>
                 <View style={{ flexDirection: "row", alignItems: "baseline" }}>
                   <Text variant="bodyLarge" style={{ fontWeight: "600" }}>
@@ -127,7 +126,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
               ]}
             >
               <Text variant="titleSmall" style={styles.expensesTitle}>
-                {t("finance.recentExpenses", "Son Harcamalar")}
+                {t("expenses.recent", "Son Harcamalar")}
               </Text>
 
               <View style={styles.expensesList}>

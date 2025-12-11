@@ -205,14 +205,14 @@ export default function HomeScreen() {
             <NextFeedingWidget />
           </View>
 
-          <HealthOverview healthRecords={data.allHealthRecords || []} />
+          <UpcomingEventsSection />
 
           <FinancialOverview
-            budgetStatus={financial.budgetStatus}
+            budgetStatus={financial.budgetStatus || undefined}
             recentExpenses={data.recentExpenses}
           />
 
-          <UpcomingEventsSection />
+          <HealthOverview healthRecords={data.allHealthRecords || []} />
         </ScrollView>
 
         <TouchableOpacity
