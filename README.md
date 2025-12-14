@@ -1,6 +1,6 @@
-# Pawpa - Pet Management App 🐾
+# Petopia Petcare - Pet Management App 🐾
 
-Pawpa is a modern pet management application built with React Native and Expo, designed to help pet owners track their pets' health records, events, and daily activities with a beautiful and intuitive interface.
+Petopia Petcare is a modern pet management application built with React Native and Expo, designed to help pet owners track their pets' health records, events, and daily activities with a beautiful and intuitive interface.
 
 [![Expo Version](https://img.shields.io/badge/Expo-~54.0.20-blue.svg)](https://expo.dev/)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-green.svg)](https://reactnative.dev/)
@@ -46,7 +46,7 @@ Pawpa is a modern pet management application built with React Native and Expo, d
 ## 📁 Project Structure
 
 ```
-pawpa/
+petopia-petcare/
 ├── app/                    # Expo Router file-based routing
 │   ├── (auth)/            # Authentication screens
 │   ├── (tabs)/            # Main tab navigation
@@ -94,8 +94,8 @@ pawpa/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/pawpa.git
-   cd pawpa
+   git clone https://github.com/your-username/petopia-petcare.git
+   cd petopia-petcare
    ```
 
 2. **Install dependencies**
@@ -150,7 +150,7 @@ npm run reset-project
 - File-based routing with Expo Router
 - Route groups for authentication (`(auth)`) and main app (`(tabs)`)
 - Modal presentation for subscription screen
-- Deep linking with `pawpa://` scheme
+- Deep linking with `petopia-petcare://` scheme
 
 ### Internationalization
 
@@ -185,7 +185,7 @@ _[Add screenshots here when available]_
 
 ## 💰 Budget System
 
-The Pawpa app features a newly simplified budget management system designed for ease of use and comprehensive expense tracking.
+The Petopia Petcare app features a newly simplified budget management system designed for ease of use and comprehensive expense tracking.
 
 ### Key Features
 
@@ -284,8 +284,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you have any questions or suggestions, feel free to:
 
-- Open an [Issue](https://github.com/asugan/pawpa/issues)
-- Create a [Pull Request](https://github.com/asugan/pawpa/pulls)
+- Open an [Issue](https://github.com/asugan/petopia-petcare/issues)
+- Create a [Pull Request](https://github.com/asugan/petopia-petcare/pulls)
 - Contact us at [cagatayeren1898@gmail.com]
 
 ---

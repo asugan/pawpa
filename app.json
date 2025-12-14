@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "pawpa",
-    "slug": "pawpa",
+    "name": "petopia-petcare",
+    "slug": "petopia-petcare",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "pawpa",
+    "scheme": "petopia-petcare",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pawpa.app"
+      "bundleIdentifier": "com.petopia.app"
     },
     "android": {
-      "package": "com.pawpa.app",
+      "package": "com.petopia.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -28,7 +28,7 @@
           "autoVerify": true,
           "data": [
             {
-              "scheme": "pawpa"
+              "scheme": "petopia-petcare"
             }
           ],
           "category": [

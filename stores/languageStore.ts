@@ -19,7 +19,7 @@ interface LanguageActions {
   setExplicitLanguage: (language: SupportedLanguage) => void;
 }
 
-const LANGUAGE_STORAGE_KEY = 'pawpa-language';
+const LANGUAGE_STORAGE_KEY = 'petopia-language';
 
 export const useLanguageStore = create<LanguageState & LanguageActions>()(
   persist(
