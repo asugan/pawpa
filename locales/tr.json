@@ -12,6 +12,7 @@
     "name": "İsim",
     "namePlaceholder": "İsminizi girin",
     "loginSubtitle": "Tekrar hoş geldiniz! Devam etmek için giriş yapın",
+    "appName": "Petopia Petcare",
     "signUpSubtitle": "Başlamak için bir hesap oluşturun",
     "orContinueWith": "veya şununla devam edin",
     "noAccount": "Hesabınız yok mu?",
@@ -214,7 +215,7 @@
     "eventDuplicated": "Etkinlik kopyalandı",
     "duplicateEventError": "Etkinlik kopyalanırken bir hata oluştu",
     "duplicate": "Kopyala",
-    "sharedFrom": "PawPa ile paylaşıldı",
+    "sharedFrom": "Petopia Petcare ile paylaşıldı",
     "dateAndTime": "Tarih ve Saat",
     "date": "Tarih",
     "time": "Saat",
@@ -728,7 +729,7 @@
   },
   "onboarding": {
     "screen1": {
-      "title": "Uygulamamıza Hoş Geldiniz",
+      "title": "Petopia Petcare'a Hoş Geldiniz",
       "description": "Evcil dostunuzun sağlığını ve mutluluğunu kolayca takip edin.",
       "button": "Başla"
     },
@@ -814,8 +815,8 @@
       "budgets": "Bütçe Yönetimi"
     },
     "paywall": {
-      "title": "PawPa Pro'yu Açın",
-      "subtitle": "PawPa'dan en iyi şekilde faydalanın"
+      "title": "Petopia Petcare Pro'yu Açın",
+      "subtitle": "Petopia Petcare'dan en iyi şekilde faydalanın"
     },
     "success": {
       "title": "Abonelik Başarılı!",

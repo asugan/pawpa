@@ -1,4 +1,4 @@
-// Environment configuration for PawPa app
+// Environment configuration for Petopia Petcare app
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__
@@ -7,8 +7,8 @@ export const ENV = {
 
   // Auth configuration
   AUTH: {
-    SCHEME: "pawpa",
-    STORAGE_PREFIX: "pawpa-auth",
+    SCHEME: "petopia-petcare",
+    STORAGE_PREFIX: "petopia-auth",
   },
 
   // API Endpoints

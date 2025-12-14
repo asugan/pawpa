@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeContextValue, ThemeMode } from "./types";
 import { lightTheme, darkTheme } from "./themes";
 
-const THEME_STORAGE_KEY = "@pawpa/theme_mode";
+const THEME_STORAGE_KEY = "@petopia/theme_mode";
 
 export const ThemeContext = createContext<ThemeContextValue | undefined>(
   undefined

@@ -12,6 +12,7 @@
     "name": "Name",
     "namePlaceholder": "Enter your name",
     "loginSubtitle": "Welcome back! Sign in to continue",
+    "appName": "Petopia Petcare",
     "signUpSubtitle": "Create an account to get started",
     "orContinueWith": "or continue with",
     "noAccount": "Don't have an account?",
@@ -214,7 +215,7 @@
     "eventDuplicated": "Event duplicated",
     "duplicateEventError": "Error duplicating event",
     "duplicate": "Duplicate",
-    "sharedFrom": "Shared from PawPa",
+    "sharedFrom": "Shared from Petopia Petcare",
     "dateAndTime": "Date & Time",
     "date": "Date",
     "time": "Time",
@@ -728,7 +729,7 @@
   },
   "onboarding": {
     "screen1": {
-      "title": "Welcome to Our App",
+      "title": "Welcome to Petopia Petcare",
       "description": "Easily track your pet's health and happiness.",
       "button": "Start"
     },
@@ -814,8 +815,8 @@
       "budgets": "Budget Management"
     },
     "paywall": {
-      "title": "Unlock PawPa Pro",
-      "subtitle": "Get the most out of PawPa"
+      "title": "Unlock Petopia Petcare Pro",
+      "subtitle": "Get the most out of Petopia Petcare"
     },
     "success": {
       "title": "Subscription Successful!",

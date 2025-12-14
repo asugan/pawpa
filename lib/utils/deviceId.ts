@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 import * as SecureStore from 'expo-secure-store';
 
-const DEVICE_ID_KEY = 'pawpa_device_id';
+const DEVICE_ID_KEY = 'petopia_device_id';
 
 /**
  * Generate a UUID v4 for fallback device identification

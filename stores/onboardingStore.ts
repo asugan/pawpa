@@ -36,7 +36,7 @@ export const useOnboardingStore = create<OnboardingStore>()(
       },
     }),
     {
-      name: '@pawpa_onboarding_storage',
+      name: '@petopia_onboarding_storage',
       storage: createJSONStorage(() => AsyncStorage),
       // Only persist hasSeenOnboarding
       partialize: (state) => ({ hasSeenOnboarding: state.hasSeenOnboarding }),

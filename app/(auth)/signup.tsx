@@ -87,7 +87,7 @@ export default function SignupScreen() {
               />
             </View>
             <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-              PawPa
+              {t('auth.appName')}
             </Text>
             <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
               {t('auth.signUpSubtitle')}
