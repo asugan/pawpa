@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { objectIdSchema } from './createZodI18n';
 
 // Expense categories enum
 export const EXPENSE_CATEGORIES = [
@@ -42,7 +43,7 @@ const validateExpenseDate = (date: Date) => {
 
 // Base expense schema for common validations
 const BaseExpenseSchema = z.object({
-  petId: z.string().min(1, 'Pet ID is required'),
+  petId: objectIdSchema,
 
   category: z.enum(EXPENSE_CATEGORIES, {
     errorMap: () => ({ message: 'Invalid category' })
@@ -100,7 +101,7 @@ const BaseExpenseSchema = z.object({
 
 // Full Expense schema including server-side fields
 export const ExpenseSchema = BaseExpenseSchema.extend({
-  id: z.string().uuid(),
+  _id: objectIdSchema,
   createdAt: z.string().datetime(),
 });
 

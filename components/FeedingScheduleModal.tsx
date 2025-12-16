@@ -53,7 +53,7 @@ export function FeedingScheduleModal({
       if (schedule) {
         // Update existing schedule
         await updateMutation.mutateAsync({
-          id: schedule.id,
+          _id: schedule._id,
           data: apiData,
         });
         showSnackbar(t('feedingSchedule.updateSuccess') || 'Besleme programı başarıyla güncellendi');

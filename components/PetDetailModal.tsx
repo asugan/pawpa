@@ -71,7 +71,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
           style: 'destructive',
           onPress: async () => {
             try {
-              await deletePetMutation.mutateAsync(pet.id);
+              await deletePetMutation.mutateAsync(pet._id);
               showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
               setTimeout(() => {
                 onClose();
@@ -322,7 +322,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                   .slice(0, 3)
                   .map((event: Event) => (
                     <EventCard
-                      key={event.id}
+                      key={event._id}
                       event={event}
                       showPetInfo={false}
                       showActions={false}
@@ -354,7 +354,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
                     onClose();
                     router.push({
                       pathname: '/(tabs)/calendar',
-                      params: { petId: pet.id, action: 'create' }
+                      params: { petId: pet._id, action: 'create' }
                     });
                   }}
                   style={styles.quickActionButton}

@@ -116,7 +116,7 @@ export function useUpdatePet() {
   const queryClient = useQueryClient();
 
   return useUpdateResource<Pet, UpdatePetInput>(
-    ({ id, data }) => petService.updatePet(id, data).then(res => res.data!),
+    ({ _id, data }) => petService.updatePet(_id, data).then(res => res.data!),
     {
       listQueryKey: petKeys.lists(),
       detailQueryKey: petKeys.detail,
@@ -132,7 +132,7 @@ export function useDeletePet() {
   const queryClient = useQueryClient();
 
   return useDeleteResource<Pet>(
-    (id) => petService.deletePet(id).then(res => res.data),
+    (_id) => petService.deletePet(_id).then(res => res.data),
     {
       listQueryKey: petKeys.lists(),
       detailQueryKey: petKeys.detail,
@@ -148,7 +148,7 @@ export function useUploadPetPhoto() {
   const queryClient = useQueryClient();
 
   return useUpdateResource<Pet, { profilePhoto: string }>(
-    ({ id, data }) => petService.uploadPetPhoto(id, data.profilePhoto).then(res => res.data!),
+    ({ _id, data }) => petService.uploadPetPhoto(_id, data.profilePhoto).then(res => res.data!),
     {
       listQueryKey: petKeys.lists(),
       detailQueryKey: petKeys.detail,

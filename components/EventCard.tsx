@@ -63,7 +63,7 @@ export function EventCard({
     if (onPress) {
       onPress(event);
     } else {
-      router.push(`/event/${event.id}`);
+      router.push(`/event/${event._id}`);
     }
   }, [onPress, event, router]);
 

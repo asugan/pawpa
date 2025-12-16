@@ -21,7 +21,7 @@ export class PetService {
 
       const response = await api.post<Pet>(ENV.ENDPOINTS.PETS, cleanedData);
 
-      console.log('✅ Pet created successfully:', response.data?.id);
+      console.log('✅ Pet created successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -98,7 +98,7 @@ export class PetService {
     try {
       const response = await api.get<Pet>(ENV.ENDPOINTS.PET_BY_ID(id));
 
-      console.log('✅ Pet loaded successfully:', response.data?.id);
+      console.log('✅ Pet loaded successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -139,7 +139,7 @@ export class PetService {
 
       const response = await api.put<Pet>(ENV.ENDPOINTS.PET_BY_ID(id), updateData);
 
-      console.log('✅ Pet updated successfully:', response.data?.id);
+      console.log('✅ Pet updated successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -271,7 +271,7 @@ export class PetService {
 
       const response = await api.upload<Pet>(ENV.ENDPOINTS.PET_PHOTO(id), formData);
 
-      console.log('✅ Pet photo uploaded successfully:', response.data?.id);
+      console.log('✅ Pet photo uploaded successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,

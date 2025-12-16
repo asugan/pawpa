@@ -127,7 +127,7 @@ export default function FinanceScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deleteExpenseMutation.mutateAsync(expense.id);
+            await deleteExpenseMutation.mutateAsync(expense._id);
             setSnackbarMessage(t("expenses.deleteSuccess"));
             setSnackbarVisible(true);
           } catch {
@@ -143,7 +143,7 @@ export default function FinanceScreen() {
     try {
       if (editingExpense) {
         await updateExpenseMutation.mutateAsync({
-          id: editingExpense.id,
+          _id: editingExpense._id,
           data,
         });
         setSnackbarMessage(t("expenses.updateSuccess"));
@@ -251,9 +251,9 @@ export default function FinanceScreen() {
           </Chip>
           {pets.map((pet) => (
             <Chip
-              key={pet.id}
-              selected={selectedPetId === pet.id}
-              onPress={() => setSelectedPetId(pet.id)}
+              key={pet._id}
+              selected={selectedPetId === pet._id}
+              onPress={() => setSelectedPetId(pet._id)}
               textStyle={{ fontSize: 12 }}
             >
               {pet.name}
@@ -273,15 +273,15 @@ export default function FinanceScreen() {
     return (
       <View style={styles.content}>
         <View style={styles.budgetSection}>
-          {/* Empty State - shown when no budget exists */}
-          {!budget && (
+          {/* EmptyState - shown when no budget exists */}
+          {(!budget || (typeof budget === 'object' && Object.keys(budget).length === 0)) && (
             <EmptyState
               title={t("budgets.noBudgetSet", "No Budget Set")}
               description={t(
                 "budgets.setBudgetDescription",
                 "Set a monthly budget to track your pet expenses"
               )}
-              icon="wallet-plus"
+              icon="wallet"
               buttonText={t("budgets.setBudget", "Set Budget")}
               onButtonPress={handleSetBudget}
             />
@@ -397,7 +397,7 @@ export default function FinanceScreen() {
         <View style={styles.expensesGrid}>
           {allExpenses.map((expense) => (
             <ExpenseCard
-              key={expense.id}
+              key={expense._id}
               expense={expense}
               onEdit={() => handleEditExpense(expense)}
               onDelete={() => handleDeleteExpense(expense)}
@@ -446,9 +446,9 @@ export default function FinanceScreen() {
         {activeTab === 'budget' ? renderBudgetContent() : renderExpensesContent()}
 
         {/* Conditional FABs */}
-        {activeTab === 'budget' && !budget && (
+        {activeTab === 'budget' && budget && (typeof budget === 'object' && Object.keys(budget).length > 0) && (
           <FAB
-            icon="plus"
+            icon="pencil"
             style={{ ...styles.fab, backgroundColor: theme.colors.primary }}
             onPress={handleSetBudget}
           />
@@ -525,6 +525,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   budgetSection: {
+    flex: 1,
     paddingHorizontal: 16,
     paddingBottom: 16,
   },

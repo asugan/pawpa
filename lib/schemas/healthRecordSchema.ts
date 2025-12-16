@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { toUTCWithOffset, isValidUTCISOString } from '@/lib/utils/dateConversion';
+import { objectIdSchema } from './createZodI18n';
 // import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
@@ -49,9 +50,7 @@ const HealthRecordTypeEnum = z.enum([
 
 // Base health record schema for common validations
 const BaseHealthRecordSchema = z.object({
-  petId: z
-    .string()
-    .min(1, 'Pet seçilmesi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Pet seçilmesi zorunludur' }),
 
   type: HealthRecordTypeEnum,
 
@@ -181,9 +180,7 @@ const BaseHealthRecordFormSchema = z.object({
     .optional()
     .transform(val => val?.trim() || undefined),
 
-  petId: z
-    .string()
-    .min(1, 'Evcil hayvan seçimi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   veterinarian: z
     .string()
@@ -263,7 +260,7 @@ export const HealthRecordUpdateFormSchema = BaseHealthRecordFormSchema.partial()
 
 // Full HealthRecord schema including server-side fields
 export const HealthRecordSchema = BaseHealthRecordSchema.extend({
-  id: z.string().uuid(),
+  _id: objectIdSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   // Add specific fields as optional to match the broad HealthRecord type

@@ -52,7 +52,7 @@ export default function PetsScreen() {
         // Subsequent pages - append new pets
         setAllPets(prev => {
           // Avoid duplicates
-          const newPets = pets.filter(p => !prev.some(existing => existing.id === p.id));
+          const newPets = pets.filter(p => !prev.some(existing => existing._id === p._id));
           return [...prev, ...newPets];
         });
       }
@@ -101,7 +101,7 @@ export default function PetsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deletePetMutation.mutateAsync(pet.id);
+              await deletePetMutation.mutateAsync(pet._id);
               showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : t('pets.deleteError');
@@ -123,7 +123,7 @@ export default function PetsScreen() {
   };
 
   const handleViewPet = (pet: Pet) => {
-    setSelectedPetIdForDetail(pet.id);
+    setSelectedPetIdForDetail(pet._id);
     setDetailModalVisible(true);
   };
 
@@ -146,7 +146,7 @@ export default function PetsScreen() {
   const renderPetCard = (pet: Pet) => (
     <PetCard
       pet={pet}
-      petId={pet.id} // Enable hook usage for real activity data
+      petId={pet._id} // Enable hook usage for real activity data
       onPress={() => handleViewPet(pet)}
       onEdit={() => handleEditPet(pet)}
       onDelete={() => handleDeletePet(pet)}

@@ -114,7 +114,7 @@ export const useNextFeedingWithDetails = (language: string = 'en') => {
     }
 
     const nextFeedingTime = getNextFeedingTime([nextFeedingSchedule]);
-    const pet = pets.find(p => p.id === nextFeedingSchedule.petId) || null;
+    const pet = pets.find(p => p._id === nextFeedingSchedule.petId) || null;
     const locale = language === 'tr' ? tr : enUS;
     const timeUntil = nextFeedingTime
       ? formatDistanceToNow(nextFeedingTime, { addSuffix: true, locale })
@@ -167,7 +167,7 @@ export const useUpdateFeedingSchedule = () => {
   const queryClient = useQueryClient();
 
   return useUpdateResource<FeedingSchedule, UpdateFeedingScheduleInput>(
-    ({ id, data }) => feedingScheduleService.updateFeedingSchedule(id, data).then(res => res.data!),
+    ({ _id, data }) => feedingScheduleService.updateFeedingSchedule(_id, data).then(res => res.data!),
     {
       listQueryKey: feedingScheduleKeys.lists(),
       detailQueryKey: feedingScheduleKeys.detail,
@@ -192,15 +192,15 @@ export const useDeleteFeedingSchedule = () => {
       onSuccess: (data, id) => {
         // Remove from active schedules
         queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-          old?.filter(schedule => schedule.id !== id)
+          old?.filter(schedule => schedule._id !== id)
         );
 
         queryClient.setQueryData(feedingScheduleKeys.today(), (old: FeedingSchedule[] | undefined) =>
-          old?.filter(schedule => schedule.id !== id)
+          old?.filter(schedule => schedule._id !== id)
         );
 
         queryClient.setQueryData(feedingScheduleKeys.next(), (old: FeedingSchedule[] | undefined) =>
-          old?.filter(schedule => schedule.id !== id)
+          old?.filter(schedule => schedule._id !== id)
         );
       },
       onSettled: () => {
@@ -234,7 +234,7 @@ export const useToggleFeedingSchedule = () => {
       queryClient.setQueriesData({ queryKey: feedingScheduleKeys.lists() }, (old: FeedingSchedule[] | undefined) => {
         if (!old) return old;
         return old.map(schedule =>
-          schedule.id === id ? { ...schedule, isActive, updatedAt: new Date().toISOString() } : schedule
+          schedule._id === id ? { ...schedule, isActive, updatedAt: new Date().toISOString() } : schedule
         );
       });
 
@@ -243,12 +243,12 @@ export const useToggleFeedingSchedule = () => {
         const schedule = queryClient.getQueryData(feedingScheduleKeys.detail(id)) as FeedingSchedule;
         if (schedule) {
           queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-            old ? [...old.filter(s => s.id !== id), schedule] : [schedule]
+            old ? [...old.filter(s => s._id !== id), schedule] : [schedule]
           );
         }
       } else {
         queryClient.setQueryData(feedingScheduleKeys.active(), (old: FeedingSchedule[] | undefined) =>
-          old?.filter(schedule => schedule.id !== id)
+          old?.filter(schedule => schedule._id !== id)
         );
       }
 

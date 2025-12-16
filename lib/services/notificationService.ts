@@ -158,7 +158,7 @@ export class NotificationService {
           title: `${eventTypeEmoji} ${event.title}`,
           body: event.description || `Reminder for your pet's ${event.type} event`,
           data: {
-            eventId: event.id,
+            eventId: event._id,
             petId: event.petId,
             eventType: event.type,
             screen: 'event',
@@ -173,7 +173,7 @@ export class NotificationService {
         },
       });
 
-      console.log(`✅ Scheduled reminder for event ${event.id}: ${notificationId}`);
+      console.log(`✅ Scheduled reminder for event ${event._id}: ${notificationId}`);
       console.log(`   Trigger time: ${triggerDate.toISOString()}`);
       console.log(`   Event time: ${eventDate.toISOString()}`);
 
@@ -282,7 +282,7 @@ export class NotificationService {
       }
     }
 
-    console.log(`✅ Scheduled ${notificationIds.length} reminders for event ${event.id}`);
+    console.log(`✅ Scheduled ${notificationIds.length} reminders for event ${event._id}`);
     return notificationIds;
   }
 

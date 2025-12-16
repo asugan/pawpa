@@ -153,12 +153,12 @@ export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
 
   return useUpdateResource<Event, UpdateEventInput>(
-    ({ id, data }) => eventService.updateEvent(id, data).then(res => res.data!),
+    ({ _id, data }) => eventService.updateEvent(_id, data).then(res => res.data!),
     {
       listQueryKey: eventKeys.lists(),
       detailQueryKey: eventKeys.detail,
       onSettled: (data, error, variables) => {
-        queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables.id) });
+        queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables._id) });
         queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
 
         // Invalidate calendar queries if date changed

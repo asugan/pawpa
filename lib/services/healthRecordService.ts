@@ -13,7 +13,7 @@ export class HealthRecordService {
     try {
       const response = await api.post<HealthRecord>(ENV.ENDPOINTS.HEALTH_RECORDS, data);
 
-      console.log('✅ Health record created successfully:', response.data?.id);
+      console.log('✅ Health record created successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -97,7 +97,7 @@ export class HealthRecordService {
     try {
       const response = await api.get<HealthRecord>(ENV.ENDPOINTS.HEALTH_RECORD_BY_ID(id));
 
-      console.log('✅ Health record loaded successfully:', response.data?.id);
+      console.log('✅ Health record loaded successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -131,7 +131,7 @@ export class HealthRecordService {
     try {
       const response = await api.put<HealthRecord>(ENV.ENDPOINTS.HEALTH_RECORD_BY_ID(id), data);
 
-      console.log('✅ Health record updated successfully:', response.data?.id);
+      console.log('✅ Health record updated successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,

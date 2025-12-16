@@ -56,7 +56,7 @@ export function FeedingScheduleForm({
   const petOptions = React.useMemo(
     () =>
       pets.map((pet) => ({
-        value: pet.id,
+        value: pet._id,
         label: `${pet.name} (${t(`petTypes.${pet.type}`)})`,
       })),
     [pets, t]

@@ -188,7 +188,7 @@ export function EventList({
       showPetInfo={showPetInfo}
       showActions={showActions}
       compact={compact}
-      testID={`event-${item.id}`}
+      testID={`event-${item._id}`}
     />
   ), [onEventPress, onEventEdit, onEventDelete, showPetInfo, showActions, compact]);
 
@@ -324,7 +324,7 @@ export function EventList({
       {/* Events List */}
       <FlatList
         data={filteredEvents}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item, index }) => {
           const showSectionHeader = index === 0 ||
             format(new Date(item.startTime), 'yyyy-MM-dd') !==

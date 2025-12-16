@@ -13,7 +13,7 @@ export class FeedingScheduleService {
     try {
       const response = await api.post<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULES, data);
 
-      console.log('✅ Feeding schedule created successfully:', response.data?.id);
+      console.log('✅ Feeding schedule created successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -97,7 +97,7 @@ export class FeedingScheduleService {
     try {
       const response = await api.get<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id));
 
-      console.log('✅ Feeding schedule loaded successfully:', response.data?.id);
+      console.log('✅ Feeding schedule loaded successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -131,7 +131,7 @@ export class FeedingScheduleService {
     try {
       const response = await api.put<FeedingSchedule>(ENV.ENDPOINTS.FEEDING_SCHEDULE_BY_ID(id), data);
 
-      console.log('✅ Feeding schedule updated successfully:', response.data?.id);
+      console.log('✅ Feeding schedule updated successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,

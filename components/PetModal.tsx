@@ -45,7 +45,7 @@ export function PetModal({
 
       if (pet) {
         // Pet güncelleme
-        await updatePetMutation.mutateAsync({ id: pet.id, data: apiData });
+        await updatePetMutation.mutateAsync({ _id: pet._id, data: apiData });
         showSnackbar('Pet başarıyla güncellendi');
       } else {
         // Yeni pet oluşturma
