@@ -49,7 +49,7 @@ export function useHealthRecords(petId?: string, filters: HealthRecordFilters = 
         const pets = petsResult.data || [];
         const allRecords = await Promise.all(
           pets.map(async (pet: any) => {
-            const result = await healthRecordService.getHealthRecordsByPetId(pet.id);
+            const result = await healthRecordService.getHealthRecordsByPetId(pet._id);
             return result.success ? (result.data || []) : [];
           })
         );
@@ -220,14 +220,14 @@ export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
 
   return useUpdateResource<HealthRecord, UpdateHealthRecordInput>(
-    ({ id, data }) => healthRecordService.updateHealthRecord(id, data).then(res => res.data!),
+    ({ _id, data }) => healthRecordService.updateHealthRecord(_id, data).then(res => res.data!),
     {
       listQueryKey: healthRecordKeys.lists(),
       detailQueryKey: healthRecordKeys.detail,
       onSettled: (data) => {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
         if (data) {
-            queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(data.id) });
+            queryClient.invalidateQueries({ queryKey: healthRecordKeys.detail(data._id) });
             if (data.type === 'vaccination') {
                 queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations(data.petId) });
                 queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });

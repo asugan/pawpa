@@ -22,7 +22,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
 
   // Get pet name by id
   const getPetName = (petId: string) => {
-    const pet = pets?.find(p => p.id === petId);
+    const pet = pets?.find(p => p._id === petId);
     return pet?.name || '';
   };
 
@@ -58,7 +58,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
 
   // Map health records for display (already sorted and limited by hook)
   const healthItems = healthRecords.map((record) => ({
-    id: record.id,
+    _id: record._id,
     title: record.title || t(`health.types.${record.type}`, record.type),
     petId: record.petId,
     date: record.date,
@@ -108,7 +108,7 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
             const petName = getPetName(item.petId);
 
             return (
-              <View key={item.id} style={styles.healthItem}>
+              <View key={item._id} style={styles.healthItem}>
                 <View style={[styles.iconCircle, { backgroundColor: iconInfo.color + '33' }]}>
                   <Ionicons name={iconInfo.name} size={20} color={iconInfo.color} />
                 </View>

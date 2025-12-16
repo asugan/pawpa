@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DAYS_OF_WEEK, FOOD_TYPES } from '../../constants';
+import { objectIdSchema } from './createZodI18n';
 
 // Valid day names for validation
 const VALID_DAYS = Object.values(DAYS_OF_WEEK);
@@ -22,9 +23,7 @@ const isValidDaysString = (days: string): boolean => {
 
 // Form input schema (for create/edit forms with multi-select days)
 export const feedingScheduleFormSchema = z.object({
-  petId: z
-    .string()
-    .min(1, 'Evcil hayvan seçimi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   time: z
     .string()
@@ -67,9 +66,7 @@ export type FeedingScheduleFormData = z.infer<typeof feedingScheduleFormSchema>;
 
 // API schema (matches backend expectations with comma-separated days string)
 export const feedingScheduleSchema = z.object({
-  petId: z
-    .string()
-    .min(1, 'Evcil hayvan seçimi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   time: z
     .string()
@@ -102,7 +99,7 @@ export const feedingScheduleSchema = z.object({
 
 // Full FeedingSchedule schema including server-side fields
 export const FeedingScheduleSchema = feedingScheduleSchema.extend({
-  id: z.string().uuid(),
+  _id: objectIdSchema,
   createdAt: z.string().datetime(),
 });
 

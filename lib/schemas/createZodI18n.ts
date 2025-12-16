@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import { ZodIssue } from 'zod';
+import { ZodIssue, z } from 'zod';
 import { TranslationFunction } from '../types';
 
 /**
@@ -14,6 +14,11 @@ const getT = () => {
     return (key: string, options?: string | Record<string, unknown>) => key;
   }
 };
+
+/**
+ * MongoDB ObjectId validation schema
+ */
+export const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId format');
 
 /**
  * Creates a Zod error map for internationalized error messages

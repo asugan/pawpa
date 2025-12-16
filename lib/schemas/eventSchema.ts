@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { EVENT_TYPES } from '../../constants';
 import { combineDateTimeToISO, toUTCWithOffset, isValidUTCISOString } from '../utils/dateConversion';
+import { objectIdSchema } from './createZodI18n';
 
 // Form input schema (matches the form structure with separate date/time fields)
 export const eventFormSchema = z.object({
@@ -15,9 +16,7 @@ export const eventFormSchema = z.object({
     .optional()
     .transform(val => val?.trim() || undefined),
 
-  petId: z
-    .string()
-    .min(1, 'Evcil hayvan seçimi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   type: z
     .enum(Object.values(EVENT_TYPES) as [string, ...string[]], {
@@ -132,9 +131,7 @@ export const eventSchema = z.object({
     .string()
     .optional(),
 
-  petId: z
-    .string()
-    .min(1, 'Evcil hayvan seçimi zorunludur'),
+  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   type: z
     .string()
@@ -197,7 +194,7 @@ export const eventSchema = z.object({
 
 // Full Event schema including server-side fields
 export const EventSchema = eventSchema.extend({
-  id: z.string().uuid(),
+  _id: objectIdSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -210,7 +207,7 @@ export type Event = z.infer<typeof EventSchema>;
 export const updateEventSchema = z.object({
   title: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional(),
-  petId: z.string().min(1).optional(),
+  petId: objectIdSchema.optional(),
   type: z.enum(Object.values(EVENT_TYPES) as [string, ...string[]]).optional(),
   startTime: z.string().min(1).optional(),
   endTime: z.string().nullable().optional(),

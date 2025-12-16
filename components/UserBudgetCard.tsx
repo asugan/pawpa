@@ -83,7 +83,7 @@ const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <MaterialCommunityIcons
-              name="wallet"
+              name="card"
               size={24}
               color={theme.colors.primary}
               style={styles.icon}

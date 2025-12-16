@@ -53,7 +53,7 @@ export class ExpenseService {
 
       const response = await api.post<Expense>('/api/expenses', cleanedData);
 
-      console.log('✅ Expense created successfully:', response.data?.id);
+      console.log('✅ Expense created successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,

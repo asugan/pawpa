@@ -15,7 +15,7 @@ export const useRecentExpenses = () => {
 
       // Fetch expenses for each pet and merge
       const expensesPromises = pets.map((pet) =>
-        expenseService.getExpensesByPetId(pet.id, { limit: 3 })
+        expenseService.getExpensesByPetId(pet._id, { limit: 3 })
       );
 
       const responses = await Promise.all(expensesPromises);

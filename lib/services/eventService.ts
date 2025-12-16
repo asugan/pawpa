@@ -13,7 +13,7 @@ export class EventService {
     try {
       const response = await api.post<Event>(ENV.ENDPOINTS.EVENTS, data);
 
-      console.log('✅ Event created successfully:', response.data?.id);
+      console.log('✅ Event created successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -97,7 +97,7 @@ export class EventService {
     try {
       const response = await api.get<Event>(ENV.ENDPOINTS.EVENT_BY_ID(id));
 
-      console.log('✅ Event loaded successfully:', response.data?.id);
+      console.log('✅ Event loaded successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,
@@ -131,7 +131,7 @@ export class EventService {
     try {
       const response = await api.put<Event>(ENV.ENDPOINTS.EVENT_BY_ID(id), data);
 
-      console.log('✅ Event updated successfully:', response.data?.id);
+      console.log('✅ Event updated successfully:', response.data?._id);
       return {
         success: true,
         data: response.data!,

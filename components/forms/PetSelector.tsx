@@ -51,18 +51,18 @@ export function PetSelector({ selectedPetId, onPetSelect, error }: PetSelectorPr
       <View style={styles.petChips}>
         {pets.map((pet: Pet) => (
           <Chip
-            key={pet.id}
-            selected={selectedPetId === pet.id}
-            onPress={() => onPetSelect(pet.id)}
+            key={pet._id}
+            selected={selectedPetId === pet._id}
+            onPress={() => onPetSelect(pet._id)}
             style={[
               styles.chip,
-              selectedPetId === pet.id && {
+              selectedPetId === pet._id && {
                 backgroundColor: theme.colors.primary,
               },
             ]}
             textStyle={[
               styles.chipText,
-              selectedPetId === pet.id && {
+              selectedPetId === pet._id && {
                 color: theme.colors.onPrimary,
               },
             ]}

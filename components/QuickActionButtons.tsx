@@ -28,7 +28,7 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         textColor={theme.colors.onPrimary}
         style={styles.button}
         onPress={onAddPet}
-        icon="plus"
+        icon="add"
       >
         {t('home.addNewPet')}
       </Button>

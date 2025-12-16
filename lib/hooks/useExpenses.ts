@@ -76,7 +76,7 @@ export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId
         const pets = petsResult.data || [];
         const allExpenses = await Promise.all(
           pets.map(async (pet: any) => {
-            const result = await expenseService.getExpensesByPetId(pet.id, filters);
+            const result = await expenseService.getExpensesByPetId(pet._id, filters);
             return result.success ? (result.data?.expenses || []) : [];
           })
         );
@@ -204,7 +204,7 @@ export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
   return useUpdateResource<Expense, UpdateExpenseInput>(
-    ({ id, data }) => expenseService.updateExpense(id, data).then(res => res.data!),
+    ({ _id, data }) => expenseService.updateExpense(_id, data).then(res => res.data!),
     {
       listQueryKey: expenseKeys.all,
       detailQueryKey: expenseKeys.detail,
@@ -214,7 +214,7 @@ export function useUpdateExpense() {
       onSettled: (data) => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.all });
         if (data) {
-             queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data.id) });
+             queryClient.invalidateQueries({ queryKey: expenseKeys.detail(data._id) });
         }
       }
     }

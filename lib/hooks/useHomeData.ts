@@ -28,7 +28,7 @@ export const useHomeData = () => {
     useRecentExpenses();
 
   // Derived Data
-  const petIds = (pets || []).map((p) => p.id);
+  const petIds = (pets || []).map((p) => p._id);
   const { data: allHealthRecords } = useAllPetsHealthRecords(petIds);
 
   // Financial Calculations

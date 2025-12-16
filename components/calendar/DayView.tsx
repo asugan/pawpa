@@ -212,7 +212,7 @@ export function DayView({
 
               return (
                 <Pressable
-                  key={event.id}
+                  key={event._id}
                   style={[
                     styles.eventBlock,
                     {
@@ -223,7 +223,7 @@ export function DayView({
                     },
                   ]}
                   onPress={() => onEventPress?.(event)}
-                  testID={`${testID}-event-${event.id}`}
+                  testID={`${testID}-event-${event._id}`}
                 >
                   <View style={styles.eventContent}>
                     {/* Event Time */}

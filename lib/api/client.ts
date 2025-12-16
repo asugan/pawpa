@@ -86,7 +86,8 @@ const errorInterceptor = (error: AxiosError) => {
   // Handle unauthorized (session expired or invalid)
   if (status === 401) {
     console.warn('🔒 Session expired or unauthorized');
-    // The AuthProvider will handle navigation to login
+    // Sign out locally to trigger redirect in AuthProvider
+    authClient.signOut();
   }
 
   // Type guard for API error response
@@ -96,6 +97,16 @@ const errorInterceptor = (error: AxiosError) => {
 
   const apiData = isApiErrorResponse(data) ? data : { success: false, message: 'Bilinmeyen hata' };
   const errorInfo = typeof apiData.error === 'object' ? apiData.error : { code: 'UNKNOWN_ERROR', message: apiData.error || apiData.message || 'Bilinmeyen hata' };
+
+  // Handle specific error codes
+  if (errorInfo.code === 'INVALID_ID_FORMAT') {
+    console.warn('🔄 Invalid ObjectId format detected - this might be from old UUID data');
+    // The migration system should handle clearing old data
+  }
+
+  if (errorInfo.code === 'VALIDATION_ERROR') {
+    console.warn('⚠️ Validation error:', errorInfo.details);
+  }
 
   throw new ApiError(
     errorInfo.message,

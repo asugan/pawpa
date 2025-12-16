@@ -132,7 +132,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
               <View style={styles.expensesList}>
                 {displayExpenses.map((expense) => (
                   <CompactExpenseItem
-                    key={expense.id}
+                    key={expense._id}
                     expense={expense}
                     // We can customize the item style if needed, but default is fine
                   />

@@ -62,7 +62,7 @@ export function UpcomingEvents({
       showPetInfo={showPetInfo}
       showActions={showActions}
       compact={compact}
-      testID={`upcoming-event-${item.id}`}
+      testID={`upcoming-event-${item._id}`}
     />
   );
 
@@ -132,7 +132,7 @@ export function UpcomingEvents({
       {/* Events List */}
       <FlatList
         data={upcomingEvents}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderEvent}
         contentContainerStyle={styles.listContainer}
         refreshControl={

@@ -129,7 +129,7 @@ export function MonthView({
             <View style={styles.eventIndicators}>
               {dayEvents.slice(0, 3).map((event, index) => (
                 <View
-                  key={event.id}
+                  key={event._id}
                   style={[
                     styles.eventDot,
                     {

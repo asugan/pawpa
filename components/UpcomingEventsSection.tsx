@@ -63,7 +63,7 @@ export function UpcomingEventsSection() {
 
   // Get pet name by id
   const getPetName = (petId: string) => {
-    const pet = pets?.find(p => p.id === petId);
+    const pet = pets?.find(p => p._id === petId);
     return pet?.name || '';
   };
 
@@ -123,7 +123,7 @@ export function UpcomingEventsSection() {
             const petName = getPetName(event.petId);
 
             return (
-              <View key={event.id} style={styles.eventItem}>
+              <View key={event._id} style={styles.eventItem}>
                 <View style={[styles.iconCircle, { backgroundColor: iconColor + '33' }]}>
                   <Ionicons name={iconName} size={20} color={iconColor} />
                 </View>

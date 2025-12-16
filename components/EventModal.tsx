@@ -50,7 +50,7 @@ export function EventModal({
       if (event) {
         // Event güncelleme
         await updateEventMutation.mutateAsync({
-          id: event.id,
+          _id: event._id,
           data: apiData
         });
         showSnackbar('Etkinlik başarıyla güncellendi');

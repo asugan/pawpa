@@ -59,7 +59,9 @@
   },
   "finance": {
     "title": "Finans",
-    "monthlyExpenses": "Bu Ayki Harcamalar"
+    "monthlyExpenses": "Bu Ayki Harcamalar",
+    "budget": "Bütçe",
+    "expenses": "Harcamalar"
   },
   "care": {
     "title": "Bakım",
@@ -136,6 +138,7 @@
   },
   "healthRecords": {
     "title": "Sağlık Kaydı",
+    "petSelection": "Pet Seçimi",
     "deleteRecord": "Sağlık Kaydını Sil",
     "deleteConfirmation": "Bu sağlık kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     "deleteError": "Sağlık kaydı silinirken bir hata oluştu",
@@ -382,6 +385,7 @@
     "loadMore": "Daha Fazla Yükle",
     "all": "Tümü",
     "selected": "Seçili",
+    "notes": "Notlar",
     "dateTime": "Tarih ve Saat",
     "additionalOptions": "Ek Seçenekler",
     "dateInformation": "Tarih Bilgileri",
@@ -691,6 +695,15 @@
     "noBudgetsMessage": "Harcamalarınızı takip etmek için bütçe limitleri belirleyin",
     "addBudget": "Bütçe Ekle",
     "featureComingSoon": "Özellik yakında gelecek",
+    "noBudgetSet": "Bütçe Belirlenmedi",
+    "setBudgetDescription": "Pet harcamalarınızı takip etmek için aylık bir bütçe ayarlayın",
+    "setBudget": "Bütçe Belirle",
+    "budgetDetails": "Bütçe Detayları",
+    "monthlyAmount": "Aylık Tutar",
+    "enterAmount": "Tutar girin",
+    "activeBudget": "Aktif Bütçe",
+    "activeBudgetDescription": "Bütçe takibini ve uyarıları etkinleştirin",
+    "alertThresholdDescription": "Harcamalarınız bütçenizin bu yüzdeine ulaştığında bildirim alın",
     "overallBudget": "Genel Bütçe",
     "spent": "Harcanan",
     "limit": "Limit",

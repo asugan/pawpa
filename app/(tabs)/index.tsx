@@ -149,11 +149,11 @@ export default function HomeScreen() {
             {data.pets && data.pets.length > 0 ? (
               <View style={styles.petList}>
                 {data.pets.map((pet) => (
-                  <View key={pet.id} style={styles.petCardWrapper}>
+                  <View key={pet._id} style={styles.petCardWrapper}>
                     <PetCard
                       pet={pet}
-                      petId={pet.id}
-                      onPress={() => router.push(`/pet/${pet.id}`)}
+                      petId={pet._id}
+                      onPress={() => router.push(`/pet/${pet._id}`)}
                       showActions={false}
                     />
                   </View>

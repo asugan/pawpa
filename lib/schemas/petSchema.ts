@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { toUTCWithOffset, isValidUTCISOString } from '@/lib/utils/dateConversion';
+import { objectIdSchema } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
@@ -85,7 +86,7 @@ const BasePetSchema = z.object({
 
 // Full Pet schema including server-side fields
 export const PetSchema = BasePetSchema.extend({
-  id: z.string().uuid(),
+  _id: objectIdSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

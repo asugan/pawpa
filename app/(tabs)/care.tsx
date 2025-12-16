@@ -105,7 +105,7 @@ export default function CareScreen() {
 
   const handleDeleteSchedule = async (schedule: FeedingSchedule) => {
     try {
-      await deleteScheduleMutation.mutateAsync(schedule.id);
+      await deleteScheduleMutation.mutateAsync(schedule._id);
     } catch (error) {
       console.error('Error deleting schedule:', error);
     }
@@ -113,7 +113,7 @@ export default function CareScreen() {
 
   const handleToggleActive = async (schedule: FeedingSchedule, isActive: boolean) => {
     try {
-      await toggleScheduleMutation.mutateAsync({ id: schedule.id, isActive });
+      await toggleScheduleMutation.mutateAsync({ id: schedule._id, isActive });
     } catch (error) {
       console.error('Error toggling schedule:', error);
     }
@@ -172,7 +172,7 @@ export default function CareScreen() {
     return (
       <View style={styles.listContainer}>
         {filteredHealthRecords.map((record: HealthRecord) => (
-          <Card key={record.id} style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+          <Card key={record._id} style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.cardContent}>
               <View style={styles.cardInfo}>
                 <View style={styles.titleRow}>
@@ -226,7 +226,7 @@ export default function CareScreen() {
       <View style={styles.listContainer}>
         {feedingSchedules.map((schedule) => (
           <FeedingScheduleCard
-            key={schedule.id}
+            key={schedule._id}
             schedule={schedule}
             onPress={handleSchedulePress}
             onEdit={handleEditSchedule}
@@ -285,9 +285,9 @@ export default function CareScreen() {
               </Chip>
               {pets.map((pet) => (
                 <Chip
-                  key={pet.id}
-                  selected={selectedPetId === pet.id}
-                  onPress={() => setSelectedPetId(pet.id)}
+                  key={pet._id}
+                  selected={selectedPetId === pet._id}
+                  onPress={() => setSelectedPetId(pet._id)}
                   textStyle={{ fontSize: 12 }}
                 >
                   {pet.name}

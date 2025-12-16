@@ -269,7 +269,7 @@ export function WeekView({
 
                       return (
                         <Pressable
-                          key={event.id}
+                          key={event._id}
                           style={[
                             styles.eventBlock,
                             {
@@ -280,7 +280,7 @@ export function WeekView({
                             },
                           ]}
                           onPress={() => onEventPress?.(event)}
-                          testID={`${testID}-event-${event.id}`}
+                          testID={`${testID}-event-${event._id}`}
                         >
                           <Text
                             variant="labelSmall"

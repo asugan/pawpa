@@ -54,7 +54,7 @@ export default function EventDetailScreen() {
       // Navigate to calendar screen with event editing
       router.push({
         pathname: '/(tabs)/calendar',
-        params: { editEventId: event.id }
+        params: { editEventId: event._id }
       });
     }
   };
@@ -75,7 +75,7 @@ export default function EventDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteEventMutation.mutateAsync(event.id);
+              await deleteEventMutation.mutateAsync(event._id);
               showSnackbar(t('events.eventDeleted'));
               setTimeout(() => {
                 router.back();
@@ -321,7 +321,7 @@ ${t('events.sharedFrom')} PawPa
               <Button
                 mode="outlined"
                 icon="paw"
-                onPress={() => router.push(`/pet/${pet.id}`)}
+                onPress={() => router.push(`/pet/${pet._id}`)}
                 style={styles.viewPetButton}
               >
                 {t('events.viewPetProfile')}

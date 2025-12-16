@@ -2,9 +2,12 @@
 
 Petopia Petcare is a modern pet management application built with React Native and Expo, designed to help pet owners track their pets' health records, events, and daily activities with a beautiful and intuitive interface.
 
+**🔥 MongoDB Backend Integration**: The app now uses MongoDB as the backend database with ObjectId-based ID format for improved performance and scalability.
+
 [![Expo Version](https://img.shields.io/badge/Expo-~54.0.20-blue.svg)](https://expo.dev/)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-green.svg)](https://reactnative.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-green.svg)](https://www.mongodb.com/)
 
 ## 📱 Features
 
@@ -17,6 +20,55 @@ Petopia Petcare is a modern pet management application built with React Native a
 - 🌙 **Dark Mode** - Beautiful light and dark theme support
 - 🔐 **Secure Authentication** - Better Auth integration for secure login
 - 💳 **Premium Features** - RevenueCat integration for subscription management
+
+## 🗄️ Database Migration
+
+The app has been migrated from SQLite to MongoDB:
+- **ID Format**: Now uses MongoDB ObjectId format (24-character hexadecimal string)
+- **Data Validation**: Enhanced validation with ObjectId format checking
+- **Migration**: Automatic local storage cleanup on first launch after update
+- **Clean Slate**: All existing local data is cleared for fresh start
+
+## 🧪 Testing the App
+
+### New User Flow (Recommended)
+Since the app was migrated to MongoDB, users will start with a clean slate:
+
+1. Install and launch the app
+2. Create a new account
+3. Add your first pet profile
+4. Start adding health records, events, and expenses
+5. All data will be properly stored with ObjectId format
+
+### Testing Features
+Test all CRUD operations to ensure proper ObjectId handling:
+
+1. **Pet Management**
+   - Create new pets ✅
+   - Edit pet profiles ✅
+   - Delete pets ✅
+
+2. **Health Records**
+   - Add vaccinations ✅
+   - Schedule vet visits ✅
+   - Track medications ✅
+
+3. **Events & Schedules**
+   - Create events ✅
+   - Set feeding schedules ✅
+   - Manage calendars ✅
+
+4. **Budget & Expenses**
+   - Set budget limits ✅
+   - Track expenses ✅
+   - View analytics ✅
+
+### Data Consistency
+All IDs are now validated as:
+```regex
+^[0-9a-fA-F]{24}$
+```
+Example valid ID: `507f1f77bcf86cd799439011`
 
 ## 🛠 Tech Stack
 
