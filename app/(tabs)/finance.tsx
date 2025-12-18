@@ -6,7 +6,7 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { Text, FAB, Snackbar, Chip, Button, Card, SegmentedButtons } from "@/components/ui";
+import { Text, FAB, Snackbar, Chip, Card, SegmentedButtons } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePets } from "../../lib/hooks/usePets";

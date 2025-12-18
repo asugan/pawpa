@@ -66,7 +66,8 @@
   "care": {
     "title": "Bakım",
     "health": "Sağlık",
-    "feeding": "Besleme"
+    "feeding": "Besleme",
+    "timeline": "Zaman Akışı"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -169,6 +170,7 @@
     "descriptionPlaceholder": "Açıklama (opsiyonel)",
     "recordDate": "Kayıt Tarihi",
     "nextAppointmentDate": "Sonraki Randevu Tarihi",
+    "nextDue": "Sonraki tarih",
     "vaccinationNameLabel": "Aşı Adı",
     "manufacturerLabel": "Üretici",
     "manufacturerPlaceholder": "Üretici firma",
@@ -187,6 +189,13 @@
     "clinicPlaceholder": "Klinik adı",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Ek notlar"
+  },
+  "healthTimeline": {
+    "overdue": "Geciken",
+    "lastVetVisit": "Son veteriner ziyareti",
+    "noVetVisit": "Henüz veteriner ziyareti yok",
+    "emptyTitle": "Henüz zaman akışı yok",
+    "emptyDescription": "Başlamak için bir etkinlik veya sağlık kaydı ekleyin"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -227,10 +236,14 @@
     "noLocation": "Konum belirtilmemiş",
     "reminder": "Hatırlatıcı",
     "reminderEnabled": "Hatırlatıcı aktif",
+    "reminderPresetLabel": "Hatırlatıcı dizisi",
+    "reminderPresetPlaceholder": "Hatırlatıcı temposu seçin",
+    "reminderPresetDescription": "Birden fazla hatırlatıcıyı otomatik planlayacağız",
     "notes": "Notlar",
     "statusUpcoming": "Yaklaşan",
     "statusCompleted": "Tamamlandı",
     "statusCancelled": "İptal Edildi",
+    "statusMissed": "Kaçırıldı",
     "viewPetProfile": "Pet Profilini Görüntüle",
     "noUpcomingEvents": "Yaklaşan etkinlik yok",
     "createTitle": "Yeni Etkinlik",
@@ -252,7 +265,12 @@
     "notesPlaceholder": "Ek notlarınızı buraya yazın",
     "saveError": "Etkinlik kaydedilirken bir hata oluştu",
     "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
-    "exit": "Çık"
+    "exit": "Çık",
+    "reminders": {
+      "standard": "4 adım (3g, 1g, 1s, etkinlik zamanı)",
+      "compact": "3 adım (1g, 1s, etkinlik zamanı)",
+      "minimal": "Hızlı (1s, etkinlik zamanı)"
+    }
   },
   "eventForm": {
     "suggestions": {
@@ -319,6 +337,8 @@
     "appSettings": "Uygulama Ayarları",
     "notifications": "Bildirimler",
     "reminderNotifications": "Hatırlatıcı bildirimleri etkinleştir",
+    "notificationPermissionDenied": "Bildirimler sistemde kapalı. Lütfen cihaz ayarlarından etkinleştirin.",
+    "notificationDisableInfo": "Bildirimleri cihaz ayarlarından kapatabilirsiniz. Buradan yeni hatırlatıcı planlamayacağız.",
     "language": "Dil",
     "changeLanguage": "Uygulama dilini değiştir",
     "currentLanguage": "Mevcut Dil",

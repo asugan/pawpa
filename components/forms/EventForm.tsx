@@ -14,6 +14,8 @@ import { SmartDateTimePicker } from './SmartDateTimePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
 import { SmartSwitch } from './SmartSwitch';
+import { REMINDER_PRESETS, ReminderPresetKey } from '@/constants/reminders';
+import { requestNotificationPermissions } from '@/lib/services/notificationService';
 
 interface EventFormProps {
   event?: Event;
@@ -44,6 +46,7 @@ export function EventForm({
   // Watch form values for dynamic behavior
   const selectedPetId = useWatch({ control, name: 'petId' });
   const eventType = useWatch({ control, name: 'type' });
+  const reminderEnabled = useWatch({ control, name: 'reminder' });
 
   // Event type options with i18n support
   const eventTypeOptions = React.useMemo(() => createEventTypeOptions(t), [t]);
@@ -58,6 +61,15 @@ export function EventForm({
     [pets]
   );
 
+  const reminderPresetOptions = React.useMemo(
+    () =>
+      (Object.keys(REMINDER_PRESETS) as ReminderPresetKey[]).map((key) => ({
+        value: key,
+        label: t(REMINDER_PRESETS[key].labelKey),
+      })),
+    [t]
+  );
+
   // Get selected pet details
   const selectedPet = React.useMemo(
     () => petOptions.find((pet) => pet.value === selectedPetId),
@@ -68,6 +80,12 @@ export function EventForm({
   const getEventTypeSuggestions = () => {
     return t(`eventForm.suggestions.${eventType || 'default'}`);
   };
+
+  React.useEffect(() => {
+    if (reminderEnabled) {
+      requestNotificationPermissions();
+    }
+  }, [reminderEnabled]);
 
   // Handle form submission
   const onFormSubmit = React.useCallback(
@@ -221,6 +239,25 @@ export function EventForm({
             testID={`${testID}-reminder`}
           />
 
+          {reminderEnabled && (
+            <View style={styles.reminderPresetContainer}>
+              <SmartDropdown
+                name="reminderPreset"
+                options={reminderPresetOptions}
+                placeholder={t('events.reminderPresetPlaceholder', 'Choose reminder cadence')}
+                label={t('events.reminderPresetLabel', 'Reminder cadence')}
+                required
+                testID={`${testID}-reminder-preset`}
+              />
+              <Text
+                variant="bodySmall"
+                style={[styles.reminderHelper, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {t('events.reminderPresetDescription', 'We will schedule multiple reminders automatically')}
+              </Text>
+            </View>
+          )}
+
           {/* Notes */}
           <SmartInput
             name="notes"
@@ -268,6 +305,13 @@ const styles = StyleSheet.create({
   },
   suggestionsText: {
     lineHeight: 18,
+  },
+  reminderPresetContainer: {
+    marginTop: 12,
+    gap: 4,
+  },
+  reminderHelper: {
+    lineHeight: 16,
   },
 });
 

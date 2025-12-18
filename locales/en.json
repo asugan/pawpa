@@ -66,7 +66,8 @@
   "care": {
     "title": "Care",
     "health": "Health",
-    "feeding": "Feeding"
+    "feeding": "Feeding",
+    "timeline": "Timeline"
   },
   "pets": {
     "myPets": "My Pets",
@@ -169,6 +170,7 @@
     "descriptionPlaceholder": "Description (optional)",
     "recordDate": "Record Date",
     "nextAppointmentDate": "Next Appointment Date",
+    "nextDue": "Next due date",
     "vaccinationNameLabel": "Vaccine Name",
     "manufacturerLabel": "Manufacturer",
     "manufacturerPlaceholder": "Manufacturing company",
@@ -187,6 +189,13 @@
     "clinicPlaceholder": "Clinic name",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Additional notes"
+  },
+  "healthTimeline": {
+    "overdue": "Overdue",
+    "lastVetVisit": "Last vet visit",
+    "noVetVisit": "No vet visit yet",
+    "emptyTitle": "No timeline yet",
+    "emptyDescription": "Add an event or health record to get started"
   },
   "calendar": {
     "calendar": "Calendar",
@@ -227,10 +236,14 @@
     "noLocation": "No location specified",
     "reminder": "Reminder",
     "reminderEnabled": "Reminder enabled",
+    "reminderPresetLabel": "Reminder cadence",
+    "reminderPresetPlaceholder": "Choose reminder cadence",
+    "reminderPresetDescription": "We'll schedule multiple reminders automatically",
     "notes": "Notes",
     "statusUpcoming": "Upcoming",
     "statusCompleted": "Completed",
     "statusCancelled": "Cancelled",
+    "statusMissed": "Missed",
     "viewPetProfile": "View Pet Profile",
     "noUpcomingEvents": "No upcoming events",
     "createTitle": "New Event",
@@ -252,7 +265,12 @@
     "notesPlaceholder": "Write your additional notes here",
     "saveError": "An error occurred while saving the event",
     "unsavedChangesMessageShort": "Are you sure you want to exit without saving changes?",
-    "exit": "Exit"
+    "exit": "Exit",
+    "reminders": {
+      "standard": "4-step (3d, 1d, 1h, at time)",
+      "compact": "3-step (1d, 1h, at time)",
+      "minimal": "Quick (1h, at time)"
+    }
   },
   "eventForm": {
     "suggestions": {
@@ -319,6 +337,8 @@
     "appSettings": "App Settings",
     "notifications": "Notifications",
     "reminderNotifications": "Enable reminder notifications",
+    "notificationPermissionDenied": "Notifications are blocked at the system level. Please enable them from settings.",
+    "notificationDisableInfo": "You can disable notifications from your device settings. We'll stop scheduling new reminders from here.",
     "language": "Language",
     "changeLanguage": "Change app language",
     "currentLanguage": "Current Language",

@@ -1,7 +1,9 @@
+import React, { useEffect, useState } from "react";
 import { SubscriptionCard } from "@/components/subscription";
 import { Button, Card, ListItem, Switch, Text } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
+import { notificationService, requestNotificationPermissions } from "@/lib/services/notificationService";
 import { useAuthStore } from "@/stores/authStore";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -23,6 +25,52 @@ export default function SettingsScreen() {
   const { isLoading, setLoading } = useAuthStore();
   const { resetOnboarding } = useOnboardingStore();
   const isDarkMode = themeMode === "dark";
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationLoading, setNotificationLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPermissionStatus = async () => {
+      try {
+        const enabled = await notificationService.areNotificationsEnabled();
+        setNotificationsEnabled(enabled);
+      } catch (error) {
+        console.error("Notification status check failed:", error);
+      } finally {
+        setNotificationLoading(false);
+      }
+    };
+
+    fetchPermissionStatus();
+  }, []);
+
+  const handleNotificationToggle = async (value: boolean) => {
+    setNotificationLoading(true);
+    try {
+      if (value) {
+        const granted = await requestNotificationPermissions();
+        setNotificationsEnabled(granted);
+        if (!granted) {
+          Alert.alert(
+            t("settings.notifications"),
+            t("settings.notificationPermissionDenied", "Notifications are blocked at the system level. Please enable them from settings.")
+          );
+        }
+      } else {
+        Alert.alert(
+          t("settings.notifications"),
+          t(
+            "settings.notificationDisableInfo",
+            "You can disable notifications from your device settings. We'll stop scheduling new reminders from here."
+          )
+        );
+        setNotificationsEnabled(false);
+      }
+    } catch (error) {
+      console.error("Notification toggle failed:", error);
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(t("auth.logout"), t("auth.logoutConfirm"), [
@@ -161,8 +209,9 @@ export default function SettingsScreen() {
               }
               right={
                 <Switch
-                  value={true}
-                  onValueChange={() => console.log("Toggle notifications")}
+                  value={notificationsEnabled}
+                  onValueChange={handleNotificationToggle}
+                  disabled={notificationLoading}
                   color={theme.colors.primary}
                 />
               }

@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Event } from '../types';
 import { EVENT_TYPE_DEFAULT_REMINDERS } from '../../constants/eventIcons';
+import { REMINDER_PRESETS, QUIET_HOURS_WINDOW } from '@/constants/reminders';
 
 /**
  * Notification Service - Handles all push notification operations
@@ -44,6 +45,10 @@ export const REMINDER_TIMES: ReminderTime[] = [
 export class NotificationService {
   private static instance: NotificationService;
   private notificationChannelId = 'event-reminders';
+  private quietHours = {
+    startHour: QUIET_HOURS_WINDOW.startHour,
+    endHour: QUIET_HOURS_WINDOW.endHour,
+  };
 
   private constructor() {
     this.setupNotificationChannel();
@@ -120,11 +125,13 @@ export class NotificationService {
    * Schedule a reminder for an event
    * @param event Event to schedule reminder for
    * @param reminderMinutes Minutes before event to send reminder
+   * @param options Additional scheduling options
    * @returns Notification identifier
    */
   async scheduleEventReminder(
     event: Event,
-    reminderMinutes?: number
+    reminderMinutes?: number,
+    options?: { triggerDate?: Date }
   ): Promise<string | null> {
     try {
       // Check permissions first
@@ -141,7 +148,9 @@ export class NotificationService {
 
       // Calculate trigger time
       const eventDate = new Date(event.startTime);
-      const triggerDate = new Date(eventDate.getTime() - reminderTime * 60 * 1000);
+      const triggerDate = options?.triggerDate
+        ? options.triggerDate
+        : new Date(eventDate.getTime() - reminderTime * 60 * 1000);
 
       // Don't schedule if trigger time is in the past
       if (triggerDate <= new Date()) {
@@ -271,12 +280,34 @@ export class NotificationService {
    */
   async scheduleMultipleReminders(
     event: Event,
-    reminderTimes: number[]
+    reminderTimes: readonly number[],
+    options?: { respectQuietHours?: boolean }
   ): Promise<string[]> {
     const notificationIds: string[] = [];
+    const seenTimes = new Set<number>();
+    const respectQuietHours = options?.respectQuietHours ?? true;
+    const now = new Date();
+    const eventDate = new Date(event.startTime);
 
     for (const reminderTime of reminderTimes) {
-      const notificationId = await this.scheduleEventReminder(event, reminderTime);
+      const triggerDate = new Date(eventDate.getTime() - reminderTime * 60 * 1000);
+      const adjustedTrigger = respectQuietHours
+        ? this.adjustForQuietHours(triggerDate)
+        : triggerDate;
+
+      if (adjustedTrigger <= now) {
+        continue;
+      }
+
+      const triggerKey = adjustedTrigger.getTime();
+      if (seenTimes.has(triggerKey)) {
+        continue;
+      }
+
+      seenTimes.add(triggerKey);
+      const notificationId = await this.scheduleEventReminder(event, reminderTime, {
+        triggerDate: adjustedTrigger,
+      });
       if (notificationId) {
         notificationIds.push(notificationId);
       }
@@ -284,6 +315,17 @@ export class NotificationService {
 
     console.log(`✅ Scheduled ${notificationIds.length} reminders for event ${event._id}`);
     return notificationIds;
+  }
+
+  /**
+   * Schedule default reminder chain with quiet hours
+   */
+  async scheduleReminderChain(
+    event: Event,
+    reminderTimes: readonly number[] = REMINDER_PRESETS.standard.minutes,
+    respectQuietHours: boolean = true
+  ): Promise<string[]> {
+    return this.scheduleMultipleReminders(event, reminderTimes, { respectQuietHours });
   }
 
   /**
@@ -391,6 +433,29 @@ export class NotificationService {
       return { total: 0, byType: {} };
     }
   }
+
+  /**
+   * Push triggers out of quiet hours (22:00–08:00)
+   */
+  private adjustForQuietHours(triggerDate: Date): Date {
+    const adjusted = new Date(triggerDate);
+    const hour = triggerDate.getHours();
+
+    // Move late-night reminders to next morning 08:00
+    if (hour >= this.quietHours.startHour) {
+      adjusted.setDate(adjusted.getDate() + 1);
+      adjusted.setHours(this.quietHours.endHour, 0, 0, 0);
+      return adjusted;
+    }
+
+    // Move early-morning reminders to 08:00 same day
+    if (hour < this.quietHours.endHour) {
+      adjusted.setHours(this.quietHours.endHour, 0, 0, 0);
+      return adjusted;
+    }
+
+    return triggerDate;
+  }
 }
 
 // Export singleton instance
@@ -405,3 +470,9 @@ export const scheduleEventReminder = (event: Event, reminderMinutes?: number) =>
 
 export const cancelEventNotifications = (eventId: string) =>
   notificationService.cancelEventNotifications(eventId);
+
+export const scheduleReminderChain = (
+  event: Event,
+  reminderTimes?: readonly number[],
+  respectQuietHours?: boolean
+) => notificationService.scheduleReminderChain(event, reminderTimes, respectQuietHours);
