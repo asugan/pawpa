@@ -47,6 +47,11 @@ export const ENV = {
     BUDGET_STATUS: "/api/budget/status",
     BUDGET_ALERTS: "/api/budget/alerts",
 
+    // Expense export endpoints
+    EXPENSES_EXPORT_CSV: "/api/expenses/export/csv",
+    EXPENSES_EXPORT_PDF: "/api/expenses/export/pdf",
+    VET_SUMMARY_PDF: (petId: string) => `/api/expenses/export/vet-summary?petId=${petId}`,
+
     // Subscription endpoints
     SUBSCRIPTION_STATUS: "/api/subscription/status", // Unified status endpoint
     SUBSCRIPTION_TRIAL_STATUS: "/api/subscription/trial-status", // Deprecated

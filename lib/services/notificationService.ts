@@ -359,6 +359,32 @@ export class NotificationService {
   }
 
   /**
+   * Send an immediate notification for budget/emergency alerts with permission guard
+   */
+  async sendBudgetAlertNotification(
+    title: string,
+    body: string,
+    data?: Record<string, any>
+  ): Promise<void> {
+    const enabled = await this.areNotificationsEnabled();
+    if (!enabled) {
+      console.warn('📵 Notifications disabled, skipping budget alert');
+      return;
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: data || {},
+        sound: 'default',
+        priority: Notifications.AndroidNotificationPriority.HIGH,
+      },
+      trigger: null,
+    });
+  }
+
+  /**
    * Get event type emoji for notifications
    * @param eventType Event type
    * @returns Emoji string

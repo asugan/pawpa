@@ -256,3 +256,39 @@ export function useExportExpensesCSV() {
     },
   });
 }
+
+// Mutation hook for exporting expenses as PDF
+export function useExportExpensesPDF() {
+  return useMutation({
+    mutationFn: async (params?: {
+      petId?: string;
+      startDate?: string;
+      endDate?: string;
+    }) => {
+      const result = await expenseService.exportExpensesPDF(params);
+      if (!result.success || !result.data) {
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export expenses PDF';
+        throw new Error(errorMessage);
+      }
+      return result.data.uri;
+    },
+  });
+}
+
+// Mutation hook for exporting vet summary PDF for a pet
+export function useExportVetSummaryPDF() {
+  return useMutation({
+    mutationFn: async (petId: string) => {
+      const result = await expenseService.exportVetSummaryPDF(petId);
+      if (!result.success || !result.data) {
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export vet summary PDF';
+        throw new Error(errorMessage);
+      }
+      return result.data.uri;
+    },
+  });
+}

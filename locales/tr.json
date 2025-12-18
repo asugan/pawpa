@@ -32,7 +32,8 @@
     "care": "Bakım",
     "calendar": "Takvim",
     "finance": "Finans",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "emergency": "Acil"
   },
   "home": {
     "title": "Evcil Dostlarınızın Sağlık Asistanı",
@@ -62,6 +63,26 @@
     "monthlyExpenses": "Bu Ayki Harcamalar",
     "budget": "Bütçe",
     "expenses": "Harcamalar"
+  },
+  "emergency": {
+    "title": "Acil",
+    "subtitle": "Çevrimdışı profil, veteriner iletişim ve hızlı aksiyonlar.",
+    "choosePet": "Pet seç",
+    "stale": "Veri 24 saatten eski. Yenileyin veya manuel güncelleyin.",
+    "healthProfile": "Sağlık profili",
+    "allergies": "Alerjiler",
+    "conditions": "Kronik durumlar",
+    "medications": "İlaçlar",
+    "notes": "Notlar",
+    "vetInfo": "Veteriner iletişim",
+    "vetName": "Veteriner adı",
+    "vetPhone": "Veteriner telefonu",
+    "vetAddress": "Klinik adresi",
+    "callVet": "Veterineri ara",
+    "openMaps": "Haritayı aç",
+    "saved": "Acil bilgiler kaydedildi",
+    "noVetPhone": "Veteriner telefonu girilmemiş",
+    "noAddress": "Adres girilmemiş"
   },
   "care": {
     "title": "Bakım",
@@ -683,6 +704,14 @@
     "createError": "Harcama oluşturulamadı",
     "updateError": "Harcama güncellenemedi",
     "deleteError": "Harcama silinemedi",
+    "exportSuccess": "Dışa aktarma tamamlandı",
+    "exportError": "Dışa aktarma başarısız",
+    "exportCsv": "CSV dışa aktar",
+    "exportPdf": "PDF dışa aktar",
+    "vetSummary": "Vet özet PDF",
+    "vetSummaryTitle": "Veteriner Özeti PDF",
+    "exportTitle": "Harcamalar PDF",
+    "selectPetForSummary": "Özet için bir pet seçin",
     "categories": {
       "food": "Yiyecek",
       "premium_food": "Premium Yiyecek",

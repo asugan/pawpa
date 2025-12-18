@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/lib/theme";
 import { Text } from "./Text";
 import { Button } from "./Button";
@@ -8,7 +9,7 @@ import { IconButton } from "./IconButton";
 export interface BannerProps {
   visible: boolean;
   children: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: keyof typeof MaterialCommunityIcons.glyphMap | React.ReactNode;
   actions?: {
     label: string;
     onPress: () => void;
@@ -41,7 +42,19 @@ export const Banner: React.FC<BannerProps> = ({
       ]}
     >
       <View style={styles.content}>
-        {icon && <View style={styles.icon}>{icon}</View>}
+        {icon && (
+          <View style={styles.icon}>
+            {typeof icon === "string" ? (
+              <MaterialCommunityIcons
+                name={icon as keyof typeof MaterialCommunityIcons.glyphMap}
+                size={20}
+                color={theme.colors.onSurfaceVariant}
+              />
+            ) : (
+              icon
+            )}
+          </View>
+        )}
         <View style={styles.text}>
           {typeof children === "string" ? (
             <Text variant="bodyMedium">{children}</Text>

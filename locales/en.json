@@ -32,7 +32,8 @@
     "care": "Care",
     "calendar": "Calendar",
     "finance": "Finance",
-    "settings": "Settings"
+    "settings": "Settings",
+    "emergency": "Emergency"
   },
   "home": {
     "title": "Your Pet Health Assistant",
@@ -62,6 +63,26 @@
     "monthlyExpenses": "Monthly Expenses",
     "budget": "Budget",
     "expenses": "Expenses"
+  },
+  "emergency": {
+    "title": "Emergency",
+    "subtitle": "Offline-ready profile, vet contacts, quick actions.",
+    "choosePet": "Choose pet",
+    "stale": "Data older than 24h. Refresh or update manually.",
+    "healthProfile": "Health profile",
+    "allergies": "Allergies",
+    "conditions": "Chronic conditions",
+    "medications": "Medications",
+    "notes": "Notes",
+    "vetInfo": "Vet contact",
+    "vetName": "Vet name",
+    "vetPhone": "Vet phone",
+    "vetAddress": "Clinic address",
+    "callVet": "Call vet",
+    "openMaps": "Open maps",
+    "saved": "Emergency info saved",
+    "noVetPhone": "No vet phone set",
+    "noAddress": "No address set"
   },
   "care": {
     "title": "Care",
@@ -683,6 +704,14 @@
     "createError": "Failed to create expense",
     "updateError": "Failed to update expense",
     "deleteError": "Failed to delete expense",
+    "exportSuccess": "Export completed",
+    "exportError": "Export failed",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "vetSummary": "Vet summary PDF",
+    "vetSummaryTitle": "Vet Summary PDF",
+    "exportTitle": "Expenses PDF",
+    "selectPetForSummary": "Select a pet to export summary",
     "categories": {
       "food": "Food",
       "premium_food": "Premium Food",

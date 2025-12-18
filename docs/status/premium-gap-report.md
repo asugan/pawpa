@@ -224,3 +224,19 @@ Bu doküman, mevcut altyapıyı çöpe atmadan ve AI eklemeden, 1–2 sprintte �
 - Health timeline + severity:
   - Health records + events tek akışta; renk kodu (yeşil/sarı/kırmızı) ve “Last vet visit/overdue” hesapları client-side.
 - Test/QA kapsamı: Notification izinleri, quiet hours uyumu, zincir sırası; timeline renk ve overdue doğruluğu; complete→missed geçişlerinde bildirimin iptali.
+
+## Faz 2 (Sprint 2) – Export/Vet PDF + Budget Alerts → Notification + Emergency Mode
+
+- Export/Vet PDF:
+  - Backend: `../petopia-backend/src/controllers/expenseController.ts` içindeki `exportExpensesPDF`’i pdfkit ile gerçek PDF üretimine çevir; yeni “Vet summary PDF” endpoint’i ekle (aşılar, son ilaçlar, son 3 vet ziyareti, emergency contact). Route + controller + service için tek sorumluluklu dosya ekle, CSV davranışı bozulmasın.
+  - Mobile: `lib/services/expenseService.ts` + `lib/hooks/useExpenses.ts` içine `exportExpensesPDF` servisini ekle; share akışını `Share` API ile `app/(tabs)/expenses` ve `app/health/[id].tsx` üzerinden tetikle; loading/error + izin hatalarını kullanıcıya göster.
+- Budget alerts → notification + analytics:
+  - Backend: `../petopia-backend/src/services/userBudgetService.ts`’te alert’i tetikleyen noktaya “notification payload” hazırlığı ekle (şimdilik webhook yok, mobile local notification’la beslenecek); mevcut `monthly/yearly` endpoint’leri için kategori dağılımı ve MoM yüzdesini dönen alanları ekle.
+  - Mobile: `lib/hooks/useUserBudget.ts` içindeki polling sonucunu `lib/services/notificationService.ts` ile local notification’a dönüştür; polling interval’ını alert durumu ve app state’e göre dinamikleştir; `components/UserBudgetCard.tsx` veya yeni bir ekranla “bu ay vs geçen ay” + kategori donut/stacked chart görselleştir.
+- Emergency mode:
+  - Mobile-only ekran: `app/(tabs)/emergency.tsx` (veya modal) ile pet bazlı emergency profile formu (alerji/kronik durum, ilaç, vet iletişim, notlar); CTA olarak “Ara” ve “Konum aç”.
+  - Offline cache: AsyncStorage ile emergency profile’ı yaz/oku; TTL ve invalidate stratejisini `lib/services` altında küçük bir helper ile tut; boş cache durumunda kullanıcıya inline uyarı göster.
+- Test/QA kapsamı:
+  - PDF üretimi/indirme/share; büyük veri setinde PDF performansı.
+  - Budget alert tetiklemesi, notification alma/susturma, polling azaltma; MoM/kategori hesap doğruluğu.
+  - Emergency offline okuma, cache invalidation ve CTA’ların çalışması (uçuş modu + online senaryolar).

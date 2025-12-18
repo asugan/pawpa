@@ -88,6 +88,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="emergency"
+        options={{
+          title: t('navigation.emergency', 'Emergency'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="shield-plus" size={size} color={color} />
+          ),
+          headerTitle: () => <CustomTabHeader pageTitle={t('navigation.emergency', 'Emergency')} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: t('navigation.settings'),

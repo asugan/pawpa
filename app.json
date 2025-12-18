@@ -105,8 +105,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "28c754d9-aea7-4168-a3b9-becb001d5b22"
+        "projectId": "b829ebb6-cac8-4731-94f5-4b130b65a827"
       }
-    }
+    },
+    "owner": "asugan"
   }
 }

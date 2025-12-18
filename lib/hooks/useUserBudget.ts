@@ -5,10 +5,13 @@ import type {
   UserBudgetStatus,
   SetUserBudgetInput,
   PetBreakdown,
+  BudgetAlert,
 } from "../types";
 import { CACHE_TIMES } from "../config/queryConfig";
 import { createQueryKeys } from "./core/createQueryKeys";
 import { useConditionalQuery } from "./core/useConditionalQuery";
+import { useEffect } from "react";
+import { notificationService } from "../services/notificationService";
 
 // Query keys factory for user budget
 const baseUserBudgetKeys = createQueryKeys("budget");
@@ -193,13 +196,7 @@ export function useDeleteUserBudget() {
 export function useBudgetAlerts() {
   const { data: budget } = useUserBudget();
 
-  return useConditionalQuery<{
-    isAlert: boolean;
-    alertType?: "warning" | "critical";
-    message?: string;
-    percentage?: number;
-    remainingAmount?: number;
-  } | null>({
+  return useConditionalQuery<BudgetAlert | null>({
     queryKey: userBudgetKeys.alerts(),
     queryFn: () => userBudgetService.checkBudgetAlerts(),
     staleTime: CACHE_TIMES.VERY_SHORT,
@@ -253,11 +250,7 @@ export function useBudgetSummary() {
     budget: UserBudget | null;
     status: UserBudgetStatus | null;
     hasActiveBudget: boolean;
-    alerts: {
-      isAlert: boolean;
-      alertType?: "warning" | "critical";
-      message?: string;
-    } | null;
+    alerts: BudgetAlert | null;
   } | null>({
     queryKey: userBudgetKeys.summary(),
     queryFn: () => userBudgetService.getBudgetSummary(),
@@ -266,6 +259,23 @@ export function useBudgetSummary() {
     defaultValue: null,
     errorMessage: "Budget summary could not be loaded",
   });
+}
+
+/**
+ * Hook that bridges budget alerts to local notifications
+ */
+export function useBudgetAlertNotifications() {
+  const { data: alert } = useBudgetAlerts();
+
+  useEffect(() => {
+    if (alert?.isAlert && alert.notificationPayload) {
+      notificationService.sendBudgetAlertNotification(
+        alert.notificationPayload.title,
+        alert.notificationPayload.body,
+        { severity: alert.notificationPayload.severity }
+      );
+    }
+  }, [alert]);
 }
 
 // Export types for external use
