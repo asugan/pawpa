@@ -64,7 +64,6 @@ export const expenseKeys = {
 export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId'> = {}) {
   return useQuery({
     queryKey: expenseKeys.list({ petId, ...filters }),
-    initialData: { expenses: [], total: 0 },
     queryFn: async () => {
       if (!petId) {
         // If no petId, fetch all pets and combine their expenses
@@ -109,7 +108,7 @@ export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId
       }
     },
     staleTime: CACHE_TIMES.SHORT,
-    placeholderData: (previousData) => previousData, // Important for pagination
+    placeholderData: (previousData) => previousData ?? { expenses: [], total: 0 }, // Keep previous page data for pagination
   });
 }
 
