@@ -34,6 +34,7 @@ export default function CareScreen() {
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>();
   const [isHealthFormVisible, setIsHealthFormVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<HealthRecord | undefined>();
+  const [healthFormKey, setHealthFormKey] = useState(0);
   
   // Feeding state
   const [isFeedingModalVisible, setIsFeedingModalVisible] = useState(false);
@@ -71,6 +72,8 @@ export default function CareScreen() {
 
   // Health handlers
   const handleAddHealthRecord = () => {
+    setEditingRecord(undefined);
+    setHealthFormKey((current) => current + 1);
     setIsHealthFormVisible(true);
   };
 
@@ -92,6 +95,7 @@ export default function CareScreen() {
       ...record,
       petId: record.petId, // Ensure petId is preserved when editing
     });
+    setHealthFormKey((current) => current + 1);
     setIsHealthFormVisible(true);
   };
 
@@ -361,6 +365,7 @@ export default function CareScreen() {
 
         {/* Modals */}
         <HealthRecordForm
+          key={healthFormKey}
           visible={isHealthFormVisible}
           onSuccess={handleHealthFormSuccess}
           onCancel={handleHealthFormCancel}

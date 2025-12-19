@@ -4,8 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/lib/theme';
 
 interface CurrencyInputProps {
-  value?: number;
-  onChange: (value: number | undefined) => void;
+  value?: number | null;
+  onChange: (value: number | null | undefined) => void;
   label?: string;
   disabled?: boolean;
   error?: boolean;
@@ -26,7 +26,7 @@ export function CurrencyInput({
 }: CurrencyInputProps) {
   const { theme } = useTheme();
 
-  const formatValue = (num?: number) => {
+  const formatValue = (num?: number | null) => {
     if (num === undefined || num === null) return '';
     return num.toLocaleString('tr-TR', {
       minimumFractionDigits: 0,
@@ -41,6 +41,10 @@ export function CurrencyInput({
   };
 
   const handleChangeText = (text: string) => {
+    if (!text || text.trim() === '') {
+      onChange(null);
+      return;
+    }
     const parsed = parseValue(text);
     onChange(parsed);
   };

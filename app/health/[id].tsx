@@ -18,12 +18,14 @@ export default function HealthRecordDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editFormKey, setEditFormKey] = useState(0);
 
   const deleteMutation = useDeleteHealthRecord();
   const { data: healthRecord, isLoading, refetch } = useHealthRecord(id as string);
 
 
   const handleEdit = () => {
+    setEditFormKey((current) => current + 1);
     setIsEditModalVisible(true);
   };
 
@@ -358,6 +360,7 @@ ${healthRecord.notes ? `${t('common.notes')}: ${healthRecord.notes}` : ''}
       {/* Edit Modal */}
       {healthRecord && (
         <HealthRecordForm
+          key={editFormKey}
           petId={healthRecord.petId}
           visible={isEditModalVisible}
           onSuccess={handleEditSuccess}

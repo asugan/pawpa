@@ -23,6 +23,15 @@ const validateNextDueDate = (nextDueDateString: string, healthDateString: string
   return nextDueDate > healthDate;
 };
 
+const isFutureLocalDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return false;
+  const today = new Date();
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return dateOnly > todayOnly;
+};
+
 const validateVeterinarianName = (name: string | undefined) => {
   if (!name || name.trim() === '') return true; // Optional field
   return TURKISH_TEXT_REGEX.test(name.trim());
@@ -199,7 +208,7 @@ const BaseHealthRecordFormSchema = z.object({
     .positive()
     .max(100000)
     .optional()
-    .transform(val => val === undefined ? undefined : parseFloat(val.toFixed(2))),
+    .nullable(),
 
   notes: z
     .string()
@@ -222,6 +231,40 @@ const BaseHealthRecordFormSchema = z.object({
     }, {
       message: 'Geçerli bir tarih giriniz'
     }),
+
+  // Vaccination specific fields (kept for resolver to preserve values)
+  vaccineName: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+  vaccineManufacturer: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+  batchNumber: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  // Medication specific fields (kept for resolver to preserve values)
+  medicationName: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+  dosage: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+  frequency: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+  startDate: z
+    .union([z.string(), z.date()])
+    .optional(),
+  endDate: z
+    .union([z.string(), z.date()])
+    .optional(),
 });
 
 // Schema for form input (before transformation)
@@ -352,10 +395,7 @@ export const VaccinationSchema = BaseHealthRecordSchema.extend({
   (data) => {
     // For vaccination records, nextDueDate must be in the future
     if (data.nextDueDate) {
-      const nextDueDate = new Date(data.nextDueDate);
-      if (nextDueDate <= new Date()) {
-        return false;
-      }
+      return isFutureLocalDate(data.nextDueDate);
     }
     return true;
   },
