@@ -1,10 +1,15 @@
+import React, { useCallback, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from "react-native";
+
 import { Text } from "@/components/ui";
 import { User } from "@/lib/auth";
+import {
+  notificationService,
+  requestNotificationPermissions,
+} from "@/lib/services/notificationService";
 import { useTheme } from "@/lib/theme";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface HomeHeaderProps {
   user: User | null;
@@ -19,6 +24,39 @@ export const HomeHeader = ({
 }: HomeHeaderProps) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const [isSendingNotification, setIsSendingNotification] = useState(false);
+
+  const handleNotificationPress = useCallback(async () => {
+    if (isSendingNotification) return;
+
+    setIsSendingNotification(true);
+    try {
+      const alreadyEnabled = await notificationService.areNotificationsEnabled();
+      const granted = alreadyEnabled
+        ? true
+        : await requestNotificationPermissions();
+
+      if (!granted) {
+        Alert.alert(
+          t("settings.notifications"),
+          t(
+            "settings.notificationPermissionDenied",
+            "Notifications are blocked at the system level. Please enable them from settings."
+          )
+        );
+        return;
+      }
+
+      await notificationService.sendImmediateNotification(
+        t("notifications.testTitle"),
+        t("notifications.testBody")
+      );
+    } catch (error) {
+      console.error("Notification test failed:", error);
+    } finally {
+      setIsSendingNotification(false);
+    }
+  }, [isSendingNotification, t]);
 
   const getDynamicSubtitle = () => {
     if (petsCount === 0) return "Start by adding your first pet 🐕";
@@ -44,7 +82,12 @@ export const HomeHeader = ({
             </View>
           )}
         </TouchableOpacity>
-        <TouchableOpacity style={styles.notificationButton}>
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={handleNotificationPress}
+          disabled={isSendingNotification}
+          accessibilityLabel={t("settings.notifications")}
+        >
           <Ionicons
             name="notifications-outline"
             size={28}

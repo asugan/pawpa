@@ -352,7 +352,9 @@
     "enabledDescription": "Pet bakım hatırlatmaları alacaksınız",
     "disabled": "Bildirimler Devre Dışı",
     "disabledDescription": "Ayarlardan bildirimleri etkinleştirin",
-    "openSettings": "Ayarları Aç"
+    "openSettings": "Ayarları Aç",
+    "testTitle": "Petopia hatırlatması",
+    "testBody": "Bildirimler hazır. Pet bakım etkinliklerini sana hatırlatacağız."
   },
   "settings": {
     "appearance": "Görünüm",

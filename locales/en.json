@@ -352,7 +352,9 @@
     "enabledDescription": "You'll receive pet care reminders",
     "disabled": "Notifications Disabled",
     "disabledDescription": "Enable notifications in settings",
-    "openSettings": "Open Settings"
+    "openSettings": "Open Settings",
+    "testTitle": "Petopia reminder",
+    "testBody": "Notifications are set up. We'll remind you about pet care events."
   },
   "settings": {
     "appearance": "Appearance",
