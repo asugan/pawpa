@@ -5,6 +5,7 @@ import type {
   UserBudgetStatus,
   SetUserBudgetInput,
   PetBreakdown,
+  BudgetAlert,
 } from "../types";
 
 /**
@@ -159,22 +160,10 @@ export class UserBudgetService {
    * Check if budget alerts should be triggered
    */
   async checkBudgetAlerts(): Promise<
-    ApiResponse<{
-      isAlert: boolean;
-      alertType?: "warning" | "critical";
-      message?: string;
-      percentage?: number;
-      remainingAmount?: number;
-    }>
+    ApiResponse<BudgetAlert>
   > {
     try {
-      const response = await api.get<{
-        isAlert: boolean;
-        alertType?: "warning" | "critical";
-        message?: string;
-        percentage?: number;
-        remainingAmount?: number;
-      }>(ENV.ENDPOINTS.BUDGET_ALERTS);
+      const response = await api.get<BudgetAlert>(ENV.ENDPOINTS.BUDGET_ALERTS);
 
       console.log("✅ Budget alerts checked successfully");
       return {
@@ -279,11 +268,7 @@ export class UserBudgetService {
       budget: UserBudget | null;
       status: UserBudgetStatus | null;
       hasActiveBudget: boolean;
-      alerts: {
-        isAlert: boolean;
-        alertType?: "warning" | "critical";
-        message?: string;
-      } | null;
+      alerts: BudgetAlert | null;
     }>
   > {
     try {
@@ -301,11 +286,7 @@ export class UserBudgetService {
       }
 
       // Get alerts if budget exists
-      let alerts: {
-        isAlert: boolean;
-        alertType?: "warning" | "critical";
-        message?: string;
-      } | null = null;
+      let alerts: BudgetAlert | null = null;
       if (budget) {
         const alertsResponse = await this.checkBudgetAlerts();
         alerts = alertsResponse.success ? alertsResponse.data || null : null;

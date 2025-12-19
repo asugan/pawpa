@@ -49,6 +49,10 @@ export const eventFormSchema = z.object({
   reminder: z
     .boolean(),
 
+  reminderPreset: z
+    .enum(['standard', 'compact', 'minimal'])
+    .default('standard'),
+
   notes: z
     .string()
     .optional()
@@ -244,6 +248,7 @@ export const getMinimumEventDateTime = (): string => {
 export const defaultEventFormValues: Partial<EventFormData> = {
   description: '',
   reminder: false,
+  reminderPreset: 'standard',
   notes: '',
   location: '',
 };

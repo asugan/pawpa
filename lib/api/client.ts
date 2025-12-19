@@ -176,4 +176,20 @@ export const api = {
   },
 };
 
+/**
+ * Raw download helper for binary responses (e.g., PDFs)
+ */
+export const download = async (
+  url: string,
+  params?: Record<string, unknown>
+): Promise<AxiosResponse<ArrayBuffer>> => {
+  return apiClient.get<ArrayBuffer>(url, {
+    params,
+    responseType: 'arraybuffer',
+    headers: {
+      Accept: 'application/pdf',
+    },
+  });
+};
+
 export default api;

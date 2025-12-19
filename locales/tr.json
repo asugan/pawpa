@@ -32,7 +32,8 @@
     "care": "Bakım",
     "calendar": "Takvim",
     "finance": "Finans",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "emergency": "Acil"
   },
   "home": {
     "title": "Evcil Dostlarınızın Sağlık Asistanı",
@@ -52,6 +53,9 @@
     "viewMoreEvents": "+{{count}} daha fazla etkinlik",
     "viewMoreVaccinations": "+{{count}} daha fazla aşı",
     "financialOverview": "Finansal Genel Bakış",
+    "financialOverviewEmptyTitle": "Finansları takip etmeye başlayın",
+    "financialOverviewEmptyDescription": "Henüz bir bütçe veya harcama eklemediniz. Burada özetleri görmek için ilk kaydınızı ekleyin.",
+    "financialOverviewEmptyCta": "Bütçe veya harcama ekle",
     "greeting": "Merhaba",
     "nextActivity": "Sonraki Aktivite",
     "noActivity": "Aktivite Yok",
@@ -63,10 +67,31 @@
     "budget": "Bütçe",
     "expenses": "Harcamalar"
   },
+  "emergency": {
+    "title": "Acil",
+    "subtitle": "Çevrimdışı profil, veteriner iletişim ve hızlı aksiyonlar.",
+    "choosePet": "Pet seç",
+    "stale": "Veri 24 saatten eski. Yenileyin veya manuel güncelleyin.",
+    "healthProfile": "Sağlık profili",
+    "allergies": "Alerjiler",
+    "conditions": "Kronik durumlar",
+    "medications": "İlaçlar",
+    "notes": "Notlar",
+    "vetInfo": "Veteriner iletişim",
+    "vetName": "Veteriner adı",
+    "vetPhone": "Veteriner telefonu",
+    "vetAddress": "Klinik adresi",
+    "callVet": "Veterineri ara",
+    "openMaps": "Haritayı aç",
+    "saved": "Acil bilgiler kaydedildi",
+    "noVetPhone": "Veteriner telefonu girilmemiş",
+    "noAddress": "Adres girilmemiş"
+  },
   "care": {
     "title": "Bakım",
     "health": "Sağlık",
-    "feeding": "Besleme"
+    "feeding": "Besleme",
+    "timeline": "Zaman Akışı"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -169,6 +194,7 @@
     "descriptionPlaceholder": "Açıklama (opsiyonel)",
     "recordDate": "Kayıt Tarihi",
     "nextAppointmentDate": "Sonraki Randevu Tarihi",
+    "nextDue": "Sonraki tarih",
     "vaccinationNameLabel": "Aşı Adı",
     "manufacturerLabel": "Üretici",
     "manufacturerPlaceholder": "Üretici firma",
@@ -187,6 +213,13 @@
     "clinicPlaceholder": "Klinik adı",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Ek notlar"
+  },
+  "healthTimeline": {
+    "overdue": "Geciken",
+    "lastVetVisit": "Son veteriner ziyareti",
+    "noVetVisit": "Henüz veteriner ziyareti yok",
+    "emptyTitle": "Henüz zaman akışı yok",
+    "emptyDescription": "Başlamak için bir etkinlik veya sağlık kaydı ekleyin"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -227,10 +260,14 @@
     "noLocation": "Konum belirtilmemiş",
     "reminder": "Hatırlatıcı",
     "reminderEnabled": "Hatırlatıcı aktif",
+    "reminderPresetLabel": "Hatırlatıcı dizisi",
+    "reminderPresetPlaceholder": "Hatırlatıcı temposu seçin",
+    "reminderPresetDescription": "Birden fazla hatırlatıcıyı otomatik planlayacağız",
     "notes": "Notlar",
     "statusUpcoming": "Yaklaşan",
     "statusCompleted": "Tamamlandı",
     "statusCancelled": "İptal Edildi",
+    "statusMissed": "Kaçırıldı",
     "viewPetProfile": "Pet Profilini Görüntüle",
     "noUpcomingEvents": "Yaklaşan etkinlik yok",
     "createTitle": "Yeni Etkinlik",
@@ -252,7 +289,12 @@
     "notesPlaceholder": "Ek notlarınızı buraya yazın",
     "saveError": "Etkinlik kaydedilirken bir hata oluştu",
     "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
-    "exit": "Çık"
+    "exit": "Çık",
+    "reminders": {
+      "standard": "4 adım (3g, 1g, 1s, etkinlik zamanı)",
+      "compact": "3 adım (1g, 1s, etkinlik zamanı)",
+      "minimal": "Hızlı (1s, etkinlik zamanı)"
+    }
   },
   "eventForm": {
     "suggestions": {
@@ -310,7 +352,9 @@
     "enabledDescription": "Pet bakım hatırlatmaları alacaksınız",
     "disabled": "Bildirimler Devre Dışı",
     "disabledDescription": "Ayarlardan bildirimleri etkinleştirin",
-    "openSettings": "Ayarları Aç"
+    "openSettings": "Ayarları Aç",
+    "testTitle": "Petopia hatırlatması",
+    "testBody": "Bildirimler hazır. Pet bakım etkinliklerini sana hatırlatacağız."
   },
   "settings": {
     "appearance": "Görünüm",
@@ -319,6 +363,8 @@
     "appSettings": "Uygulama Ayarları",
     "notifications": "Bildirimler",
     "reminderNotifications": "Hatırlatıcı bildirimleri etkinleştir",
+    "notificationPermissionDenied": "Bildirimler sistemde kapalı. Lütfen cihaz ayarlarından etkinleştirin.",
+    "notificationDisableInfo": "Bildirimleri cihaz ayarlarından kapatabilirsiniz. Buradan yeni hatırlatıcı planlamayacağız.",
     "language": "Dil",
     "changeLanguage": "Uygulama dilini değiştir",
     "currentLanguage": "Mevcut Dil",
@@ -663,6 +709,14 @@
     "createError": "Harcama oluşturulamadı",
     "updateError": "Harcama güncellenemedi",
     "deleteError": "Harcama silinemedi",
+    "exportSuccess": "Dışa aktarma tamamlandı",
+    "exportError": "Dışa aktarma başarısız",
+    "exportCsv": "CSV dışa aktar",
+    "exportPdf": "PDF dışa aktar",
+    "vetSummary": "Vet özet PDF",
+    "vetSummaryTitle": "Veteriner Özeti PDF",
+    "exportTitle": "Harcamalar PDF",
+    "selectPetForSummary": "Özet için bir pet seçin",
     "categories": {
       "food": "Yiyecek",
       "premium_food": "Premium Yiyecek",
@@ -727,6 +781,11 @@
     "alertsActive": "{{count}} uyarı",
     "onTrack": "Yolunda",
     "allGood": "Tüm bütçeler yolunda",
+    "insightsTitle": "Bütçe İçgörüleri",
+    "monthOverMonth": "Aydan aya: %{{change}}",
+    "currentVsPrevious": "Bu ay {{current}} vs Önceki {{previous}}",
+    "categoryBreakdown": "Kategori dağılımı",
+    "noCategoryData": "Bu dönem için kategori verisi yok.",
     "deleteBudget": "Bütçeyi Sil",
     "deleteConfirmation": "Bu bütçe limitini silmek istediğinizden emin misiniz?",
     "createSuccess": "Bütçe başarıyla oluşturuldu",

@@ -2,7 +2,7 @@
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__
-    ? "https://02983c4684a0.ngrok-free.app"
+    ? "https://4571fd6c9cea.ngrok-free.app"
     : "https://your-production-api.com",
 
   // Auth configuration
@@ -46,6 +46,11 @@ export const ENV = {
     BUDGET: "/api/budget",
     BUDGET_STATUS: "/api/budget/status",
     BUDGET_ALERTS: "/api/budget/alerts",
+
+    // Expense export endpoints
+    EXPENSES_EXPORT_CSV: "/api/expenses/export/csv",
+    EXPENSES_EXPORT_PDF: "/api/expenses/export/pdf",
+    VET_SUMMARY_PDF: (petId: string) => `/api/expenses/export/vet-summary?petId=${petId}`,
 
     // Subscription endpoints
     SUBSCRIPTION_STATUS: "/api/subscription/status", // Unified status endpoint

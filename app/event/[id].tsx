@@ -3,7 +3,7 @@ import { useTheme } from '@/lib/theme';
 import { format } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -17,6 +17,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Hooks and Services
 import { useCreateEvent, useDeleteEvent, useEvent } from '@/lib/hooks/useEvents';
 import { usePet } from '@/lib/hooks/usePets';
+import { useReminderScheduler } from '@/hooks/useReminderScheduler';
+import { useEventReminderStore } from '@/stores/eventReminderStore';
 
 // Components
 import EventActions from '@/components/EventActions';
@@ -38,11 +40,18 @@ export default function EventDetailScreen() {
   const { data: pet } = usePet(event?.petId || '');
   const deleteEventMutation = useDeleteEvent();
   const createEventMutation = useCreateEvent();
+  const reminderStatus = useEventReminderStore((state) => (event?._id ? state.statuses[event._id] : undefined));
+  const presetSelections = useEventReminderStore((state) => state.presetSelections);
+  const markCompleted = useEventReminderStore((state) => state.markCompleted);
+  const markCancelled = useEventReminderStore((state) => state.markCancelled);
+  const markMissed = useEventReminderStore((state) => state.markMissed);
+  const resetStatus = useEventReminderStore((state) => state.resetStatus);
+  const { cancelRemindersForEvent } = useReminderScheduler();
 
   // Local state
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [eventStatus, setEventStatus] = useState<'upcoming' | 'completed' | 'cancelled'>('upcoming');
+  const [eventStatus, setEventStatus] = useState<'upcoming' | 'completed' | 'cancelled' | 'missed'>('upcoming');
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
@@ -113,6 +122,7 @@ export default function EventDetailScreen() {
         location: event.location,
         reminder: event.reminder,
         notes: event.notes,
+        reminderPresetKey: event._id ? presetSelections[event._id] : undefined,
       };
       await createEventMutation.mutateAsync(duplicatedEvent);
       showSnackbar(t('events.eventDuplicated'));
@@ -150,12 +160,46 @@ ${t('events.sharedFrom')} PawPa
     }
   };
 
-  const handleStatusChange = async (status: 'upcoming' | 'completed' | 'cancelled') => {
-    setEventStatus(status);
-    showSnackbar(t(`events.status${status.charAt(0).toUpperCase()}${status.slice(1)}`));
+  const derivedStatus = useMemo(() => {
+    if (!event) {
+      return 'upcoming';
+    }
+    if (reminderStatus?.status === 'completed') return 'completed';
+    if (reminderStatus?.status === 'cancelled') return 'cancelled';
+    if (reminderStatus?.status === 'missed') return 'missed';
 
-    // In a real app, you would update this on the backend
-    // For now, we'll just update local state
+    const start = new Date(event.startTime);
+    return start < new Date() ? 'missed' : 'upcoming';
+  }, [event, reminderStatus]);
+
+  useEffect(() => {
+    if (!event) return;
+
+    // Sync derived status with local state
+    setEventStatus(derivedStatus);
+
+    // Auto-mark missed events and cancel remaining reminders
+    if (derivedStatus === 'missed' && reminderStatus?.status !== 'missed') {
+      markMissed(event._id);
+      void cancelRemindersForEvent(event._id);
+    }
+  }, [cancelRemindersForEvent, derivedStatus, event, markMissed, reminderStatus]);
+
+  const handleStatusChange = async (status: 'upcoming' | 'completed' | 'cancelled') => {
+    if (!event) return;
+
+    setEventStatus(status);
+    if (status === 'completed') {
+      markCompleted(event._id);
+      await cancelRemindersForEvent(event._id);
+    } else if (status === 'cancelled') {
+      markCancelled(event._id);
+      await cancelRemindersForEvent(event._id);
+    } else {
+      resetStatus(event._id);
+    }
+
+    showSnackbar(t(`events.status${status.charAt(0).toUpperCase()}${status.slice(1)}`));
   };
 
   if (isLoading) {

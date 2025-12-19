@@ -6,7 +6,7 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { Text, FAB, Snackbar, Chip, Button, Card, SegmentedButtons } from "@/components/ui";
+import { Text, FAB, Snackbar, Chip, Card, SegmentedButtons, Button } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePets } from "../../lib/hooks/usePets";
@@ -17,12 +17,16 @@ import {
   useUpdateExpense,
   useDeleteExpense,
   expenseKeys,
+  useExportExpensesCSV,
+  useExportExpensesPDF,
+  useExportVetSummaryPDF,
 } from "../../lib/hooks/useExpenses";
 import {
   useUserBudget,
   useUserBudgetStatus,
   useSetUserBudget,
   useDeleteUserBudget,
+  useBudgetAlertNotifications,
 } from "../../lib/hooks/useUserBudget";
 import { useQueryClient } from "@tanstack/react-query";
 import ExpenseCard from "../../components/ExpenseCard";
@@ -41,6 +45,8 @@ import {
 import { LAYOUT } from "../../constants";
 import { ENV } from "../../lib/config/env";
 import { ProtectedRoute } from "@/components/subscription";
+import { BudgetInsights } from "@/components/BudgetInsights";
+import { expenseService } from "@/lib/services/expenseService";
 
 type FinanceTabValue = 'budget' | 'expenses';
 
@@ -88,6 +94,7 @@ export default function FinanceScreen() {
   // Fetch user budget (new simplified system)
   const { data: budget, isLoading: budgetLoading } = useUserBudget();
   const { data: budgetStatus } = useUserBudgetStatus();
+  useBudgetAlertNotifications();
 
   // Mutations
   const createExpenseMutation = useCreateExpense();
@@ -95,6 +102,9 @@ export default function FinanceScreen() {
   const deleteExpenseMutation = useDeleteExpense();
   const setBudgetMutation = useSetUserBudget();
   const deleteBudgetMutation = useDeleteUserBudget();
+  const exportCsvMutation = useExportExpensesCSV();
+  const exportPdfMutation = useExportExpensesPDF();
+  const exportVetSummaryMutation = useExportVetSummaryPDF();
 
   // Effects for pagination
   useEffect(() => {
@@ -210,6 +220,72 @@ export default function FinanceScreen() {
     }
   };
 
+  const handleExportCsv = async () => {
+    try {
+      await exportCsvMutation.mutateAsync({
+        petId: selectedPetId,
+      });
+      setSnackbarMessage(t("expenses.exportSuccess", "Export completed"));
+      setSnackbarVisible(true);
+    } catch (error) {
+      setSnackbarMessage(
+        error instanceof Error ? error.message : t("expenses.exportError", "Export failed")
+      );
+      setSnackbarVisible(true);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      const uri = await exportPdfMutation.mutateAsync({
+        petId: selectedPetId,
+      });
+      const shareResult = await expenseService.sharePdf(uri, t("expenses.exportTitle", "Expenses PDF"));
+      if (!shareResult.success) {
+        setSnackbarMessage(
+          typeof shareResult.error === "string"
+            ? shareResult.error
+            : t("expenses.exportError", "Export failed")
+        );
+      } else {
+        setSnackbarMessage(t("expenses.exportSuccess", "Export completed"));
+      }
+      setSnackbarVisible(true);
+    } catch (error) {
+      setSnackbarMessage(
+        error instanceof Error ? error.message : t("expenses.exportError", "Export failed")
+      );
+      setSnackbarVisible(true);
+    }
+  };
+
+  const handleVetSummary = async () => {
+    if (!selectedPetId) {
+      setSnackbarMessage(t("expenses.selectPetForSummary", "Select a pet to export summary"));
+      setSnackbarVisible(true);
+      return;
+    }
+    try {
+      const uri = await exportVetSummaryMutation.mutateAsync(selectedPetId);
+      const shareResult = await expenseService.sharePdf(uri, t("expenses.vetSummaryTitle", "Vet Summary PDF"));
+      if (!shareResult.success) {
+        setSnackbarMessage(
+          typeof shareResult.error === "string"
+            ? shareResult.error
+            : t("expenses.exportError", "Export failed")
+        );
+      } else {
+        setSnackbarMessage(t("expenses.exportSuccess", "Export completed"));
+      }
+      setSnackbarVisible(true);
+    } catch (error) {
+      setSnackbarMessage(
+        error instanceof Error ? error.message : t("expenses.exportError", "Export failed")
+      );
+      setSnackbarVisible(true);
+    }
+  };
+
   // Load more handler
   const handleLoadMoreExpenses = () => {
     if (!expensesFetching && hasMore) {
@@ -296,6 +372,40 @@ export default function FinanceScreen() {
               onDelete={handleDeleteBudget}
             />
           )}
+
+          {budgetStatus && (
+            <BudgetInsights status={budgetStatus} />
+          )}
+
+          <View style={styles.exportRow}>
+            <Button
+              mode="outlined"
+              icon="file-download"
+              loading={exportCsvMutation.isPending}
+              onPress={handleExportCsv}
+              style={styles.exportButton}
+            >
+              {t("expenses.exportCsv", "Export CSV")}
+            </Button>
+            <Button
+              mode="outlined"
+              icon="file-pdf-box"
+              loading={exportPdfMutation.isPending}
+              onPress={handleExportPdf}
+              style={styles.exportButton}
+            >
+              {t("expenses.exportPdf", "Export PDF")}
+            </Button>
+          </View>
+          <Button
+            mode="contained"
+            icon="hospital"
+            loading={exportVetSummaryMutation.isPending}
+            onPress={handleVetSummary}
+            disabled={!selectedPetId}
+          >
+            {t("expenses.vetSummary", "Vet summary PDF")}
+          </Button>
         </View>
       </View>
     );
@@ -563,5 +673,15 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+  },
+  exportRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  exportButton: {
+    flex: 1,
   },
 });

@@ -32,7 +32,8 @@
     "care": "Care",
     "calendar": "Calendar",
     "finance": "Finance",
-    "settings": "Settings"
+    "settings": "Settings",
+    "emergency": "Emergency"
   },
   "home": {
     "title": "Your Pet Health Assistant",
@@ -52,6 +53,9 @@
     "viewMoreEvents": "+{{count}} more events",
     "viewMoreVaccinations": "+{{count}} more vaccinations",
     "financialOverview": "Financial Overview",
+    "financialOverviewEmptyTitle": "Start tracking finances",
+    "financialOverviewEmptyDescription": "You have not added any expenses or a budget yet. Add your first entry to see insights here.",
+    "financialOverviewEmptyCta": "Add budget or expense",
     "greeting": "Hello",
     "nextActivity": "Next Activity",
     "noActivity": "No Activity",
@@ -63,10 +67,31 @@
     "budget": "Budget",
     "expenses": "Expenses"
   },
+  "emergency": {
+    "title": "Emergency",
+    "subtitle": "Offline-ready profile, vet contacts, quick actions.",
+    "choosePet": "Choose pet",
+    "stale": "Data older than 24h. Refresh or update manually.",
+    "healthProfile": "Health profile",
+    "allergies": "Allergies",
+    "conditions": "Chronic conditions",
+    "medications": "Medications",
+    "notes": "Notes",
+    "vetInfo": "Vet contact",
+    "vetName": "Vet name",
+    "vetPhone": "Vet phone",
+    "vetAddress": "Clinic address",
+    "callVet": "Call vet",
+    "openMaps": "Open maps",
+    "saved": "Emergency info saved",
+    "noVetPhone": "No vet phone set",
+    "noAddress": "No address set"
+  },
   "care": {
     "title": "Care",
     "health": "Health",
-    "feeding": "Feeding"
+    "feeding": "Feeding",
+    "timeline": "Timeline"
   },
   "pets": {
     "myPets": "My Pets",
@@ -169,6 +194,7 @@
     "descriptionPlaceholder": "Description (optional)",
     "recordDate": "Record Date",
     "nextAppointmentDate": "Next Appointment Date",
+    "nextDue": "Next due date",
     "vaccinationNameLabel": "Vaccine Name",
     "manufacturerLabel": "Manufacturer",
     "manufacturerPlaceholder": "Manufacturing company",
@@ -187,6 +213,13 @@
     "clinicPlaceholder": "Clinic name",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Additional notes"
+  },
+  "healthTimeline": {
+    "overdue": "Overdue",
+    "lastVetVisit": "Last vet visit",
+    "noVetVisit": "No vet visit yet",
+    "emptyTitle": "No timeline yet",
+    "emptyDescription": "Add an event or health record to get started"
   },
   "calendar": {
     "calendar": "Calendar",
@@ -227,10 +260,14 @@
     "noLocation": "No location specified",
     "reminder": "Reminder",
     "reminderEnabled": "Reminder enabled",
+    "reminderPresetLabel": "Reminder cadence",
+    "reminderPresetPlaceholder": "Choose reminder cadence",
+    "reminderPresetDescription": "We'll schedule multiple reminders automatically",
     "notes": "Notes",
     "statusUpcoming": "Upcoming",
     "statusCompleted": "Completed",
     "statusCancelled": "Cancelled",
+    "statusMissed": "Missed",
     "viewPetProfile": "View Pet Profile",
     "noUpcomingEvents": "No upcoming events",
     "createTitle": "New Event",
@@ -252,7 +289,12 @@
     "notesPlaceholder": "Write your additional notes here",
     "saveError": "An error occurred while saving the event",
     "unsavedChangesMessageShort": "Are you sure you want to exit without saving changes?",
-    "exit": "Exit"
+    "exit": "Exit",
+    "reminders": {
+      "standard": "4-step (3d, 1d, 1h, at time)",
+      "compact": "3-step (1d, 1h, at time)",
+      "minimal": "Quick (1h, at time)"
+    }
   },
   "eventForm": {
     "suggestions": {
@@ -310,7 +352,9 @@
     "enabledDescription": "You'll receive pet care reminders",
     "disabled": "Notifications Disabled",
     "disabledDescription": "Enable notifications in settings",
-    "openSettings": "Open Settings"
+    "openSettings": "Open Settings",
+    "testTitle": "Petopia reminder",
+    "testBody": "Notifications are set up. We'll remind you about pet care events."
   },
   "settings": {
     "appearance": "Appearance",
@@ -319,6 +363,8 @@
     "appSettings": "App Settings",
     "notifications": "Notifications",
     "reminderNotifications": "Enable reminder notifications",
+    "notificationPermissionDenied": "Notifications are blocked at the system level. Please enable them from settings.",
+    "notificationDisableInfo": "You can disable notifications from your device settings. We'll stop scheduling new reminders from here.",
     "language": "Language",
     "changeLanguage": "Change app language",
     "currentLanguage": "Current Language",
@@ -663,6 +709,14 @@
     "createError": "Failed to create expense",
     "updateError": "Failed to update expense",
     "deleteError": "Failed to delete expense",
+    "exportSuccess": "Export completed",
+    "exportError": "Export failed",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "vetSummary": "Vet summary PDF",
+    "vetSummaryTitle": "Vet Summary PDF",
+    "exportTitle": "Expenses PDF",
+    "selectPetForSummary": "Select a pet to export summary",
     "categories": {
       "food": "Food",
       "premium_food": "Premium Food",
@@ -727,6 +781,11 @@
     "alertsActive": "{{count}} alert(s)",
     "onTrack": "On track",
     "allGood": "All budgets are on track",
+    "insightsTitle": "Budget Insights",
+    "monthOverMonth": "Month-over-month: {{change}}%",
+    "currentVsPrevious": "Current {{current}} vs Prev {{previous}}",
+    "categoryBreakdown": "Category breakdown",
+    "noCategoryData": "No category data for this period.",
     "deleteBudget": "Delete Budget",
     "deleteConfirmation": "Are you sure you want to delete this budget limit?",
     "createSuccess": "Budget created successfully",

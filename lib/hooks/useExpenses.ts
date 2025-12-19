@@ -64,7 +64,6 @@ export const expenseKeys = {
 export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId'> = {}) {
   return useQuery({
     queryKey: expenseKeys.list({ petId, ...filters }),
-    initialData: { expenses: [], total: 0 },
     queryFn: async () => {
       if (!petId) {
         // If no petId, fetch all pets and combine their expenses
@@ -109,7 +108,7 @@ export function useExpenses(petId?: string, filters: Omit<ExpenseFilters, 'petId
       }
     },
     staleTime: CACHE_TIMES.SHORT,
-    placeholderData: (previousData) => previousData, // Important for pagination
+    placeholderData: (previousData) => previousData ?? { expenses: [], total: 0 }, // Keep previous page data for pagination
   });
 }
 
@@ -253,6 +252,42 @@ export function useExportExpensesCSV() {
         throw new Error(errorMessage);
       }
       return result.data!;
+    },
+  });
+}
+
+// Mutation hook for exporting expenses as PDF
+export function useExportExpensesPDF() {
+  return useMutation({
+    mutationFn: async (params?: {
+      petId?: string;
+      startDate?: string;
+      endDate?: string;
+    }) => {
+      const result = await expenseService.exportExpensesPDF(params);
+      if (!result.success || !result.data) {
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export expenses PDF';
+        throw new Error(errorMessage);
+      }
+      return result.data.uri;
+    },
+  });
+}
+
+// Mutation hook for exporting vet summary PDF for a pet
+export function useExportVetSummaryPDF() {
+  return useMutation({
+    mutationFn: async (petId: string) => {
+      const result = await expenseService.exportVetSummaryPDF(petId);
+      if (!result.success || !result.data) {
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to export vet summary PDF';
+        throw new Error(errorMessage);
+      }
+      return result.data.uri;
     },
   });
 }

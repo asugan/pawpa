@@ -8,6 +8,7 @@ import { EventFormData, transformFormDataToAPI } from '../lib/schemas/eventSchem
 import { EventForm } from './forms/EventForm';
 import { useCreateEvent, useUpdateEvent } from '../lib/hooks/useEvents';
 import { usePets } from '../lib/hooks/usePets';
+import { ReminderPresetKey } from '@/constants/reminders';
 
 interface EventModalProps {
   visible: boolean;
@@ -46,17 +47,18 @@ export function EventModal({
     try {
       // Transform form data to API format (combines date+time into ISO datetime)
       const apiData = transformFormDataToAPI(data);
+      const reminderPresetKey: ReminderPresetKey = data.reminderPreset || 'standard';
 
       if (event) {
         // Event güncelleme
         await updateEventMutation.mutateAsync({
           _id: event._id,
-          data: apiData
+          data: { ...apiData, reminderPresetKey }
         });
         showSnackbar('Etkinlik başarıyla güncellendi');
       } else {
         // Yeni event oluşturma
-        await createEventMutation.mutateAsync(apiData);
+        await createEventMutation.mutateAsync({ ...apiData, reminderPresetKey });
         showSnackbar('Etkinlik başarıyla eklendi');
       }
 

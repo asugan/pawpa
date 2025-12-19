@@ -1,35 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Control, FieldErrors, Path, PathValue, useForm, UseFormReturn } from 'react-hook-form';
+import { Resolver, useForm, UseFormReturn } from 'react-hook-form';
 import {
   eventFormSchema,
   type EventFormData,
 } from '../lib/schemas/eventSchema';
 import { Event } from '../lib/types';
 import { toISODateString, toTimeString } from '../lib/utils/dateConversion';
+import { useEventReminderStore } from '@/stores/eventReminderStore';
 
-// Form hook types
-export interface UseEventFormReturn {
+export type UseEventFormReturn = UseFormReturn<EventFormData> & {
   form: UseFormReturn<EventFormData>;
-  control: Control<EventFormData>;
-  errors: FieldErrors<EventFormData>;
-  isSubmitting: boolean;
-  isValid: boolean;
   isDirty: boolean;
-  touchedFields: Record<string, boolean>;
-  dirtyFields: Record<string, boolean>;
-  handleSubmit: (
-    onSubmit: (data: EventFormData) => void | Promise<void>
-  ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
-  reset: (values?: EventFormData) => void;
-  setValue: <K extends Path<EventFormData>>(name: K, value: PathValue<EventFormData, K>) => void;
-  getValues: (name?: keyof EventFormData) => EventFormData[keyof EventFormData] | EventFormData;
-  trigger: (name?: keyof EventFormData) => Promise<boolean>;
-  watch: (name?: keyof EventFormData) => EventFormData[keyof EventFormData] | EventFormData;
-}
+  isValid: boolean;
+  isSubmitting: boolean;
+};
 
 // Main hook for event form - handles both create and edit modes
 export const useEventForm = (event?: Event, initialPetId?: string): UseEventFormReturn => {
+  const presetSelections = useEventReminderStore(state => state.presetSelections);
+
   // Default values - parse datetime for date/time pickers
   const defaultValues: EventFormData = React.useMemo(() => {
     // Parse dates to local time objects
@@ -44,6 +34,7 @@ export const useEventForm = (event?: Event, initialPetId?: string): UseEventForm
     
     const endDate = endDateTime ? toISODateString(endDateTime) : '';
     const endTime = endDateTime ? toTimeString(endDateTime) : '';
+    const presetSelection = event ? presetSelections[event._id] : undefined;
 
     return {
       title: event?.title || '',
@@ -56,12 +47,13 @@ export const useEventForm = (event?: Event, initialPetId?: string): UseEventForm
       endTime: endTime || undefined,
       location: event?.location || undefined,
       reminder: event?.reminder ?? false,
+      reminderPreset: presetSelection ?? 'standard',
       notes: event?.notes || undefined,
     };
-  }, [event, initialPetId]);
+  }, [event, initialPetId, presetSelections]);
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
+    resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',
@@ -69,19 +61,10 @@ export const useEventForm = (event?: Event, initialPetId?: string): UseEventForm
 
   return {
     form,
-    control: form.control,
-    errors: form.formState.errors,
-    isSubmitting: form.formState.isSubmitting,
-    isValid: form.formState.isValid,
+    ...form,
     isDirty: form.formState.isDirty,
-    touchedFields: form.formState.touchedFields,
-    dirtyFields: form.formState.dirtyFields,
-    handleSubmit: form.handleSubmit,
-    reset: form.reset,
-    setValue: form.setValue,
-    getValues: form.getValues,
-    trigger: form.trigger,
-    watch: form.watch,
+    isValid: form.formState.isValid,
+    isSubmitting: form.formState.isSubmitting,
   };
 };
 

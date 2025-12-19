@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Pressable } from "react-native";
-import { Text, Card, ProgressBar } from "@/components/ui";
+import { Text, Card, ProgressBar, Button } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
@@ -59,11 +59,39 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
   const hasExpenses = displayExpenses.length > 0;
 
   if (!hasBudget && !hasExpenses) {
-    // If absolutely nothing to show, maybe show a "Setup Finances" card or just null
-    // But typically we want to encourage usage.
-    // For now, let's return null if really nothing, but the parent likely handles empty states?
-    // Or we can show a placeholder.
-    return null; 
+    return (
+      <Card
+        style={[styles.card, { backgroundColor: theme.colors.surface }]}
+        elevation={2}
+      >
+        <View style={styles.emptyContent}>
+          <Text variant="titleMedium" style={styles.title}>
+            {t("home.financialOverviewEmptyTitle", "Start tracking finances")}
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={[
+              styles.emptyDescription,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
+          >
+            {t(
+              "home.financialOverviewEmptyDescription",
+              "You have not added any expenses or a budget yet. Add your first entry to see insights here."
+            )}
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => router.push("/(tabs)/finance")}
+            buttonColor={theme.colors.primary}
+            textColor={theme.colors.onPrimary}
+            style={styles.emptyButton}
+          >
+            {t("home.financialOverviewEmptyCta", "Add budget or expense")}
+          </Button>
+        </View>
+      </Card>
+    );
   }
 
   return (
@@ -154,9 +182,19 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  emptyContent: {
+    padding: 20,
+  },
   title: {
     fontWeight: "bold",
     marginBottom: 12,
+  },
+  emptyDescription: {
+    lineHeight: 20,
+  },
+  emptyButton: {
+    marginTop: 16,
+    alignSelf: "flex-start",
   },
   budgetSection: {
     gap: 8,

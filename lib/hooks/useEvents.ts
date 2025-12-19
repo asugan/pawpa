@@ -9,6 +9,8 @@ import { useResources } from './core/useResources';
 import { useConditionalQuery } from './core/useConditionalQuery';
 import { useMemo } from 'react';
 import { filterUpcomingEvents, groupEventsByTime, EventGroups } from '@/lib/utils/events';
+import { useReminderScheduler } from '@/hooks/useReminderScheduler';
+import { ReminderPresetKey } from '@/constants/reminders';
 
 // Query keys factory
 const baseEventKeys = createQueryKeys('events');
@@ -110,15 +112,26 @@ export const useEventsByType = (petId: string, type: string) => {
   });
 };
 
+export const useAllEvents = () => {
+  return useResources<Event>({
+    queryKey: eventKeys.list({ petId: 'all' }),
+    queryFn: () => eventService.getEvents(),
+    staleTime: CACHE_TIMES.MEDIUM,
+  });
+};
+
 // Mutations
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
+  const { scheduleChainForEvent, cancelRemindersForEvent, clearReminderState } = useReminderScheduler();
 
-  return useCreateResource<Event, CreateEventInput>(
-    (data) => eventService.createEvent(data).then(res => res.data!),
+  type CreateEventWithPreset = CreateEventInput & { reminderPresetKey?: ReminderPresetKey };
+
+  return useCreateResource<Event, CreateEventWithPreset>(
+    ({ reminderPresetKey, ...payload }) => eventService.createEvent(payload).then(res => res.data!),
     {
       listQueryKey: eventKeys.lists(),
-      onSuccess: (newEvent) => {
+      onSuccess: async (newEvent, variables) => {
         // Also update calendar and today events if applicable
         const eventDate = newEvent.startTime.split('T')[0];
         const today = new Date().toISOString().split('T')[0];
@@ -132,6 +145,13 @@ export const useCreateEvent = () => {
         queryClient.setQueryData(eventKeys.calendar(eventDate), (old: Event[] | undefined) =>
           old ? [...old, newEvent] : [newEvent]
         );
+
+        if (newEvent.reminder) {
+          void scheduleChainForEvent(newEvent, variables.reminderPresetKey);
+        } else {
+          void cancelRemindersForEvent(newEvent._id);
+          clearReminderState(newEvent._id);
+        }
       },
       onSettled: (newEvent) => {
         if (newEvent) {
@@ -151,13 +171,27 @@ export const useCreateEvent = () => {
 
 export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
+  const { scheduleChainForEvent, cancelRemindersForEvent, clearReminderState } = useReminderScheduler();
+  type UpdateEventWithPreset = UpdateEventInput & { reminderPresetKey?: ReminderPresetKey };
 
-  return useUpdateResource<Event, UpdateEventInput>(
-    ({ _id, data }) => eventService.updateEvent(_id, data).then(res => res.data!),
+  return useUpdateResource<Event, UpdateEventWithPreset>(
+    ({ _id, data }) => {
+      const { reminderPresetKey, ...payload } = data;
+      return eventService.updateEvent(_id, payload).then(res => res.data!);
+    },
     {
       listQueryKey: eventKeys.lists(),
       detailQueryKey: eventKeys.detail,
       onSettled: (data, error, variables) => {
+        if (data) {
+          if (data.reminder) {
+            void scheduleChainForEvent(data, variables.data.reminderPresetKey);
+          } else {
+            void cancelRemindersForEvent(data._id);
+            clearReminderState(data._id);
+          }
+        }
+
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables._id) });
         queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
 
@@ -173,6 +207,7 @@ export const useUpdateEvent = () => {
 
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
+  const { cancelRemindersForEvent, clearReminderState } = useReminderScheduler();
 
   return useDeleteResource<Event>(
     (id) => eventService.deleteEvent(id).then(res => res.data),
@@ -180,6 +215,8 @@ export const useDeleteEvent = () => {
       listQueryKey: eventKeys.lists(),
       detailQueryKey: eventKeys.detail,
       onSuccess: (data, id) => {
+         void cancelRemindersForEvent(id);
+         clearReminderState(id);
          // Remove from calendar and today events
          // Note: This is a bit tricky since we don't have the event object here easily without fetching it first.
          // But useDeleteResource does optimistic updates on the list.

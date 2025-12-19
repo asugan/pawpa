@@ -150,6 +150,16 @@ export interface UserBudgetStatus {
   remainingAmount: number;
   isAlert: boolean;
   petBreakdown: PetBreakdown[];
+  monthOverMonth?: {
+    current: number;
+    previous: number;
+    changePct: number;
+  };
+  categoryBreakdown?: {
+    category: string;
+    total: number;
+    percentage: number;
+  }[];
 }
 
 export interface SetUserBudgetInput {
@@ -157,6 +167,20 @@ export interface SetUserBudgetInput {
   currency: Currency;
   alertThreshold?: number; // Optional, defaults to 0.8
   isActive?: boolean; // Optional, defaults to true
+}
+
+export interface BudgetAlert {
+  budget?: UserBudget;
+  currentSpending?: number;
+  percentage?: number;
+  remainingAmount?: number;
+  isExceeded?: boolean;
+  isAlert?: boolean;
+  notificationPayload?: {
+    title: string;
+    body: string;
+    severity: "warning" | "critical";
+  };
 }
 
 export type PetWithFinances = Pet & {

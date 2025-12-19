@@ -1,4 +1,4 @@
-import { api, ApiError, ApiResponse } from '../api/client';
+import { api, ApiError, ApiResponse, download } from '../api/client';
 import { ENV } from '../config/env';
 import type {
   Expense,
@@ -8,6 +8,9 @@ import type {
   MonthlyExpense,
   YearlyExpense
 } from '../types';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import { Buffer } from 'buffer';
 
 /**
  * Date utility functions for safe date handling
@@ -409,7 +412,7 @@ export class ExpenseService {
       if (params?.startDate) queryParams.append('startDate', params.startDate);
       if (params?.endDate) queryParams.append('endDate', params.endDate);
 
-      const url = `/api/expenses/export/csv${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `${ENV.ENDPOINTS.EXPENSES_EXPORT_CSV}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get<string>(url);
 
       return {
@@ -428,6 +431,88 @@ export class ExpenseService {
         success: false,
         error: 'Failed to export expenses'
       };
+    }
+  }
+
+  /**
+   * Export expenses as PDF (general report)
+   */
+  async exportExpensesPDF(params?: {
+    petId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<{ uri: string }>> {
+    try {
+      const response = await download(ENV.ENDPOINTS.EXPENSES_EXPORT_PDF, params);
+      const base64 = Buffer.from(response.data).toString('base64');
+      const cacheDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory;
+      if (!cacheDir) {
+        return { success: false, error: 'File system cache not available' };
+      }
+      const uri = `${cacheDir}expenses-report.pdf`;
+      await FileSystem.writeAsStringAsync(uri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return {
+        success: true,
+        data: { uri },
+        message: 'Expenses PDF generated',
+      };
+    } catch (error) {
+      console.error('❌ Export expenses PDF error:', error);
+      if (error instanceof ApiError) {
+        return { success: false, error: error.message };
+      }
+      return { success: false, error: 'Failed to export expenses PDF' };
+    }
+  }
+
+  /**
+   * Export vet summary PDF for a specific pet
+   */
+  async exportVetSummaryPDF(petId: string): Promise<ApiResponse<{ uri: string }>> {
+    try {
+      const response = await download(ENV.ENDPOINTS.VET_SUMMARY_PDF(petId));
+      const base64 = Buffer.from(response.data).toString('base64');
+      const cacheDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory;
+      if (!cacheDir) {
+        return { success: false, error: 'File system cache not available' };
+      }
+      const uri = `${cacheDir}vet-summary-${petId}.pdf`;
+      await FileSystem.writeAsStringAsync(uri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return {
+        success: true,
+        data: { uri },
+        message: 'Vet summary PDF generated',
+      };
+    } catch (error) {
+      console.error('❌ Export vet summary PDF error:', error);
+      if (error instanceof ApiError) {
+        return { success: false, error: error.message };
+      }
+      return { success: false, error: 'Failed to export vet summary PDF' };
+    }
+  }
+
+  /**
+   * Share a generated PDF if supported on platform
+   */
+  async sharePdf(uri: string, dialogTitle: string): Promise<ApiResponse<void>> {
+    try {
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        return { success: false, error: 'Sharing is not available on this device' };
+      }
+
+      await Sharing.shareAsync(uri, { dialogTitle });
+      return { success: true, message: 'Shared successfully' };
+    } catch (error) {
+      console.error('❌ Share PDF error:', error);
+      return { success: false, error: 'Failed to share PDF' };
     }
   }
 }

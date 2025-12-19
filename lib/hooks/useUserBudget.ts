@@ -1,12 +1,16 @@
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { userBudgetService } from "../services/userBudgetService";
+import { useEffect, useRef } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
+  BudgetAlert,
+  PetBreakdown,
+  SetUserBudgetInput,
   UserBudget,
   UserBudgetStatus,
-  SetUserBudgetInput,
-  PetBreakdown,
 } from "../types";
 import { CACHE_TIMES } from "../config/queryConfig";
+import { userBudgetService } from "../services/userBudgetService";
+import { notificationService } from "../services/notificationService";
 import { createQueryKeys } from "./core/createQueryKeys";
 import { useConditionalQuery } from "./core/useConditionalQuery";
 
@@ -193,13 +197,7 @@ export function useDeleteUserBudget() {
 export function useBudgetAlerts() {
   const { data: budget } = useUserBudget();
 
-  return useConditionalQuery<{
-    isAlert: boolean;
-    alertType?: "warning" | "critical";
-    message?: string;
-    percentage?: number;
-    remainingAmount?: number;
-  } | null>({
+  return useConditionalQuery<BudgetAlert | null>({
     queryKey: userBudgetKeys.alerts(),
     queryFn: () => userBudgetService.checkBudgetAlerts(),
     staleTime: CACHE_TIMES.VERY_SHORT,
@@ -253,11 +251,7 @@ export function useBudgetSummary() {
     budget: UserBudget | null;
     status: UserBudgetStatus | null;
     hasActiveBudget: boolean;
-    alerts: {
-      isAlert: boolean;
-      alertType?: "warning" | "critical";
-      message?: string;
-    } | null;
+    alerts: BudgetAlert | null;
   } | null>({
     queryKey: userBudgetKeys.summary(),
     queryFn: () => userBudgetService.getBudgetSummary(),
@@ -266,6 +260,59 @@ export function useBudgetSummary() {
     defaultValue: null,
     errorMessage: "Budget summary could not be loaded",
   });
+}
+
+/**
+ * Hook that bridges budget alerts to local notifications
+ */
+export function useBudgetAlertNotifications() {
+  const { data: alert } = useBudgetAlerts();
+  const { data: budget } = useUserBudget();
+  const notifiedCache = useRef<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const handleAlertNotification = async () => {
+      const budgetId =
+        alert?.budget?.id ||
+        (alert?.budget as unknown as { _id?: string })?._id ||
+        budget?.id;
+      const period = new Date();
+      const periodKey = budgetId
+        ? `budget-alert:${budgetId}:${period.getFullYear()}-${period.getMonth() + 1}`
+        : null;
+
+      if (!periodKey) {
+        return;
+      }
+
+      if (!alert || !alert.notificationPayload) {
+        notifiedCache.current[periodKey] = false;
+        await AsyncStorage.removeItem(periodKey);
+        return;
+      }
+
+      if (notifiedCache.current[periodKey]) {
+        return;
+      }
+
+      const alreadyNotified = await AsyncStorage.getItem(periodKey);
+      if (alreadyNotified === "true") {
+        notifiedCache.current[periodKey] = true;
+        return;
+      }
+
+      await notificationService.sendBudgetAlertNotification(
+        alert.notificationPayload.title,
+        alert.notificationPayload.body,
+        { severity: alert.notificationPayload.severity }
+      );
+
+      notifiedCache.current[periodKey] = true;
+      await AsyncStorage.setItem(periodKey, "true");
+    };
+
+    void handleAlertNotification();
+  }, [alert, budget]);
 }
 
 // Export types for external use
