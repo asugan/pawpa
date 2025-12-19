@@ -11,7 +11,6 @@ import { useCreateHealthRecord, useUpdateHealthRecord } from '../../lib/hooks/us
 import {
   formatValidationErrors,
   getHealthRecordSchema,
-  type HealthRecordCreateInput,
   type HealthRecordCreateFormInput,
 } from '../../lib/schemas/healthRecordSchema';
 import type { HealthRecord } from '../../lib/types';
@@ -53,6 +52,27 @@ export function HealthRecordForm({
   const watchedType = watch('type');
   const hasNextDueDate = watchedType === 'vaccination';
 
+  const getEmptyFormValues = React.useCallback((): HealthRecordCreateFormInput => ({
+    petId: petId || '',
+    type: 'checkup',
+    title: '',
+    description: '',
+    date: new Date(),
+    veterinarian: '',
+    clinic: '',
+    cost: undefined,
+    notes: '',
+    nextDueDate: undefined,
+    vaccineName: '',
+    vaccineManufacturer: '',
+    batchNumber: '',
+    medicationName: '',
+    dosage: '',
+    frequency: '',
+    startDate: undefined,
+    endDate: undefined,
+  }), [petId]);
+
   // Reset form when modal visibility changes
   React.useEffect(() => {
     if (visible) {
@@ -68,20 +88,33 @@ export function HealthRecordForm({
           cost: initialData.cost || undefined,
           notes: initialData.notes || '',
           nextDueDate: initialData.nextDueDate || undefined,
-        } as HealthRecordCreateInput);
+          vaccineName: initialData.vaccineName || '',
+          vaccineManufacturer: initialData.vaccineManufacturer || '',
+          batchNumber: initialData.batchNumber || '',
+          medicationName: initialData.medicationName || '',
+          dosage: initialData.dosage || '',
+          frequency: initialData.frequency || '',
+          startDate: initialData.startDate || undefined,
+          endDate: initialData.endDate || undefined,
+        } as HealthRecordCreateFormInput);
       } else {
-        reset(undefined);
+        reset(getEmptyFormValues());
       }
     }
-  }, [visible, initialData, reset, petId]);
+  }, [visible, initialData, reset, getEmptyFormValues]);
 
   const onSubmit = async (data: HealthRecordCreateFormInput) => {
     try {
       setIsLoading(true);
 
+      const normalizedData: HealthRecordCreateFormInput = {
+        ...data,
+        cost: data.cost ?? undefined,
+      };
+
       // Manual validation based on current type
-      const schema = getHealthRecordSchema(data.type);
-      const validationResult = schema.safeParse(data);
+      const schema = getHealthRecordSchema(normalizedData.type);
+      const validationResult = schema.safeParse(normalizedData);
 
       if (!validationResult.success) {
         const formattedErrors = formatValidationErrors(validationResult.error);
@@ -97,6 +130,7 @@ export function HealthRecordForm({
         });
       } else {
         await createMutation.mutateAsync(validationResult.data);
+        reset(getEmptyFormValues());
       }
 
       onSuccess?.();
