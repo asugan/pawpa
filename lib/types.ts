@@ -170,11 +170,12 @@ export interface SetUserBudgetInput {
 }
 
 export interface BudgetAlert {
-  isAlert: boolean;
-  alertType?: "warning" | "critical";
-  message?: string;
+  budget?: UserBudget;
+  currentSpending?: number;
   percentage?: number;
   remainingAmount?: number;
+  isExceeded?: boolean;
+  isAlert?: boolean;
   notificationPayload?: {
     title: string;
     body: string;

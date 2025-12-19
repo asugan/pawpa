@@ -286,11 +286,7 @@ export class UserBudgetService {
       }
 
       // Get alerts if budget exists
-      let alerts: {
-        isAlert: boolean;
-        alertType?: "warning" | "critical";
-        message?: string;
-      } | null = null;
+      let alerts: BudgetAlert | null = null;
       if (budget) {
         const alertsResponse = await this.checkBudgetAlerts();
         alerts = alertsResponse.success ? alertsResponse.data || null : null;

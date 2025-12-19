@@ -34,10 +34,10 @@ Bu plan, `docs/status/premium-gap-report.md` içindeki boşlukları 1–2 sprint
 
 - Export/Vet:
   - Backend: `../petopia-backend/src/controllers/expenseController.ts` içindeki `exportExpensesPDF`’i pdfkit ile gerçek PDF üretimine çevir; yeni “Vet summary PDF” endpoint’i ekle (aşılar, son ilaçlar, son 3 vet ziyareti, emergency contact). Route + controller + service ayrımı korunsun, CSV’yi bozma.
-  - Mobile: `lib/services/expenseService.ts` + `lib/hooks/useExpenses.ts` içine `exportExpensesPDF` servisini ekle; `app/(tabs)/expenses` ve `app/health/[id].tsx` üzerinden share sheet ile export/summary paylaşımı; loading/error durumlarını ve izin hatalarını yüzeye çıkar.
+  - Mobile: `lib/services/expenseService.ts` + `lib/hooks/useExpenses.ts` içine `exportExpensesPDF` servisini ekle; `app/(tabs)/finance.tsx` üzerinden share sheet ile export/summary paylaşımı; loading/error durumlarını ve izin hatalarını yüzeye çıkar.
 - Budget alerts:
   - Backend: `../petopia-backend/src/services/userBudgetService.ts`’te alert üretimi sırasında notification payload’ı döndür; `monthly/yearly` endpoint’lerine kategori dağılımı ve MoM yüzdesi alanlarını ekle (schema değiştirmeden hesaplanabilir).
-  - Mobile: `lib/hooks/useUserBudget.ts` polling’ini alert durumuna göre dinamikleştir ve `lib/services/notificationService.ts` ile local notification yayınla; “bu ay vs geçen ay” + kategori chart’ını `components/UserBudgetCard.tsx`’e ya da yeni `components/BudgetInsights.tsx`’e ekle.
+  - Mobile: `lib/hooks/useUserBudget.ts` polling sonucunu `lib/services/notificationService.ts` ile local notification’a dönüştür; notification yalnızca eşik ilk aşıldığında tetiklenir; “bu ay vs geçen ay” + kategori chart’ını `components/UserBudgetCard.tsx`’e ya da `components/BudgetInsights.tsx`’e ekle.
 - Emergency mode:
   - Mobile-only ekran: `app/(tabs)/emergency.tsx` (veya modal) ile emergency profile formu (alerji/kronik, ilaç, vet iletişim, notlar) + tek-tap arama/konum CTA’ları.
   - Offline cache: AsyncStorage ile emergency profile yaz/oku; TTL ve invalidation helper’ı `lib/services` altında; boş cache durumunda kullanıcıya inline uyarı göster.

@@ -117,18 +117,19 @@ Bu doküman, mevcut altyapıyı çöpe atmadan ve AI eklemeden, 1–2 sprintte �
 - Backend CSV export var:
   - `../petopia-backend/src/routes/expenseRoutes.ts` (`/export/csv`)
   - `../petopia-backend/src/controllers/expenseController.ts` (`exportExpensesCSV`)
+- Backend PDF export + vet summary PDF var:
+  - `../petopia-backend/src/controllers/expenseController.ts` (`exportExpensesPDF`, `exportVetSummaryPDF`)
+  - `../petopia-backend/src/services/reportService.ts`
 - Mobile’da CSV export için service/hook var:
   - `lib/services/expenseService.ts` (`exportExpensesCSV`)
   - `lib/hooks/useExpenses.ts` (`useExportExpensesCSV`)
-- Mobile’da bazı ekranlarda Share var ama “vet summary PDF” yok:
-  - `app/health/[id].tsx` metin share
+- Mobile’da PDF export/share akışı var:
+  - `lib/services/expenseService.ts` (`exportExpensesPDF`, `exportVetSummaryPDF`)
+  - `lib/hooks/useExpenses.ts` (`useExportExpensesPDF`, `useExportVetSummaryPDF`)
+  - `app/(tabs)/finance.tsx`
 
 ### Eksik
 
-- Backend PDF export route’u var ama 501 (NOT_IMPLEMENTED):
-  - `../petopia-backend/src/controllers/expenseController.ts` (`exportExpensesPDF`)
-- “Vet summary” tek sayfa (aşılar, son ilaçlar, son 3 ziyaret) çıktısı yok:
-  - Gerekli: yeni endpoint + PDF üretimi (pdfkit zaten dependency).
 - Shareable link (read-only) yok:
   - Token/permission + yeni route gerekir (family access’e zemin).
 
@@ -199,9 +200,9 @@ Bu doküman, mevcut altyapıyı çöpe atmadan ve AI eklemeden, 1–2 sprintte �
 
 ## Notlar / riskler
 
-- `app/(tabs)/settings.tsx` içindeki “notifications switch” şu an gerçek permission/status ile bağlı değil (stub).
+- `app/(tabs)/settings.tsx` içindeki bildirim switch’i permission/status ile bağlı; sistem ayarından kapatma için inline uyarı var.
 - Event modelinde reminder detayları (zaman, çoklu reminder) backend’de yok; MVP’de bu bilgi cihazda tutulabilir ama multi-device senkron gerektiriyorsa backend değişikliği şart.
-- PDF export backend’de “route var ama implement yok” durumda; premium için en hızlı “gerçek dünya değeri” burada.
+- PDF export backend’de implement edildi; büyük veri setlerinde performans/format kontrolü gerekiyor.
 
 ---
 
@@ -229,10 +230,10 @@ Bu doküman, mevcut altyapıyı çöpe atmadan ve AI eklemeden, 1–2 sprintte �
 
 - Export/Vet PDF:
   - Backend: `../petopia-backend/src/controllers/expenseController.ts` içindeki `exportExpensesPDF`’i pdfkit ile gerçek PDF üretimine çevir; yeni “Vet summary PDF” endpoint’i ekle (aşılar, son ilaçlar, son 3 vet ziyareti, emergency contact). Route + controller + service için tek sorumluluklu dosya ekle, CSV davranışı bozulmasın.
-  - Mobile: `lib/services/expenseService.ts` + `lib/hooks/useExpenses.ts` içine `exportExpensesPDF` servisini ekle; share akışını `Share` API ile `app/(tabs)/expenses` ve `app/health/[id].tsx` üzerinden tetikle; loading/error + izin hatalarını kullanıcıya göster.
+  - Mobile: `lib/services/expenseService.ts` + `lib/hooks/useExpenses.ts` içine `exportExpensesPDF` servisini ekle; share akışını `Share` API ile `app/(tabs)/finance.tsx` üzerinden tetikle; loading/error + izin hatalarını kullanıcıya göster.
 - Budget alerts → notification + analytics:
   - Backend: `../petopia-backend/src/services/userBudgetService.ts`’te alert’i tetikleyen noktaya “notification payload” hazırlığı ekle (şimdilik webhook yok, mobile local notification’la beslenecek); mevcut `monthly/yearly` endpoint’leri için kategori dağılımı ve MoM yüzdesini dönen alanları ekle.
-  - Mobile: `lib/hooks/useUserBudget.ts` içindeki polling sonucunu `lib/services/notificationService.ts` ile local notification’a dönüştür; polling interval’ını alert durumu ve app state’e göre dinamikleştir; `components/UserBudgetCard.tsx` veya yeni bir ekranla “bu ay vs geçen ay” + kategori donut/stacked chart görselleştir.
+  - Mobile: `lib/hooks/useUserBudget.ts` içindeki polling sonucunu `lib/services/notificationService.ts` ile local notification’a dönüştür; notification yalnızca eşik ilk aşıldığında tetiklenir; `components/UserBudgetCard.tsx` veya `components/BudgetInsights.tsx` ile “bu ay vs geçen ay” + kategori dağılımı görselleştir.
 - Emergency mode:
   - Mobile-only ekran: `app/(tabs)/emergency.tsx` (veya modal) ile pet bazlı emergency profile formu (alerji/kronik durum, ilaç, vet iletişim, notlar); CTA olarak “Ara” ve “Konum aç”.
   - Offline cache: AsyncStorage ile emergency profile’ı yaz/oku; TTL ve invalidate stratejisini `lib/services` altında küçük bir helper ile tut; boş cache durumunda kullanıcıya inline uyarı göster.

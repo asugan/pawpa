@@ -1,9 +1,10 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Text, Card, Divider } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import { UserBudgetStatus } from "@/lib/types";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface BudgetInsightsProps {
   status: UserBudgetStatus;
@@ -11,13 +12,25 @@ interface BudgetInsightsProps {
 
 export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
   const momo = status.monthOverMonth;
   const categories = status.categoryBreakdown || [];
+  const currency = status.budget?.currency;
+  const percentFormatter = new Intl.NumberFormat(i18n.language, {
+    maximumFractionDigits: 1,
+  });
+  const amountFormatter = new Intl.NumberFormat(i18n.language, currency ? {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  } : {
+    maximumFractionDigits: 2,
+  });
 
   return (
     <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={2}>
       <Text variant="titleMedium" style={styles.header}>
-        Budget Insights
+        {t("budgets.insightsTitle")}
       </Text>
 
       {momo && (
@@ -29,10 +42,15 @@ export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
           />
           <View style={styles.momoText}>
             <Text variant="bodyMedium" style={{ fontWeight: "600" }}>
-              Month-over-month: {momo.changePct.toFixed(1)}%
+              {t("budgets.monthOverMonth", {
+                change: percentFormatter.format(momo.changePct),
+              })}
             </Text>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              Current {momo.current.toFixed(2)} vs Prev {momo.previous.toFixed(2)}
+              {t("budgets.currentVsPrevious", {
+                current: amountFormatter.format(momo.current),
+                previous: amountFormatter.format(momo.previous),
+              })}
             </Text>
           </View>
         </View>
@@ -41,11 +59,11 @@ export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
       <Divider style={{ marginVertical: 12 }} />
 
       <Text variant="bodyMedium" style={{ marginBottom: 8 }}>
-        Category breakdown
+        {t("budgets.categoryBreakdown")}
       </Text>
       {categories.length === 0 ? (
         <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-          No category data for this period.
+          {t("budgets.noCategoryData")}
         </Text>
       ) : (
         categories.map((item) => (
@@ -71,7 +89,7 @@ export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
               />
             </View>
             <Text variant="bodySmall" style={{ width: 60, textAlign: "right" }}>
-              {item.percentage.toFixed(1)}%
+              {percentFormatter.format(item.percentage)}%
             </Text>
           </View>
         ))

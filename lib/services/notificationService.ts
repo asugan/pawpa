@@ -295,6 +295,10 @@ export class NotificationService {
         ? this.adjustForQuietHours(triggerDate)
         : triggerDate;
 
+      if (adjustedTrigger >= eventDate) {
+        continue;
+      }
+
       if (adjustedTrigger <= now) {
         continue;
       }
@@ -466,21 +470,22 @@ export class NotificationService {
   private adjustForQuietHours(triggerDate: Date): Date {
     const adjusted = new Date(triggerDate);
     const hour = triggerDate.getHours();
+    const inQuietHours =
+      hour >= this.quietHours.startHour || hour < this.quietHours.endHour;
 
-    // Move late-night reminders to next morning 08:00
+    if (!inQuietHours) {
+      return triggerDate;
+    }
+
     if (hour >= this.quietHours.startHour) {
-      adjusted.setDate(adjusted.getDate() + 1);
-      adjusted.setHours(this.quietHours.endHour, 0, 0, 0);
-      return adjusted;
+      adjusted.setHours(this.quietHours.startHour, 0, 0, 0);
+    } else {
+      adjusted.setDate(adjusted.getDate() - 1);
+      adjusted.setHours(this.quietHours.startHour, 0, 0, 0);
     }
 
-    // Move early-morning reminders to 08:00 same day
-    if (hour < this.quietHours.endHour) {
-      adjusted.setHours(this.quietHours.endHour, 0, 0, 0);
-      return adjusted;
-    }
-
-    return triggerDate;
+    adjusted.setMinutes(adjusted.getMinutes() - 1);
+    return adjusted;
   }
 }
 
