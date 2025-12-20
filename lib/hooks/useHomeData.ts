@@ -10,7 +10,7 @@ import { Event } from "@/lib/types";
 
 export const useHomeData = () => {
   const { user } = useAuth();
-  const { isMobile, scrollPadding, layoutMode } = useResponsiveSize();
+  const { isMobile, scrollPadding } = useResponsiveSize();
 
   // Data fetching
   const {
@@ -49,7 +49,7 @@ export const useHomeData = () => {
 
   return {
     user,
-    layout: { isMobile, scrollPadding, layoutMode },
+    layout: { isMobile, scrollPadding },
     data: {
       pets,
       todayEvents,

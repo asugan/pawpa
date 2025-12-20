@@ -10,7 +10,6 @@ import EmptyState from "@/components/EmptyState";
 import HealthOverview from "@/components/HealthOverview";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PetCard from "@/components/PetCard";
-import StatCard from "@/components/StatCard";
 import { UpcomingEventsSection } from "@/components/UpcomingEventsSection";
 import { NextFeedingWidget } from "@/components/feeding/NextFeedingWidget";
 import { FinancialOverview } from "@/components/home/FinancialOverview";
@@ -68,84 +67,8 @@ export default function HomeScreen() {
             eventsCount={data.todayEvents?.length || 0}
           />
 
-          {/* Stats Dashboard */}
-          <View
-            style={
-              layout.layoutMode === "horizontal-scroll"
-                ? styles.statsScrollView
-                : styles.statsGrid
-            }
-          >
-            {layout.layoutMode === "horizontal-scroll" ? (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.statsContainer}
-              >
-                <StatCard
-                  title={t("home.totalPets")}
-                  value={data.pets?.length || 0}
-                  icon="paw"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/pets")}
-                />
-                <StatCard
-                  title={t("events.today")}
-                  value={data.todayEvents?.length || 0}
-                  icon="calendar"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/calendar")}
-                />
-                <StatCard
-                  title={t("health.upcomingVaccinations")}
-                  value={data.upcomingVaccinations?.length || 0}
-                  icon="needle"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/care")}
-                />
-              </ScrollView>
-            ) : (
-              <>
-                <StatCard
-                  title={t("home.totalPets")}
-                  value={data.pets?.length || 0}
-                  icon="paw"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/pets")}
-                  flexGrow
-                />
-                <StatCard
-                  title={t("events.today")}
-                  value={data.todayEvents?.length || 0}
-                  icon="calendar"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/calendar")}
-                  flexGrow
-                />
-                <StatCard
-                  title={t("health.upcomingVaccinations")}
-                  value={data.upcomingVaccinations?.length || 0}
-                  icon="needle"
-                  color={theme.colors.primary}
-                  onPress={() => router.push("/(tabs)/care")}
-                  flexGrow
-                />
-              </>
-            )}
-          </View>
-
           {/* My Pets Section */}
           <View style={styles.section}>
-            <Text
-              variant="titleLarge"
-              style={[
-                styles.sectionTitle,
-                { color: theme.colors.onBackground },
-              ]}
-            >
-              {t("home.myPets")}
-            </Text>
-
             {data.pets && data.pets.length > 0 ? (
               <View style={styles.petList}>
                 {data.pets.map((pet) => (

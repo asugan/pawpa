@@ -29,19 +29,6 @@ export const BREAKPOINTS = {
 } as const;
 
 /**
- * StatCard component constraints
- */
-export const STAT_CARD_CONSTRAINTS = {
-  MIN_WIDTH: 160,              // FR-008: minimum card width
-  MIN_FONT_SIZE: 12,           // SC-004: minimum readable font size
-  MIN_TOUCH_TARGET: 44,        // Accessibility: minimum touch target
-  MAX_TITLE_LINES: 2,          // FR-004: truncation after 2 lines
-  CARD_GAP: 12,                // SC-007: minimum gap between cards
-  CARD_BORDER_RADIUS: 12,      // Existing design system
-  CARD_BORDER_WIDTH: 1,        // Existing design system
-} as const;
-
-/**
  * Viewport constraints
  */
 export const VIEWPORT_CONSTRAINTS = {
