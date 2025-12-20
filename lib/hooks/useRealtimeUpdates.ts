@@ -1,5 +1,5 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
 import { NetworkState } from '@/lib/types';
 
@@ -13,33 +13,33 @@ interface RealtimeConfig {
 }
 
 export function useRealtimeUpdates(
-  queryKeys: string[][],
+  queryKeys: QueryKey[],
   config: Partial<RealtimeConfig> = {}
 ) {
   const queryClient = useQueryClient();
   const intervalRef = useRef<IntervalRef>(null);
-  const isEnabledRef = useRef(config.enabled ?? true);
-
-  const defaultConfig: RealtimeConfig = {
+  const configRef = useRef<RealtimeConfig>({
     enabled: true,
     interval: 30000, // 30 seconds
     refetchOnReconnect: true,
     ...config,
-  };
+  });
+  const [isEnabled, setIsEnabled] = useState(configRef.current.enabled);
 
   // Start real-time updates
   const startRealtimeUpdates = useCallback(() => {
-    if (!defaultConfig.enabled || intervalRef.current) return;
+    const { enabled, interval } = configRef.current;
+    if (!enabled || intervalRef.current) return;
 
     intervalRef.current = setInterval(() => {
       // Refetch all specified queries
       queryKeys.forEach(queryKey => {
         queryClient.invalidateQueries({ queryKey });
       });
-    }, defaultConfig.interval) as unknown as IntervalRef;
+    }, interval) as unknown as IntervalRef;
 
-    isEnabledRef.current = true;
-  }, [queryKeys, defaultConfig.enabled, defaultConfig.interval, queryClient]);
+    setIsEnabled(true);
+  }, [queryKeys, queryClient]);
 
   // Stop real-time updates
   const stopRealtimeUpdates = useCallback(() => {
@@ -47,18 +47,18 @@ export function useRealtimeUpdates(
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    isEnabledRef.current = false;
+    setIsEnabled(false);
   }, []);
 
   // Handle network state changes
   const handleNetworkChange = useCallback((state: NetworkState) => {
-    if (state.isConnected && defaultConfig.refetchOnReconnect) {
+    if (state.isConnected && configRef.current.refetchOnReconnect) {
       // Refetch all queries when coming back online
       queryKeys.forEach(queryKey => {
         queryClient.invalidateQueries({ queryKey });
       });
     }
-  }, [queryKeys, defaultConfig.refetchOnReconnect, queryClient]);
+  }, [queryKeys, queryClient]);
 
   // Setup network listener
   useEffect(() => {
@@ -68,14 +68,15 @@ export function useRealtimeUpdates(
 
   // Start/stop based on configuration
   useEffect(() => {
-    if (defaultConfig.enabled) {
+    const { enabled } = configRef.current;
+    if (enabled) {
       startRealtimeUpdates();
     } else {
       stopRealtimeUpdates();
     }
 
     return stopRealtimeUpdates;
-  }, [defaultConfig.enabled, startRealtimeUpdates, stopRealtimeUpdates]);
+  }, [startRealtimeUpdates, stopRealtimeUpdates]);
 
   // Manual refresh
   const refresh = useCallback(() => {
@@ -86,24 +87,35 @@ export function useRealtimeUpdates(
 
   // Update configuration
   const updateConfig = useCallback((newConfig: Partial<RealtimeConfig>) => {
-    Object.assign(defaultConfig, newConfig);
+    const current = configRef.current;
+    const merged = { ...current, ...newConfig };
+    const enabledChanged =
+      newConfig.enabled !== undefined && newConfig.enabled !== current.enabled;
+    const intervalChanged =
+      newConfig.interval !== undefined && newConfig.interval !== current.interval;
 
-    if (newConfig.enabled !== undefined && newConfig.enabled !== isEnabledRef.current) {
-      if (newConfig.enabled) {
+    configRef.current = merged;
+
+    if (enabledChanged) {
+      if (merged.enabled) {
         startRealtimeUpdates();
       } else {
         stopRealtimeUpdates();
       }
     }
 
-    if (newConfig.interval !== undefined && intervalRef.current) {
+    if (intervalChanged && intervalRef.current) {
       stopRealtimeUpdates();
       startRealtimeUpdates();
     }
-  }, [defaultConfig, startRealtimeUpdates, stopRealtimeUpdates]);
+  }, [startRealtimeUpdates, stopRealtimeUpdates]);
+
+  useEffect(() => {
+    updateConfig(config);
+  }, [config, updateConfig]);
 
   return {
-    isEnabled: isEnabledRef.current,
+    isEnabled,
     startRealtimeUpdates,
     stopRealtimeUpdates,
     refresh,

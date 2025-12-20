@@ -2,6 +2,7 @@ import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import { getDeviceId } from '../utils/deviceId';
 import { RequestCache } from '../types';
+import { authClient } from '../auth/client';
 
 // Request deduplication and rate limiting
 const REQUEST_CACHE = new Map<string, RequestCache>();
@@ -56,6 +57,14 @@ function getCachedRequest<T>(key: string, factory: () => Promise<T>): Promise<T>
   
   return promise;
 }
+
+function hashString(input: string): string {
+  let hash = 5381;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) + hash) + input.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
 export interface SubscriptionStatus {
   hasActiveSubscription: boolean;
   subscriptionType: 'trial' | 'paid' | null;
@@ -81,15 +90,6 @@ export interface TrialStatus {
 }
 
 /**
- * Device eligibility response
- */
-export interface DeviceEligibility {
-  canStartTrial: boolean;
-  reason?: string;
-  existingTrialUserId?: string;
-}
-
-/**
  * Start trial response
  */
 export interface StartTrialResponse {
@@ -112,11 +112,15 @@ export class SubscriptionApiService {
    * This is the main method - use this for all status checks
    * Implements request deduplication to prevent duplicate calls
    */
-  async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
+  async getSubscriptionStatus(
+    options?: { bypassCache?: boolean }
+  ): Promise<ApiResponse<SubscriptionStatus>> {
     const deviceId = await getDeviceId();
-    const cacheKey = `subscription-status-${deviceId}`;
+    const sessionCookie = authClient.getCookie();
+    const sessionKey = sessionCookie ? hashString(sessionCookie) : null;
+    const cacheKey = sessionKey ? `subscription-status-${deviceId}-${sessionKey}` : null;
 
-    return getCachedRequest(cacheKey, async () => {
+    const requestFactory = async () => {
       try {
         const response = await api.get<SubscriptionStatus>(
           ENV.ENDPOINTS.SUBSCRIPTION_STATUS,
@@ -141,7 +145,13 @@ export class SubscriptionApiService {
           error: 'Abonelik durumu yüklenemedi. Lütfen tekrar deneyin.',
         };
       }
-    });
+    };
+
+    if (options?.bypassCache || !cacheKey) {
+      return requestFactory();
+    }
+
+    return getCachedRequest(cacheKey, requestFactory);
   }
 
   /**
@@ -180,7 +190,12 @@ export class SubscriptionApiService {
    */
   public async invalidateSubscriptionStatusCache(): Promise<void> {
     const deviceId = await getDeviceId();
-    invalidateCache(`subscription-status-${deviceId}`);
+    const sessionCookie = authClient.getCookie();
+    if (!sessionCookie) {
+      return;
+    }
+    const sessionKey = hashString(sessionCookie);
+    invalidateCache(`subscription-status-${deviceId}-${sessionKey}`);
   }
 
   /**
@@ -208,58 +223,17 @@ export class SubscriptionApiService {
     } catch (error) {
       console.error('❌ Start trial error:', error);
       if (error instanceof ApiError) {
-        // Handle specific error codes
-        if (error.code === 'SUBSCRIPTION_EXISTS') {
-          return {
-            success: false,
-            error: 'Zaten bir aboneliğiniz var',
-          };
-        }
-        if (error.code === 'DEVICE_TRIAL_USED') {
-          return {
-            success: false,
-            error: 'Bu cihazda daha önce trial kullanılmış',
-          };
-        }
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code ?? 'UNKNOWN_ERROR',
+            message: error.message,
+          },
         };
       }
       return {
         success: false,
         error: 'Trial başlatılamadı. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Check if the current device is eligible for a trial
-   */
-  async checkDeviceEligibility(): Promise<ApiResponse<DeviceEligibility>> {
-    try {
-      const deviceId = await getDeviceId();
-      const response = await api.post<DeviceEligibility>(
-        ENV.ENDPOINTS.SUBSCRIPTION_CHECK_DEVICE,
-        { deviceId }
-      );
-
-      console.log('✅ Device eligibility checked');
-      return {
-        success: true,
-        data: response.data!,
-      };
-    } catch (error) {
-      console.error('❌ Check device eligibility error:', error);
-      if (error instanceof ApiError) {
-        return {
-          success: false,
-          error: error.message,
-        };
-      }
-      return {
-        success: false,
-        error: 'Cihaz kontrolü yapılamadı. Lütfen tekrar deneyin.',
       };
     }
   }

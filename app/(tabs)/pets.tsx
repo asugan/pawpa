@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import { Text, FAB, Portal, Snackbar, Button } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, TextInput, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Pet } from '../../lib/types';
-import { usePets, useDeletePet, petKeys } from '../../lib/hooks/usePets';
+import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
-import PetCard from '../../components/PetCard';
+import { useTranslation } from 'react-i18next';
+import { Button, FAB, Portal, Snackbar, Text } from '@/components/ui';
+import { ProtectedRoute } from '@/components/subscription';
+import PetListCard from '@/components/PetListCard';
+import { useTheme } from '@/lib/theme';
 import { PetCardSkeleton } from '../../components/PetCardSkeleton';
-import { Grid } from '../../components/Grid';
 import { PetModal } from '../../components/PetModal';
 import PetDetailModal from '../../components/PetDetailModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import EmptyState from '../../components/EmptyState';
-import { useTranslation } from 'react-i18next';
 import { LAYOUT } from '../../constants';
 import { ENV } from '../../lib/config/env';
-import { ProtectedRoute } from '@/components/subscription';
+import { Pet } from '../../lib/types';
+import { usePets, petKeys } from '../../lib/hooks/usePets';
 
 export default function PetsScreen() {
   const { theme } = useTheme();
@@ -28,12 +27,11 @@ export default function PetsScreen() {
   const [allPets, setAllPets] = useState<Pet[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
-  // ✅ React Query hooks for server state with pagination
+  // React Query hooks for server state with pagination
   const { data: pets = [], isLoading, error, isFetching } = usePets({
     page,
     limit: ENV.DEFAULT_LIMIT,
   });
-  const deletePetMutation = useDeletePet();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPet, setSelectedPetState] = useState<Pet | undefined>();
@@ -41,6 +39,9 @@ export default function PetsScreen() {
   const [selectedPetIdForDetail, setSelectedPetIdForDetail] = useState<string>('');
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'dog' | 'cat' | 'urgent'>('all');
+  const [urgentStatus, setUrgentStatus] = useState<Record<string, { urgent: boolean; loading: boolean }>>({});
 
   // Accumulate pets when new data is loaded
   useEffect(() => {
@@ -82,37 +83,6 @@ export default function PetsScreen() {
     setModalVisible(true);
   };
 
-  const handleEditPet = (pet: Pet) => {
-    setSelectedPetState(pet);
-    setModalVisible(true);
-  };
-
-  const handleDeletePet = (pet: Pet) => {
-    Alert.alert(
-      t('pets.deletePet'),
-      t('pets.deleteConfirmation', { name: pet.name }),
-      [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deletePetMutation.mutateAsync(pet._id);
-              showSnackbar(t('pets.deleteSuccess', { name: pet.name }));
-            } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : t('pets.deleteError');
-              showSnackbar(errorMessage);
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleModalSuccess = () => {
     // React Query handles cache invalidation automatically
     showSnackbar(t('pets.saveSuccess'));
@@ -143,44 +113,85 @@ export default function PetsScreen() {
     });
   };
 
-  const renderPetCard = (pet: Pet) => (
-    <PetCard
-      pet={pet}
-      petId={pet._id} // Enable hook usage for real activity data
-      onPress={() => handleViewPet(pet)}
-      onEdit={() => handleEditPet(pet)}
-      onDelete={() => handleDeletePet(pet)}
-    />
+  useEffect(() => {
+    setUrgentStatus(prev => {
+      if (allPets.length === 0) return {};
+      const next: Record<string, { urgent: boolean; loading: boolean }> = {};
+      allPets.forEach((pet) => {
+        if (prev[pet._id]) {
+          next[pet._id] = prev[pet._id];
+        }
+      });
+      return next;
+    });
+  }, [allPets]);
+
+  const handleUrgencyChange = React.useCallback(
+    (petId: string, isUrgent: boolean, isLoading: boolean) => {
+      setUrgentStatus((prev) => {
+        const current = prev[petId];
+        if (current && current.urgent === isUrgent && current.loading === isLoading) {
+          return prev;
+        }
+        return { ...prev, [petId]: { urgent: isUrgent, loading: isLoading } };
+      });
+    },
+    []
   );
 
-  // Create skeleton cards for loading state
+  const filteredPets = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesQuery = (pet: Pet) =>
+      !query ||
+      pet.name.toLowerCase().includes(query) ||
+      (pet.breed ? pet.breed.toLowerCase().includes(query) : false);
+
+    return allPets.filter((pet) => {
+      if (!matchesQuery(pet)) return false;
+      if (activeFilter === 'all' || activeFilter === 'urgent') return true;
+      return pet.type === activeFilter;
+    });
+  }, [activeFilter, allPets, searchQuery]);
+
+  const urgentSummary = useMemo(() => {
+    if (activeFilter !== 'urgent') {
+      return { isLoading: false, hasUrgent: true };
+    }
+
+    if (allPets.length === 0) {
+      return { isLoading: false, hasUrgent: false };
+    }
+
+    const entries = allPets
+      .map((pet) => urgentStatus[pet._id])
+      .filter(Boolean) as { urgent: boolean; loading: boolean }[];
+    const hasAllReports = entries.length === allPets.length;
+    const isLoadingUrgent = !hasAllReports || entries.some((entry) => entry.loading);
+    const hasUrgent = entries.some((entry) => entry.urgent);
+
+    return { isLoading: isLoadingUrgent, hasUrgent };
+  }, [activeFilter, allPets, urgentStatus]);
+
+  const chipItems = useMemo(() => ([
+    { key: 'all' as const, label: t('pets.filters.all') },
+    { key: 'dog' as const, label: t('pets.filters.dogs') },
+    { key: 'cat' as const, label: t('pets.filters.cats') },
+    { key: 'urgent' as const, label: t('pets.filters.urgent'), icon: 'alert-circle' as const },
+  ]), [t]);
+
   const renderLoadingSkeleton = () => {
     return Array.from({ length: 4 }, (_, index) => (
-      <PetCardSkeleton key={`skeleton-${index}`} />
+      <View key={`skeleton-${index}`} style={styles.cardWrapper}>
+        <PetCardSkeleton />
+      </View>
     ));
   };
-
-  // Show loading spinner on initial load
-  if (isLoading && allPets.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-            {t('pets.myPets')}
-          </Text>
-        </View>
-        <Grid maxColumns={2}>
-          {renderLoadingSkeleton()}
-        </Grid>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <ProtectedRoute featureName={t('subscription.features.petManagement')}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
+          <Text variant="titleLarge" style={[styles.headerTitle, { color: theme.colors.onBackground }]}>
             {t('pets.myPets')}
           </Text>
         </View>
@@ -189,6 +200,7 @@ export default function PetsScreen() {
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
               refreshing={isFetching && page === 1}
@@ -198,46 +210,136 @@ export default function PetsScreen() {
             />
           }
         >
-          {allPets.length === 0 ? (
-            !isLoading && (
-              <EmptyState
-                title={t('pets.noPetsYet')}
-                description={t('pets.addFirstPet')}
-                icon="paw"
-                buttonText={t('pets.addFirstPetButton')}
-                onButtonPress={handleAddPet}
-                buttonColor={theme.colors.primary}
-                style={styles.emptyState}
+          <View style={styles.searchWrapper}>
+            <View
+              style={[
+                styles.searchBar,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.outlineVariant,
+                },
+              ]}
+            >
+              <Ionicons name="search" size={18} color={theme.colors.onSurfaceVariant} style={styles.searchIcon} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t('pets.searchPlaceholder')}
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                selectionColor={theme.colors.primary}
+                style={[styles.searchInput, { color: theme.colors.onSurface }]}
+                autoCapitalize="none"
+                autoCorrect={false}
               />
-            )
-          ) : (
-            <>
-              <Grid maxColumns={2}>
-                {allPets.map(renderPetCard)}
-              </Grid>
+            </View>
+          </View>
 
-              {/* Load More Button */}
-              {hasMore && (
-                <View style={styles.loadMoreContainer}>
-                  <Button
-                    mode="outlined"
-                    onPress={handleLoadMore}
-                    disabled={isFetching}
-                    style={styles.loadMoreButton}
-                  >
-                    {isFetching ? t('common.loading') : t('common.loadMore')}
-                  </Button>
-                </View>
-              )}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsContainer}
+          >
+            {chipItems.map((chip) => {
+              const isSelected = activeFilter === chip.key;
+              const chipBackground = isSelected ? theme.colors.primary : theme.colors.surface;
+              const chipBorder = isSelected ? theme.colors.primary : theme.colors.outlineVariant;
+              const chipTextColor = isSelected ? theme.colors.onPrimary : theme.colors.onSurfaceVariant;
+              const iconColor = isSelected ? theme.colors.onPrimary : theme.colors.error;
 
-              {/* Loading indicator at bottom when fetching next page */}
-              {isFetching && page > 1 && (
-                <View style={styles.loadingFooter}>
-                  <LoadingSpinner size="small" />
-                </View>
-              )}
-            </>
-          )}
+              return (
+                <Pressable
+                  key={chip.key}
+                  onPress={() => setActiveFilter(chip.key)}
+                  style={({ pressed }) => [
+                    styles.chip,
+                    {
+                      backgroundColor: chipBackground,
+                      borderColor: chipBorder,
+                    },
+                    pressed && styles.chipPressed,
+                  ]}
+                >
+                  <View style={styles.chipContent}>
+                    {chip.icon && (
+                      <Ionicons
+                        name={chip.icon}
+                        size={14}
+                        color={iconColor}
+                        style={styles.chipIcon}
+                      />
+                    )}
+                    <Text variant="labelMedium" style={[styles.chipLabel, { color: chipTextColor }]}>
+                      {chip.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          <View style={styles.listSection}>
+            {isLoading && allPets.length === 0 ? (
+              renderLoadingSkeleton()
+            ) : (
+              filteredPets.map((pet) => (
+                <PetListCard
+                  key={pet._id}
+                  pet={pet}
+                  petId={pet._id}
+                  onPress={() => handleViewPet(pet)}
+                  filterMode={activeFilter === 'urgent' ? 'urgent' : 'all'}
+                  onUrgencyChange={handleUrgencyChange}
+                />
+              ))
+            )}
+
+            {activeFilter === 'urgent' && allPets.length > 0 && !hasMore && !urgentSummary.isLoading && !urgentSummary.hasUrgent && (
+              <View style={styles.emptyUrgent}>
+                <Ionicons name="alert-circle-outline" size={16} color={theme.colors.onSurfaceVariant} />
+                <Text variant="bodySmall" style={[styles.emptyUrgentText, { color: theme.colors.onSurfaceVariant }]}>
+                  {t('pets.filters.emptyUrgent')}
+                </Text>
+              </View>
+            )}
+
+            {hasMore && allPets.length > 0 && (
+              <View style={styles.loadMoreContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLoadMore}
+                  disabled={isFetching}
+                  style={styles.loadMoreButton}
+                >
+                  {isFetching ? t('common.loading') : t('common.loadMore')}
+                </Button>
+              </View>
+            )}
+
+            {isFetching && page > 1 && (
+              <View style={styles.loadingFooter}>
+                <LoadingSpinner size="small" />
+              </View>
+            )}
+
+            <Pressable
+              onPress={handleAddPet}
+              style={({ pressed }) => [
+                styles.addCard,
+                { borderColor: theme.colors.outlineVariant },
+                pressed && styles.chipPressed,
+              ]}
+            >
+              <View style={[styles.addIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
+                <Ionicons name="paw" size={20} color={theme.colors.primary} />
+              </View>
+              <Text variant="bodySmall" style={[styles.addPrompt, { color: theme.colors.onSurfaceVariant }]}>
+                {t('pets.addAnotherPrompt')}
+              </Text>
+              <Text variant="labelLarge" style={[styles.addCta, { color: theme.colors.primary }]}>
+                {t('pets.addAnotherCta')}
+              </Text>
+            </Pressable>
+          </View>
         </ScrollView>
 
         <FAB
@@ -292,18 +394,97 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 8,
   },
+  headerTitle: {
+    fontWeight: '700',
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 16,
     paddingTop: 8,
-    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT + 80,
   },
-  emptyState: {
-    marginTop: 40,
+  searchWrapper: {
+    marginBottom: 12,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
     flex: 1,
+    fontSize: 15,
+  },
+  chipsContainer: {
+    paddingVertical: 4,
+    paddingRight: 16,
+  },
+  chip: {
+    height: 32,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 8,
+  },
+  chipPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  chipContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chipIcon: {
+    marginRight: 4,
+  },
+  chipLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  listSection: {
+    marginTop: 12,
+  },
+  emptyUrgent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  emptyUrgentText: {
+    marginLeft: 6,
+  },
+  cardWrapper: {
+    marginBottom: 12,
+  },
+  addCard: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 18,
+    paddingVertical: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addPrompt: {
+    marginTop: 8,
+  },
+  addCta: {
+    marginTop: 6,
+    fontWeight: '700',
   },
   loadingFooter: {
     paddingVertical: 20,
@@ -320,7 +501,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    bottom: 0,
+    bottom: LAYOUT.TAB_BAR_HEIGHT + 8,
   },
   snackbar: {
     marginBottom: 16,

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import axios, { CancelTokenSource } from 'axios';
 
 interface CancellableRequest {
@@ -8,7 +7,6 @@ interface CancellableRequest {
 }
 
 export function useRequestCancellation() {
-  const queryClient = useQueryClient();
   const activeRequests = useRef<Map<string, CancelTokenSource>>(new Map());
 
   // Cancel a specific request
@@ -85,7 +83,6 @@ export function useRequestCancellation() {
 
 // Hook for preventing duplicate requests
 export function useRequestDeduplication() {
-  const queryClient = useQueryClient();
   const pendingRequests = useRef<Map<string, Promise<unknown>>>(new Map());
 
   const executeWithDeduplication = async <T>(

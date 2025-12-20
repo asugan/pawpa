@@ -262,7 +262,12 @@ export function useDeleteHealthRecord() {
       onSettled: () => {
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.lists() });
         queryClient.invalidateQueries({ queryKey: healthRecordKeys.upcoming() });
-        queryClient.invalidateQueries({ queryKey: healthRecordKeys.vaccinations('') }); // Invalidate all vaccinations potentially
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            Array.isArray(query.queryKey) &&
+            query.queryKey[0] === healthRecordKeys.all[0] &&
+            query.queryKey[1] === 'vaccinations',
+        });
       },
     }
   );

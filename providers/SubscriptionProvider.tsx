@@ -39,6 +39,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     subscriptionStatus,
     canStartTrial,
     isInitialized,
+    resetSubscription,
   } = useSubscriptionStore();
 
   // Track if we've started trial initialization to prevent double-calls
@@ -46,6 +47,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
   // Track trial activation state to prevent race conditions
   const isActivatingTrialRef = useRef(false);
+
+  // Track which user ID was last synced with RevenueCat
+  const syncedUserIdRef = useRef<string | null>(null);
 
   /**
    * Handle CustomerInfo updates from RevenueCat
@@ -145,6 +149,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       // Initialize with user ID if authenticated
       const userId = isAuthenticated ? user?.id ?? null : null;
       await initializeRevenueCat(userId);
+      syncedUserIdRef.current = userId;
 
       // Get initial customer info (for purchases)
       const customerInfo = await getCustomerInfo();
@@ -182,9 +187,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const handleUserLogin = useCallback(async () => {
     if (!user?.id || !isAuthenticated) return;
 
-    // Prevent duplicate calls - only sync once per login session
-    if (isInitialized) {
-      console.log('[SubscriptionProvider] User already logged in, skipping duplicate sync');
+    // Prevent duplicate calls for the same user
+    if (syncedUserIdRef.current === user.id) {
+      console.log('[SubscriptionProvider] User already synced, skipping duplicate sync');
       return;
     }
 
@@ -194,6 +199,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
       const customerInfo = await syncUserIdentity(user.id);
       setCustomerInfo(customerInfo);
+      syncedUserIdRef.current = user.id;
 
       // Fetch subscription status from backend after login
       await initializeSubscriptionStatus();
@@ -205,7 +211,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated, isInitialized, setCustomerInfo, setLoading, setError, initializeSubscriptionStatus]);
+  }, [user?.id, isAuthenticated, setCustomerInfo, setLoading, setError, initializeSubscriptionStatus]);
 
   /**
    * Handle user logout - reset to anonymous
@@ -217,6 +223,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
       const customerInfo = await resetUserIdentity();
       setCustomerInfo(customerInfo);
+      syncedUserIdRef.current = null;
 
       // Reset trial init flag for next login
       trialInitRef.current = false;
@@ -247,15 +254,17 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     initializeSDK();
   }, [isPending, isAuthenticated, initializeSDK]);
 
-  // Handle auth state changes (login/logout)
+  // Handle logout transitions
   useEffect(() => {
-    if (!isInitialized || isPending) {
+    if (isPending || !isInitialized) {
       return;
     }
 
-    // Note: We handle identity sync, but only after initial SDK setup
-    // The initializeSDK already handles the initial user ID
-  }, [isAuthenticated, isInitialized, isPending]);
+    if (!isAuthenticated) {
+      handleUserLogout();
+      resetSubscription();
+    }
+  }, [isAuthenticated, isPending, isInitialized, handleUserLogout, resetSubscription]);
 
   // Set up CustomerInfo update listener (runs once after initialization)
   useEffect(() => {

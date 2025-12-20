@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { Alert, View, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -26,6 +26,8 @@ export function SubscriptionCard({ showManageButton = true, compact = false, onU
     isProUser,
     isTrialActive,
     isPaidSubscription,
+    isSubscribed,
+    isCancelled,
     daysRemaining,
     expirationDate,
     willRenew,
@@ -93,6 +95,21 @@ export function SubscriptionCard({ showManageButton = true, compact = false, onU
 
   const handleManage = async () => {
     await presentCustomerCenter();
+  };
+
+  const handleCancel = () => {
+    Alert.alert(
+      t('subscription.cancelSubscriptionTitle'),
+      t('subscription.cancelSubscriptionMessage'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('subscription.cancelSubscriptionAction'),
+          style: 'destructive',
+          onPress: handleManage,
+        },
+      ]
+    );
   };
 
   const handleNavigateToSubscription = () => {
@@ -202,15 +219,33 @@ export function SubscriptionCard({ showManageButton = true, compact = false, onU
         {showManageButton && (
           <View style={styles.actions}>
             {isPaidSubscription ? (
-              <Button
-                mode="outlined"
-                onPress={handleManage}
-                loading={isLoading}
-                disabled={isLoading}
-                style={styles.actionButton}
-              >
-                {t('subscription.manageSubscription')}
-              </Button>
+              <>
+                <Button
+                  mode="outlined"
+                  onPress={handleManage}
+                  loading={isLoading}
+                  disabled={isLoading}
+                  style={styles.actionButton}
+                >
+                  {t('subscription.manageSubscription')}
+                </Button>
+                {isSubscribed && !isCancelled && (
+                  <Button
+                    mode="outlined"
+                    onPress={handleCancel}
+                    loading={isLoading}
+                    disabled={isLoading}
+                    textColor={theme.colors.error}
+                    style={[
+                      styles.actionButton,
+                      styles.cancelButton,
+                      { borderColor: theme.colors.error },
+                    ]}
+                  >
+                    {t('subscription.cancelSubscription')}
+                  </Button>
+                )}
+              </>
             ) : (
               <Button
                 mode="contained"
@@ -270,6 +305,9 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '100%',
+  },
+  cancelButton: {
+    marginTop: 12,
   },
   compactContainer: {
     flexDirection: 'row',
