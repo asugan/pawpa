@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,8 @@ interface PetListCardProps {
   pet: Pet;
   onPress?: () => void;
   petId?: string;
+  filterMode?: 'all' | 'urgent';
+  onUrgencyChange?: (petId: string, isUrgent: boolean, isLoading: boolean) => void;
 }
 
 const getAgeText = (birthDate: string | undefined, t: (key: string) => string) => {
@@ -66,7 +68,13 @@ const getActivityIcon = (activity: NextActivity) => {
   }
 };
 
-const PetListCard: React.FC<PetListCardProps> = ({ pet, onPress, petId }) => {
+const PetListCard: React.FC<PetListCardProps> = ({
+  pet,
+  onPress,
+  petId,
+  filterMode = 'all',
+  onUrgencyChange,
+}) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const { nextActivity, isLoading } = usePetNextActivity(petId || pet._id);
@@ -82,6 +90,15 @@ const PetListCard: React.FC<PetListCardProps> = ({ pet, onPress, petId }) => {
   const activityLabel = nextActivity ? getActivityLabel(nextActivity, t) : t('home.noActivity');
   const activityText = nextActivity?.time ? `${activityLabel}: ${nextActivity.time}` : activityLabel;
   const activityColor = nextActivity ? theme.colors.primary : theme.colors.onSurfaceVariant;
+
+  useEffect(() => {
+    if (!onUrgencyChange) return;
+    onUrgencyChange(petId || pet._id, !!showAttention, isLoading);
+  }, [isLoading, onUrgencyChange, petId, pet._id, showAttention]);
+
+  if (filterMode === 'urgent' && !showAttention) {
+    return null;
+  }
 
   return (
     <Pressable onPress={onPress} style={styles.pressable}>
@@ -156,6 +173,7 @@ const PetListCard: React.FC<PetListCardProps> = ({ pet, onPress, petId }) => {
 const styles = StyleSheet.create({
   pressable: {
     width: '100%',
+    marginBottom: 12,
   },
   card: {
     borderRadius: 16,

@@ -105,7 +105,8 @@
       "all": "Tümü",
       "dogs": "Köpekler",
       "cats": "Kediler",
-      "urgent": "Acil"
+      "urgent": "Acil",
+      "emptyUrgent": "Acil kaydı yok"
     },
     "addNewPet": "Yeni Pet Ekle",
     "editPet": "Pet Düzenle",

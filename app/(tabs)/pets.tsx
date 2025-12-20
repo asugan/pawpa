@@ -41,6 +41,7 @@ export default function PetsScreen() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'dog' | 'cat' | 'urgent'>('all');
+  const [urgentStatus, setUrgentStatus] = useState<Record<string, { urgent: boolean; loading: boolean }>>({});
 
   // Accumulate pets when new data is loaded
   useEffect(() => {
@@ -112,6 +113,32 @@ export default function PetsScreen() {
     });
   };
 
+  useEffect(() => {
+    setUrgentStatus(prev => {
+      if (allPets.length === 0) return {};
+      const next: Record<string, { urgent: boolean; loading: boolean }> = {};
+      allPets.forEach((pet) => {
+        if (prev[pet._id]) {
+          next[pet._id] = prev[pet._id];
+        }
+      });
+      return next;
+    });
+  }, [allPets]);
+
+  const handleUrgencyChange = React.useCallback(
+    (petId: string, isUrgent: boolean, isLoading: boolean) => {
+      setUrgentStatus((prev) => {
+        const current = prev[petId];
+        if (current && current.urgent === isUrgent && current.loading === isLoading) {
+          return prev;
+        }
+        return { ...prev, [petId]: { urgent: isUrgent, loading: isLoading } };
+      });
+    },
+    []
+  );
+
   const filteredPets = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     const matchesQuery = (pet: Pet) =>
@@ -125,6 +152,25 @@ export default function PetsScreen() {
       return pet.type === activeFilter;
     });
   }, [activeFilter, allPets, searchQuery]);
+
+  const urgentSummary = useMemo(() => {
+    if (activeFilter !== 'urgent') {
+      return { isLoading: false, hasUrgent: true };
+    }
+
+    if (allPets.length === 0) {
+      return { isLoading: false, hasUrgent: false };
+    }
+
+    const entries = allPets
+      .map((pet) => urgentStatus[pet._id])
+      .filter(Boolean) as Array<{ urgent: boolean; loading: boolean }>;
+    const hasAllReports = entries.length === allPets.length;
+    const isLoadingUrgent = !hasAllReports || entries.some((entry) => entry.loading);
+    const hasUrgent = entries.some((entry) => entry.urgent);
+
+    return { isLoading: isLoadingUrgent, hasUrgent };
+  }, [activeFilter, allPets, urgentStatus]);
 
   const chipItems = useMemo(() => ([
     { key: 'all' as const, label: t('pets.filters.all') },
@@ -236,14 +282,24 @@ export default function PetsScreen() {
               renderLoadingSkeleton()
             ) : (
               filteredPets.map((pet) => (
-                <View key={pet._id} style={styles.cardWrapper}>
-                  <PetListCard
-                    pet={pet}
-                    petId={pet._id}
-                    onPress={() => handleViewPet(pet)}
-                  />
-                </View>
+                <PetListCard
+                  key={pet._id}
+                  pet={pet}
+                  petId={pet._id}
+                  onPress={() => handleViewPet(pet)}
+                  filterMode={activeFilter === 'urgent' ? 'urgent' : 'all'}
+                  onUrgencyChange={handleUrgencyChange}
+                />
               ))
+            )}
+
+            {activeFilter === 'urgent' && allPets.length > 0 && !hasMore && !urgentSummary.isLoading && !urgentSummary.hasUrgent && (
+              <View style={styles.emptyUrgent}>
+                <Ionicons name="alert-circle-outline" size={16} color={theme.colors.onSurfaceVariant} />
+                <Text variant="bodySmall" style={[styles.emptyUrgentText, { color: theme.colors.onSurfaceVariant }]}>
+                  {t('pets.filters.emptyUrgent')}
+                </Text>
+              </View>
             )}
 
             {hasMore && allPets.length > 0 && (
@@ -396,6 +452,14 @@ const styles = StyleSheet.create({
   },
   listSection: {
     marginTop: 12,
+  },
+  emptyUrgent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  emptyUrgentText: {
+    marginLeft: 6,
   },
   cardWrapper: {
     marginBottom: 12,

@@ -105,7 +105,8 @@
       "all": "All",
       "dogs": "Dogs",
       "cats": "Cats",
-      "urgent": "Urgent"
+      "urgent": "Urgent",
+      "emptyUrgent": "No urgent items"
     },
     "addNewPet": "Add New Pet",
     "editPet": "Edit Pet",
