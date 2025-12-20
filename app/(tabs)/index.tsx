@@ -64,7 +64,7 @@ export default function HomeScreen() {
           <HomeHeader
             user={user}
             petsCount={data.pets?.length || 0}
-            eventsCount={data.todayEvents?.length || 0}
+            eventsCount={data.upcomingEvents?.length || 0}
           />
 
           {/* My Pets Section */}

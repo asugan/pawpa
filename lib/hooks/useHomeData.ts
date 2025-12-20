@@ -53,6 +53,7 @@ export const useHomeData = () => {
     data: {
       pets,
       todayEvents,
+      upcomingEvents,
       upcomingVaccinations,
       allHealthRecords,
       recentExpenses,

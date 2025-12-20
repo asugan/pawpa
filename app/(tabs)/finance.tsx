@@ -545,6 +545,11 @@ export default function FinanceScreen() {
                 icon: 'receipt'
               }
             ]}
+            density="small"
+            style={StyleSheet.flatten([
+              styles.segmentedButtons,
+              { backgroundColor: theme.colors.surface, borderColor: theme.colors.surfaceVariant },
+            ])}
           />
         </View>
 
@@ -615,7 +620,20 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 16,
+  },
+  segmentedButtons: {
+    marginBottom: 0,
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 999,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   petSelector: {
     padding: 16,
