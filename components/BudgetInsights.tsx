@@ -75,7 +75,14 @@ export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
                   { backgroundColor: theme.colors.primary, opacity: 0.75 },
                 ]}
               />
-              <Text variant="bodyMedium">{item.category}</Text>
+              <Text
+                variant="bodyMedium"
+                style={styles.categoryText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {item.category}
+              </Text>
             </View>
             <View style={styles.barTrack}>
               <View
@@ -88,7 +95,7 @@ export const BudgetInsights: React.FC<BudgetInsightsProps> = ({ status }) => {
                 ]}
               />
             </View>
-            <Text variant="bodySmall" style={{ width: 60, textAlign: "right" }}>
+            <Text variant="bodySmall" style={styles.percentText}>
               {percentFormatter.format(item.percentage)}%
             </Text>
           </View>
@@ -123,7 +130,8 @@ const styles = StyleSheet.create({
   categoryLabel: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    width: 120,
+    maxWidth: 120,
   },
   categoryDot: {
     width: 10,
@@ -131,8 +139,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: 8,
   },
+  categoryText: {
+    flexShrink: 1,
+  },
   barTrack: {
-    flex: 2,
+    flex: 1,
     height: 8,
     borderRadius: 4,
     backgroundColor: "#e3e3e3",
@@ -142,6 +153,10 @@ const styles = StyleSheet.create({
   barFill: {
     height: "100%",
     borderRadius: 4,
+  },
+  percentText: {
+    width: 56,
+    textAlign: "right",
   },
 });
 
