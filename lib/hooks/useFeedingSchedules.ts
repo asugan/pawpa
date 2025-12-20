@@ -64,6 +64,14 @@ export const useTodayFeedingSchedules = () => {
   });
 };
 
+export const useAllFeedingSchedules = () => {
+  return useResources<FeedingSchedule>({
+    queryKey: feedingScheduleKeys.lists(),
+    queryFn: () => feedingScheduleService.getFeedingSchedules(),
+    staleTime: CACHE_TIMES.SHORT,
+  });
+};
+
 export const useNextFeeding = () => {
   return useConditionalQuery<FeedingSchedule | null>({
     queryKey: feedingScheduleKeys.next(),

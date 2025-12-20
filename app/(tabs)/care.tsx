@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, SegmentedButtons, FAB, Chip, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { usePets } from '../../lib/hooks/usePets';
 import { useHealthRecords } from '../../lib/hooks/useHealthRecords';
 import {
-  useTodayFeedingSchedules,
+  useAllFeedingSchedules,
   useDeleteFeedingSchedule,
   useToggleFeedingSchedule,
 } from '../../lib/hooks/useFeedingSchedules';
@@ -59,7 +59,7 @@ export default function CareScreen() {
   } = useHealthRecords(selectedPetId);
 
   // Feeding data
-  const { data: todaySchedules = [], isLoading: feedingLoading } = useTodayFeedingSchedules();
+  const { data: feedingSchedulesAll = [], isLoading: feedingLoading } = useAllFeedingSchedules();
   
   // Mutations
   const deleteScheduleMutation = useDeleteFeedingSchedule();
@@ -70,8 +70,8 @@ export default function CareScreen() {
 
   // Filter feeding schedules by selected pet
   const feedingSchedules = selectedPetId
-    ? todaySchedules.filter((schedule) => schedule.petId === selectedPetId)
-    : todaySchedules;
+    ? feedingSchedulesAll.filter((schedule) => schedule.petId === selectedPetId)
+    : feedingSchedulesAll;
 
   // Health handlers
   const handleAddHealthRecord = () => {
@@ -363,10 +363,14 @@ export default function CareScreen() {
         )}
 
 
-        <View style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {activeTab === 'health' && renderHealthContent()}
           {activeTab === 'feeding' && renderFeedingContent()}
-        </View>
+        </ScrollView>
 
         {/* FABs */}
         {activeTab === 'health' && (
@@ -455,6 +459,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
   },
   listContainer: {
     padding: 16,
