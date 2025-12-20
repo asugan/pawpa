@@ -21,7 +21,7 @@ export function SubscriptionModal({ visible, onClose, featureName }: Subscriptio
   const { t } = useTranslation();
   const { theme } = useTheme();
   const router = useRouter();
-  const { isLoading } = useSubscription();
+  const { isLoading, canStartTrial } = useSubscription();
 
   const handleUpgrade = () => {
     onClose();
@@ -69,6 +69,22 @@ export function SubscriptionModal({ visible, onClose, featureName }: Subscriptio
                 <View style={styles.statusContainer}>
                   <SubscriptionCard compact={false} showManageButton={false} />
                 </View>
+
+                {!canStartTrial && (
+                  <View style={styles.noticeContainer}>
+                    <MaterialCommunityIcons
+                      name="information-outline"
+                      size={16}
+                      color={theme.colors.onSurfaceVariant}
+                    />
+                    <Text
+                      variant="bodySmall"
+                      style={[styles.noticeText, { color: theme.colors.onSurfaceVariant }]}
+                    >
+                      {t('subscription.trialAlreadyUsed')}
+                    </Text>
+                  </View>
+                )}
 
                 {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
@@ -175,6 +191,15 @@ const styles = StyleSheet.create({
   },
   statusContainer: {
     marginBottom: 24,
+  },
+  noticeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  noticeText: {
+    flex: 1,
   },
   buttonContainer: {
     marginBottom: 16,

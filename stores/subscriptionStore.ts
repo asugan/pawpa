@@ -14,6 +14,7 @@ export interface SubscriptionState {
   subscriptionStatus: SubscriptionStatus | null;
   isStatusLoading: boolean;
   statusError: string | null;
+  statusErrorCode: string | null;
 
   // RevenueCat customer info (only for purchase operations, not status)
   customerInfo: CustomerInfo | null;
@@ -32,7 +33,7 @@ export interface SubscriptionState {
  */
 export interface SubscriptionActions {
   // Status management (from backend)
-  fetchSubscriptionStatus: () => Promise<void>;
+  fetchSubscriptionStatus: () => Promise<boolean>;
 
   // Trial management
   startTrial: () => Promise<boolean>;
@@ -61,6 +62,10 @@ export interface SubscriptionActions {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 
+  // Internal helpers
+  getErrorInfo: (error: unknown) => { message: string; code: string | null };
+  clearStatusError: () => void;
+
   // Reset
   resetSubscription: () => void;
 }
@@ -69,12 +74,21 @@ const initialState: SubscriptionState = {
   subscriptionStatus: null,
   isStatusLoading: false,
   statusError: null,
+  statusErrorCode: null,
   customerInfo: null,
   isTrialActivating: false,
   isInitialized: false,
   isLoading: false,
   error: null,
 };
+
+function getDaysRemainingFromExpiry(expiresAt: string): number {
+  const now = new Date();
+  const expiry = new Date(expiresAt);
+  const diffMs = expiry.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
 
 /**
  * Subscription store for managing subscription state
@@ -87,29 +101,50 @@ const initialState: SubscriptionState = {
 export const useSubscriptionStore = create<SubscriptionState & SubscriptionActions>()(
   (set, get) => ({
     ...initialState,
+    // Normalize API error responses to message/code pairs
+    getErrorInfo: (error: unknown): { message: string; code: string | null } => {
+      if (!error) {
+        return { message: 'Bilinmeyen hata', code: null };
+      }
+      if (typeof error === 'string') {
+        return { message: error, code: null };
+      }
+      if (typeof error === 'object' && 'message' in error && 'code' in error) {
+        return {
+          message: String((error as { message?: string }).message ?? 'Bilinmeyen hata'),
+          code: (error as { code?: string }).code ?? null,
+        };
+      }
+      return { message: 'Bilinmeyen hata', code: null };
+    },
+    clearStatusError: () => set({ statusError: null, statusErrorCode: null }),
 
     // Fetch unified subscription status from backend
     fetchSubscriptionStatus: async () => {
-      set({ isStatusLoading: true, statusError: null });
+      set({ isStatusLoading: true, statusError: null, statusErrorCode: null });
       try {
         const response = await subscriptionApiService.getSubscriptionStatus();
         if (response.success && response.data) {
           set({ subscriptionStatus: response.data, isStatusLoading: false });
           console.log('[Subscription] Status fetched:', response.data);
+          return true;
         } else {
-          set({ statusError: response.error as string, isStatusLoading: false });
+          const errorInfo = get().getErrorInfo(response.error);
+          set({ statusError: errorInfo.message, statusErrorCode: errorInfo.code, isStatusLoading: false });
           console.error('[Subscription] Failed to fetch status:', response.error);
+          return false;
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
-        set({ statusError: errorMessage, isStatusLoading: false });
+        set({ statusError: errorMessage, statusErrorCode: null, isStatusLoading: false });
         console.error('[Subscription] Error fetching status:', error);
+        return false;
       }
     },
 
     // Start a new trial for the user via backend
     startTrial: async () => {
-      set({ isStatusLoading: true, statusError: null });
+      set({ isStatusLoading: true, statusError: null, statusErrorCode: null });
       try {
         const response = await subscriptionApiService.startTrial();
         if (response.success && response.data) {
@@ -118,13 +153,14 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
           await get().fetchSubscriptionStatus();
           return true;
         } else {
-          set({ statusError: response.error as string, isStatusLoading: false });
+          const errorInfo = get().getErrorInfo(response.error);
+          set({ statusError: errorInfo.message, statusErrorCode: errorInfo.code, isStatusLoading: false });
           console.error('[Subscription] Failed to start trial:', response.error);
           return false;
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Trial başlatılamadı';
-        set({ statusError: errorMessage, isStatusLoading: false });
+        set({ statusError: errorMessage, statusErrorCode: null, isStatusLoading: false });
         console.error('[Subscription] Error starting trial:', error);
         return false;
       }
@@ -132,7 +168,7 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
 
     // Start trial with optimistic UI updates
     startTrialOptimistic: async () => {
-      set({ isStatusLoading: true, statusError: null, isTrialActivating: true });
+      set({ isStatusLoading: true, statusError: null, statusErrorCode: null, isTrialActivating: true });
       try {
         const response = await subscriptionApiService.startTrial();
         if (response.success && response.data) {
@@ -148,7 +184,7 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
                 subscriptionType: 'trial',
                 canStartTrial: false,
                 expiresAt: response.data.subscription.expiresAt,
-                daysRemaining: 7, // Default trial days
+                daysRemaining: getDaysRemainingFromExpiry(response.data.subscription.expiresAt),
               },
               isStatusLoading: false,
               isTrialActivating: false,
@@ -159,13 +195,19 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
           await get().fetchSubscriptionStatus();
           return true;
         } else {
-          set({ statusError: response.error as string, isStatusLoading: false, isTrialActivating: false });
+          const errorInfo = get().getErrorInfo(response.error);
+          set({
+            statusError: errorInfo.message,
+            statusErrorCode: errorInfo.code,
+            isStatusLoading: false,
+            isTrialActivating: false,
+          });
           console.error('[Subscription] Failed to start trial:', response.error);
           return false;
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Trial başlatılamadı';
-        set({ statusError: errorMessage, isStatusLoading: false, isTrialActivating: false });
+        set({ statusError: errorMessage, statusErrorCode: null, isStatusLoading: false, isTrialActivating: false });
         console.error('[Subscription] Error starting trial:', error);
         return false;
       }
@@ -275,6 +317,7 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
         subscriptionStatus: null,
         isStatusLoading: false,
         statusError: null,
+        statusErrorCode: null,
         customerInfo: null,
         isTrialActivating: false,
         isInitialized: false,

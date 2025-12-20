@@ -2,6 +2,7 @@ import { api, ApiError, ApiResponse } from '../api/client';
 import { ENV } from '../config/env';
 import { getDeviceId } from '../utils/deviceId';
 import { RequestCache } from '../types';
+import { authClient } from '../auth/client';
 
 // Request deduplication and rate limiting
 const REQUEST_CACHE = new Map<string, RequestCache>();
@@ -114,7 +115,8 @@ export class SubscriptionApiService {
    */
   async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
     const deviceId = await getDeviceId();
-    const cacheKey = `subscription-status-${deviceId}`;
+    const sessionKey = authClient.getCookie() ?? 'anon';
+    const cacheKey = `subscription-status-${deviceId}-${sessionKey}`;
 
     return getCachedRequest(cacheKey, async () => {
       try {
@@ -180,7 +182,8 @@ export class SubscriptionApiService {
    */
   public async invalidateSubscriptionStatusCache(): Promise<void> {
     const deviceId = await getDeviceId();
-    invalidateCache(`subscription-status-${deviceId}`);
+    const sessionKey = authClient.getCookie() ?? 'anon';
+    invalidateCache(`subscription-status-${deviceId}-${sessionKey}`);
   }
 
   /**
@@ -208,22 +211,12 @@ export class SubscriptionApiService {
     } catch (error) {
       console.error('❌ Start trial error:', error);
       if (error instanceof ApiError) {
-        // Handle specific error codes
-        if (error.code === 'SUBSCRIPTION_EXISTS') {
-          return {
-            success: false,
-            error: 'Zaten bir aboneliğiniz var',
-          };
-        }
-        if (error.code === 'DEVICE_TRIAL_USED') {
-          return {
-            success: false,
-            error: 'Bu cihazda daha önce trial kullanılmış',
-          };
-        }
         return {
           success: false,
-          error: error.message,
+          error: {
+            code: error.code ?? 'UNKNOWN_ERROR',
+            message: error.message,
+          },
         };
       }
       return {

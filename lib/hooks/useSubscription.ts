@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from "react";
 import { Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Purchases, {
   CustomerInfo,
   PurchasesOfferings,
@@ -17,6 +18,22 @@ const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_BASE = 1000; // 1 second base delay
 const TRIAL_START_BYPASS_KEY = 'trial-start-in-progress';
+
+async function setTrialBypassFlag(value: string): Promise<void> {
+  try {
+    await AsyncStorage.setItem(TRIAL_START_BYPASS_KEY, value);
+  } catch (error) {
+    console.warn("[Subscription] Failed to set trial bypass flag:", error);
+  }
+}
+
+async function clearTrialBypassFlag(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(TRIAL_START_BYPASS_KEY);
+  } catch (error) {
+    console.warn("[Subscription] Failed to clear trial bypass flag:", error);
+  }
+}
 
 /**
  * Subscription status type
@@ -53,6 +70,7 @@ export interface UseSubscriptionReturn {
   isStatusLoading: boolean;
   error: string | null;
   statusError: string | null;
+  statusErrorCode: string | null;
 
   // Actions
   presentPaywall: (offering?: PurchasesOfferings) => Promise<boolean>;
@@ -65,6 +83,7 @@ export interface UseSubscriptionReturn {
   startTrial: () => Promise<boolean>;
   refreshSubscriptionStatus: () => Promise<void>;
   refreshSubscriptionStatusImmediate: () => Promise<void>;
+  clearStatusError: () => void;
 }
 
 /**
@@ -72,7 +91,7 @@ export interface UseSubscriptionReturn {
  * Waits for webhook to process and backend to update
  */
 async function pollForSubscriptionUpdate(
-  fetchStatus: () => Promise<void>,
+  fetchStatus: () => Promise<boolean>,
   checkActive: () => boolean,
   maxAttempts: number = 10
 ): Promise<boolean> {
@@ -126,6 +145,7 @@ export function useSubscription(): UseSubscriptionReturn {
     setError,
     startTrial,
     resetSubscription,
+    clearStatusError,
   } = useSubscriptionStore(
     useShallow((state) => ({
       isProUser: state.isProUser,
@@ -147,6 +167,7 @@ export function useSubscription(): UseSubscriptionReturn {
       setError: state.setError,
       startTrial: state.startTrial,
       resetSubscription: state.resetSubscription,
+      clearStatusError: state.clearStatusError,
     }))
   );
 
@@ -159,6 +180,9 @@ export function useSubscription(): UseSubscriptionReturn {
   );
   const error = useSubscriptionStore((state) => state.error);
   const statusError = useSubscriptionStore((state) => state.statusError);
+  const statusErrorCode = useSubscriptionStore(
+    (state) => state.statusErrorCode
+  );
 
   // Computed values from backend status
   const isProUserValue = isProUser();
@@ -491,26 +515,6 @@ export function useSubscription(): UseSubscriptionReturn {
   );
 
   /**
-   * Start trial with immediate status refresh (bypasses rate limiting)
-   */
-  const startTrialAction = useCallback(async (): Promise<boolean> => {
-    // Mark trial start in progress
-    localStorage.setItem(TRIAL_START_BYPASS_KEY, Date.now().toString());
-
-    const success = await startTrial();
-
-    if (success) {
-      // Immediate refresh bypassing rate limiting
-      await refreshSubscriptionStatusImmediate();
-    }
-
-    // Clear bypass flag
-    localStorage.removeItem(TRIAL_START_BYPASS_KEY);
-
-    return success;
-  }, [startTrial]);
-
-  /**
    * Refresh subscription status from backend
    * Implements circuit breaker and rate limiting to prevent infinite loops
    */
@@ -552,21 +556,22 @@ export function useSubscription(): UseSubscriptionReturn {
     lastRequestTimeRef.current = now;
 
     try {
-      await fetchSubscriptionStatus();
-      // Success - reset retry counter
-      retryCountRef.current = 0;
-      console.log(
-        "[useSubscription] Subscription status refreshed successfully"
-      );
-    } catch (error) {
-      // Increment retry counter on failure
-      retryCountRef.current += 1;
-      const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
-      console.error(
-        `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
-          `next retry after ${delay}ms:`,
-        error
-      );
+      const success = await fetchSubscriptionStatus();
+      if (success) {
+        // Success - reset retry counter
+        retryCountRef.current = 0;
+        console.log(
+          "[useSubscription] Subscription status refreshed successfully"
+        );
+      } else {
+        // Increment retry counter on failure
+        retryCountRef.current += 1;
+        const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
+        console.error(
+          `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
+            `next retry after ${delay}ms`
+        );
+      }
     } finally {
       isFetchingRef.current = false;
     }
@@ -583,6 +588,42 @@ export function useSubscription(): UseSubscriptionReturn {
 
     await fetchSubscriptionStatus();
   }, [fetchSubscriptionStatus]);
+
+  /**
+   * Start trial with immediate status refresh (bypasses rate limiting)
+   */
+  const startTrialAction = useCallback(async (): Promise<boolean> => {
+    // Mark trial start in progress
+    await setTrialBypassFlag(Date.now().toString());
+
+    const success = await startTrial();
+
+    if (success) {
+      // Immediate refresh bypassing rate limiting
+      await refreshSubscriptionStatusImmediate();
+    } else {
+      const { statusErrorCode: currentCode, statusError: currentError } =
+        useSubscriptionStore.getState();
+      const message = (() => {
+        switch (currentCode) {
+          case "SUBSCRIPTION_EXISTS":
+            return t("subscription.trialAlreadySubscribed");
+          case "DEVICE_TRIAL_USED":
+            return t("subscription.trialAlreadyUsed");
+          case "USER_TRIAL_USED":
+            return t("subscription.trialAlreadyUsed");
+          default:
+            return currentError || t("subscription.trialStartFailed");
+        }
+      })();
+      Alert.alert(t("common.error"), message);
+    }
+
+    // Clear bypass flag
+    await clearTrialBypassFlag();
+
+    return success;
+  }, [refreshSubscriptionStatusImmediate, startTrial, t]);
 
   return {
     // Status (from backend)
@@ -611,6 +652,7 @@ export function useSubscription(): UseSubscriptionReturn {
     isStatusLoading,
     error,
     statusError,
+    statusErrorCode,
 
     // Actions
     presentPaywall,
@@ -623,5 +665,6 @@ export function useSubscription(): UseSubscriptionReturn {
     startTrial: startTrialAction,
     refreshSubscriptionStatus,
     refreshSubscriptionStatusImmediate,
+    clearStatusError,
   };
 }
