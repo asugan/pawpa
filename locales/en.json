@@ -384,6 +384,8 @@
     "edit": "Edit",
     "share": "Share",
     "goBack": "Go Back",
+    "back": "Back",
+    "next": "Next",
     "created": "Created",
     "updated": "Updated",
     "create": "Create",
@@ -560,6 +562,12 @@
       "weightPlaceholder": "Enter weight (optional)",
       "selectType": "Select pet type",
       "selectGender": "Select gender (optional)",
+      "stepIndicator": "Step {{current}} of {{total}}",
+      "steps": {
+        "basicInfo": "Basic Information",
+        "physicalDetails": "Physical Details",
+        "photo": "Photo"
+      },
       "sections": {
         "physicalDetails": "Physical Details",
         "photo": "Photo"

@@ -89,6 +89,7 @@ export const SmartDropdown = ({
                   }
                 ]}
                 numberOfLines={1}
+                ellipsizeMode="tail"
               >
                 {selectedOption?.label || placeholder || `${label}${required ? ' *' : ''}`}
               </Text>
@@ -157,6 +158,7 @@ export const SmartDropdown = ({
 
                       <ScrollView
                         style={styles.optionsList}
+                        contentContainerStyle={styles.optionsContent}
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"
                         removeClippedSubviews={false}
@@ -188,6 +190,8 @@ export const SmartDropdown = ({
                                       : theme.colors.onSurface,
                                   }
                                 ]}
+                                numberOfLines={2}
+                                ellipsizeMode="tail"
                               >
                                 {option.label}
                               </Text>
@@ -246,6 +250,9 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    paddingRight: 12,
     fontSize: 16,
     fontFamily: 'System',
   },
@@ -266,6 +273,7 @@ const styles = StyleSheet.create({
     minHeight: '50%',
     padding: 0,
     borderRadius: 16,
+    overflow: 'hidden',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: {
@@ -305,16 +313,29 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 200,
   },
+  optionsContent: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 32,
+  },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    minWidth: 0,
+    minHeight: 52,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   optionText: {
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    paddingRight: 12,
     fontSize: 16,
+    lineHeight: 20,
     fontFamily: 'System',
   },
   emptyContainer: {

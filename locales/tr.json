@@ -384,6 +384,8 @@
     "edit": "Düzenle",
     "share": "Paylaş",
     "goBack": "Geri Dön",
+    "back": "Geri",
+    "next": "İleri",
     "created": "Oluşturulma",
     "updated": "Güncellenme",
     "create": "Oluştur",
@@ -560,6 +562,12 @@
       "weightPlaceholder": "Kilo girin (opsiyonel)",
       "selectType": "Pet türünü seçin",
       "selectGender": "Cinsiyet seçin (opsiyonel)",
+      "stepIndicator": "Adım {{current}} / {{total}}",
+      "steps": {
+        "basicInfo": "Temel Bilgiler",
+        "physicalDetails": "Fiziksel Bilgiler",
+        "photo": "Fotoğraf"
+      },
       "sections": {
         "physicalDetails": "Fiziksel Bilgiler",
         "photo": "Fotoğraf"
