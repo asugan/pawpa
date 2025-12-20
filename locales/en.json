@@ -32,8 +32,7 @@
     "care": "Care",
     "calendar": "Calendar",
     "finance": "Finance",
-    "settings": "Settings",
-    "emergency": "Emergency"
+    "settings": "Settings"
   },
   "home": {
     "title": "Your Pet Health Assistant",
@@ -67,31 +66,10 @@
     "budget": "Budget",
     "expenses": "Expenses"
   },
-  "emergency": {
-    "title": "Emergency",
-    "subtitle": "Offline-ready profile, vet contacts, quick actions.",
-    "choosePet": "Choose pet",
-    "stale": "Data older than 24h. Refresh or update manually.",
-    "healthProfile": "Health profile",
-    "allergies": "Allergies",
-    "conditions": "Chronic conditions",
-    "medications": "Medications",
-    "notes": "Notes",
-    "vetInfo": "Vet contact",
-    "vetName": "Vet name",
-    "vetPhone": "Vet phone",
-    "vetAddress": "Clinic address",
-    "callVet": "Call vet",
-    "openMaps": "Open maps",
-    "saved": "Emergency info saved",
-    "noVetPhone": "No vet phone set",
-    "noAddress": "No address set"
-  },
   "care": {
     "title": "Care",
     "health": "Health",
-    "feeding": "Feeding",
-    "timeline": "Timeline"
+    "feeding": "Feeding"
   },
   "pets": {
     "myPets": "My Pets",
@@ -196,13 +174,6 @@
     "clinicPlaceholder": "Clinic name",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Additional notes"
-  },
-  "healthTimeline": {
-    "overdue": "Overdue",
-    "lastVetVisit": "Last vet visit",
-    "noVetVisit": "No vet visit yet",
-    "emptyTitle": "No timeline yet",
-    "emptyDescription": "Add an event or health record to get started"
   },
   "calendar": {
     "calendar": "Calendar",

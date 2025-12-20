@@ -20,10 +20,9 @@ import { TURKCE_LABELS, HEALTH_RECORD_COLORS, LAYOUT } from '../../constants';
 import type { HealthRecord, FeedingSchedule } from '../../lib/types';
 import { ProtectedRoute } from '@/components/subscription';
 import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
-import { useAllEvents, useEvents } from '@/lib/hooks/useEvents';
-import HealthTimelineComponent from '@/components/HealthTimeline';
 
-type CareTabValue = 'health' | 'feeding' | 'timeline';
+
+type CareTabValue = 'health' | 'feeding';
 
 export default function CareScreen() {
   const { theme } = useTheme();
@@ -50,12 +49,6 @@ export default function CareScreen() {
     error: healthError,
     refetch: refetchHealth
   } = useHealthRecords(selectedPetId);
-
-  // Events for timeline
-  const { data: eventsByPet = [], isLoading: eventsByPetLoading } = useEvents(selectedPetId || '');
-  const { data: allEvents = [], isLoading: allEventsLoading } = useAllEvents();
-  const timelineEvents = selectedPetId ? eventsByPet : allEvents;
-  const eventsLoading = selectedPetId ? eventsByPetLoading : allEventsLoading;
 
   // Feeding data
   const { data: todaySchedules = [], isLoading: feedingLoading } = useTodayFeedingSchedules();
@@ -252,31 +245,6 @@ export default function CareScreen() {
     );
   };
 
-  const renderTimelineContent = () => {
-    if (petsLoading) {
-      return <LoadingSpinner />;
-    }
-
-    if (pets.length === 0) {
-      return (
-        <EmptyState
-          title={t('health.noPets')}
-          description={t('health.addPetFirstToViewRecords')}
-          icon="dog"
-        />
-      );
-    }
-
-    return (
-      <HealthTimelineComponent
-        events={timelineEvents || []}
-        healthRecords={healthRecords}
-        pets={pets}
-        loading={healthLoading || eventsLoading}
-      />
-    );
-  };
-
   return (
     <ProtectedRoute featureName={t('subscription.features.healthRecords')}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -295,11 +263,6 @@ export default function CareScreen() {
                 value: 'feeding', 
                 label: t('care.feeding'),
                 icon: 'food'
-              },
-              {
-                value: 'timeline',
-                label: t('care.timeline', 'Timeline'),
-                icon: 'timeline-text'
               }
             ]}
             style={styles.segmentedButtons}
@@ -307,7 +270,7 @@ export default function CareScreen() {
         </View>
 
         {/* Pet selector for health */}
-        {activeTab !== 'feeding' && pets.length > 0 && (
+        {activeTab === 'health' && pets.length > 0 && (
           <View style={styles.petSelector}>
             <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
               {t('health.selectPet')}
@@ -338,7 +301,6 @@ export default function CareScreen() {
         <View style={styles.content}>
           {activeTab === 'health' && renderHealthContent()}
           {activeTab === 'feeding' && renderFeedingContent()}
-          {activeTab === 'timeline' && renderTimelineContent()}
         </View>
 
         {/* FABs */}

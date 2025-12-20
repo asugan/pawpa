@@ -32,8 +32,7 @@
     "care": "Bakım",
     "calendar": "Takvim",
     "finance": "Finans",
-    "settings": "Ayarlar",
-    "emergency": "Acil"
+    "settings": "Ayarlar"
   },
   "home": {
     "title": "Evcil Dostlarınızın Sağlık Asistanı",
@@ -67,31 +66,10 @@
     "budget": "Bütçe",
     "expenses": "Harcamalar"
   },
-  "emergency": {
-    "title": "Acil",
-    "subtitle": "Çevrimdışı profil, veteriner iletişim ve hızlı aksiyonlar.",
-    "choosePet": "Pet seç",
-    "stale": "Veri 24 saatten eski. Yenileyin veya manuel güncelleyin.",
-    "healthProfile": "Sağlık profili",
-    "allergies": "Alerjiler",
-    "conditions": "Kronik durumlar",
-    "medications": "İlaçlar",
-    "notes": "Notlar",
-    "vetInfo": "Veteriner iletişim",
-    "vetName": "Veteriner adı",
-    "vetPhone": "Veteriner telefonu",
-    "vetAddress": "Klinik adresi",
-    "callVet": "Veterineri ara",
-    "openMaps": "Haritayı aç",
-    "saved": "Acil bilgiler kaydedildi",
-    "noVetPhone": "Veteriner telefonu girilmemiş",
-    "noAddress": "Adres girilmemiş"
-  },
   "care": {
     "title": "Bakım",
     "health": "Sağlık",
-    "feeding": "Besleme",
-    "timeline": "Zaman Akışı"
+    "feeding": "Besleme"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -196,13 +174,6 @@
     "clinicPlaceholder": "Klinik adı",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Ek notlar"
-  },
-  "healthTimeline": {
-    "overdue": "Geciken",
-    "lastVetVisit": "Son veteriner ziyareti",
-    "noVetVisit": "Henüz veteriner ziyareti yok",
-    "emptyTitle": "Henüz zaman akışı yok",
-    "emptyDescription": "Başlamak için bir etkinlik veya sağlık kaydı ekleyin"
   },
   "calendar": {
     "calendar": "Takvim",
