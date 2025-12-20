@@ -20,7 +20,7 @@ export default function CalendarScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
 
-  const [viewType, setViewType] = useState<CalendarViewType>('month');
+  const [viewType, setViewType] = useState<CalendarViewType>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
 

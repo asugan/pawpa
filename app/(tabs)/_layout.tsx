@@ -32,6 +32,11 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
+        headerTitleContainerStyle: {
+          left: 0,
+          right: 0,
+          width: '100%',
+        },
         sceneStyle: {
           backgroundColor: theme.colors.background,
         },
