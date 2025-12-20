@@ -57,6 +57,14 @@ function getCachedRequest<T>(key: string, factory: () => Promise<T>): Promise<T>
   
   return promise;
 }
+
+function hashString(input: string): string {
+  let hash = 5381;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) + hash) + input.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
 export interface SubscriptionStatus {
   hasActiveSubscription: boolean;
   subscriptionType: 'trial' | 'paid' | null;
@@ -79,15 +87,6 @@ export interface TrialStatus {
   trialDaysRemaining: number;
   isTrialExpired: boolean;
   canStartTrial: boolean;
-}
-
-/**
- * Device eligibility response
- */
-export interface DeviceEligibility {
-  canStartTrial: boolean;
-  reason?: string;
-  existingTrialUserId?: string;
 }
 
 /**
@@ -115,10 +114,11 @@ export class SubscriptionApiService {
    */
   async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
     const deviceId = await getDeviceId();
-    const sessionKey = authClient.getCookie() ?? 'anon';
-    const cacheKey = `subscription-status-${deviceId}-${sessionKey}`;
+    const sessionCookie = authClient.getCookie();
+    const sessionKey = sessionCookie ? hashString(sessionCookie) : null;
+    const cacheKey = sessionKey ? `subscription-status-${deviceId}-${sessionKey}` : null;
 
-    return getCachedRequest(cacheKey, async () => {
+    const requestFactory = async () => {
       try {
         const response = await api.get<SubscriptionStatus>(
           ENV.ENDPOINTS.SUBSCRIPTION_STATUS,
@@ -143,7 +143,13 @@ export class SubscriptionApiService {
           error: 'Abonelik durumu yüklenemedi. Lütfen tekrar deneyin.',
         };
       }
-    });
+    };
+
+    if (!cacheKey) {
+      return requestFactory();
+    }
+
+    return getCachedRequest(cacheKey, requestFactory);
   }
 
   /**
@@ -182,7 +188,11 @@ export class SubscriptionApiService {
    */
   public async invalidateSubscriptionStatusCache(): Promise<void> {
     const deviceId = await getDeviceId();
-    const sessionKey = authClient.getCookie() ?? 'anon';
+    const sessionCookie = authClient.getCookie();
+    if (!sessionCookie) {
+      return;
+    }
+    const sessionKey = hashString(sessionCookie);
     invalidateCache(`subscription-status-${deviceId}-${sessionKey}`);
   }
 
@@ -222,37 +232,6 @@ export class SubscriptionApiService {
       return {
         success: false,
         error: 'Trial başlatılamadı. Lütfen tekrar deneyin.',
-      };
-    }
-  }
-
-  /**
-   * Check if the current device is eligible for a trial
-   */
-  async checkDeviceEligibility(): Promise<ApiResponse<DeviceEligibility>> {
-    try {
-      const deviceId = await getDeviceId();
-      const response = await api.post<DeviceEligibility>(
-        ENV.ENDPOINTS.SUBSCRIPTION_CHECK_DEVICE,
-        { deviceId }
-      );
-
-      console.log('✅ Device eligibility checked');
-      return {
-        success: true,
-        data: response.data!,
-      };
-    } catch (error) {
-      console.error('❌ Check device eligibility error:', error);
-      if (error instanceof ApiError) {
-        return {
-          success: false,
-          error: error.message,
-        };
-      }
-      return {
-        success: false,
-        error: 'Cihaz kontrolü yapılamadı. Lütfen tekrar deneyin.',
       };
     }
   }
