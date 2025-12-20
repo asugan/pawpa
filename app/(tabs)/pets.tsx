@@ -164,7 +164,7 @@ export default function PetsScreen() {
 
     const entries = allPets
       .map((pet) => urgentStatus[pet._id])
-      .filter(Boolean) as Array<{ urgent: boolean; loading: boolean }>;
+      .filter(Boolean) as { urgent: boolean; loading: boolean }[];
     const hasAllReports = entries.length === allPets.length;
     const isLoadingUrgent = !hasAllReports || entries.some((entry) => entry.loading);
     const hasUrgent = entries.some((entry) => entry.urgent);

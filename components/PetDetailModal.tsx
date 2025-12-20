@@ -124,6 +124,7 @@ export default function PetDetailModal({ visible, petId, onClose }: PetDetailMod
     const today = new Date();
     const birth = typeof birthDate === 'string' ? new Date(birthDate) : new Date(birthDate);
     const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
+    if (months < 0) return t('pets.ageUnknown');
 
     if (months < 12) {
       return `${months} ${t('pets.months')}`;

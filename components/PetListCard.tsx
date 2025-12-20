@@ -23,7 +23,7 @@ const getAgeText = (birthDate: string | undefined, t: (key: string) => string) =
 
   const now = new Date();
   const totalMonths = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
-  if (totalMonths < 1) return t('pets.ageUnknown');
+  if (totalMonths < 0) return t('pets.ageUnknown');
 
   if (totalMonths < 12) {
     return `${totalMonths} ${t('pets.months')}`;
