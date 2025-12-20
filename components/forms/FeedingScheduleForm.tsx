@@ -1,4 +1,4 @@
-import { Text } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 import { useFeedingScheduleForm } from '@/hooks/useFeedingScheduleForm';
 import { useTheme } from '@/lib/theme';
 import React from 'react';
@@ -8,13 +8,13 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createFoodTypeOptions } from '../../constants';
 import { type FeedingScheduleFormData } from '../../lib/schemas/feedingScheduleSchema';
 import { FeedingSchedule, Pet } from '../../lib/types';
-import { FormActions } from './FormActions';
 import { FormSection } from './FormSection';
 import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDayPicker } from './SmartDayPicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
 import { SmartSwitch } from './SmartSwitch';
+import { StepHeader } from './StepHeader';
 
 interface FeedingScheduleFormProps {
   schedule?: FeedingSchedule;
@@ -38,6 +38,8 @@ export function FeedingScheduleForm({
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const [showStepError, setShowStepError] = React.useState(false);
 
   // Use the custom hook for form management
   const { form, control, handleSubmit, isDirty } = useFeedingScheduleForm(schedule, initialPetId);
@@ -129,6 +131,60 @@ export function FeedingScheduleForm({
 
   const isEditMode = !!schedule;
 
+  const steps = React.useMemo(
+    () => [
+      {
+        key: 'pet',
+        title: t('feedingSchedule.steps.pet'),
+        fields: ['petId'] as (keyof FeedingScheduleFormData)[],
+      },
+      {
+        key: 'details',
+        title: t('feedingSchedule.steps.details'),
+        fields: ['time', 'foodType', 'amount'] as (keyof FeedingScheduleFormData)[],
+      },
+      {
+        key: 'days',
+        title: t('feedingSchedule.steps.days'),
+        fields: ['daysArray'] as (keyof FeedingScheduleFormData)[],
+      },
+      {
+        key: 'settings',
+        title: t('feedingSchedule.steps.settings'),
+        fields: ['isActive'] as (keyof FeedingScheduleFormData)[],
+      },
+    ],
+    [t]
+  );
+
+  const totalSteps = steps.length;
+  const isFinalStep = currentStep === totalSteps - 1;
+
+  const handleNextStep = React.useCallback(async () => {
+    const isStepValid = await form.trigger(steps[currentStep].fields);
+    if (!isStepValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+  }, [form, steps, currentStep, totalSteps]);
+
+  const handleBackStep = React.useCallback(() => {
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleFinalSubmit = React.useCallback(async () => {
+    const isFormValid = await form.trigger();
+    if (!isFormValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    handleSubmit(onFormSubmit)();
+  }, [form, handleSubmit, onFormSubmit]);
+
   return (
     <FormProvider {...form}>
       <ScrollView
@@ -137,103 +193,157 @@ export function FeedingScheduleForm({
         keyboardShouldPersistTaps="always"
         testID={testID}
       >
-        {/* Form Header */}
-        <FormSection
-          title={isEditMode ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
-          subtitle={t('feedingSchedule.subtitle')}
-        >
-          {/* Pet Selection */}
-          <SmartDropdown
-            name="petId"
-            required
-            options={petOptions}
-            placeholder={t('feedingSchedule.placeholders.selectPet')}
-            label={t('feedingSchedule.fields.pet')}
-            testID={`${testID}-pet`}
-          />
+        <StepHeader
+          title={steps[currentStep].title}
+          counterLabel={t('feedingSchedule.stepIndicator', { current: currentStep + 1, total: totalSteps })}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+        />
 
-          {selectedPet && (
-            <View style={[styles.infoBox, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
-                {t('feedingSchedule.selectedPet')}: {selectedPet.label}
+        {currentStep === 0 && (
+          <FormSection
+            title={isEditMode ? t('feedingSchedule.editTitle') : t('feedingSchedule.createTitle')}
+            subtitle={t('feedingSchedule.subtitle')}
+          >
+            {/* Pet Selection */}
+            <SmartDropdown
+              name="petId"
+              required
+              options={petOptions}
+              placeholder={t('feedingSchedule.placeholders.selectPet')}
+              label={t('feedingSchedule.fields.pet')}
+              testID={`${testID}-pet`}
+            />
+
+            {selectedPet && (
+              <View style={[styles.infoBox, { backgroundColor: theme.colors.primaryContainer }]}>
+                <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                  {t('feedingSchedule.selectedPet')}: {selectedPet.label}
+                </Text>
+              </View>
+            )}
+          </FormSection>
+        )}
+
+        {currentStep === 1 && (
+          <FormSection
+            title={t('feedingSchedule.sections.scheduleDetails')}
+            subtitle={t('feedingSchedule.sections.scheduleDetailsSubtitle')}
+          >
+            {/* Time Picker */}
+            <SmartDatePicker
+              name="time"
+              required
+              label={t('feedingSchedule.fields.time')}
+              mode="time"
+              outputFormat="iso-time"
+              testID={`${testID}-time`}
+            />
+
+            {/* Food Type Dropdown */}
+            <SmartDropdown
+              name="foodType"
+              required
+              options={foodTypeOptions}
+              placeholder={t('feedingSchedule.placeholders.selectFoodType')}
+              label={t('feedingSchedule.fields.foodType')}
+              testID={`${testID}-food-type`}
+            />
+
+            {/* Food type suggestion */}
+            <View style={[styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }]}>
+              <Text style={styles.suggestionIcon}>💡</Text>
+              <Text
+                variant="bodySmall"
+                style={[styles.suggestionText, { color: theme.colors.onSecondaryContainer }]}
+              >
+                {getFoodTypeSuggestion()}
               </Text>
             </View>
-          )}
-        </FormSection>
 
-        {/* Schedule Details */}
-        <FormSection
-          title={t('feedingSchedule.sections.scheduleDetails')}
-          subtitle={t('feedingSchedule.sections.scheduleDetailsSubtitle')}
-        >
-          {/* Time Picker */}
-          <SmartDatePicker
-            name="time"
-            required
-            label={t('feedingSchedule.fields.time')}
-            mode="time"
-            outputFormat="iso-time"
-            testID={`${testID}-time`}
-          />
+            {/* Amount Input */}
+            <SmartInput
+              name="amount"
+              required
+              placeholder={t('feedingSchedule.placeholders.amount')}
+              testID={`${testID}-amount`}
+            />
+          </FormSection>
+        )}
 
-          {/* Food Type Dropdown */}
-          <SmartDropdown
-            name="foodType"
-            required
-            options={foodTypeOptions}
-            placeholder={t('feedingSchedule.placeholders.selectFoodType')}
-            label={t('feedingSchedule.fields.foodType')}
-            testID={`${testID}-food-type`}
-          />
+        {currentStep === 2 && (
+          <FormSection
+            title={t('feedingSchedule.fields.days')}
+            subtitle={t('feedingSchedule.daysHelp')}
+          >
+            <SmartDayPicker name="daysArray" showQuickSelect testID={testID} />
+          </FormSection>
+        )}
 
-          {/* Food type suggestion */}
-          <View style={[styles.suggestionBox, { backgroundColor: theme.colors.secondaryContainer }]}>
-            <Text style={styles.suggestionIcon}>💡</Text>
-            <Text
-              variant="bodySmall"
-              style={[styles.suggestionText, { color: theme.colors.onSecondaryContainer }]}
+        {currentStep === 3 && (
+          <FormSection title={t('feedingSchedule.sections.settings')}>
+            <SmartSwitch
+              name="isActive"
+              label={t('feedingSchedule.fields.isActive')}
+              description={t('feedingSchedule.isActiveHelp')}
+              testID={`${testID}-active-switch`}
+            />
+          </FormSection>
+        )}
+
+        <View style={styles.actions}>
+          {currentStep === 0 ? (
+            <Button
+              mode="outlined"
+              onPress={handleCancel}
+              disabled={loading || isSubmitting}
+              style={styles.actionButton}
+              testID={testID ? `${testID}-cancel` : 'feeding-form-cancel'}
             >
-              {getFoodTypeSuggestion()}
+              {t('common.cancel')}
+            </Button>
+          ) : (
+            <Button
+              mode="outlined"
+              onPress={handleBackStep}
+              disabled={loading || isSubmitting}
+              style={styles.actionButton}
+              testID={testID ? `${testID}-back` : 'feeding-form-back'}
+            >
+              {t('common.back')}
+            </Button>
+          )}
+          {isFinalStep ? (
+            <Button
+              mode="contained"
+              onPress={handleFinalSubmit}
+              disabled={loading || isSubmitting}
+              loading={isSubmitting}
+              style={styles.actionButton}
+              testID={testID ? `${testID}-submit` : 'feeding-form-submit'}
+            >
+              {isEditMode ? t('common.update') : t('common.create')}
+            </Button>
+          ) : (
+            <Button
+              mode="contained"
+              onPress={handleNextStep}
+              disabled={loading || isSubmitting}
+              style={styles.actionButton}
+              testID={testID ? `${testID}-next` : 'feeding-form-next'}
+            >
+              {t('common.next')}
+            </Button>
+          )}
+        </View>
+
+        {!showStepError ? null : (
+          <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
+            <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+              {t('pets.pleaseFillRequiredFields')}
             </Text>
           </View>
-
-          {/* Amount Input */}
-          <SmartInput
-            name="amount"
-            required
-            placeholder={t('feedingSchedule.placeholders.amount')}
-            testID={`${testID}-amount`}
-          />
-        </FormSection>
-
-        {/* Days Selection */}
-        <FormSection
-          title={t('feedingSchedule.fields.days')}
-          subtitle={t('feedingSchedule.daysHelp')}
-        >
-          <SmartDayPicker name="daysArray" showQuickSelect testID={testID} />
-        </FormSection>
-
-        {/* Settings */}
-        <FormSection title={t('feedingSchedule.sections.settings')}>
-          <SmartSwitch
-            name="isActive"
-            label={t('feedingSchedule.fields.isActive')}
-            description={t('feedingSchedule.isActiveHelp')}
-            testID={`${testID}-active-switch`}
-          />
-        </FormSection>
-
-        {/* Form Actions */}
-        <FormActions
-          onCancel={handleCancel}
-          onSubmit={handleSubmit(onFormSubmit)}
-          submitLabel={isEditMode ? t('common.update') : t('common.create')}
-          cancelLabel={t('common.cancel')}
-          loading={isSubmitting}
-          disabled={loading}
-          testID={testID}
-        />
+        )}
       </ScrollView>
     </FormProvider>
   );
@@ -266,6 +376,24 @@ const styles = StyleSheet.create({
   suggestionText: {
     flex: 1,
     lineHeight: 18,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  statusContainer: {
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  statusText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: 'System',
   },
 });
 

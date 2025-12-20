@@ -162,6 +162,14 @@
     "createTitle": "Yeni Sağlık Kaydı",
     "editTitle": "Sağlık Kaydını Düzenle",
     "createSubtitle": "Evcil hayvanınızın sağlık kayıtlarını yönetin",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Detaylar",
+      "date": "Tarih",
+      "provider": "Veteriner",
+      "costNotes": "Ücret ve Notlar"
+    },
     "saveError": "Sağlık kaydı kaydedilirken bir hata oluştu",
     "titleField": "Başlık",
     "titlePlaceholder": "Kayıt başlığı",
@@ -255,6 +263,13 @@
     "enableReminder": "Hatırlatıcı Etkinleştir",
     "reminderDescription": "Etkinlikten önce bildirim alın",
     "notesPlaceholder": "Ek notlarınızı buraya yazın",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Evcil Hayvan",
+      "details": "Detaylar",
+      "schedule": "Zamanlama",
+      "options": "Seçenekler"
+    },
     "saveError": "Etkinlik kaydedilirken bir hata oluştu",
     "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
     "exit": "Çık",
@@ -502,6 +517,13 @@
     },
     "daysHelp": "Bu besleme programının aktif olacağı günleri seçin",
     "isActiveHelp": "Bu programı aktif veya pasif hale getirmek için değiştirin",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Evcil Dost",
+      "details": "Detaylar",
+      "days": "Günler",
+      "settings": "Ayarlar"
+    },
     "quickSelect": {
       "all": "Tüm Günler",
       "weekdays": "Hafta İçi",
@@ -679,6 +701,12 @@
     "description": "Açıklama",
     "vendor": "Satıcı",
     "notes": "Notlar",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "petCategory": "Evcil Hayvan ve Kategori",
+      "amount": "Tutar",
+      "details": "Detaylar"
+    },
     "thisMonth": "Bu ay",
     "transactions": "İşlem",
     "deleteExpense": "Harcamayı Sil",
@@ -738,6 +766,11 @@
     "activeBudget": "Aktif Bütçe",
     "activeBudgetDescription": "Bütçe takibini ve uyarıları etkinleştirin",
     "alertThresholdDescription": "Harcamalarınız bütçenizin bu yüzdeine ulaştığında bildirim alın",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "amount": "Tutar",
+      "alerts": "Uyarılar"
+    },
     "overallBudget": "Genel Bütçe",
     "spent": "Harcanan",
     "limit": "Limit",

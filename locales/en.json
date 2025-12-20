@@ -162,6 +162,14 @@
     "createTitle": "New Health Record",
     "editTitle": "Edit Health Record",
     "createSubtitle": "Manage your pet's health records",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "date": "Date",
+      "provider": "Provider",
+      "costNotes": "Cost & Notes"
+    },
     "saveError": "An error occurred while saving the health record",
     "titleField": "Title",
     "titlePlaceholder": "Record title",
@@ -255,6 +263,13 @@
     "enableReminder": "Enable Reminder",
     "reminderDescription": "Get notified before the event",
     "notesPlaceholder": "Write your additional notes here",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "schedule": "Schedule",
+      "options": "Options"
+    },
     "saveError": "An error occurred while saving the event",
     "unsavedChangesMessageShort": "Are you sure you want to exit without saving changes?",
     "exit": "Exit",
@@ -502,6 +517,13 @@
     },
     "daysHelp": "Select days when this feeding schedule should be active",
     "isActiveHelp": "Toggle to activate or deactivate this schedule",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "days": "Days",
+      "settings": "Settings"
+    },
     "quickSelect": {
       "all": "All Days",
       "weekdays": "Weekdays",
@@ -679,6 +701,12 @@
     "description": "Description",
     "vendor": "Vendor",
     "notes": "Notes",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "petCategory": "Pet & Category",
+      "amount": "Amount",
+      "details": "Details"
+    },
     "thisMonth": "This month",
     "transactions": "Transactions",
     "deleteExpense": "Delete Expense",
@@ -738,6 +766,11 @@
     "activeBudget": "Active Budget",
     "activeBudgetDescription": "Enable budget tracking and alerts",
     "alertThresholdDescription": "Get notified when spending reaches this percentage of your budget",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "amount": "Amount",
+      "alerts": "Alerts"
+    },
     "overallBudget": "Overall Budget",
     "spent": "Spent",
     "limit": "Limit",

@@ -14,6 +14,7 @@ import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
 import { SmartPetPhotoPicker } from './SmartPetPhotoPicker';
+import { StepHeader } from './StepHeader';
 
 interface PetFormProps {
   pet?: Pet;
@@ -105,26 +106,12 @@ export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: Pe
         keyboardShouldPersistTaps="always"
         testID={testID}
       >
-        <View style={styles.stepHeader}>
-          <Text style={[styles.stepTitle, { color: theme.colors.onBackground }]}>
-            {steps[currentStep].title}
-          </Text>
-          <Text style={[styles.stepCounter, { color: theme.colors.onSurfaceVariant }]}>
-            {t('forms.petForm.stepIndicator', { current: currentStep + 1, total: totalSteps })}
-          </Text>
-          <View style={styles.stepDots}>
-            {steps.map((step, index) => (
-              <View
-                key={step.key}
-                style={[
-                  styles.stepDot,
-                  { backgroundColor: theme.colors.primary + '33' },
-                  index === currentStep && { backgroundColor: theme.colors.primary },
-                ]}
-              />
-            ))}
-          </View>
-        </View>
+        <StepHeader
+          title={steps[currentStep].title}
+          counterLabel={t('forms.petForm.stepIndicator', { current: currentStep + 1, total: totalSteps })}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+        />
 
         {/* Form Header */}
         {currentStep === 0 && (
@@ -267,27 +254,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     paddingBottom: 40,
-  },
-  stepHeader: {
-    marginBottom: 16,
-  },
-  stepTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  stepCounter: {
-    fontSize: 13,
-    marginBottom: 12,
-  },
-  stepDots: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  stepDot: {
-    height: 6,
-    width: 24,
-    borderRadius: 3,
   },
   actions: {
     flexDirection: 'row',

@@ -14,7 +14,6 @@ import {
   type HealthRecordCreateFormInput,
 } from '../../lib/schemas/healthRecordSchema';
 import type { HealthRecord } from '../../lib/types';
-import { FormActions } from './FormActions';
 import { FormRow } from './FormRow';
 import { FormSection } from './FormSection';
 import { SmartCurrencyInput } from './SmartCurrencyInput';
@@ -22,6 +21,7 @@ import { SmartDatePicker } from './SmartDatePicker';
 import { SmartInput } from './SmartInput';
 import { SmartSegmentedButtons } from './SmartSegmentedButtons';
 import { PetSelector } from './PetSelector';
+import { StepHeader } from './StepHeader';
 
 interface HealthRecordFormProps {
   petId?: string;
@@ -41,6 +41,8 @@ export function HealthRecordForm({
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showStepError, setShowStepError] = useState(false);
   const createMutation = useCreateHealthRecord();
   const updateMutation = useUpdateHealthRecord();
   const isEditing = !!initialData;
@@ -63,6 +65,8 @@ export function HealthRecordForm({
   // Reset form when modal visibility changes
   React.useEffect(() => {
     if (visible) {
+      setCurrentStep(0);
+      setShowStepError(false);
       if (initialData) {
         reset({
           petId: initialData.petId,
@@ -81,44 +85,56 @@ export function HealthRecordForm({
     }
   }, [visible, initialData, reset, getEmptyFormValues]);
 
-  const onSubmit = async (data: HealthRecordCreateFormInput) => {
-    try {
-      setIsLoading(true);
+  const onSubmit = React.useCallback(
+    async (data: HealthRecordCreateFormInput) => {
+      try {
+        setIsLoading(true);
 
-      const normalizedData: HealthRecordCreateFormInput = {
-        ...data,
-        cost: data.cost ?? undefined,
-      };
+        const normalizedData: HealthRecordCreateFormInput = {
+          ...data,
+          cost: data.cost ?? undefined,
+        };
 
-      // Manual validation based on current type
-      const schema = getHealthRecordSchema(normalizedData.type);
-      const validationResult = schema.safeParse(normalizedData);
+        // Manual validation based on current type
+        const schema = getHealthRecordSchema(normalizedData.type);
+        const validationResult = schema.safeParse(normalizedData);
 
-      if (!validationResult.success) {
-        const formattedErrors = formatValidationErrors(validationResult.error);
-        const errorMessage = formattedErrors.map((err) => err.message).join('\n');
-        Alert.alert(t('forms.validation.error'), errorMessage);
-        return;
+        if (!validationResult.success) {
+          const formattedErrors = formatValidationErrors(validationResult.error);
+          const errorMessage = formattedErrors.map((err) => err.message).join('\n');
+          Alert.alert(t('forms.validation.error'), errorMessage);
+          return;
+        }
+
+        if (isEditing && initialData?._id) {
+          await updateMutation.mutateAsync({
+            _id: initialData._id,
+            data: validationResult.data,
+          });
+        } else {
+          await createMutation.mutateAsync(validationResult.data);
+          reset(getEmptyFormValues());
+        }
+
+        onSuccess?.();
+      } catch (error) {
+        console.error('Health record form error:', error);
+        Alert.alert(t('common.error'), t('healthRecords.saveError'));
+      } finally {
+        setIsLoading(false);
       }
-
-      if (isEditing && initialData?._id) {
-        await updateMutation.mutateAsync({
-          _id: initialData._id,
-          data: validationResult.data,
-        });
-      } else {
-        await createMutation.mutateAsync(validationResult.data);
-        reset(getEmptyFormValues());
-      }
-
-      onSuccess?.();
-    } catch (error) {
-      console.error('Health record form error:', error);
-      Alert.alert(t('common.error'), t('healthRecords.saveError'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [
+      createMutation,
+      getEmptyFormValues,
+      initialData,
+      isEditing,
+      onSuccess,
+      reset,
+      t,
+      updateMutation,
+    ]
+  );
 
   const handleCancel = () => {
     onCancel?.();
@@ -130,6 +146,69 @@ export function HealthRecordForm({
     label: TURKCE_LABELS.HEALTH_RECORD_TYPES[key as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES],
     icon: HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS],
   }));
+
+  const steps = React.useMemo(() => {
+    const stepList = [
+      {
+        key: 'details',
+        title: t('healthRecords.steps.details'),
+        fields: ['type', 'title', 'description'] as (keyof HealthRecordCreateFormInput)[],
+      },
+      {
+        key: 'date',
+        title: t('healthRecords.steps.date'),
+        fields: ['date'] as (keyof HealthRecordCreateFormInput)[],
+      },
+      {
+        key: 'provider',
+        title: t('healthRecords.steps.provider'),
+        fields: ['veterinarian', 'clinic'] as (keyof HealthRecordCreateFormInput)[],
+      },
+      {
+        key: 'costNotes',
+        title: t('healthRecords.steps.costNotes'),
+        fields: ['cost', 'notes'] as (keyof HealthRecordCreateFormInput)[],
+      },
+    ];
+
+    if (!isEditing) {
+      stepList.unshift({
+        key: 'pet',
+        title: t('healthRecords.steps.pet'),
+        fields: ['petId'] as (keyof HealthRecordCreateFormInput)[],
+      });
+    }
+
+    return stepList;
+  }, [t, isEditing]);
+
+  const totalSteps = steps.length;
+  const isFinalStep = currentStep === totalSteps - 1;
+
+  const handleNextStep = React.useCallback(async () => {
+    const isStepValid = await form.trigger(steps[currentStep].fields);
+    if (!isStepValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+  }, [form, steps, currentStep, totalSteps]);
+
+  const handleBackStep = React.useCallback(() => {
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleFinalSubmit = React.useCallback(async () => {
+    const isFormValid = await form.trigger();
+    if (!isFormValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    handleSubmit(onSubmit)();
+  }, [form, handleSubmit, onSubmit]);
 
   return (
     <RNModal
@@ -153,8 +232,14 @@ export function HealthRecordForm({
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
           >
-            {/* Pet Selection */}
-            {!isEditing && (
+            <StepHeader
+              title={steps[currentStep].title}
+              counterLabel={t('healthRecords.stepIndicator', { current: currentStep + 1, total: totalSteps })}
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+            />
+
+            {steps[currentStep].key === 'pet' && (
               <FormSection title={t('healthRecords.petSelection')}>
                 <PetSelector
                   selectedPetId={watch('petId')}
@@ -164,73 +249,118 @@ export function HealthRecordForm({
               </FormSection>
             )}
 
-            {/* Form Header */}
-            <FormSection
-              title={isEditing ? t('healthRecords.editTitle') : t('healthRecords.createTitle')}
-              subtitle={t('healthRecords.createSubtitle')}
-            >
-              {/* Record Type */}
-              <SmartSegmentedButtons
-                name="type"
-                buttons={recordTypeButtons}
-                density="small"
-              />
+            {steps[currentStep].key === 'details' && (
+              <FormSection
+                title={isEditing ? t('healthRecords.editTitle') : t('healthRecords.createTitle')}
+                subtitle={t('healthRecords.createSubtitle')}
+              >
+                {/* Record Type */}
+                <SmartSegmentedButtons
+                  name="type"
+                  buttons={recordTypeButtons}
+                  density="small"
+                />
 
-              {/* Title */}
-              <SmartInput
-                name="title"
-                required
-                placeholder={t('healthRecords.titlePlaceholder')}
-                label={t('healthRecords.titleField')}
-              />
+                {/* Title */}
+                <SmartInput
+                  name="title"
+                  required
+                  placeholder={t('healthRecords.titlePlaceholder')}
+                  label={t('healthRecords.titleField')}
+                />
 
-              {/* Description */}
-              <SmartInput
-                name="description"
-                placeholder={t('healthRecords.descriptionPlaceholder')}
-                label={t('healthRecords.descriptionField')}
-                multiline
-                numberOfLines={3}
-              />
-            </FormSection>
+                {/* Description */}
+                <SmartInput
+                  name="description"
+                  placeholder={t('healthRecords.descriptionPlaceholder')}
+                  label={t('healthRecords.descriptionField')}
+                  multiline
+                  numberOfLines={3}
+                />
+              </FormSection>
+            )}
 
-            {/* Date Information */}
-            <FormSection title={t('common.dateInformation')}>
-              <SmartDatePicker name="date" required label={t('healthRecords.recordDate')} mode="date" />
-            </FormSection>
+            {steps[currentStep].key === 'date' && (
+              <FormSection title={t('common.dateInformation')}>
+                <SmartDatePicker name="date" required label={t('healthRecords.recordDate')} mode="date" />
+              </FormSection>
+            )}
 
-            {/* Veterinarian and Clinic */}
-            <FormSection title={t('healthRecords.veterinarianInfo')}>
-              <FormRow>
-                <SmartInput name="veterinarian" label={t('healthRecords.veterinarianLabel')} placeholder={t('healthRecords.veterinarianPlaceholder')} />
-                <SmartInput name="clinic" label={t('healthRecords.clinicLabel')} placeholder={t('healthRecords.clinicPlaceholder')} />
-              </FormRow>
-            </FormSection>
+            {steps[currentStep].key === 'provider' && (
+              <FormSection title={t('healthRecords.veterinarianInfo')}>
+                <FormRow>
+                  <SmartInput name="veterinarian" label={t('healthRecords.veterinarianLabel')} placeholder={t('healthRecords.veterinarianPlaceholder')} />
+                  <SmartInput name="clinic" label={t('healthRecords.clinicLabel')} placeholder={t('healthRecords.clinicPlaceholder')} />
+                </FormRow>
+              </FormSection>
+            )}
 
-            {/* Cost */}
-            <FormSection title={t('healthRecords.cost')}>
-              <SmartCurrencyInput name="cost" label={t('healthRecords.cost')} placeholder={t('healthRecords.costPlaceholder')} />
-            </FormSection>
+            {steps[currentStep].key === 'costNotes' && (
+              <>
+                <FormSection title={t('healthRecords.cost')}>
+                  <SmartCurrencyInput name="cost" label={t('healthRecords.cost')} placeholder={t('healthRecords.costPlaceholder')} />
+                </FormSection>
 
-            {/* Notes */}
-            <FormSection title={t('common.notes')}>
-              <SmartInput
-                name="notes"
-                placeholder={t('healthRecords.notesPlaceholder')}
-                multiline
-                numberOfLines={4}
-              />
-            </FormSection>
+                <FormSection title={t('common.notes')}>
+                  <SmartInput
+                    name="notes"
+                    placeholder={t('healthRecords.notesPlaceholder')}
+                    multiline
+                    numberOfLines={4}
+                  />
+                </FormSection>
+              </>
+            )}
 
-            {/* Form Actions */}
-            <FormActions
-              onCancel={handleCancel}
-              onSubmit={handleSubmit(onSubmit)}
-              submitLabel={isEditing ? t('common.update') : t('common.save')}
-              cancelLabel={t('common.cancel')}
-              loading={isLoading}
-              showDivider={false}
-            />
+            <View style={styles.actions}>
+              {currentStep === 0 ? (
+                <Button
+                  mode="outlined"
+                  onPress={handleCancel}
+                  disabled={isLoading}
+                  style={styles.actionButton}
+                >
+                  {t('common.cancel')}
+                </Button>
+              ) : (
+                <Button
+                  mode="outlined"
+                  onPress={handleBackStep}
+                  disabled={isLoading}
+                  style={styles.actionButton}
+                >
+                  {t('common.back')}
+                </Button>
+              )}
+              {isFinalStep ? (
+                <Button
+                  mode="contained"
+                  onPress={handleFinalSubmit}
+                  disabled={isLoading}
+                  loading={isLoading}
+                  style={styles.actionButton}
+                >
+                  {isEditing ? t('common.update') : t('common.save')}
+                </Button>
+              ) : (
+                <Button
+                  mode="contained"
+                  onPress={handleNextStep}
+                  disabled={isLoading}
+                  style={styles.actionButton}
+                >
+                  {t('common.next')}
+                </Button>
+              )}
+            </View>
+
+            {!showStepError ? null : (
+              <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
+                <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+                  {t('pets.pleaseFillRequiredFields')}
+                </Text>
+              </View>
+            )}
           </ScrollView>
         </FormProvider>
       </SafeAreaView>
@@ -260,6 +390,24 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 24,
+    paddingBottom: 32,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  statusContainer: {
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  statusText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: 'System',
   },
 });

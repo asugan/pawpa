@@ -1,4 +1,4 @@
-import { Button, TextInput } from '@/components/ui';
+import { Button, Text, TextInput } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
@@ -16,6 +16,7 @@ import { SmartNumberInput } from './forms/SmartNumberInput';
 import { SmartPaymentMethodPicker } from './forms/SmartPaymentMethodPicker';
 import { PetSelector } from './forms/PetSelector';
 import { FormSection } from './forms/FormSection';
+import { StepHeader } from './forms/StepHeader';
 
 interface ExpenseFormProps {
   petId?: string;
@@ -34,6 +35,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const [showStepError, setShowStepError] = React.useState(false);
 
   const defaultValues = {
     petId,
@@ -55,90 +58,161 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const {
     handleSubmit,
     watch,
+    trigger,
   } = methods;
 
-  const handleFormSubmit = (data: ExpenseCreateInput) => {
-    onSubmit(data as CreateExpenseInputType);
-  };
+  const handleFormSubmit = React.useCallback(
+    (data: ExpenseCreateInput) => {
+      onSubmit(data as CreateExpenseInputType);
+    },
+    [onSubmit]
+  );
+
+  const steps = React.useMemo(
+    () => [
+      {
+        key: 'petCategory',
+        title: t('expenses.steps.petCategory'),
+        fields: ['petId', 'category'] as (keyof ExpenseCreateInput)[],
+      },
+      {
+        key: 'amount',
+        title: t('expenses.steps.amount'),
+        fields: ['amount', 'currency', 'paymentMethod'] as (keyof ExpenseCreateInput)[],
+      },
+      {
+        key: 'details',
+        title: t('expenses.steps.details'),
+        fields: ['date', 'description', 'vendor', 'notes'] as (keyof ExpenseCreateInput)[],
+      },
+    ],
+    [t]
+  );
+
+  const totalSteps = steps.length;
+  const isFinalStep = currentStep === totalSteps - 1;
+
+  const handleNextStep = React.useCallback(async () => {
+    const isStepValid = await trigger(steps[currentStep].fields);
+    if (!isStepValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+  }, [trigger, steps, currentStep, totalSteps]);
+
+  const handleBackStep = React.useCallback(() => {
+    setShowStepError(false);
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleFinalSubmit = React.useCallback(async () => {
+    const isFormValid = await trigger();
+    if (!isFormValid) {
+      setShowStepError(true);
+      return;
+    }
+    setShowStepError(false);
+    handleSubmit(handleFormSubmit)();
+  }, [trigger, handleSubmit, handleFormSubmit]);
 
   return (
     <FormProvider {...methods}>
       <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.form}>
-        {/* Pet Selection */}
-        {!initialData && (
-          <FormSection title={t('forms.petSelection', 'Pet Selection')}>
-            <PetSelector
-              selectedPetId={watch('petId')}
-              onPetSelect={(petId) => methods.setValue('petId', petId)}
-              error={methods.formState.errors.petId?.message}
-            />
-          </FormSection>
+        <StepHeader
+          title={steps[currentStep].title}
+          counterLabel={t('expenses.stepIndicator', { current: currentStep + 1, total: totalSteps })}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+        />
+
+        {currentStep === 0 && (
+          <>
+            {/* Pet Selection */}
+            {!initialData && (
+              <FormSection title={t('forms.petSelection', 'Pet Selection')}>
+                <PetSelector
+                  selectedPetId={watch('petId')}
+                  onPetSelect={(petId) => methods.setValue('petId', petId)}
+                  error={methods.formState.errors.petId?.message}
+                />
+              </FormSection>
+            )}
+
+            {/* Category Picker */}
+            <SmartCategoryPicker name="category" />
+          </>
         )}
 
-        {/* Category Picker */}
-        <SmartCategoryPicker name="category" />
+        {currentStep === 1 && (
+          <>
+            {/* Amount */}
+            <SmartNumberInput
+              name="amount"
+              label={t('expenses.amount', 'Amount')}
+              required
+              decimal
+              precision={2}
+              min={0.01}
+              left={<TextInput.Icon icon="cash-outline" />}
+            />
 
-        {/* Amount */}
-        <SmartNumberInput
-          name="amount"
-          label={t('expenses.amount', 'Amount')}
-          required
-          decimal
-          precision={2}
-          min={0.01}
-          left={<TextInput.Icon icon="cash-outline" />}
-        />
+            {/* Currency Picker */}
+            <SmartCurrencyPicker
+              name="currency"
+              label={t('expenses.currency', 'Currency')}
+            />
 
-        {/* Currency Picker */}
-        <SmartCurrencyPicker
-          name="currency"
-          label={t('expenses.currency', 'Currency')}
-        />
+            {/* Payment Method Picker */}
+            <SmartPaymentMethodPicker
+              name="paymentMethod"
+              label={t('expenses.paymentMethod', 'Payment Method')}
+              optional
+            />
+          </>
+        )}
 
-        {/* Payment Method Picker */}
-        <SmartPaymentMethodPicker
-          name="paymentMethod"
-          label={t('expenses.paymentMethod', 'Payment Method')}
-          optional
-        />
+        {currentStep === 2 && (
+          <>
+            {/* Date Picker */}
+            <SmartDatePicker
+              name="date"
+              label={t('expenses.date', 'Date')}
+              mode="date"
+              outputFormat="iso"
+              maximumDate={new Date()}
+            />
 
-        {/* Date Picker */}
-        <SmartDatePicker
-          name="date"
-          label={t('expenses.date', 'Date')}
-          mode="date"
-          outputFormat="iso"
-          maximumDate={new Date()}
-        />
+            {/* Description */}
+            <SmartInput
+              name="description"
+              label={t('expenses.description', 'Description')}
+              multiline
+              numberOfLines={3}
+              left={<TextInput.Icon icon="text" />}
+            />
 
-        {/* Description */}
-        <SmartInput
-          name="description"
-          label={t('expenses.description', 'Description')}
-          multiline
-          numberOfLines={3}
-          left={<TextInput.Icon icon="text" />}
-        />
+            {/* Vendor */}
+            <SmartInput
+              name="vendor"
+              label={t('expenses.vendor', 'Vendor')}
+              left={<TextInput.Icon icon="storefront-outline" />}
+            />
 
-        {/* Vendor */}
-        <SmartInput
-          name="vendor"
-          label={t('expenses.vendor', 'Vendor')}
-          left={<TextInput.Icon icon="storefront-outline" />}
-        />
+            {/* Notes */}
+            <SmartInput
+              name="notes"
+              label={t('expenses.notes', 'Notes')}
+              multiline
+              numberOfLines={3}
+              left={<TextInput.Icon icon="document-text-outline" />}
+            />
+          </>
+        )}
 
-        {/* Notes */}
-        <SmartInput
-          name="notes"
-          label={t('expenses.notes', 'Notes')}
-          multiline
-          numberOfLines={3}
-          left={<TextInput.Icon icon="document-text-outline" />}
-        />
-
-        {/* Action Buttons */}
         <View style={styles.buttonContainer}>
-          {onCancel && (
+          {currentStep === 0 ? (
             <Button
               mode="outlined"
               onPress={onCancel}
@@ -147,16 +221,44 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             >
               {t('common.cancel', 'Cancel')}
             </Button>
+          ) : (
+            <Button
+              mode="outlined"
+              onPress={handleBackStep}
+              style={styles.button}
+              disabled={isSubmitting}
+            >
+              {t('common.back', 'Back')}
+            </Button>
           )}
-          <Button
-            mode="contained"
-            onPress={handleSubmit(handleFormSubmit)}
-            style={styles.button}
-            disabled={isSubmitting}
-          >
-            {initialData ? t('common.update', 'Update') : t('common.create', 'Create')}
-          </Button>
+          {isFinalStep ? (
+            <Button
+              mode="contained"
+              onPress={handleFinalSubmit}
+              style={styles.button}
+              disabled={isSubmitting}
+            >
+              {initialData ? t('common.update', 'Update') : t('common.create', 'Create')}
+            </Button>
+          ) : (
+            <Button
+              mode="contained"
+              onPress={handleNextStep}
+              style={styles.button}
+              disabled={isSubmitting}
+            >
+              {t('common.next', 'Next')}
+            </Button>
+          )}
         </View>
+
+        {!showStepError ? null : (
+          <View style={[styles.statusContainer, { backgroundColor: theme.colors.errorContainer }]}>
+            <Text style={[styles.statusText, { color: theme.colors.onErrorContainer }]}>
+              {t('pets.pleaseFillRequiredFields')}
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </FormProvider>
   );
@@ -184,6 +286,16 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
+  },
+  statusContainer: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 8,
+  },
+  statusText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: 'System',
   },
 });
 
