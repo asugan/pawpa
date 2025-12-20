@@ -180,7 +180,7 @@ export default function CalendarScreen() {
             backgroundColor: theme.colors.primary,
             width: 56,
             height: 56,
-            borderRadius: 18,
+            borderRadius: 28,
           }}
           onPress={handleAddEvent}
           testID="calendar-add-event-fab"

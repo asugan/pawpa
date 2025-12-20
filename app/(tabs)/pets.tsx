@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    bottom: LAYOUT.TAB_BAR_HEIGHT + 8,
+    bottom: 0,
   },
   snackbar: {
     marginBottom: 16,

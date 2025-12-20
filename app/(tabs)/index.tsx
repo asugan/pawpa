@@ -138,12 +138,6 @@ export default function HomeScreen() {
           <HealthOverview healthRecords={data.allHealthRecords || []} />
         </ScrollView>
 
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/pets")}
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
       </SafeAreaView>
     </ProtectedRoute>
   );
@@ -174,20 +168,5 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-  },
-  fab: {
-    position: "absolute",
-    bottom: 24,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
   },
 });
