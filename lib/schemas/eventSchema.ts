@@ -57,6 +57,36 @@ export const eventFormSchema = z.object({
     .string()
     .optional()
     .transform(val => val?.trim() || undefined),
+
+  vaccineName: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  vaccineManufacturer: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  batchNumber: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  medicationName: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  dosage: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
+
+  frequency: z
+    .string()
+    .optional()
+    .transform(val => val?.trim() || undefined),
 }).superRefine((data, ctx) => {
   // Validate end time is provided completely if either endDate or endTime is provided
   if ((data.endDate && !data.endTime) || (!data.endDate && data.endTime)) {
@@ -119,6 +149,38 @@ export const eventFormSchema = z.object({
       });
     }
   }
+
+  if (data.type === EVENT_TYPES.VACCINATION && !data.vaccineName) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Aşı adı zorunludur',
+      path: ['vaccineName']
+    });
+  }
+
+  if (data.type === EVENT_TYPES.MEDICATION) {
+    if (!data.medicationName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'İlaç adı zorunludur',
+        path: ['medicationName']
+      });
+    }
+    if (!data.dosage) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Doz bilgisi zorunludur',
+        path: ['dosage']
+      });
+    }
+    if (!data.frequency) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Kullanım sıklığı zorunludur',
+        path: ['frequency']
+      });
+    }
+  }
 });
 
 // Type inference from the form schema
@@ -138,8 +200,9 @@ export const eventSchema = z.object({
   petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
 
   type: z
-    .string()
-    .min(1, 'Etkinlik türü zorunludur'),
+    .enum(Object.values(EVENT_TYPES) as [string, ...string[]], {
+      errorMap: () => ({ message: 'Geçerli bir etkinlik türü seçiniz' })
+    }),
 
   startTime: z
     .union([z.string(), z.date()])
@@ -194,6 +257,13 @@ export const eventSchema = z.object({
   notes: z
     .string()
     .optional(),
+
+  vaccineName: z.string().optional(),
+  vaccineManufacturer: z.string().optional(),
+  batchNumber: z.string().optional(),
+  medicationName: z.string().optional(),
+  dosage: z.string().optional(),
+  frequency: z.string().optional(),
 });
 
 // Full Event schema including server-side fields
@@ -218,6 +288,12 @@ export const updateEventSchema = z.object({
   location: z.string().max(200).nullable().optional(),
   reminder: z.boolean().optional(),
   notes: z.string().max(1000).nullable().optional(),
+  vaccineName: z.string().max(100).nullable().optional(),
+  vaccineManufacturer: z.string().max(100).nullable().optional(),
+  batchNumber: z.string().max(50).nullable().optional(),
+  medicationName: z.string().max(100).nullable().optional(),
+  dosage: z.string().max(50).nullable().optional(),
+  frequency: z.string().max(100).nullable().optional(),
 });
 
 export type UpdateEventFormData = z.infer<typeof updateEventSchema>;

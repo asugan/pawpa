@@ -108,28 +108,14 @@ export function usePrefetchData() {
     });
   };
 
-  const prefetchUpcomingVaccinations = () => {
-    queryClient.prefetchQuery({
-      queryKey: healthRecordKeys.upcoming(),
-      queryFn: () =>
-        unwrapApiResponse(
-          import('@/lib/services/healthRecordService').then(m =>
-            m.healthRecordService.getUpcomingRecords()
-          ),
-          { defaultValue: [] }
-        ),
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    });
-  };
-
   // Smart prefetching based on user context
   const prefetchForPetDetailsView = (petId: string) => {
     prefetchRelatedData(petId);
-    prefetchUpcomingVaccinations();
+    prefetchUpcomingEvents();
   };
 
   const prefetchForHealthTab = () => {
-    prefetchUpcomingVaccinations();
+    prefetchUpcomingEvents();
     prefetchTodayEvents();
   };
 
@@ -159,7 +145,6 @@ export function usePrefetchData() {
     prefetchUpcomingEvents,
     prefetchTodayEvents,
     prefetchActiveFeedingSchedules,
-    prefetchUpcomingVaccinations,
     prefetchForPetDetailsView,
     prefetchForHealthTab,
     prefetchForCalendarTab,

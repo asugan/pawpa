@@ -200,6 +200,56 @@ export function EventForm({
           />
         </FormSection>
 
+        {eventType === 'vaccination' && (
+          <FormSection title={t('events.vaccinationInfo')}>
+            <SmartInput
+              name="vaccineName"
+              required
+              placeholder={t('events.vaccineNamePlaceholder')}
+              label={t('events.vaccineName')}
+              testID={`${testID}-vaccine-name`}
+            />
+            <SmartInput
+              name="vaccineManufacturer"
+              placeholder={t('events.vaccineManufacturerPlaceholder')}
+              label={t('events.vaccineManufacturer')}
+              testID={`${testID}-vaccine-manufacturer`}
+            />
+            <SmartInput
+              name="batchNumber"
+              placeholder={t('events.batchNumberPlaceholder')}
+              label={t('events.batchNumber')}
+              testID={`${testID}-batch-number`}
+            />
+          </FormSection>
+        )}
+
+        {eventType === 'medication' && (
+          <FormSection title={t('events.medicationInfo')}>
+            <SmartInput
+              name="medicationName"
+              required
+              placeholder={t('events.medicationNamePlaceholder')}
+              label={t('events.medicationName')}
+              testID={`${testID}-medication-name`}
+            />
+            <SmartInput
+              name="dosage"
+              required
+              placeholder={t('events.dosagePlaceholder')}
+              label={t('events.dosage')}
+              testID={`${testID}-dosage`}
+            />
+            <SmartInput
+              name="frequency"
+              required
+              placeholder={t('events.frequencyPlaceholder')}
+              label={t('events.frequency')}
+              testID={`${testID}-frequency`}
+            />
+          </FormSection>
+        )}
+
         {/* DateTime & Location */}
         <FormSection title={t('common.dateTime')}>
           {/* Start DateTime */}

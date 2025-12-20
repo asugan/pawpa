@@ -1,12 +1,12 @@
 import { useAuth } from "@/lib/auth";
 import { useUserBudgetStatus } from "@/lib/hooks/useUserBudget";
-import { useTodayEvents } from "@/lib/hooks/useEvents";
+import { useTodayEvents, useUpcomingEvents } from "@/lib/hooks/useEvents";
 import { useExpenseStats } from "@/lib/hooks/useExpenses";
-import { useAllPetsHealthRecords, useUpcomingVaccinations } from "@/lib/hooks/useHealthRecords";
+import { useAllPetsHealthRecords } from "@/lib/hooks/useHealthRecords";
 import { usePets } from "@/lib/hooks/usePets";
 import { useRecentExpenses } from "@/lib/hooks/useRecentExpenses";
 import { useResponsiveSize } from "@/lib/hooks/useResponsiveSize";
-import { UserBudgetStatus, Event, HealthRecord } from "@/lib/types";
+import { Event } from "@/lib/types";
 
 export const useHomeData = () => {
   const { user } = useAuth();
@@ -20,8 +20,8 @@ export const useHomeData = () => {
     refetch: refetchPets,
   } = usePets();
   const { data: todayEvents, isLoading: eventsLoading } = useTodayEvents();
-  const { data: upcomingVaccinations, isLoading: vaccinationsLoading } =
-    useUpcomingVaccinations();
+  const { data: upcomingEvents, isLoading: upcomingEventsLoading } =
+    useUpcomingEvents();
   const { data: expenseStats } = useExpenseStats();
   const { data: budgetStatus } = useUserBudgetStatus();
   const { data: recentExpenses, isLoading: recentExpensesLoading } =
@@ -37,10 +37,14 @@ export const useHomeData = () => {
   const expensePercentage =
     monthlyBudget > 0 ? (monthlyExpense / monthlyBudget) * 100 : 0;
 
+  const upcomingVaccinations = (upcomingEvents || []).filter(
+    (event) => event.type === "vaccination"
+  );
+
   const isLoading =
     petsLoading ||
     eventsLoading ||
-    vaccinationsLoading ||
+    upcomingEventsLoading ||
     recentExpensesLoading;
 
   return {
@@ -75,9 +79,9 @@ export const getPetUpcomingEvents = (petId: string, events?: Event[]) => {
 
 export const getPetUpcomingVaccinations = (
   petId: string,
-  vaccinations?: HealthRecord[]
+  events?: Event[]
 ) => {
-  if (!vaccinations) return 0;
-  return vaccinations.filter((vaccination) => vaccination.petId === petId)
+  if (!events) return 0;
+  return events.filter((event) => event.petId === petId && event.type === "vaccination")
     .length;
 };

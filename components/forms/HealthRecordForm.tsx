@@ -48,10 +48,6 @@ export function HealthRecordForm({
   // Use the custom hook for form management
   const { form, handleSubmit, reset, watch } = useHealthRecordForm(petId || '', initialData);
 
-  // Watch form values for conditional rendering
-  const watchedType = watch('type');
-  const hasNextDueDate = watchedType === 'vaccination';
-
   const getEmptyFormValues = React.useCallback((): HealthRecordCreateFormInput => ({
     petId: petId || '',
     type: 'checkup',
@@ -62,15 +58,6 @@ export function HealthRecordForm({
     clinic: '',
     cost: undefined,
     notes: '',
-    nextDueDate: undefined,
-    vaccineName: '',
-    vaccineManufacturer: '',
-    batchNumber: '',
-    medicationName: '',
-    dosage: '',
-    frequency: '',
-    startDate: undefined,
-    endDate: undefined,
   }), [petId]);
 
   // Reset form when modal visibility changes
@@ -87,15 +74,6 @@ export function HealthRecordForm({
           clinic: initialData.clinic || '',
           cost: initialData.cost || undefined,
           notes: initialData.notes || '',
-          nextDueDate: initialData.nextDueDate || undefined,
-          vaccineName: initialData.vaccineName || '',
-          vaccineManufacturer: initialData.vaccineManufacturer || '',
-          batchNumber: initialData.batchNumber || '',
-          medicationName: initialData.medicationName || '',
-          dosage: initialData.dosage || '',
-          frequency: initialData.frequency || '',
-          startDate: initialData.startDate || undefined,
-          endDate: initialData.endDate || undefined,
         } as HealthRecordCreateFormInput);
       } else {
         reset(getEmptyFormValues());
@@ -205,48 +183,7 @@ export function HealthRecordForm({
                   {/* Date Information */}
                   <FormSection title={t('common.dateInformation')}>
                     <SmartDatePicker name="date" required label={t('healthRecords.recordDate')} mode="date" />
-
-                    {hasNextDueDate && (
-                      <SmartDatePicker
-                        name="nextDueDate"
-                        label={t('healthRecords.nextAppointmentDate')}
-                        mode="date"
-                      />
-                    )}
                   </FormSection>
-
-                  {/* Vaccination Specific Fields */}
-                  {watchedType === 'vaccination' && (
-                    <FormSection title={t('healthRecords.vaccinationInfo')}>
-                      <SmartInput name="vaccineName" required label={t('healthRecords.vaccinationNameLabel')} placeholder={t('healthRecords.vaccinationNameLabel')} />
-                      <SmartInput
-                        name="vaccineManufacturer"
-                        label={t('healthRecords.manufacturerLabel')}
-                        placeholder={t('healthRecords.manufacturerPlaceholder')}
-                      />
-                      <SmartInput name="batchNumber" label={t('healthRecords.batchNumberLabel')} placeholder={t('healthRecords.batchNumberPlaceholder')} />
-                    </FormSection>
-                  )}
-
-                  {/* Medication Specific Fields */}
-                  {watchedType === 'medication' && (
-                    <FormSection title={t('healthRecords.medicationInfo')}>
-                      <SmartInput
-                        name="medicationName"
-                        required
-                        label={t('healthRecords.medicationName')}
-                        placeholder={t('healthRecords.medicationNamePlaceholder')}
-                      />
-                      <FormRow>
-                        <SmartInput name="dosage" label={t('healthRecords.dosageLabel')} placeholder={t('healthRecords.dosagePlaceholder')} />
-                        <SmartInput name="frequency" label={t('healthRecords.frequencyLabel')} placeholder={t('healthRecords.frequencyPlaceholder')} />
-                      </FormRow>
-                      <FormRow>
-                        <SmartDatePicker name="startDate" label={t('healthRecords.start')} mode="date" />
-                        <SmartDatePicker name="endDate" label={t('healthRecords.end')} mode="date" />
-                      </FormRow>
-                    </FormSection>
-                  )}
 
                   {/* Veterinarian and Clinic */}
                   <FormSection title={t('healthRecords.veterinarianInfo')}>

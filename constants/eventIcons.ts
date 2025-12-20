@@ -1,4 +1,3 @@
-import { EVENT_TYPES } from './index';
 import { TranslationFunction } from '@/lib/types';
 
 // Event Type Icons
@@ -11,6 +10,8 @@ export const EVENT_TYPE_ICONS = {
   vet_visit: 'hospital',
   walk: 'walk',
   bath: 'water',
+  vaccination: 'needle',
+  medication: 'pill',
   other: 'calendar',
 } as const;
 
@@ -38,6 +39,8 @@ export const EVENT_TYPE_DEFAULT_DURATIONS = {
   vet_visit: 120,
   walk: 30,
   bath: 45,
+  vaccination: 30,
+  medication: 30,
   other: 60,
 } as const;
 
@@ -51,5 +54,7 @@ export const EVENT_TYPE_DEFAULT_REMINDERS = {
   vet_visit: 1440, // 24 hours
   walk: 15,
   bath: 30,
+  vaccination: 1440, // 24 hours
+  medication: 60,
   other: 60,
 } as const;

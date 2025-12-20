@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePrefetchData } from './usePrefetchData';
-import { healthRecordKeys } from './useHealthRecords';
 import { eventKeys } from './useEvents';
 import { feedingScheduleKeys } from './useFeedingSchedules';
 import { unwrapApiResponse } from './core/unwrapApiResponse';
@@ -83,13 +82,13 @@ export function useSmartPrefetching() {
           break;
 
         case 'healthTabFocus':
-          // Prefetch upcoming vaccinations and today's events
+          // Prefetch upcoming events and today's events
           queryClient.prefetchQuery({
-            queryKey: healthRecordKeys.upcoming(),
+            queryKey: eventKeys.upcoming(),
             queryFn: () =>
               unwrapApiResponse(
-                import('@/lib/services/healthRecordService').then(m =>
-                  m.healthRecordService.getUpcomingRecords()
+                import('@/lib/services/eventService').then(m =>
+                  m.eventService.getUpcomingEvents()
                 ),
                 { defaultValue: [] }
               ),

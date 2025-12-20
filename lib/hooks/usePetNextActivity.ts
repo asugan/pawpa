@@ -1,5 +1,4 @@
 import { useEvents } from './useEvents';
-import { useHealthRecords } from './useHealthRecords';
 import { useActiveFeedingSchedulesByPet } from './useFeedingSchedules';
 import { useDeviceLanguage } from './useDeviceLanguage';
 import { useMemo } from 'react';
@@ -24,7 +23,6 @@ export const usePetNextActivity = (petId: string): UsePetNextActivityReturn => {
 
   // Get data from all relevant sources with optimized caching
   const { data: events = [], isLoading: isLoadingEvents, error: eventsError } = useEvents(petId);
-  const { data: healthRecords = [], isLoading: isLoadingHealth, error: healthError } = useHealthRecords(petId);
   const { data: feedingSchedules = [], isLoading: isLoadingFeeding, error: feedingError } = useActiveFeedingSchedulesByPet(petId);
 
   // Calculate next activity using deep memoization to prevent unnecessary re-calculations
@@ -34,21 +32,20 @@ export const usePetNextActivity = (petId: string): UsePetNextActivityReturn => {
 
     return getNextActivityForPet({
       events,
-      healthRecords,
       feedingSchedules,
       locale: currentLanguage
     });
-  }, [petId, events, healthRecords, feedingSchedules, currentLanguage]);
+  }, [petId, events, feedingSchedules, currentLanguage]);
 
   // Combine loading states with optimized checking
   const isLoading = useMemo(() => {
-    return isLoadingEvents || isLoadingHealth || isLoadingFeeding;
-  }, [isLoadingEvents, isLoadingHealth, isLoadingFeeding]);
+    return isLoadingEvents || isLoadingFeeding;
+  }, [isLoadingEvents, isLoadingFeeding]);
 
   // Combine errors with stable error handling
   const error = useMemo(() => {
-    return (eventsError || healthError || feedingError) as Error | null;
-  }, [eventsError, healthError, feedingError]);
+    return (eventsError || feedingError) as Error | null;
+  }, [eventsError, feedingError]);
 
   return {
     nextActivity,

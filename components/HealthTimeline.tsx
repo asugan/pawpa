@@ -22,7 +22,6 @@ interface TimelineItem {
   date: string;
   status?: 'upcoming' | 'completed' | 'cancelled' | 'missed';
   severity: TimelineSeverity;
-  nextDueDate?: string | null;
   petId?: string;
 }
 
@@ -32,8 +31,6 @@ interface HealthTimelineProps {
   pets: Pet[];
   loading?: boolean;
 }
-
-const UPCOMING_THRESHOLD_DAYS = 7;
 
 const HealthTimeline: React.FC<HealthTimelineProps> = ({
   events,
@@ -78,16 +75,6 @@ const HealthTimeline: React.FC<HealthTimelineProps> = ({
     [getEventStatus]
   );
 
-  const getHealthSeverity = (record: HealthRecord): TimelineSeverity => {
-    if (!record.nextDueDate) return 'low';
-
-    const dueDate = new Date(record.nextDueDate);
-    if (dueDate < new Date()) return 'high';
-
-    const daysUntil = (dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-    return daysUntil <= UPCOMING_THRESHOLD_DAYS ? 'medium' : 'low';
-  };
-
   const timelineItems: TimelineItem[] = useMemo(() => {
     const eventItems = events.map<TimelineItem>((event) => ({
       id: event._id,
@@ -107,8 +94,7 @@ const HealthTimeline: React.FC<HealthTimelineProps> = ({
       subtitle: t(`health.types.${record.type}`, record.type),
       date: record.date,
       status: 'completed',
-      severity: getHealthSeverity(record),
-      nextDueDate: record.nextDueDate,
+      severity: 'low',
       petId: record.petId,
     }));
 
@@ -131,7 +117,7 @@ const HealthTimeline: React.FC<HealthTimelineProps> = ({
   const lastVetVisit = useMemo(() => {
     const vetDates: Date[] = [];
     healthRecords.forEach((record) => {
-      if (['vaccination', 'checkup', 'surgery'].includes(record.type)) {
+      if (['visit', 'checkup', 'surgery', 'dental'].includes(record.type)) {
         vetDates.push(new Date(record.date));
       }
     });
@@ -188,11 +174,6 @@ const HealthTimeline: React.FC<HealthTimelineProps> = ({
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
             {formattedDate}
           </Text>
-          {item.nextDueDate && (
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('healthRecords.nextDue', 'Next due')}: {format(new Date(item.nextDueDate), 'dd MMM', { locale })}
-            </Text>
-          )}
         </View>
       </Card>
     );

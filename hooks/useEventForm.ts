@@ -49,6 +49,12 @@ export const useEventForm = (event?: Event, initialPetId?: string): UseEventForm
       reminder: event?.reminder ?? false,
       reminderPreset: presetSelection ?? 'standard',
       notes: event?.notes || undefined,
+      vaccineName: event?.vaccineName || undefined,
+      vaccineManufacturer: event?.vaccineManufacturer || undefined,
+      batchNumber: event?.batchNumber || undefined,
+      medicationName: event?.medicationName || undefined,
+      dosage: event?.dosage || undefined,
+      frequency: event?.frequency || undefined,
     };
   }, [event, initialPetId, presetSelections]);
 

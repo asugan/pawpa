@@ -41,9 +41,9 @@ const getAgeText = (birthDate: string | undefined, t: (key: string) => string) =
 const getActivityLabel = (activity: NextActivity, t: (key: string) => string) => {
   switch (activity.type) {
     case 'vaccination':
-      return t('healthRecordTypes.vaccination');
+      return t('eventTypes.vaccination');
     case 'medication':
-      return t('healthRecordTypes.medication');
+      return t('eventTypes.medication');
     case 'vet':
       return t('eventTypes.vetVisit');
     case 'feeding':

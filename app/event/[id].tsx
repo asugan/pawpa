@@ -122,6 +122,12 @@ export default function EventDetailScreen() {
         location: event.location,
         reminder: event.reminder,
         notes: event.notes,
+        vaccineName: event.vaccineName,
+        vaccineManufacturer: event.vaccineManufacturer,
+        batchNumber: event.batchNumber,
+        medicationName: event.medicationName,
+        dosage: event.dosage,
+        frequency: event.frequency,
         reminderPresetKey: event._id ? presetSelections[event._id] : undefined,
       };
       await createEventMutation.mutateAsync(duplicatedEvent);
@@ -283,7 +289,9 @@ ${t('events.sharedFrom')} PawPa
                    eventTypeIcon === 'school' ? '🎓' :
                    eventTypeIcon === 'hospital' ? '🏥' :
                    eventTypeIcon === 'walk' ? '🚶' :
-                   eventTypeIcon === 'water' ? '🛁' : '📅'}
+                   eventTypeIcon === 'water' ? '🛁' :
+                   eventTypeIcon === 'needle' ? '💉' :
+                   eventTypeIcon === 'pill' ? '💊' : '📅'}
                 </Text>
               </View>
               <View style={styles.eventTypeInfo}>
@@ -400,6 +408,58 @@ ${t('events.sharedFrom')} PawPa
               <Text variant="bodyMedium" style={[styles.reminderText, { color: theme.colors.onSurfaceVariant }]}>
                 {t('events.reminderEnabled')}
               </Text>
+            </View>
+          </Card>
+        )}
+
+        {event.type === 'vaccination' && (event.vaccineName || event.vaccineManufacturer || event.batchNumber) && (
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+            <View style={styles.cardContent}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                💉 {t('events.vaccinationInfo')}
+              </Text>
+
+              {event.vaccineName && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.vaccineName')}: {event.vaccineName}
+                </Text>
+              )}
+              {event.vaccineManufacturer && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.vaccineManufacturer')}: {event.vaccineManufacturer}
+                </Text>
+              )}
+              {event.batchNumber && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.batchNumber')}: {event.batchNumber}
+                </Text>
+              )}
+            </View>
+          </Card>
+        )}
+
+        {event.type === 'medication' && (event.medicationName || event.dosage || event.frequency) && (
+          <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+            <View style={styles.cardContent}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                💊 {t('events.medicationInfo')}
+              </Text>
+
+              {event.medicationName && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.medicationName')}: {event.medicationName}
+                </Text>
+              )}
+              {event.dosage && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.dosage')}: {event.dosage}
+                </Text>
+              )}
+              {event.frequency && (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {t('events.frequency')}: {event.frequency}
+                </Text>
+              )}
             </View>
           </Card>
         )}

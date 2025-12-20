@@ -16,6 +16,8 @@ export const getEventColor = (eventType: string, theme: Theme): string => {
     vet_visit: 'eventVetVisit',
     walk: 'eventWalk',
     bath: 'eventBath',
+    vaccination: 'eventVaccination',
+    medication: 'eventMedication',
     other: 'eventOther',
   };
 

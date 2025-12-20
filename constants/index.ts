@@ -26,9 +26,8 @@ export const PET_GENDERS = {
 
 // Health Record Types
 export const HEALTH_RECORD_TYPES = {
-  VACCINATION: 'vaccination',
   CHECKUP: 'checkup',
-  MEDICATION: 'medication',
+  VISIT: 'visit',
   SURGERY: 'surgery',
   DENTAL: 'dental',
   GROOMING: 'grooming',
@@ -45,6 +44,8 @@ export const EVENT_TYPES = {
   VET_VISIT: 'vet_visit',
   WALK: 'walk',
   BATH: 'bath',
+  VACCINATION: 'vaccination',
+  MEDICATION: 'medication',
   OTHER: 'other',
 } as const;
 
@@ -73,9 +74,8 @@ export const FOOD_TYPES = {
 // Turkish Labels (fallback for development)
 export const TURKCE_LABELS = {
   HEALTH_RECORD_TYPES: {
-    vaccination: 'Aşı',
     checkup: 'Kontrol',
-    medication: 'İlaç',
+    visit: 'Ziyaret',
     surgery: 'Cerrahi',
     dental: 'Diş',
     grooming: 'Bakım',
@@ -107,9 +107,8 @@ export const TURKCE_LABELS = {
 
 // Health Record Type Icons
 export const HEALTH_RECORD_ICONS = {
-  vaccination: 'needle',
   checkup: 'stethoscope',
-  medication: 'pill',
+  visit: 'hospital',
   surgery: 'hospital',
   dental: 'tooth',
   grooming: 'content-cut',
@@ -118,9 +117,8 @@ export const HEALTH_RECORD_ICONS = {
 
 // Health Record Colors (Rainbow Pastel Theme)
 export const HEALTH_RECORD_COLORS = {
-  vaccination: '#FF6B6B', // Soft Red
   checkup: '#4ECDC4',   // Mint Green
-  medication: '#45B7D1', // Sky Blue
+  visit: '#FF9F1C',     // Warm Orange
   surgery: '#96CEB4',   // Sage Green
   dental: '#FFEAA7',    // Light Yellow
   grooming: '#DDA0DD',  // Plum
