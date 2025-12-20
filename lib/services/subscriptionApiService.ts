@@ -112,7 +112,9 @@ export class SubscriptionApiService {
    * This is the main method - use this for all status checks
    * Implements request deduplication to prevent duplicate calls
    */
-  async getSubscriptionStatus(): Promise<ApiResponse<SubscriptionStatus>> {
+  async getSubscriptionStatus(
+    options?: { bypassCache?: boolean }
+  ): Promise<ApiResponse<SubscriptionStatus>> {
     const deviceId = await getDeviceId();
     const sessionCookie = authClient.getCookie();
     const sessionKey = sessionCookie ? hashString(sessionCookie) : null;
@@ -145,7 +147,7 @@ export class SubscriptionApiService {
       }
     };
 
-    if (!cacheKey) {
+    if (options?.bypassCache || !cacheKey) {
       return requestFactory();
     }
 

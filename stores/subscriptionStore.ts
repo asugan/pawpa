@@ -33,7 +33,7 @@ export interface SubscriptionState {
  */
 export interface SubscriptionActions {
   // Status management (from backend)
-  fetchSubscriptionStatus: () => Promise<boolean>;
+  fetchSubscriptionStatus: (options?: { bypassCache?: boolean }) => Promise<boolean>;
 
   // Trial management
   startTrial: () => Promise<boolean>;
@@ -120,10 +120,10 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     clearStatusError: () => set({ statusError: null, statusErrorCode: null }),
 
     // Fetch unified subscription status from backend
-    fetchSubscriptionStatus: async () => {
+    fetchSubscriptionStatus: async (options) => {
       set({ isStatusLoading: true, statusError: null, statusErrorCode: null });
       try {
-        const response = await subscriptionApiService.getSubscriptionStatus();
+        const response = await subscriptionApiService.getSubscriptionStatus(options);
         if (response.success && response.data) {
           set({ subscriptionStatus: response.data, isStatusLoading: false });
           console.log('[Subscription] Status fetched:', response.data);

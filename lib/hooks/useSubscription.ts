@@ -232,7 +232,7 @@ export function useSubscription(): UseSubscriptionReturn {
 
             // Poll for backend status update (webhook processing)
             await pollForSubscriptionUpdate(
-              () => fetchSubscriptionStatus(),
+              () => fetchSubscriptionStatus({ bypassCache: true }),
               () => hasActiveSubscription()
             );
             return true;
@@ -293,7 +293,7 @@ export function useSubscription(): UseSubscriptionReturn {
 
         // Poll for backend status update
         await pollForSubscriptionUpdate(
-          () => fetchSubscriptionStatus(),
+          () => fetchSubscriptionStatus({ bypassCache: true }),
           () => hasActiveSubscription()
         );
         return true;
@@ -384,7 +384,7 @@ export function useSubscription(): UseSubscriptionReturn {
       if (hasEntitlement) {
         // Poll for backend status update
         await pollForSubscriptionUpdate(
-          () => fetchSubscriptionStatus(),
+          () => fetchSubscriptionStatus({ bypassCache: true }),
           () => hasActiveSubscription()
         );
 
@@ -435,7 +435,7 @@ export function useSubscription(): UseSubscriptionReturn {
           console.log("[Subscription] Purchase successful");
           // Poll for backend status update
           await pollForSubscriptionUpdate(
-            () => fetchSubscriptionStatus(),
+            () => fetchSubscriptionStatus({ bypassCache: true }),
             () => hasActiveSubscription()
           );
           return true;
@@ -556,7 +556,7 @@ export function useSubscription(): UseSubscriptionReturn {
     lastRequestTimeRef.current = now;
 
     try {
-      const success = await fetchSubscriptionStatus();
+      const success = await fetchSubscriptionStatus({ bypassCache: true });
       if (success) {
         // Success - reset retry counter
         retryCountRef.current = 0;
@@ -586,7 +586,7 @@ export function useSubscription(): UseSubscriptionReturn {
     retryCountRef.current = 0;
     lastRequestTimeRef.current = 0;
 
-    await fetchSubscriptionStatus();
+    await fetchSubscriptionStatus({ bypassCache: true });
   }, [fetchSubscriptionStatus]);
 
   /**
