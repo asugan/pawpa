@@ -16,21 +16,6 @@ const validateHealthDate = (dateString: string) => {
   return date <= now && date >= minDate;
 };
 
-const validateNextDueDate = (nextDueDateString: string, healthDateString: string) => {
-  const nextDueDate = new Date(nextDueDateString);
-  const healthDate = new Date(healthDateString);
-  if (isNaN(nextDueDate.getTime()) || isNaN(healthDate.getTime())) return false;
-  return nextDueDate > healthDate;
-};
-
-const isFutureLocalDate = (dateString: string) => {
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false;
-  const today = new Date();
-  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  return dateOnly > todayOnly;
-};
 
 const validateVeterinarianName = (name: string | undefined) => {
   if (!name || name.trim() === '') return true; // Optional field
@@ -42,15 +27,10 @@ const validateClinicName = (name: string | undefined) => {
   return TURKISH_CLINIC_REGEX.test(name.trim());
 };
 
-const validateCost = (cost: number) => {
-  return cost >= 0 && cost <= 50000; // Reasonable cost limits
-};
-
 // Health record type enum for Zod
 const HealthRecordTypeEnum = z.enum([
-  'vaccination',
   'checkup',
-  'medication',
+  'visit',
   'surgery',
   'dental',
   'grooming',
@@ -128,29 +108,6 @@ const BaseHealthRecordSchema = z.object({
     .max(2000, 'Notlar en fazla 2000 karakter olabilir')
     .optional()
     .transform(val => val?.trim() || undefined),
-
-  nextDueDate: z
-    .union([z.string(), z.date()])
-    .optional()
-    .nullable()
-    .transform((val): string | null | undefined => {
-      if (!val) return val;
-      // If it's a Date object, convert to UTC ISO
-      if (val instanceof Date) {
-        return toUTCWithOffset(val);
-      }
-      // If it's a string without timezone info, convert to UTC
-      if (typeof val === 'string') {
-        if (!val.endsWith('Z') && !val.includes('+')) {
-          return toUTCWithOffset(new Date(val));
-        }
-        return val;
-      }
-      throw new Error('Invalid date type');
-    })
-    .refine((val) => !val || isValidUTCISOString(val), {
-      message: 'Sonraki tarih geçersiz format. UTC formatında olmalı'
-    }),
 });
 
 // Base schema for form input (before transformation)
@@ -161,7 +118,7 @@ const BaseHealthRecordFormSchema = z.object({
     .max(100, 'Başlık en fazla 100 karakter olabilir')
     .regex(/^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/, 'Başlık geçersiz karakterler içeriyor'),
 
-  type: z.enum(['medication', 'other', 'vaccination', 'grooming', 'checkup', 'surgery', 'dental'] as const),
+  type: z.enum(['visit', 'other', 'grooming', 'checkup', 'surgery', 'dental'] as const),
 
   date: z
     .union([z.string(), z.date()])
@@ -215,244 +172,27 @@ const BaseHealthRecordFormSchema = z.object({
     .max(2000, 'Notlar en fazla 2000 karakter olabilir')
     .optional()
     .transform(val => val?.trim() || undefined),
-
-  nextDueDate: z
-    .union([z.string(), z.date()])
-    .optional()
-    .nullable()
-    .refine((val) => {
-      if (!val) return true;
-      if (val instanceof Date) return !isNaN(val.getTime());
-      if (typeof val === 'string') {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      }
-      return false;
-    }, {
-      message: 'Geçerli bir tarih giriniz'
-    }),
-
-  // Vaccination specific fields (kept for resolver to preserve values)
-  vaccineName: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  vaccineManufacturer: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  batchNumber: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-
-  // Medication specific fields (kept for resolver to preserve values)
-  medicationName: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  dosage: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  frequency: z
-    .string()
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  startDate: z
-    .union([z.string(), z.date()])
-    .optional(),
-  endDate: z
-    .union([z.string(), z.date()])
-    .optional(),
 });
 
 // Schema for form input (before transformation)
-export const HealthRecordCreateFormSchema = BaseHealthRecordFormSchema.refine(
-  (data) => {
-    // If nextDueDate is provided, it must be after the health record date
-    if (data.nextDueDate && data.date) {
-      const recordDate = data.date instanceof Date ? data.date : new Date(data.date);
-      const dueDate = data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate);
-      return validateNextDueDate(dueDate.toISOString(), recordDate.toISOString());
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki tarih sağlık kaydından önce olamaz',
-    path: ["nextDueDate"]
-  }
-);
+export const HealthRecordCreateFormSchema = BaseHealthRecordFormSchema;
 
 // Schema for updating an existing health record form (before transformation)
-export const HealthRecordUpdateFormSchema = BaseHealthRecordFormSchema.partial().refine(
-  (data) => {
-    // If both dates are provided, nextDueDate must be after date
-    if (data.nextDueDate && data.date) {
-      const recordDate = data.date instanceof Date ? data.date : new Date(data.date);
-      const dueDate = data.nextDueDate instanceof Date ? data.nextDueDate : new Date(data.nextDueDate);
-      return validateNextDueDate(dueDate.toISOString(), recordDate.toISOString());
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki tarih sağlık kaydından önce olamaz',
-    path: ["nextDueDate"]
-  }
-);
+export const HealthRecordUpdateFormSchema = BaseHealthRecordFormSchema.partial();
 
 // Full HealthRecord schema including server-side fields
 export const HealthRecordSchema = BaseHealthRecordSchema.extend({
   _id: objectIdSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-  // Add specific fields as optional to match the broad HealthRecord type
-  vaccineName: z.string().optional(),
-  vaccineManufacturer: z.string().optional(),
-  batchNumber: z.string().optional(),
-  medicationName: z.string().optional(),
-  dosage: z.string().optional(),
-  frequency: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
 });
 
 // Schema for creating a new health record
-export const HealthRecordCreateSchema = BaseHealthRecordSchema.refine(
-  (data) => {
-    // If nextDueDate is provided, it must be after the health record date
-    if (data.nextDueDate && data.date) {
-      return validateNextDueDate(data.nextDueDate, data.date);
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki tarih sağlık kaydından önce olamaz',
-    path: ["nextDueDate"]
-  }
-).refine(
-  (data) => {
-    // For vaccination records, nextDueDate is highly recommended
-    if (data.type === 'vaccination' && !data.nextDueDate) {
-      // This is a soft validation - we don't make it required but we could add a warning
-      return true;
-    }
-    return true;
-  },
-  {
-    message: 'Aşılar için sonraki tarih önerilir',
-    path: ["nextDueDate"]
-  }
-);
+export const HealthRecordCreateSchema = BaseHealthRecordSchema;
 
 // Schema for updating an existing health record (all fields optional)
 // Note: ID is handled separately in the mutation function, not in the schema
-export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial().refine(
-  (data) => {
-    // If both dates are provided, nextDueDate must be after date
-    if (data.nextDueDate && data.date) {
-      return validateNextDueDate(data.nextDueDate, data.date);
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki tarih sağlık kaydından önce olamaz',
-    path: ["nextDueDate"]
-  }
-);
-
-// Schema for vaccination-specific validation
-export const VaccinationSchema = BaseHealthRecordSchema.extend({
-  type: z.literal('vaccination'),
-  vaccineName: z
-    .string()
-    .min(2, 'Aşı adı en az 2 karakter olmalı')
-    .max(100, 'Aşı adı en fazla 100 karakter olabilir')
-    .transform(val => val.trim()),
-  vaccineManufacturer: z
-    .string()
-    .max(100, 'Üretici adı en fazla 100 karakter olabilir')
-    .optional()
-    .transform(val => val?.trim() || undefined),
-  batchNumber: z
-    .string()
-    .max(50, 'Parti numarası en fazla 50 karakter olabilir')
-    .optional()
-    .transform(val => val?.trim() || undefined),
-}).refine(
-  (data) => {
-    // For vaccination records, nextDueDate is required
-    if (!data.nextDueDate) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki aşı tarihi zorunludur',
-    path: ["nextDueDate"]
-  }
-).refine(
-  (data) => {
-    // For vaccination records, nextDueDate must be in the future
-    if (data.nextDueDate) {
-      return isFutureLocalDate(data.nextDueDate);
-    }
-    return true;
-  },
-  {
-    message: 'Sonraki aşı tarihi gelecekte olmalı',
-    path: ["nextDueDate"]
-  }
-).refine(
-  (data) => {
-    return validateNextDueDate(data.nextDueDate!, data.date);
-  },
-  {
-    message: 'Sonraki aşı tarihi sağlık kaydından sonra olmalı',
-    path: ["nextDueDate"]
-  }
-);
-
-// Schema for medication-specific validation
-export const MedicationSchema = BaseHealthRecordSchema.extend({
-  type: z.literal('medication'),
-  medicationName: z
-    .string()
-    .min(2, 'İlaç adı en az 2 karakter olmalı')
-    .max(100, 'İlaç adı en fazla 100 karakter olabilir')
-    .transform(val => val.trim()),
-  dosage: z
-    .string()
-    .min(1, 'Doz bilgisi zorunludur')
-    .max(50, 'Doz bilgisi en fazla 50 karakter olabilir')
-    .transform(val => val.trim()),
-  frequency: z
-    .string()
-    .min(1, 'Kullanım sıklığı zorunludur')
-    .max(100, 'Kullanım sıklığı en fazla 100 karakter olabilir')
-    .transform(val => val.trim()),
-  startDate: z
-    .string()
-    .datetime('Geçersiz tarih formatı')
-    .optional(),
-  endDate: z
-    .string()
-    .datetime('Geçersiz tarih formatı')
-    .optional(),
-}).superRefine((data, ctx) => {
-  // Validate that end date is after start date
-  if (data.startDate && data.endDate) {
-    const startDate = new Date(data.startDate);
-    const endDate = new Date(data.endDate);
-    if (endDate <= startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Bitiş tarihi başlangıç tarihinden sonra olmalı',
-        path: ['endDate']
-      });
-    }
-  }
-});
+export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial();
 
 // Type exports for TypeScript
 export type HealthRecord = z.infer<typeof HealthRecordSchema>;
@@ -460,8 +200,6 @@ export type HealthRecordCreateInput = z.infer<typeof HealthRecordCreateSchema>;
 export type HealthRecordUpdateInput = z.infer<typeof HealthRecordUpdateSchema>;
 export type HealthRecordCreateFormInput = z.infer<typeof HealthRecordCreateFormSchema>;
 export type HealthRecordUpdateFormInput = z.infer<typeof HealthRecordUpdateFormSchema>;
-export type VaccinationInput = z.infer<typeof VaccinationSchema>;
-export type MedicationInput = z.infer<typeof MedicationSchema>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -547,13 +285,12 @@ export const TurkishHealthValidations = {
 };
 
 // Type union for health record types
-type HealthRecordType = 'vaccination' | 'checkup' | 'medication' | 'surgery' | 'dental' | 'grooming' | 'other';
+type HealthRecordType = 'checkup' | 'visit' | 'surgery' | 'dental' | 'grooming' | 'other';
 
 // Health record type-specific validation schemas
 export const HealthRecordTypeSchemas = {
-  vaccination: VaccinationSchema,
-  medication: MedicationSchema,
   checkup: HealthRecordCreateSchema,
+  visit: HealthRecordCreateSchema,
   surgery: HealthRecordCreateSchema,
   dental: HealthRecordCreateSchema,
   grooming: HealthRecordCreateSchema,

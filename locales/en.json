@@ -32,8 +32,7 @@
     "care": "Care",
     "calendar": "Calendar",
     "finance": "Finance",
-    "settings": "Settings",
-    "emergency": "Emergency"
+    "settings": "Settings"
   },
   "home": {
     "title": "Your Pet Health Assistant",
@@ -67,31 +66,10 @@
     "budget": "Budget",
     "expenses": "Expenses"
   },
-  "emergency": {
-    "title": "Emergency",
-    "subtitle": "Offline-ready profile, vet contacts, quick actions.",
-    "choosePet": "Choose pet",
-    "stale": "Data older than 24h. Refresh or update manually.",
-    "healthProfile": "Health profile",
-    "allergies": "Allergies",
-    "conditions": "Chronic conditions",
-    "medications": "Medications",
-    "notes": "Notes",
-    "vetInfo": "Vet contact",
-    "vetName": "Vet name",
-    "vetPhone": "Vet phone",
-    "vetAddress": "Clinic address",
-    "callVet": "Call vet",
-    "openMaps": "Open maps",
-    "saved": "Emergency info saved",
-    "noVetPhone": "No vet phone set",
-    "noAddress": "No address set"
-  },
   "care": {
     "title": "Care",
     "health": "Health",
-    "feeding": "Feeding",
-    "timeline": "Timeline"
+    "feeding": "Feeding"
   },
   "pets": {
     "myPets": "My Pets",
@@ -145,7 +123,6 @@
   },
   "health": {
     "healthRecords": "Health Records",
-    "vaccinationRecord": "Vaccination Record",
     "view": "View",
     "noRecords": "No health records yet",
     "petNameDate": "Pet Name • Date",
@@ -162,9 +139,8 @@
     "noRecordsMessage": "No health record added yet",
     "addFirstRecord": "Add First Health Record",
     "types": {
-      "vaccination": "Vaccination",
       "checkup": "Checkup",
-      "medication": "Medication",
+      "visit": "Visit",
       "surgery": "Surgery",
       "dental": "Dental",
       "grooming": "Grooming",
@@ -183,53 +159,29 @@
     "veterinarian": "Veterinarian",
     "clinic": "Clinic",
     "cost": "Cost",
-    "vaccinationInfo": "Vaccination Information",
-    "vaccineName": "Vaccine Name",
-    "vaccineManufacturer": "Vaccine Manufacturer",
-    "batchNumber": "Batch Number",
-    "nextVaccinationDate": "Next Vaccination Date",
-    "medicationInfo": "Medication Information",
-    "medicationName": "Medication Name",
-    "dosage": "Dose",
-    "frequency": "Frequency",
-    "startDate": "Start Date",
-    "endDate": "End Date",
     "createTitle": "New Health Record",
     "editTitle": "Edit Health Record",
     "createSubtitle": "Manage your pet's health records",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "date": "Date",
+      "provider": "Provider",
+      "costNotes": "Cost & Notes"
+    },
     "saveError": "An error occurred while saving the health record",
     "titleField": "Title",
     "titlePlaceholder": "Record title",
     "descriptionField": "Description",
     "descriptionPlaceholder": "Description (optional)",
     "recordDate": "Record Date",
-    "nextAppointmentDate": "Next Appointment Date",
-    "nextDue": "Next due date",
-    "vaccinationNameLabel": "Vaccine Name",
-    "manufacturerLabel": "Manufacturer",
-    "manufacturerPlaceholder": "Manufacturing company",
-    "batchNumberLabel": "Lot Number",
-    "batchNumberPlaceholder": "Lot number",
-    "medicationNamePlaceholder": "Medication name",
-    "dosageLabel": "Dose",
-    "dosagePlaceholder": "Dosage amount",
-    "frequencyLabel": "Frequency",
-    "frequencyPlaceholder": "Usage frequency",
-    "start": "Start",
-    "end": "End",
     "veterinarianLabel": "Veterinarian",
     "veterinarianPlaceholder": "Veterinarian name",
     "clinicLabel": "Clinic",
     "clinicPlaceholder": "Clinic name",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Additional notes"
-  },
-  "healthTimeline": {
-    "overdue": "Overdue",
-    "lastVetVisit": "Last vet visit",
-    "noVetVisit": "No vet visit yet",
-    "emptyTitle": "No timeline yet",
-    "emptyDescription": "Add an event or health record to get started"
   },
   "calendar": {
     "calendar": "Calendar",
@@ -290,6 +242,20 @@
     "titlePlaceholder": "Event title",
     "typePlaceholder": "Select event type",
     "descriptionPlaceholder": "Event description (optional)",
+    "vaccinationInfo": "Vaccination Information",
+    "vaccineName": "Vaccine Name",
+    "vaccineNamePlaceholder": "Vaccine name",
+    "vaccineManufacturer": "Manufacturer",
+    "vaccineManufacturerPlaceholder": "Manufacturer name",
+    "batchNumber": "Batch Number",
+    "batchNumberPlaceholder": "Batch number",
+    "medicationInfo": "Medication Information",
+    "medicationName": "Medication Name",
+    "medicationNamePlaceholder": "Medication name",
+    "dosage": "Dosage",
+    "dosagePlaceholder": "Dosage amount",
+    "frequency": "Frequency",
+    "frequencyPlaceholder": "Usage frequency",
     "startTime": "Start Time",
     "endTime": "End Time (optional)",
     "locationField": "Location",
@@ -297,6 +263,13 @@
     "enableReminder": "Enable Reminder",
     "reminderDescription": "Get notified before the event",
     "notesPlaceholder": "Write your additional notes here",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "schedule": "Schedule",
+      "options": "Options"
+    },
     "saveError": "An error occurred while saving the event",
     "unsavedChangesMessageShort": "Are you sure you want to exit without saving changes?",
     "exit": "Exit",
@@ -310,6 +283,8 @@
     "suggestions": {
       "feeding": "Regular feeding times are important for pet health. Adjust portions based on food type.",
       "vetVisit": "Vet visits are essential for maintaining pet health. Don't forget regular checkups.",
+      "vaccination": "Vaccinations help keep your pet protected. Schedule reminders ahead of time.",
+      "medication": "Medication schedules work best with consistent timing and dosage notes.",
       "exercise": "Regular exercise is important for your pet's physical and mental health. Choose age-appropriate activities.",
       "grooming": "Regular grooming is necessary for your pet's cleanliness and health. Don't forget fur, nail and dental care.",
       "play": "Playtime is a great way to bond with your pet and get exercise.",
@@ -424,6 +399,8 @@
     "edit": "Edit",
     "share": "Share",
     "goBack": "Go Back",
+    "back": "Back",
+    "next": "Next",
     "created": "Created",
     "updated": "Updated",
     "create": "Create",
@@ -470,9 +447,8 @@
     "other": "Other"
   },
   "healthRecordTypes": {
-    "vaccination": "Vaccination",
     "checkup": "Checkup",
-    "medication": "Medication",
+    "visit": "Visit",
     "surgery": "Surgery",
     "dental": "Dental",
     "grooming": "Grooming",
@@ -488,6 +464,8 @@
     "vet_visit": "Vet Visit",
     "walk": "Walk",
     "bath": "Bath",
+    "vaccination": "Vaccination",
+    "medication": "Medication",
     "other": "Other"
   },
   "days": {
@@ -539,6 +517,13 @@
     },
     "daysHelp": "Select days when this feeding schedule should be active",
     "isActiveHelp": "Toggle to activate or deactivate this schedule",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Details",
+      "days": "Days",
+      "settings": "Settings"
+    },
     "quickSelect": {
       "all": "All Days",
       "weekdays": "Weekdays",
@@ -599,6 +584,12 @@
       "weightPlaceholder": "Enter weight (optional)",
       "selectType": "Select pet type",
       "selectGender": "Select gender (optional)",
+      "stepIndicator": "Step {{current}} of {{total}}",
+      "steps": {
+        "basicInfo": "Basic Information",
+        "physicalDetails": "Physical Details",
+        "photo": "Photo"
+      },
       "sections": {
         "physicalDetails": "Physical Details",
         "photo": "Photo"
@@ -710,6 +701,12 @@
     "description": "Description",
     "vendor": "Vendor",
     "notes": "Notes",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "petCategory": "Pet & Category",
+      "amount": "Amount",
+      "details": "Details"
+    },
     "thisMonth": "This month",
     "transactions": "Transactions",
     "deleteExpense": "Delete Expense",
@@ -769,6 +766,11 @@
     "activeBudget": "Active Budget",
     "activeBudgetDescription": "Enable budget tracking and alerts",
     "alertThresholdDescription": "Get notified when spending reaches this percentage of your budget",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "steps": {
+      "amount": "Amount",
+      "alerts": "Alerts"
+    },
     "overallBudget": "Overall Budget",
     "spent": "Spent",
     "limit": "Limit",

@@ -4,6 +4,7 @@ import { petService } from '../services/petService';
 import type { CreateExpenseInput, Expense, ExpenseStats, MonthlyExpense, YearlyExpense, UpdateExpenseInput } from '../types';
 import { CACHE_TIMES } from '../config/queryConfig';
 import { useCreateResource, useDeleteResource, useUpdateResource } from './useCrud';
+import { userBudgetKeys } from './useUserBudget';
 import { createQueryKeys } from './core/createQueryKeys';
 import { useResource } from './core/useResource';
 import { useResources } from './core/useResources';
@@ -190,6 +191,8 @@ export function useCreateExpense() {
       listQueryKey: expenseKeys.all, // Ideally should be more specific but existing code invalidated 'all'
       onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.status() });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.summary() });
       },
       onSettled: () => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.all });
@@ -209,6 +212,8 @@ export function useUpdateExpense() {
       detailQueryKey: expenseKeys.detail,
       onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.byPet(data.petId) });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.status() });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.summary() });
       },
       onSettled: (data) => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.all });
@@ -231,6 +236,8 @@ export function useDeleteExpense() {
       detailQueryKey: expenseKeys.detail,
       onSettled: () => {
         queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.status() });
+        queryClient.invalidateQueries({ queryKey: userBudgetKeys.summary() });
       }
     }
   );

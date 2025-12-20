@@ -32,6 +32,11 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
+        headerTitleContainerStyle: {
+          left: 0,
+          right: 0,
+          width: '100%',
+        },
         sceneStyle: {
           backgroundColor: theme.colors.background,
         },
@@ -85,16 +90,6 @@ export default function TabLayout() {
             <MaterialCommunityIcons name="wallet" size={size} color={color} />
           ),
           headerTitle: () => <CustomTabHeader pageTitle={t('finance.title')} />,
-        }}
-      />
-      <Tabs.Screen
-        name="emergency"
-        options={{
-          title: t('navigation.emergency', 'Emergency'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="shield-plus" size={size} color={color} />
-          ),
-          headerTitle: () => <CustomTabHeader pageTitle={t('navigation.emergency', 'Emergency')} />,
         }}
       />
       <Tabs.Screen

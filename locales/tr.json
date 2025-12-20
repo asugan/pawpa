@@ -32,8 +32,7 @@
     "care": "Bakım",
     "calendar": "Takvim",
     "finance": "Finans",
-    "settings": "Ayarlar",
-    "emergency": "Acil"
+    "settings": "Ayarlar"
   },
   "home": {
     "title": "Evcil Dostlarınızın Sağlık Asistanı",
@@ -67,31 +66,10 @@
     "budget": "Bütçe",
     "expenses": "Harcamalar"
   },
-  "emergency": {
-    "title": "Acil",
-    "subtitle": "Çevrimdışı profil, veteriner iletişim ve hızlı aksiyonlar.",
-    "choosePet": "Pet seç",
-    "stale": "Veri 24 saatten eski. Yenileyin veya manuel güncelleyin.",
-    "healthProfile": "Sağlık profili",
-    "allergies": "Alerjiler",
-    "conditions": "Kronik durumlar",
-    "medications": "İlaçlar",
-    "notes": "Notlar",
-    "vetInfo": "Veteriner iletişim",
-    "vetName": "Veteriner adı",
-    "vetPhone": "Veteriner telefonu",
-    "vetAddress": "Klinik adresi",
-    "callVet": "Veterineri ara",
-    "openMaps": "Haritayı aç",
-    "saved": "Acil bilgiler kaydedildi",
-    "noVetPhone": "Veteriner telefonu girilmemiş",
-    "noAddress": "Adres girilmemiş"
-  },
   "care": {
     "title": "Bakım",
     "health": "Sağlık",
-    "feeding": "Besleme",
-    "timeline": "Zaman Akışı"
+    "feeding": "Besleme"
   },
   "pets": {
     "myPets": "Evcil Dostlarım",
@@ -145,7 +123,6 @@
   },
   "health": {
     "healthRecords": "Sağlık Kayıtları",
-    "vaccinationRecord": "Aşı Kaydı",
     "view": "Görüntüle",
     "noRecords": "Henüz sağlık kaydı yok",
     "petNameDate": "Pet Adı • Tarih",
@@ -162,9 +139,8 @@
     "noRecordsMessage": "Henüz sağlık kaydı eklenmemiş",
     "addFirstRecord": "İlk Sağlık Kaydını Ekle",
     "types": {
-      "vaccination": "Aşı",
       "checkup": "Kontrol",
-      "medication": "İlaç",
+      "visit": "Ziyaret",
       "surgery": "Cerrahi",
       "dental": "Diş",
       "grooming": "Bakım",
@@ -183,53 +159,29 @@
     "veterinarian": "Veteriner",
     "clinic": "Klinik",
     "cost": "Maliyet",
-    "vaccinationInfo": "Aşı Bilgileri",
-    "vaccineName": "Aşı Adı",
-    "vaccineManufacturer": "Aşı Üreticisi",
-    "batchNumber": "Parti Numarası",
-    "nextVaccinationDate": "Sonraki Aşı Tarihi",
-    "medicationInfo": "İlaç Bilgileri",
-    "medicationName": "İlaç Adı",
-    "dosage": "Doz",
-    "frequency": "Sıklık",
-    "startDate": "Başlangıç Tarihi",
-    "endDate": "Bitiş Tarihi",
     "createTitle": "Yeni Sağlık Kaydı",
     "editTitle": "Sağlık Kaydını Düzenle",
     "createSubtitle": "Evcil hayvanınızın sağlık kayıtlarını yönetin",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Pet",
+      "details": "Detaylar",
+      "date": "Tarih",
+      "provider": "Veteriner",
+      "costNotes": "Ücret ve Notlar"
+    },
     "saveError": "Sağlık kaydı kaydedilirken bir hata oluştu",
     "titleField": "Başlık",
     "titlePlaceholder": "Kayıt başlığı",
     "descriptionField": "Açıklama",
     "descriptionPlaceholder": "Açıklama (opsiyonel)",
     "recordDate": "Kayıt Tarihi",
-    "nextAppointmentDate": "Sonraki Randevu Tarihi",
-    "nextDue": "Sonraki tarih",
-    "vaccinationNameLabel": "Aşı Adı",
-    "manufacturerLabel": "Üretici",
-    "manufacturerPlaceholder": "Üretici firma",
-    "batchNumberLabel": "Lot Numarası",
-    "batchNumberPlaceholder": "Lot numarası",
-    "medicationNamePlaceholder": "İlaç adı",
-    "dosageLabel": "Doz",
-    "dosagePlaceholder": "Doz miktarı",
-    "frequencyLabel": "Sıklık",
-    "frequencyPlaceholder": "Kullanım sıklığı",
-    "start": "Başlangıç",
-    "end": "Bitiş",
     "veterinarianLabel": "Veteriner",
     "veterinarianPlaceholder": "Veteriner adı",
     "clinicLabel": "Klinik",
     "clinicPlaceholder": "Klinik adı",
     "costPlaceholder": "0.00",
     "notesPlaceholder": "Ek notlar"
-  },
-  "healthTimeline": {
-    "overdue": "Geciken",
-    "lastVetVisit": "Son veteriner ziyareti",
-    "noVetVisit": "Henüz veteriner ziyareti yok",
-    "emptyTitle": "Henüz zaman akışı yok",
-    "emptyDescription": "Başlamak için bir etkinlik veya sağlık kaydı ekleyin"
   },
   "calendar": {
     "calendar": "Takvim",
@@ -290,6 +242,20 @@
     "titlePlaceholder": "Etkinlik başlığı",
     "typePlaceholder": "Etkinlik türü seçin",
     "descriptionPlaceholder": "Etkinlik açıklaması (opsiyonel)",
+    "vaccinationInfo": "Aşı Bilgileri",
+    "vaccineName": "Aşı Adı",
+    "vaccineNamePlaceholder": "Aşı adı",
+    "vaccineManufacturer": "Üretici",
+    "vaccineManufacturerPlaceholder": "Üretici firma",
+    "batchNumber": "Lot Numarası",
+    "batchNumberPlaceholder": "Lot numarası",
+    "medicationInfo": "İlaç Bilgileri",
+    "medicationName": "İlaç Adı",
+    "medicationNamePlaceholder": "İlaç adı",
+    "dosage": "Doz",
+    "dosagePlaceholder": "Doz miktarı",
+    "frequency": "Sıklık",
+    "frequencyPlaceholder": "Kullanım sıklığı",
     "startTime": "Başlangıç Zamanı",
     "endTime": "Bitiş Zamanı (opsiyonel)",
     "locationField": "Konum",
@@ -297,6 +263,13 @@
     "enableReminder": "Hatırlatıcı Etkinleştir",
     "reminderDescription": "Etkinlikten önce bildirim alın",
     "notesPlaceholder": "Ek notlarınızı buraya yazın",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Evcil Hayvan",
+      "details": "Detaylar",
+      "schedule": "Zamanlama",
+      "options": "Seçenekler"
+    },
     "saveError": "Etkinlik kaydedilirken bir hata oluştu",
     "unsavedChangesMessageShort": "Değişiklikleri kaydetmeden çıkmak istiyor musunuz?",
     "exit": "Çık",
@@ -310,6 +283,8 @@
     "suggestions": {
       "feeding": "Düzenli besleme zamanları pet sağlığı için önemlidir. Mama türüne göre porsiyonları ayarlayın.",
       "vetVisit": "Veteriner ziyaretleri pet sağlığının korunması için gereklidir. Düzenli kontrolleri unutmayın.",
+      "vaccination": "Aşılar petinizi korur. Hatırlatıcıları önceden planlayın.",
+      "medication": "İlaç kullanımında düzenli zamanlama ve doz notları faydalıdır.",
       "exercise": "Düzenli egzersiz petin fiziksel ve mental sağlığı için önemlidir. Yaşa uygun aktiviteler seçin.",
       "grooming": "Düzenli bakım petin temizliği ve sağlığı için gereklidir. Tüy, tırnak ve diş bakımını unutmayın.",
       "play": "Oyun zamanı petinizle bağ kurmanın ve egzersiz yapmanın harika bir yoludur.",
@@ -424,6 +399,8 @@
     "edit": "Düzenle",
     "share": "Paylaş",
     "goBack": "Geri Dön",
+    "back": "Geri",
+    "next": "İleri",
     "created": "Oluşturulma",
     "updated": "Güncellenme",
     "create": "Oluştur",
@@ -470,9 +447,8 @@
     "other": "Diğer"
   },
   "healthRecordTypes": {
-    "vaccination": "Aşı",
     "checkup": "Kontrol",
-    "medication": "İlaç",
+    "visit": "Ziyaret",
     "surgery": "Ameliyat",
     "dental": "Diş",
     "grooming": "Bakım",
@@ -488,6 +464,8 @@
     "vet_visit": "Veteriner",
     "walk": "Yürüyüş",
     "bath": "Banyo",
+    "vaccination": "Aşı",
+    "medication": "İlaç",
     "other": "Diğer"
   },
   "days": {
@@ -539,6 +517,13 @@
     },
     "daysHelp": "Bu besleme programının aktif olacağı günleri seçin",
     "isActiveHelp": "Bu programı aktif veya pasif hale getirmek için değiştirin",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "pet": "Evcil Dost",
+      "details": "Detaylar",
+      "days": "Günler",
+      "settings": "Ayarlar"
+    },
     "quickSelect": {
       "all": "Tüm Günler",
       "weekdays": "Hafta İçi",
@@ -599,6 +584,12 @@
       "weightPlaceholder": "Kilo girin (opsiyonel)",
       "selectType": "Pet türünü seçin",
       "selectGender": "Cinsiyet seçin (opsiyonel)",
+      "stepIndicator": "Adım {{current}} / {{total}}",
+      "steps": {
+        "basicInfo": "Temel Bilgiler",
+        "physicalDetails": "Fiziksel Bilgiler",
+        "photo": "Fotoğraf"
+      },
       "sections": {
         "physicalDetails": "Fiziksel Bilgiler",
         "photo": "Fotoğraf"
@@ -710,6 +701,12 @@
     "description": "Açıklama",
     "vendor": "Satıcı",
     "notes": "Notlar",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "petCategory": "Evcil Hayvan ve Kategori",
+      "amount": "Tutar",
+      "details": "Detaylar"
+    },
     "thisMonth": "Bu ay",
     "transactions": "İşlem",
     "deleteExpense": "Harcamayı Sil",
@@ -769,6 +766,11 @@
     "activeBudget": "Aktif Bütçe",
     "activeBudgetDescription": "Bütçe takibini ve uyarıları etkinleştirin",
     "alertThresholdDescription": "Harcamalarınız bütçenizin bu yüzdeine ulaştığında bildirim alın",
+    "stepIndicator": "Adım {{current}} / {{total}}",
+    "steps": {
+      "amount": "Tutar",
+      "alerts": "Uyarılar"
+    },
     "overallBudget": "Genel Bütçe",
     "spent": "Harcanan",
     "limit": "Limit",

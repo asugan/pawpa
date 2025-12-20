@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, SegmentedButtons, FAB, Chip, IconButton, Card } from '@/components/ui';
+import React, { useMemo, useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, SegmentedButtons, FAB, Chip, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { usePets } from '../../lib/hooks/usePets';
 import { useHealthRecords } from '../../lib/hooks/useHealthRecords';
 import {
-  useTodayFeedingSchedules,
+  useAllFeedingSchedules,
   useDeleteFeedingSchedule,
   useToggleFeedingSchedule,
 } from '../../lib/hooks/useFeedingSchedules';
@@ -16,14 +17,13 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
 import { FeedingScheduleModal } from '../../components/FeedingScheduleModal';
-import { TURKCE_LABELS, HEALTH_RECORD_COLORS, LAYOUT } from '../../constants';
+import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, LAYOUT } from '../../constants';
 import type { HealthRecord, FeedingSchedule } from '../../lib/types';
 import { ProtectedRoute } from '@/components/subscription';
 import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
-import { useAllEvents, useEvents } from '@/lib/hooks/useEvents';
-import HealthTimelineComponent from '@/components/HealthTimeline';
 
-type CareTabValue = 'health' | 'feeding' | 'timeline';
+
+type CareTabValue = 'health' | 'feeding';
 
 export default function CareScreen() {
   const { theme } = useTheme();
@@ -43,6 +43,13 @@ export default function CareScreen() {
   // Get pets for selection
   const { data: pets = [], isLoading: petsLoading } = usePets();
 
+  const petNameById = useMemo(() => {
+    return pets.reduce<Record<string, string>>((acc, pet) => {
+      acc[pet._id] = pet.name;
+      return acc;
+    }, {});
+  }, [pets]);
+
   // Health data
   const {
     data: healthRecords = [],
@@ -51,14 +58,8 @@ export default function CareScreen() {
     refetch: refetchHealth
   } = useHealthRecords(selectedPetId);
 
-  // Events for timeline
-  const { data: eventsByPet = [], isLoading: eventsByPetLoading } = useEvents(selectedPetId || '');
-  const { data: allEvents = [], isLoading: allEventsLoading } = useAllEvents();
-  const timelineEvents = selectedPetId ? eventsByPet : allEvents;
-  const eventsLoading = selectedPetId ? eventsByPetLoading : allEventsLoading;
-
   // Feeding data
-  const { data: todaySchedules = [], isLoading: feedingLoading } = useTodayFeedingSchedules();
+  const { data: feedingSchedulesAll = [], isLoading: feedingLoading } = useAllFeedingSchedules();
   
   // Mutations
   const deleteScheduleMutation = useDeleteFeedingSchedule();
@@ -67,8 +68,10 @@ export default function CareScreen() {
   // Filter health records by type (all records since we removed type filter)
   const filteredHealthRecords = healthRecords;
 
-  // Filter feeding schedules by selected pet (all schedules since we removed pet filter)
-  const feedingSchedules = todaySchedules;
+  // Filter feeding schedules by selected pet
+  const feedingSchedules = selectedPetId
+    ? feedingSchedulesAll.filter((schedule) => schedule.petId === selectedPetId)
+    : feedingSchedulesAll;
 
   // Health handlers
   const handleAddHealthRecord = () => {
@@ -184,36 +187,80 @@ export default function CareScreen() {
     return (
       <View style={styles.listContainer}>
         {filteredHealthRecords.map((record: HealthRecord) => (
-          <Card key={record._id} style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.cardContent}>
-              <View style={styles.cardInfo}>
-                <View style={styles.titleRow}>
-                  <View style={[styles.typeIndicator, { backgroundColor: HEALTH_RECORD_COLORS[record.type as keyof typeof HEALTH_RECORD_COLORS] || '#A8A8A8' }]} />
+          <View
+            key={record._id}
+            style={[styles.healthCard, { backgroundColor: theme.colors.surface }]}
+          >
+            <View
+              style={[
+                styles.healthAccent,
+                {
+                  backgroundColor:
+                    HEALTH_RECORD_COLORS[record.type as keyof typeof HEALTH_RECORD_COLORS] ||
+                    theme.colors.outline,
+                },
+              ]}
+            />
+            <View style={styles.healthContent}>
+              <View style={styles.healthHeader}>
+                <View style={styles.healthTitleRow}>
+                  <View
+                    style={[
+                      styles.healthIconWrapper,
+                      {
+                        backgroundColor: `${
+                          HEALTH_RECORD_COLORS[
+                            record.type as keyof typeof HEALTH_RECORD_COLORS
+                          ] || theme.colors.outline
+                        }1A`,
+                      },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name={
+                        HEALTH_RECORD_ICONS[
+                          record.type as keyof typeof HEALTH_RECORD_ICONS
+                        ] || 'medical-bag'
+                      }
+                      size={18}
+                      color={
+                        HEALTH_RECORD_COLORS[
+                          record.type as keyof typeof HEALTH_RECORD_COLORS
+                        ] || theme.colors.outline
+                      }
+                    />
+                  </View>
                   <Text variant="titleMedium" style={{ color: theme.colors.onSurface, flex: 1 }}>
                     {record.title}
                   </Text>
                 </View>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                  {TURKCE_LABELS.HEALTH_RECORD_TYPES[record.type as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES]}
-                </Text>
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
-                  {new Date(record.date).toLocaleDateString('tr-TR')}
-                </Text>
-                {record.veterinarian && (
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
-                    Dr. {record.veterinarian}
-                  </Text>
-                )}
-              </View>
-              <View style={styles.actionButtons}>
                 <IconButton
                   icon="pencil"
-                  size={20}
+                  size={18}
+                  iconColor={theme.colors.onSurfaceVariant}
                   onPress={() => handleEditRecord(record)}
                 />
               </View>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {TURKCE_LABELS.HEALTH_RECORD_TYPES[record.type as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES]}
+              </Text>
+              <View style={[styles.healthDatePill, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <MaterialCommunityIcons
+                  name="calendar-blank"
+                  size={14}
+                  color={theme.colors.onSurfaceVariant}
+                />
+                <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {new Date(record.date).toLocaleDateString('tr-TR')}
+                </Text>
+              </View>
+              {record.veterinarian && (
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  Dr. {record.veterinarian}
+                </Text>
+              )}
             </View>
-          </Card>
+          </View>
         ))}
       </View>
     );
@@ -246,45 +293,16 @@ export default function CareScreen() {
             onToggleActive={handleToggleActive}
             showPetInfo={true}
             showActions
+            petName={petNameById[schedule.petId]}
           />
         ))}
       </View>
     );
   };
 
-  const renderTimelineContent = () => {
-    if (petsLoading) {
-      return <LoadingSpinner />;
-    }
-
-    if (pets.length === 0) {
-      return (
-        <EmptyState
-          title={t('health.noPets')}
-          description={t('health.addPetFirstToViewRecords')}
-          icon="dog"
-        />
-      );
-    }
-
-    return (
-      <HealthTimelineComponent
-        events={timelineEvents || []}
-        healthRecords={healthRecords}
-        pets={pets}
-        loading={healthLoading || eventsLoading}
-      />
-    );
-  };
-
   return (
     <ProtectedRoute featureName={t('subscription.features.healthRecords')}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-            {t('care.title')}
-          </Text>
-        </View>
 
         <View style={styles.segmentedContainer}>
           <SegmentedButtons
@@ -300,28 +318,31 @@ export default function CareScreen() {
                 value: 'feeding', 
                 label: t('care.feeding'),
                 icon: 'food'
-              },
-              {
-                value: 'timeline',
-                label: t('care.timeline', 'Timeline'),
-                icon: 'timeline-text'
               }
             ]}
-            style={styles.segmentedButtons}
+            density="small"
+            style={StyleSheet.flatten([
+              styles.segmentedButtons,
+              { backgroundColor: theme.colors.surface, borderColor: theme.colors.surfaceVariant },
+            ])}
           />
         </View>
 
-        {/* Pet selector for health */}
-        {activeTab !== 'feeding' && pets.length > 0 && (
+        {/* Pet selector */}
+        {pets.length > 0 && (
           <View style={styles.petSelector}>
-            <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
+            <Text
+              variant="labelSmall"
+              style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
+            >
               {t('health.selectPet')}
             </Text>
             <View style={styles.petChips}>
               <Chip
                 selected={!selectedPetId}
                 onPress={() => setSelectedPetId(undefined)}
-                textStyle={{ fontSize: 12 }}
+                textStyle={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
+                style={styles.petChip}
               >
                 {t('common.all')}
               </Chip>
@@ -330,7 +351,9 @@ export default function CareScreen() {
                   key={pet._id}
                   selected={selectedPetId === pet._id}
                   onPress={() => setSelectedPetId(pet._id)}
-                  textStyle={{ fontSize: 12 }}
+                  textStyle={styles.chipText}
+                  style={styles.petChip}
+                  selectedColor={theme.colors.secondary}
                 >
                   {pet.name}
                 </Chip>
@@ -340,11 +363,14 @@ export default function CareScreen() {
         )}
 
 
-        <View style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {activeTab === 'health' && renderHealthContent()}
           {activeTab === 'feeding' && renderFeedingContent()}
-          {activeTab === 'timeline' && renderTimelineContent()}
-        </View>
+        </ScrollView>
 
         {/* FABs */}
         {activeTab === 'health' && (
@@ -395,53 +421,102 @@ const styles = StyleSheet.create({
   },
   segmentedContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 12,
   },
   segmentedButtons: {
     marginBottom: 0,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
+    borderWidth: 1,
+    borderRadius: 999,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   petSelector: {
     padding: 16,
-    paddingBottom: 8,
+    paddingTop: 8,
   },
   petChips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
+  sectionLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  petChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   content: {
     flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
   },
   listContainer: {
     padding: 16,
     paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
-  card: {
-    margin: 4,
-    elevation: 2,
+  healthCard: {
+    borderRadius: 20,
+    marginBottom: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  cardContent: {
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  healthAccent: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
   },
-  cardInfo: {
-    flex: 1,
+  healthContent: {
+    gap: 6,
   },
-  titleRow: {
+  healthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    justifyContent: 'space-between',
   },
-  typeIndicator: {
-    width: 4,
-    height: 20,
-    borderRadius: 2,
-    marginRight: 12,
+  healthTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
   },
-  actionButtons: {
-    marginLeft: 8,
+  healthIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  healthDatePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
   },
   fab: {
     position: 'absolute',

@@ -60,6 +60,8 @@ export const lightColors: ThemeColors = {
   eventVetVisit: "#FF9999",         // Pastel red
   eventWalk: "#B3E5FF",             // Pastel sky blue
   eventBath: "#E5B3FF",             // Pastel purple
+  eventVaccination: "#FFC2D1",      // Soft rose
+  eventMedication: "#B3D9FF",       // Soft blue
   eventOther: "#CCCCCC",            // Neutral gray
 };
 
@@ -123,6 +125,8 @@ export const darkColors: ThemeColors = {
   eventVetVisit: "#F87171",         // error (Bright Red)
   eventWalk: "#3B82F6",             // info variant (Bright Blue)
   eventBath: "#D8B4FE",             // tertiary variant (Light Purple)
+  eventVaccination: "#FB7185",      // bright rose
+  eventMedication: "#38BDF8",       // bright blue
   eventOther: "#6B7280",            // outline (Gray)
 };
 

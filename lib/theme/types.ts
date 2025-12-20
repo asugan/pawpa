@@ -59,6 +59,8 @@ export interface ThemeColors {
   eventVetVisit: string;
   eventWalk: string;
   eventBath: string;
+  eventVaccination: string;
+  eventMedication: string;
   eventOther: string;
 }
 

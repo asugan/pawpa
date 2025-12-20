@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pet Care Calendar Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1e293b", // Slate 800 - dark navy color from the screenshot
+              "background-light": "#f8fafc", // Very light slate for main background
+              "background-dark": "#111827", // Dark gray for dark mode
+              "card-bg-light": "#e2e8f0", // Light blue-ish grey for card background matching screenshot
+              "card-bg-dark": "#1f2937",
+              "accent-green": "#4ade80",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            boxShadow: {
+                'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+            }
+          },
+        },
+      };
+    </script>
+<style>.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-200 dark:bg-gray-950 min-h-screen flex items-center justify-center font-display antialiased selection:bg-primary selection:text-white py-4 sm:py-8">
+<div class="w-full max-w-sm bg-background-light dark:bg-background-dark h-[800px] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border border-white/50 dark:border-gray-800">
+<header class="px-6 pt-8 pb-2 flex justify-end items-center bg-white dark:bg-background-dark z-20 min-h-[4rem]">
+</header>
+<div class="px-2 pt-6 pb-6 bg-white dark:bg-background-dark rounded-b-[2rem] shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] z-10 relative">
+<div class="flex justify-between text-center px-2">
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer group">
+<span class="text-xs font-medium text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">Mon</span>
+<span class="text-base font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">28</span>
+<span class="w-1 h-1 bg-primary rounded-full opacity-100"></span>
+</div>
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer group">
+<span class="text-xs font-medium text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">Tue</span>
+<span class="text-base font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">29</span>
+<span class="w-1 h-1 bg-transparent rounded-full"></span>
+</div>
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer relative">
+<span class="text-xs font-bold text-primary dark:text-white">Wed</span>
+<div class="w-10 h-10 flex items-center justify-center bg-primary rounded-full shadow-lg shadow-primary/30 transform scale-110 transition-transform">
+<span class="text-base font-bold text-white">30</span>
+</div>
+<span class="w-1 h-1 bg-primary dark:bg-white rounded-full mt-1"></span>
+</div>
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer group">
+<span class="text-xs font-medium text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">Thu</span>
+<span class="text-base font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">31</span>
+<span class="w-1 h-1 bg-transparent rounded-full"></span>
+</div>
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer group">
+<span class="text-xs font-medium text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">Fri</span>
+<span class="text-base font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">1</span>
+<span class="w-1 h-1 bg-primary rounded-full opacity-100"></span>
+</div>
+<div class="flex flex-col items-center gap-2 w-10 cursor-pointer group">
+<span class="text-xs font-medium text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">Sat</span>
+<span class="text-base font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-white transition-colors">2</span>
+<span class="w-1 h-1 bg-transparent rounded-full"></span>
+</div>
+</div>
+<div class="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none">
+<div class="w-10 h-1 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+</div>
+<button class="absolute bottom-2 right-4 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-icons-round text-xl">fullscreen</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto px-5 pt-6 pb-24 space-y-5 hide-scrollbar">
+<div class="group relative w-full bg-card-bg-light dark:bg-card-bg-dark rounded-2xl p-4 flex items-center shadow-soft hover:shadow-lg transition-all duration-300">
+<div class="absolute left-0 top-3 bottom-3 w-1.5 bg-accent-green rounded-r-full"></div>
+<div class="flex items-center w-full pl-5 gap-3">
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 bg-yellow-300 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-600 shadow-sm relative group-hover:scale-105 transition-transform">
+<span class="material-icons-round text-primary text-2xl z-10">medical_services</span>
+<span class="material-icons-round text-primary text-[10px] absolute bottom-3 right-3 opacity-60">pets</span>
+</div>
+<span class="bg-primary text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">Randevu</span>
+</div>
+<div class="flex-1 flex flex-col items-center text-center">
+<h3 class="text-primary dark:text-white font-extrabold text-lg">11:20 AM</h3>
+<p class="text-gray-600 dark:text-gray-300 font-semibold text-sm leading-tight">Vet Checkup</p>
+<p class="text-gray-400 dark:text-gray-500 text-xs mt-0.5">Doktor Paul</p>
+</div>
+<div class="min-w-[60px] flex justify-end">
+<img alt="Cat Profile" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-500 shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApLNN1_D_Kns2xNM7XoSLMTX4e6i_RkHDcjEK4kA01eeIZzhXYb-l8wCV4q6zT0krD3RWsn1ITFHvUxDESgCceaXyJf5JqQErBZQBLnCZn86nZpPr2JKcw8wuk6wp-p2oRTPa3JLYi5Me5QUx2CHHkz2IZulEdo0TBg0iQ9pHswp7mC_T9hF_gs9CuuWYMZw34u2EfYAhe3pUW4MVOt_hJN1QUJuOwIBuTm_I9HtZD4Du7O8GRMh_qmIIiwWsvAlNQ_ebEnuhRN9rh"/>
+</div>
+</div>
+</div>
+<div class="group relative w-full bg-white dark:bg-card-bg-dark rounded-2xl p-4 flex items-center shadow-soft hover:shadow-lg transition-all duration-300">
+<div class="absolute left-0 top-3 bottom-3 w-1.5 bg-blue-500 rounded-r-full"></div>
+<div class="flex items-center w-full pl-5 gap-3">
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center border-2 border-blue-50 dark:border-gray-600 shadow-sm group-hover:scale-105 transition-transform">
+<span class="material-icons-round text-blue-600 dark:text-blue-400 text-2xl">vaccines</span>
+</div>
+<span class="bg-blue-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">Aşı</span>
+</div>
+<div class="flex-1 flex flex-col items-center text-center">
+<h3 class="text-primary dark:text-white font-extrabold text-lg">02:45 PM</h3>
+<p class="text-gray-600 dark:text-gray-300 font-semibold text-sm leading-tight">Annual Shot</p>
+<p class="text-gray-400 dark:text-gray-500 text-xs mt-0.5">Klinik A</p>
+</div>
+<div class="min-w-[60px] flex justify-end">
+<img alt="Dog Profile" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-500 shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1S1WAsrjzt8AtzQixGsCxB64oMvJj9WOx1TR3zmgpkKz1-HoKrg9JXc3Bp-QiLabu999RAWeEAffJOtA6ljamnF8lH9jO2H4_apQmk-aTpl4n9FEOomNYc7myeH_7vaZVWx_b9IJM3jk7wwAXowY-MlIJEME-zlxLyLc0coIEiKrcVd1Q4vZllblFQ84UWO7R8jeXAHduIR9clLTSFVoCSHbVZq44dzA713yFedPnDHTOwqh-41IrQCjYIWUA5Jp_k636LujXozoN"/>
+</div>
+</div>
+</div>
+<div class="group relative w-full bg-white dark:bg-card-bg-dark rounded-2xl p-4 flex items-center shadow-soft hover:shadow-lg transition-all duration-300 opacity-90">
+<div class="absolute left-0 top-3 bottom-3 w-1.5 bg-purple-500 rounded-r-full"></div>
+<div class="flex items-center w-full pl-5 gap-3">
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center border-2 border-purple-50 dark:border-gray-600 shadow-sm group-hover:scale-105 transition-transform">
+<span class="material-icons-round text-purple-600 dark:text-purple-400 text-2xl">content_cut</span>
+</div>
+<span class="bg-purple-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">Bakım</span>
+</div>
+<div class="flex-1 flex flex-col items-center text-center">
+<h3 class="text-primary dark:text-white font-extrabold text-lg">04:15 PM</h3>
+<p class="text-gray-600 dark:text-gray-300 font-semibold text-sm leading-tight">Full Grooming</p>
+<p class="text-gray-400 dark:text-gray-500 text-xs mt-0.5">Salon Paws</p>
+</div>
+<div class="min-w-[60px] flex justify-end">
+<img alt="Cat Profile 2" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-500 shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7N7qmvxSQ3hd3wcBV53tJCNZ9tjqdx0rIhTl_oSN3igzS7gf5xjPgB4KUwjDlEygG_JptVNhi08ch_ZyneFoxFMaI2MFzxNC1R8RDVYt0R2vlthngv8zrt7MO_yEpgrqKTTM1jkXmmBqe8cGUntlTcjRoppoRn8QYuV9-GSQhTI2NY0MJFD-mYsi6cCWJt0db97y4AknG57h1MCMoYzSJ37mTaZ_jpaYgSmnd2jSpB8ZDKKICFTdRMP19eIJgsyeve-WG6AvD_N7S"/>
+</div>
+</div>
+</div>
+<div class="group relative w-full bg-white dark:bg-card-bg-dark rounded-2xl p-4 flex items-center shadow-soft hover:shadow-lg transition-all duration-300 opacity-80">
+<div class="absolute left-0 top-3 bottom-3 w-1.5 bg-orange-500 rounded-r-full"></div>
+<div class="flex items-center w-full pl-5 gap-3">
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center border-2 border-orange-50 dark:border-gray-600 shadow-sm group-hover:scale-105 transition-transform">
+<span class="material-icons-round text-orange-600 dark:text-orange-400 text-2xl">directions_walk</span>
+</div>
+<span class="bg-orange-500 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">Yürüyüş</span>
+</div>
+<div class="flex-1 flex flex-col items-center text-center">
+<h3 class="text-primary dark:text-white font-extrabold text-lg">06:00 PM</h3>
+<p class="text-gray-600 dark:text-gray-300 font-semibold text-sm leading-tight">Evening Walk</p>
+<p class="text-gray-400 dark:text-gray-500 text-xs mt-0.5">Walker Mike</p>
+</div>
+<div class="min-w-[60px] flex justify-end">
+<img alt="Dog Profile 2" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-500 shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8reLJMk6J33yEDC1lq6ThR7V2ATS6XfoKhQgDBRJOiu_GVPyG0jzQm6l2lJm5Yw0DKcIGXgxhCyuDe77yU6YCgx1ljObShuGhMQpp_9ib_L73Vm_FNtMWmnDRTg-zmhVeHrguVohCh8ZWfk4JmHsH4fAnz8pVHK3NIBjaTnlPeZzLjp1RuVRxpZZ06-d8Zpi7ZvtZsnskU7-PBvjU6fNHCKoI7CU8Nnnrfun9cb18XoIvlmxEq-e42g_9Ca8SSTpc0IYzLtljk6Oq"/>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 z-30">
+<button class="w-14 h-14 bg-primary text-white rounded-2xl shadow-xl shadow-primary/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-icons-round text-3xl">add</span>
+</button>
+</div>
+<div class="absolute bottom-0 w-full h-20 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent pointer-events-none z-10"></div>
+</div>
+</body></html>

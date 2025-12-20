@@ -51,17 +51,6 @@ export const useHealthRecordForm = (
       clinic: initialData?.clinic || '',
       cost: initialData?.cost || undefined,
       notes: initialData?.notes || '',
-      nextDueDate: initialData?.nextDueDate || undefined,
-      // Vaccination specific fields
-      vaccineName: initialData?.vaccineName || '',
-      vaccineManufacturer: initialData?.vaccineManufacturer || '',
-      batchNumber: initialData?.batchNumber || '',
-      // Medication specific fields
-      medicationName: initialData?.medicationName || '',
-      dosage: initialData?.dosage || '',
-      frequency: initialData?.frequency || '',
-      startDate: initialData?.startDate || undefined,
-      endDate: initialData?.endDate || undefined,
     };
   }, [petId, initialData]);
 

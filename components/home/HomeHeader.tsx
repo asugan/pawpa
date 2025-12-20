@@ -60,9 +60,9 @@ export const HomeHeader = ({
 
   const getDynamicSubtitle = () => {
     if (petsCount === 0) return "Start by adding your first pet 🐕";
-    if (eventsCount === 0) return "No scheduled activities for today 📅";
-    if (eventsCount === 1) return "You have 1 activity today ✨";
-    return `You have ${eventsCount} activities today 🎉`;
+    if (eventsCount === 0) return "No scheduled activities 📅";
+    if (eventsCount === 1) return "You have 1 activity scheduled ✨";
+    return `You have ${eventsCount} activities scheduled 🎉`;
   };
 
   return (

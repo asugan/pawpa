@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
-import { Text } from '@/components/ui';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text, IconButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,6 +12,7 @@ import {
   format,
   isSameMonth,
   isToday,
+  isSameDay,
 } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 import { Event } from '../../lib/types';
@@ -22,154 +23,152 @@ interface MonthViewProps {
   events: Event[];
   selectedDate?: Date;
   onDayPress: (date: Date) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  onToggleView: () => void;
   testID?: string;
 }
-
-const { width } = Dimensions.get('window');
-const DAY_SIZE = (width - 32) / 7; // 32 = container padding
 
 export function MonthView({
   currentDate,
   events,
   selectedDate,
   onDayPress,
+  onPrevious,
+  onNext,
+  onToggleView,
   testID,
 }: MonthViewProps) {
   const { i18n } = useTranslation();
   const { theme } = useTheme();
   const locale = i18n.language === 'tr' ? tr : enUS;
 
-  // Get all days to display in the calendar grid
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
     const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   }, [currentDate]);
 
-  // Get events for a specific day
   const getEventsForDay = (day: Date) => {
-    // Extract UTC date portion to avoid timezone conversion issues
     const dayStr = day.toISOString().substring(0, 10);
     return events.filter((event) => {
-      // Extract date portion from event startTime (ISO string)
       const eventDateStr = event.startTime.substring(0, 10);
       return eventDateStr === dayStr;
     });
   };
 
-  // Weekday names (short)
   const weekDays = useMemo(() => {
     const days = [];
     const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
     for (let i = 0; i < 7; i++) {
       const day = new Date(startDate);
       day.setDate(day.getDate() + i);
-      days.push(format(day, 'EEEEEE', { locale }).toUpperCase());
+      days.push(format(day, 'EEE', { locale }).toLocaleUpperCase(i18n.language));
     }
     return days;
-  }, [locale]);
+  }, [i18n.language, locale]);
 
-  // Render a single day cell
   const renderDay = (day: Date) => {
     const dayEvents = getEventsForDay(day);
     const isCurrentMonth = isSameMonth(day, currentDate);
     const isTodayDate = isToday(day);
-    // Check if selected using UTC date comparison
-    const isSelected = selectedDate && day.toISOString().substring(0, 10) === selectedDate.toISOString().substring(0, 10);
+    const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
     const hasEvents = dayEvents.length > 0;
-
     const dayNumber = format(day, 'd');
+
+    const dotColor = hasEvents
+      ? getEventColor(dayEvents[0].type, theme)
+      : 'transparent';
 
     return (
       <Pressable
         key={day.toISOString()}
-        style={[
-          styles.dayCell,
-          {
-            width: DAY_SIZE,
-            height: DAY_SIZE,
-          },
-        ]}
+        style={styles.dayCell}
         onPress={() => onDayPress(day)}
         testID={`${testID}-day-${format(day, 'yyyy-MM-dd')}`}
       >
         <View
           style={[
             styles.dayContent,
-            isTodayDate && { backgroundColor: theme.colors.primaryContainer },
-            isSelected && {
-              backgroundColor: theme.colors.tertiaryContainer,
-              borderWidth: 2,
-              borderColor: theme.colors.tertiary,
+            isSelected && { backgroundColor: theme.colors.primary },
+            !isSelected && isTodayDate && {
+              borderWidth: 1,
+              borderColor: theme.colors.primary,
             },
           ]}
         >
-          {/* Day Number */}
           <Text
             variant="bodyMedium"
             style={[
               styles.dayNumber,
               {
                 color: isCurrentMonth
-                  ? theme.colors.onSurface
+                  ? isSelected
+                    ? theme.colors.onPrimary
+                    : theme.colors.onSurface
                   : theme.colors.onSurfaceVariant,
                 opacity: isCurrentMonth ? 1 : 0.4,
-                fontWeight: isTodayDate || isSelected ? '700' : '400',
+                fontWeight: isSelected ? '700' : '500',
               },
             ]}
           >
             {dayNumber}
           </Text>
-
-          {/* Event Indicators */}
-          {hasEvents && isCurrentMonth && (
-            <View style={styles.eventIndicators}>
-              {dayEvents.slice(0, 3).map((event, index) => (
-                <View
-                  key={event._id}
-                  style={[
-                    styles.eventDot,
-                    {
-                      backgroundColor: getEventColor(event.type, theme),
-                      marginLeft: index > 0 ? 2 : 0,
-                    },
-                  ]}
-                />
-              ))}
-              {dayEvents.length > 3 && (
-                <Text
-                  style={[
-                    styles.eventCount,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  +{dayEvents.length - 3}
-                </Text>
-              )}
-            </View>
-          )}
         </View>
+        {isCurrentMonth && (
+          <View
+            style={[
+              styles.eventDot,
+              {
+                backgroundColor: isSelected
+                  ? theme.colors.onPrimary
+                  : dotColor,
+                opacity: hasEvents ? 1 : 0,
+              },
+            ]}
+          />
+        )}
       </Pressable>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]} testID={testID}>
-      {/* Weekday Headers */}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.surface, borderColor: theme.colors.surfaceVariant },
+      ]}
+      testID={testID}
+    >
+      <View style={styles.headerRow}>
+        <IconButton
+          icon="chevron-left"
+          size={20}
+          iconColor={theme.colors.onSurfaceVariant}
+          onPress={onPrevious}
+          testID={`${testID}-previous`}
+        />
+        <Text
+          variant="titleMedium"
+          style={[styles.title, { color: theme.colors.onSurface }]}
+        >
+          {format(currentDate, 'MMMM yyyy', { locale })}
+        </Text>
+        <IconButton
+          icon="chevron-right"
+          size={20}
+          iconColor={theme.colors.onSurfaceVariant}
+          onPress={onNext}
+          testID={`${testID}-next`}
+        />
+      </View>
+
       <View style={styles.weekRow}>
         {weekDays.map((day) => (
-          <View
-            key={day}
-            style={[
-              styles.weekDayCell,
-              {
-                width: DAY_SIZE,
-              },
-            ]}
-          >
+          <View key={day} style={styles.weekDayCell}>
             <Text
               variant="labelSmall"
               style={[
@@ -183,26 +182,60 @@ export function MonthView({
         ))}
       </View>
 
-      {/* Calendar Grid */}
       <View style={styles.calendarGrid}>
         {calendarDays.map((day) => renderDay(day))}
       </View>
+
+      <View
+        style={[
+          styles.bottomIndicator,
+          { backgroundColor: theme.colors.surfaceVariant },
+        ]}
+      />
+      <IconButton
+        icon="fullscreen-exit"
+        size={18}
+        iconColor={theme.colors.onSurfaceVariant}
+        onPress={onToggleView}
+        style={styles.toggleButton}
+        testID={`${testID}-toggle`}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+    borderRadius: 28,
+    borderWidth: 1,
+    marginHorizontal: 16,
+    marginTop: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  title: {
+    fontWeight: '700',
+    textTransform: 'capitalize',
   },
   weekRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   weekDayCell: {
-    height: 32,
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   weekDayText: {
     fontWeight: '600',
@@ -213,33 +246,40 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   dayCell: {
-    padding: 2,
-  },
-  dayContent: {
-    flex: 1,
-    borderRadius: 8,
+    width: `${100 / 7}%`,
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
+    marginBottom: 4,
+  },
+  dayContent: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dayNumber: {
     fontSize: 14,
   },
-  eventIndicators: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 4,
-  },
   eventDot: {
-    width: 4,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    marginTop: 6,
+  },
+  bottomIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: '45%',
+    width: 40,
     height: 4,
     borderRadius: 2,
   },
-  eventCount: {
-    fontSize: 8,
-    marginLeft: 2,
-    fontWeight: '600',
+  toggleButton: {
+    position: 'absolute',
+    bottom: 2,
+    right: 8,
   },
 });
 

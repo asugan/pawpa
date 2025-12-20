@@ -39,12 +39,10 @@ const HealthOverview: React.FC<HealthOverviewProps> = ({
   // Determine icon and color based on record type
   const getIconInfo = (type: string) => {
     switch (type) {
-      case 'vaccination':
-        return { name: 'medkit' as const, color: '#FF7F50' }; // Orange
       case 'checkup':
         return { name: 'fitness' as const, color: '#00ADB5' }; // Teal
-      case 'medication':
-        return { name: 'medical' as const, color: '#9B59B6' }; // Purple
+      case 'visit':
+        return { name: 'pulse' as const, color: '#FF9F1C' }; // Orange
       case 'surgery':
         return { name: 'bandage' as const, color: '#E74C3C' }; // Red
       case 'dental':

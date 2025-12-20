@@ -347,36 +347,12 @@ export default function FinanceScreen() {
     }
 
     return (
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.budgetContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.budgetSection}>
-          {/* EmptyState - shown when no budget exists */}
-          {(!budget || (typeof budget === 'object' && Object.keys(budget).length === 0)) && (
-            <EmptyState
-              title={t("budgets.noBudgetSet", "No Budget Set")}
-              description={t(
-                "budgets.setBudgetDescription",
-                "Set a monthly budget to track your pet expenses"
-              )}
-              icon="wallet"
-              buttonText={t("budgets.setBudget", "Set Budget")}
-              onButtonPress={handleSetBudget}
-            />
-          )}
-
-          {/* Budget Card with Actions - shown when budget exists */}
-          {budget && budgetStatus && (
-            <UserBudgetCard
-              budget={budget}
-              status={budgetStatus}
-              onEdit={handleEditBudget}
-              onDelete={handleDeleteBudget}
-            />
-          )}
-
-          {budgetStatus && (
-            <BudgetInsights status={budgetStatus} />
-          )}
-
           <View style={styles.exportRow}>
             <Button
               mode="outlined"
@@ -406,8 +382,36 @@ export default function FinanceScreen() {
           >
             {t("expenses.vetSummary", "Vet summary PDF")}
           </Button>
+
+          {/* EmptyState - shown when no budget exists */}
+          {(!budget || (typeof budget === 'object' && Object.keys(budget).length === 0)) && (
+            <EmptyState
+              title={t("budgets.noBudgetSet", "No Budget Set")}
+              description={t(
+                "budgets.setBudgetDescription",
+                "Set a monthly budget to track your pet expenses"
+              )}
+              icon="wallet"
+              buttonText={t("budgets.setBudget", "Set Budget")}
+              onButtonPress={handleSetBudget}
+            />
+          )}
+
+          {/* Budget Card with Actions - shown when budget exists */}
+          {budget && budgetStatus && (
+            <UserBudgetCard
+              budget={budget}
+              status={budgetStatus}
+              onEdit={handleEditBudget}
+              onDelete={handleDeleteBudget}
+            />
+          )}
+
+          {budgetStatus && (
+            <BudgetInsights status={budgetStatus} />
+          )}
         </View>
-      </View>
+      </ScrollView>
     );
   };
 
@@ -525,15 +529,6 @@ export default function FinanceScreen() {
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <View style={styles.header}>
-          <Text
-            variant="titleLarge"
-            style={{ color: theme.colors.onBackground }}
-          >
-            {t("finance.title")}
-          </Text>
-        </View>
-
         <View style={styles.tabsContainer}>
           <SegmentedButtons
             value={activeTab}
@@ -550,6 +545,11 @@ export default function FinanceScreen() {
                 icon: 'receipt'
               }
             ]}
+            density="small"
+            style={StyleSheet.flatten([
+              styles.segmentedButtons,
+              { backgroundColor: theme.colors.surface, borderColor: theme.colors.surfaceVariant },
+            ])}
           />
         </View>
 
@@ -620,7 +620,20 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 16,
+  },
+  segmentedButtons: {
+    marginBottom: 0,
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 999,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   petSelector: {
     padding: 16,
@@ -638,6 +651,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingBottom: 16,
+  },
+  budgetContent: {
+    flexGrow: 1,
+    paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
   },
   expensesSection: {
     flex: 1,

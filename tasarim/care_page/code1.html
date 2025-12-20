@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pet Care App - Feeding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00E0A6", // Teal green from screenshot
+                        "primary-dark": "#00C491",
+                        "accent-pink": "#FF6B8B", // Pink accent from screenshot
+                        "accent-orange": "#FF9F76", // Orange accent from screenshot
+                        "accent-yellow": "#FFD34E", // Yellow accent from screenshot
+                        "background-light": "#F8F9FB",
+                        "background-dark": "#121212",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1E1E1E",
+                        "text-primary-light": "#1F2937",
+                        "text-primary-dark": "#F3F4F6",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(0, 224, 166, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-body antialiased transition-colors duration-200">
+<div class="fixed top-0 w-full h-12 bg-background-light dark:bg-background-dark z-50 flex items-center justify-between px-6 pt-2">
+<div class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">9:41</div>
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark">signal_cellular_alt</span>
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark">wifi</span>
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark">battery_full</span>
+</div>
+</div>
+<main class="pb-24 pt-16 px-5 min-h-screen relative max-w-md mx-auto">
+<header class="mb-6 flex justify-between items-center">
+<h1 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark">Care</h1>
+<button class="p-2 rounded-full bg-surface-light dark:bg-surface-dark shadow-sm text-text-primary-light dark:text-text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+<span class="material-icons-round">notifications_none</span>
+</button>
+</header>
+<div class="flex bg-surface-light dark:bg-surface-dark rounded-full p-1 shadow-sm mb-6 border border-gray-100 dark:border-gray-800">
+<button class="flex-1 flex items-center justify-center py-2.5 rounded-full text-text-secondary-light dark:text-text-secondary-dark font-medium text-sm transition-all duration-200">
+<span class="material-icons-round text-lg mr-2">favorite</span>
+                Health
+            </button>
+<button class="flex-1 flex items-center justify-center py-2.5 rounded-full bg-primary text-white shadow-md font-medium text-sm transition-all duration-200">
+<span class="material-icons-round text-lg mr-2">restaurant</span>
+                Feeding
+            </button>
+</div>
+<div class="mb-6">
+<h3 class="text-xs font-semibold uppercase text-text-secondary-light dark:text-text-secondary-dark mb-3 tracking-wider">Select Pet</h3>
+<div class="flex space-x-3 overflow-x-auto hide-scrollbar pb-1">
+<button class="px-5 py-2 rounded-full bg-primary text-white font-medium text-sm shadow-glow transition hover:bg-opacity-90 whitespace-nowrap">
+                    All
+                </button>
+<button class="px-5 py-2 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-primary-light dark:text-text-primary-dark font-medium text-sm transition hover:border-primary dark:hover:border-primary whitespace-nowrap flex items-center">
+<span class="w-2 h-2 rounded-full bg-accent-orange mr-2"></span>
+                    Nomad
+                </button>
+<button class="px-5 py-2 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-primary-light dark:text-text-primary-dark font-medium text-sm transition hover:border-primary dark:hover:border-primary whitespace-nowrap flex items-center">
+<span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
+                    Luna
+                </button>
+</div>
+</div>
+<div class="space-y-5">
+<div class="relative bg-surface-light dark:bg-surface-dark rounded-3xl p-5 border border-accent-orange/30 dark:border-accent-orange/20 shadow-soft overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent-orange"></div>
+<div class="flex justify-between items-start mb-4 pl-3">
+<div class="flex items-center space-x-3">
+<div class="w-12 h-12 rounded-2xl bg-accent-orange/10 flex items-center justify-center text-accent-orange">
+<span class="material-icons-round text-2xl">breakfast_dining</span>
+</div>
+<div>
+<h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">8:00 AM</h2>
+<p class="text-accent-orange font-medium text-sm">Dry Food</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-orange/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-orange"></div>
+</label>
+</div>
+<div class="pl-3 space-y-4">
+<div class="flex items-center space-x-6 text-sm">
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">scale</span>
+<span>200g</span>
+</div>
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">pets</span>
+<span>For Nomad</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-2">
+<div class="flex space-x-1.5">
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">S</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-orange text-white text-[10px] font-bold shadow-sm">M</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-orange text-white text-[10px] font-bold shadow-sm">T</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-orange text-white text-[10px] font-bold shadow-sm">W</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-orange text-white text-[10px] font-bold shadow-sm">T</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-orange text-white text-[10px] font-bold shadow-sm">F</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">S</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800 mt-2">
+<div class="flex items-center text-xs font-semibold text-primary">
+<span class="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse"></span>
+                            ACTIVE
+                        </div>
+<div class="flex space-x-3">
+<button class="text-gray-400 hover:text-accent-orange transition">
+<span class="material-icons-round text-lg">edit</span>
+</button>
+<button class="text-gray-400 hover:text-red-500 transition">
+<span class="material-icons-round text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative bg-surface-light dark:bg-surface-dark rounded-3xl p-5 border border-accent-yellow/30 dark:border-accent-yellow/20 shadow-soft overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent-yellow"></div>
+<div class="flex justify-between items-start mb-4 pl-3">
+<div class="flex items-center space-x-3">
+<div class="w-12 h-12 rounded-2xl bg-accent-yellow/10 flex items-center justify-center text-accent-yellow">
+<span class="material-icons-round text-2xl">cookie</span>
+</div>
+<div>
+<h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">11:00 AM</h2>
+<p class="text-accent-yellow font-medium text-sm">Treats</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-yellow/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-yellow"></div>
+</label>
+</div>
+<div class="pl-3 space-y-4">
+<div class="flex items-center space-x-6 text-sm">
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">scale</span>
+<span>1 piece</span>
+</div>
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">pets</span>
+<span>For Nomad</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-2">
+<div class="flex space-x-1.5">
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">S</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">M</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">T</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">W</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">T</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-400">F</span>
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-accent-yellow text-white text-[10px] font-bold shadow-sm">S</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800 mt-2">
+<div class="flex items-center text-xs font-semibold text-primary">
+<span class="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse"></span>
+                            ACTIVE
+                        </div>
+<div class="flex space-x-3">
+<button class="text-gray-400 hover:text-accent-yellow transition">
+<span class="material-icons-round text-lg">edit</span>
+</button>
+<button class="text-gray-400 hover:text-red-500 transition">
+<span class="material-icons-round text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative bg-surface-light dark:bg-surface-dark rounded-3xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm opacity-75">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gray-300 dark:bg-gray-600"></div>
+<div class="flex justify-between items-start mb-4 pl-3">
+<div class="flex items-center space-x-3 grayscale opacity-70">
+<div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+<span class="material-icons-round text-2xl">dinner_dining</span>
+</div>
+<div>
+<h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">6:30 PM</h2>
+<p class="text-gray-500 font-medium text-sm">Wet Food</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:translate-x-full"></div>
+</label>
+</div>
+<div class="pl-3 space-y-4">
+<div class="flex items-center space-x-6 text-sm opacity-70">
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">scale</span>
+<span>150g</span>
+</div>
+<div class="flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round text-lg mr-1.5 text-gray-400">pets</span>
+<span>For Luna</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-accent-pink rounded-full shadow-lg shadow-accent-pink/40 flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-transform z-20">
+<span class="material-icons-round text-3xl">add</span>
+</button>
+</main>
+<nav class="fixed bottom-0 w-full bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-safe pt-2 px-6 flex justify-between items-center z-40 h-20">
+<button class="flex flex-col items-center justify-center space-y-1 w-12 text-text-secondary-light dark:text-text-secondary-dark group">
+<span class="material-icons-round text-2xl group-hover:text-primary transition-colors">home</span>
+<span class="text-[10px] font-medium group-hover:text-primary transition-colors">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center space-y-1 w-12 text-text-secondary-light dark:text-text-secondary-dark group">
+<span class="material-icons-round text-2xl group-hover:text-primary transition-colors">pets</span>
+<span class="text-[10px] font-medium group-hover:text-primary transition-colors">Pets</span>
+</button>
+<button class="flex flex-col items-center justify-center space-y-1 w-12 text-accent-pink">
+<span class="material-icons-round text-2xl animate-pulse">favorite</span>
+<span class="text-[10px] font-medium">Care</span>
+</button>
+<button class="flex flex-col items-center justify-center space-y-1 w-12 text-text-secondary-light dark:text-text-secondary-dark group">
+<span class="material-icons-round text-2xl group-hover:text-primary transition-colors">calendar_today</span>
+<span class="text-[10px] font-medium group-hover:text-primary transition-colors">Calendar</span>
+</button>
+<button class="flex flex-col items-center justify-center space-y-1 w-12 text-text-secondary-light dark:text-text-secondary-dark group">
+<span class="material-icons-round text-2xl group-hover:text-primary transition-colors">settings</span>
+<span class="text-[10px] font-medium group-hover:text-primary transition-colors">Settings</span>
+</button>
+</nav>
+<div class="fixed bottom-20 left-0 w-full h-8 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent pointer-events-none z-30"></div>
+
+</body></html>

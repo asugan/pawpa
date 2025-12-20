@@ -1,5 +1,4 @@
-import { Event, HealthRecord, FeedingSchedule } from '@/lib/types';
-import { dateUtils } from './date';
+import { Event, FeedingSchedule } from '@/lib/types';
 import { formatDistanceToNow, format } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 
@@ -10,12 +9,11 @@ export interface NextActivity {
   color: string;
   priority: number;
   type: 'vaccination' | 'medication' | 'vet' | 'feeding' | 'event';
-  originalData?: Event | HealthRecord | FeedingSchedule;
+  originalData?: Event | FeedingSchedule;
 }
 
 export interface ActivityCalculationParams {
   events: Event[];
-  healthRecords: HealthRecord[];
   feedingSchedules: FeedingSchedule[];
   locale?: string;
 }
@@ -94,39 +92,11 @@ export const formatActivityTime = (time: Date, locale: string = 'en'): string =>
  */
 export const getNextActivityForPet = ({
   events,
-  healthRecords,
   feedingSchedules,
   locale = 'en'
 }: ActivityCalculationParams): NextActivity | null => {
   const now = new Date();
   const activities: NextActivity[] = [];
-
-  // Process health records (vaccinations and medications)
-  const upcomingHealthRecords = healthRecords
-    .filter(record => {
-      if (record.type !== 'vaccination' && record.type !== 'medication') {
-        return false;
-      }
-
-      const recordDate = new Date(record.date);
-      // Validate the date is valid and in the future
-      return !isNaN(recordDate.getTime()) && recordDate >= now;
-    })
-    .map(record => {
-      const recordDate = new Date(record.date);
-      return {
-        type: record.type as NextActivity['type'],
-        label: record.type === 'vaccination' ? 'Vaccination' : 'Medication',
-        time: formatActivityTime(recordDate, locale),
-        date: recordDate,
-        priority: calculateActivityPriority(record.type as NextActivity['type']),
-        color: record.type === 'vaccination' ? '#FF6B35' : '#F7931E', // Orange tones
-        originalData: record
-      };
-    })
-    .filter(activity => activity.time !== ''); // Remove activities with invalid time formatting
-
-  activities.push(...upcomingHealthRecords);
 
   // Process events (vet appointments and other events)
   const upcomingEvents = events
@@ -137,16 +107,35 @@ export const getNextActivityForPet = ({
     })
     .map(event => {
       const eventDate = new Date(event.startTime);
-      const isVetAppointment = event.type.toLowerCase().includes('vet') ||
-                               event.title.toLowerCase().includes('vet');
+      const isVetAppointment = event.type === 'vet_visit';
+      const isVaccination = event.type === 'vaccination';
+      const isMedication = event.type === 'medication';
+
+      const activityType: NextActivity['type'] = isVaccination
+        ? 'vaccination'
+        : isMedication
+          ? 'medication'
+          : isVetAppointment
+            ? 'vet'
+            : 'event';
 
       return {
-        type: isVetAppointment ? 'vet' : 'event',
-        label: event.title,
+        type: activityType,
+        label: isVaccination
+          ? (event.vaccineName || event.title)
+          : isMedication
+            ? (event.medicationName || event.title)
+            : event.title,
         time: formatActivityTime(eventDate, locale),
         date: eventDate,
-        priority: calculateActivityPriority(isVetAppointment ? 'vet' : 'event'),
-        color: isVetAppointment ? '#9C27B0' : '#2196F3', // Purple for vet, blue for events
+        priority: calculateActivityPriority(activityType),
+        color: isVaccination
+          ? '#FF6B35'
+          : isMedication
+            ? '#F7931E'
+            : isVetAppointment
+              ? '#9C27B0'
+              : '#2196F3',
         originalData: event
       } as NextActivity;
     })

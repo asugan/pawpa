@@ -190,12 +190,6 @@ export default function PetsScreen() {
   return (
     <ProtectedRoute featureName={t('subscription.features.petManagement')}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={[styles.headerTitle, { color: theme.colors.onBackground }]}>
-            {t('pets.myPets')}
-          </Text>
-        </View>
-
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -501,7 +495,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    bottom: LAYOUT.TAB_BAR_HEIGHT + 8,
+    bottom: 0,
   },
   snackbar: {
     marginBottom: 16,
