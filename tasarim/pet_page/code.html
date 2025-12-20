@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Evcil Hayvanlarım Detaylı Liste</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#13ec5b",
+              "background-light": "#f6f8f6",
+              "background-dark": "#102216",
+              "card-dark": "#1A2C20",
+              "surface-dark": "#15261d",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-background-dark overflow-x-hidden">
+<div class="relative flex flex-col min-h-screen w-full pb-24">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/5">
+<div class="flex items-center justify-between p-4 pb-2 pt-6"> <!-- Added pt-6 for status bar spacing feel -->
+<h2 class="text-2xl font-bold leading-tight tracking-tight flex-1 dark:text-white text-slate-900">
+                    Evcil Hayvanlarım
+                </h2>
+<div class="flex items-center justify-end">
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-primary text-background-dark hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl font-semibold">add</span>
+</button>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="px-4 py-2">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-center rounded-xl h-12 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 focus-within:ring-2 focus-within:ring-primary/50 transition-all overflow-hidden shadow-sm">
+<div class="flex items-center justify-center pl-4 pr-2 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-base font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-0 p-0 h-full" placeholder="İsim ile ara..." value=""/>
+</div>
+</label>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 px-4 py-3 overflow-x-auto no-scrollbar scroll-smooth">
+<button class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-primary text-background-dark shadow-md shadow-primary/10 transition-transform active:scale-95">
+<p class="text-sm font-bold leading-normal">Tümü</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 transition-transform active:scale-95">
+<p class="text-sm font-medium leading-normal">Köpekler</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 transition-transform active:scale-95">
+<p class="text-sm font-medium leading-normal">Kediler</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg mr-1 text-red-400">warning</span>
+<p class="text-sm font-medium leading-normal">Acil</p>
+</button>
+</div>
+</header>
+<!-- Main Content List -->
+<main class="flex flex-col gap-4 p-4">
+<!-- Pet Card 1 -->
+<div class="group relative flex items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:bg-slate-50 dark:hover:bg-white/5">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative shrink-0">
+<div class="h-[72px] w-[72px] rounded-full bg-cover bg-center shadow-inner border-2 border-white dark:border-white/10" data-alt="Golden Retriever dog portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOAEUvlGm9GGd4ElJzx-3k3kZwnMOgUbtlEk4_E2rMwk2PYijeqvyPLOJnHOOcZWt3WqvplN2RrYkn7xVDzZmkRieuvyegfQIAYAw3B7d3pPY5x7M0ehHfj8i_sj8yxPNm1iaObog8iEuNAEvsdhYqE_d0gJ4g1qNF_KVRQ33ZtFr_qC6GxdJBB46UriqlkrgsyFseDkbUpc-VXJ_QrXOTDIrTNkiXGLeJn6rWIeI3icTz3gmmlqCEuU6U3vObhJ1D9zuDPPj41Dz7");'></div>
+<div class="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white dark:border-card-dark rounded-full p-1 w-6 h-6 flex items-center justify-center" title="Healthy">
+<span class="material-symbols-outlined text-white text-[14px] font-bold">check</span>
+</div>
+</div>
+<div class="flex flex-col justify-center gap-1 w-full min-w-0">
+<div class="flex items-center justify-between w-full">
+<h3 class="text-lg font-bold leading-none dark:text-white text-slate-900 truncate">Barney</h3>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none truncate">Golden Retriever • 3 Yaşında</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">vaccines</span>
+<span class="text-primary text-sm font-bold leading-none">Kuduz Aşısı: 12 Kas</span>
+</div>
+</div>
+</div>
+<div class="shrink-0 self-center">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 2 -->
+<div class="group relative flex items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:bg-slate-50 dark:hover:bg-white/5">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative shrink-0">
+<div class="h-[72px] w-[72px] rounded-full bg-cover bg-center shadow-inner border-2 border-white dark:border-white/10" data-alt="Tabby cat looking at camera" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCDihayDSKFOPkncQWHvNdR9RUGvAO6SUG1_hW-wJaKYg_3w7SLLdr2qnBNi3Dx9JXN9iv-5UbcLMxFIWFwiyuUxwMqV9aIA6m-0R0KjqwWq2c5yVUZJr8ngxhSxuva3ugIEEuL56uK5n7LYBia_GWnLsHLNcjiPfztB6jD3gRC9_fU55sMrPnX5-gPqTor6MOd4iBs0XJy-DG4CXOlXlkhuM6deqkaIAplIPEZX9kYqtvJ7NvMUzHQQT2JsGvh9sbHMfhp20JiULGC");'></div>
+<div class="absolute -bottom-1 -right-1 bg-yellow-500 border-2 border-white dark:border-card-dark rounded-full p-1 w-6 h-6 flex items-center justify-center" title="Needs Attention">
+<span class="material-symbols-outlined text-white text-[14px] font-bold">priority_high</span>
+</div>
+</div>
+<div class="flex flex-col justify-center gap-1 w-full min-w-0">
+<div class="flex items-center justify-between w-full">
+<h3 class="text-lg font-bold leading-none dark:text-white text-slate-900 truncate">Luna</h3>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none truncate">Tekir • 1 Yaşında</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">calendar_clock</span>
+<span class="text-primary text-sm font-bold leading-none">Vet Randevusu: Yarın</span>
+</div>
+</div>
+</div>
+<div class="shrink-0 self-center">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 3 -->
+<div class="group relative flex items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:bg-slate-50 dark:hover:bg-white/5">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative shrink-0">
+<div class="h-[72px] w-[72px] rounded-full bg-cover bg-center shadow-inner border-2 border-white dark:border-white/10" data-alt="French bulldog puppy sitting" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDS5T1JSuzb_s8t-hzOXXouOLaQIqsOkB4r2g9hkSm5U6GY68J65OLQ7p0Qy3g_ubrCp_9Q00bzKC9L76Qho_oXJL3D2peZSZ3N2WHhfUp9wdKtBlLfv0NdoPJK_eSKY2lrZo6DwQ0CwzZxHVb0tmMv6UdKoWVO73atHGWpMz7KPADYkbmQn9qCrfUAZwMqEcNWJjsCyF1TAS8A3GQi7yo_ZuY_3nupsJ2M01pQtrFG0EyK2s1Y_FrxuT46dJs7KUc92mf2Xbh8n6MV");'></div>
+<div class="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white dark:border-card-dark rounded-full p-1 w-6 h-6 flex items-center justify-center" title="Healthy">
+<span class="material-symbols-outlined text-white text-[14px] font-bold">check</span>
+</div>
+</div>
+<div class="flex flex-col justify-center gap-1 w-full min-w-0">
+<div class="flex items-center justify-between w-full">
+<h3 class="text-lg font-bold leading-none dark:text-white text-slate-900 truncate">Cooper</h3>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none truncate">French Bulldog • 5 Ay</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[18px]">medication</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none">Parazit Hapı: 2 hafta sonra</span>
+</div>
+</div>
+</div>
+<div class="shrink-0 self-center">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 4 -->
+<div class="group relative flex items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:bg-slate-50 dark:hover:bg-white/5">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative shrink-0">
+<div class="h-[72px] w-[72px] rounded-full bg-cover bg-center shadow-inner border-2 border-white dark:border-white/10" data-alt="Colorful parrot on a branch" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCpjrvwX9ucMc11NyiOCtiO0xLFIrmtwftBk8HCI0oAxEeftXnROPsH-yUIwKZjKDpUnWBEovKmplRUo7mkJtP91d_7uaL_cRudbXm0WHk0jcyBfZ_sCD9B3NEGnpzJuPCk73mnvugXfdGzFsCAE08ZqT8wi1Fd_ntSxOG3cGkJnpoOTZJIV71NwN-BRU0NQGT-CSie87bPlaNHGXBI4GcKnIwA02Cfl0C4q7Km1The6I64DTESeE9YCrCDDcYjYaKb6lFXIGyJMbVW");'></div>
+<div class="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white dark:border-card-dark rounded-full p-1 w-6 h-6 flex items-center justify-center" title="Healthy">
+<span class="material-symbols-outlined text-white text-[14px] font-bold">check</span>
+</div>
+</div>
+<div class="flex flex-col justify-center gap-1 w-full min-w-0">
+<div class="flex items-center justify-between w-full">
+<h3 class="text-lg font-bold leading-none dark:text-white text-slate-900 truncate">Maviş</h3>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none truncate">Muhabbet Kuşu • 2 Yaşında</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[18px]">notifications_off</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-none">Etkinlik yok</span>
+</div>
+</div>
+</div>
+<div class="shrink-0 self-center">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Add new pet prompt (Empty state filler) -->
+<div class="mt-4 flex flex-col items-center justify-center py-8 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl gap-3">
+<div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Başka bir dostun mu var?</p>
+<button class="text-primary text-sm font-bold hover:underline">Yeni Ekle</button>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full bg-white/90 dark:bg-[#102216]/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 pb-6 pt-3 px-6 z-50">
+<ul class="flex justify-between items-center">
+<li>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:-translate-y-0.5 transition-transform">home</span>
+<span class="text-[10px] font-medium">Anasayfa</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[28px] fill-1">pets</span>
+<span class="text-[10px] font-bold">Evcil Hayvanlar</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:-translate-y-0.5 transition-transform">calendar_month</span>
+<span class="text-[10px] font-medium">Takvim</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:-translate-y-0.5 transition-transform">person</span>
+<span class="text-[10px] font-medium">Profil</span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</body></html>

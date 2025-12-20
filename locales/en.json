@@ -98,6 +98,15 @@
     "noPetsYet": "No pets yet",
     "addFirstPet": "Press the + button to add your first pet",
     "addFirstPetButton": "Add First Pet",
+    "searchPlaceholder": "Search by name...",
+    "addAnotherPrompt": "Have another buddy?",
+    "addAnotherCta": "Add New",
+    "filters": {
+      "all": "All",
+      "dogs": "Dogs",
+      "cats": "Cats",
+      "urgent": "Urgent"
+    },
     "addNewPet": "Add New Pet",
     "editPet": "Edit Pet",
     "petName": "Pet Name",

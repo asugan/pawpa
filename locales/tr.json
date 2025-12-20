@@ -98,6 +98,15 @@
     "noPetsYet": "Henüz pet yok",
     "addFirstPet": "+ butonuna basarak ilk evcil dostunuzu ekleyin",
     "addFirstPetButton": "İlk Peti Ekle",
+    "searchPlaceholder": "İsim ile ara...",
+    "addAnotherPrompt": "Başka bir dostun mu var?",
+    "addAnotherCta": "Yeni Ekle",
+    "filters": {
+      "all": "Tümü",
+      "dogs": "Köpekler",
+      "cats": "Kediler",
+      "urgent": "Acil"
+    },
     "addNewPet": "Yeni Pet Ekle",
     "editPet": "Pet Düzenle",
     "petName": "Pet Adı",
