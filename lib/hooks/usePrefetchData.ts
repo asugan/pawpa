@@ -3,6 +3,7 @@ import { petKeys } from './usePets';
 import { healthRecordKeys } from './useHealthRecords';
 import { eventKeys } from './useEvents';
 import { feedingScheduleKeys } from './useFeedingSchedules';
+import { unwrapApiResponse } from './core/unwrapApiResponse';
 
 export function usePrefetchData() {
   const queryClient = useQueryClient();
@@ -10,7 +11,10 @@ export function usePrefetchData() {
   const prefetchPetDetails = (petId: string) => {
     queryClient.prefetchQuery({
       queryKey: petKeys.detail(petId),
-      queryFn: () => import('@/lib/services/petService').then(m => m.petService.getPetById(petId)),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/petService').then(m => m.petService.getPetById(petId))
+        ),
       staleTime: 10 * 60 * 1000, // 10 minutes
     });
   };
@@ -18,7 +22,13 @@ export function usePrefetchData() {
   const prefetchPetHealthRecords = (petId: string) => {
     queryClient.prefetchQuery({
       queryKey: healthRecordKeys.list(petId),
-      queryFn: () => import('@/lib/services/healthRecordService').then(m => m.healthRecordService.getHealthRecordsByPetId(petId)),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/healthRecordService').then(m =>
+            m.healthRecordService.getHealthRecordsByPetId(petId)
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
@@ -26,7 +36,13 @@ export function usePrefetchData() {
   const prefetchPetEvents = (petId: string) => {
     queryClient.prefetchQuery({
       queryKey: eventKeys.list({ petId }),
-      queryFn: () => import('@/lib/services/eventService').then(m => m.eventService.getEventsByPetId(petId)),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/eventService').then(m =>
+            m.eventService.getEventsByPetId(petId)
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
   };
@@ -34,7 +50,13 @@ export function usePrefetchData() {
   const prefetchPetFeedingSchedules = (petId: string) => {
     queryClient.prefetchQuery({
       queryKey: feedingScheduleKeys.list({ petId }),
-      queryFn: () => import('@/lib/services/feedingScheduleService').then(m => m.feedingScheduleService.getFeedingSchedulesByPetId(petId)),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/feedingScheduleService').then(m =>
+            m.feedingScheduleService.getFeedingSchedulesByPetId(petId)
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 1 * 60 * 1000, // 1 minute
     });
   };
@@ -49,7 +71,13 @@ export function usePrefetchData() {
   const prefetchUpcomingEvents = () => {
     queryClient.prefetchQuery({
       queryKey: eventKeys.upcoming(),
-      queryFn: () => import('@/lib/services/eventService').then(m => m.eventService.getUpcomingEvents()),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/eventService').then(m =>
+            m.eventService.getUpcomingEvents()
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 1 * 60 * 1000, // 1 minute
     });
   };
@@ -57,7 +85,11 @@ export function usePrefetchData() {
   const prefetchTodayEvents = () => {
     queryClient.prefetchQuery({
       queryKey: eventKeys.today(),
-      queryFn: () => import('@/lib/services/eventService').then(m => m.eventService.getTodayEvents()),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/eventService').then(m => m.eventService.getTodayEvents()),
+          { defaultValue: [] }
+        ),
       staleTime: 30 * 1000, // 30 seconds
     });
   };
@@ -65,7 +97,13 @@ export function usePrefetchData() {
   const prefetchActiveFeedingSchedules = () => {
     queryClient.prefetchQuery({
       queryKey: feedingScheduleKeys.active(),
-      queryFn: () => import('@/lib/services/feedingScheduleService').then(m => m.feedingScheduleService.getActiveFeedingSchedules()),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/feedingScheduleService').then(m =>
+            m.feedingScheduleService.getActiveFeedingSchedules()
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 30 * 1000, // 30 seconds
     });
   };
@@ -73,7 +111,13 @@ export function usePrefetchData() {
   const prefetchUpcomingVaccinations = () => {
     queryClient.prefetchQuery({
       queryKey: healthRecordKeys.upcoming(),
-      queryFn: () => import('@/lib/services/healthRecordService').then(m => m.healthRecordService.getUpcomingRecords()),
+      queryFn: () =>
+        unwrapApiResponse(
+          import('@/lib/services/healthRecordService').then(m =>
+            m.healthRecordService.getUpcomingRecords()
+          ),
+          { defaultValue: [] }
+        ),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
@@ -94,7 +138,13 @@ export function usePrefetchData() {
     if (date && date !== new Date().toISOString().split('T')[0]) {
       queryClient.prefetchQuery({
         queryKey: eventKeys.calendar(date),
-        queryFn: () => import('@/lib/services/eventService').then(m => m.eventService.getEventsByDate(date)),
+        queryFn: () =>
+          unwrapApiResponse(
+            import('@/lib/services/eventService').then(m =>
+              m.eventService.getEventsByDate(date)
+            ),
+            { defaultValue: [] }
+          ),
         staleTime: 5 * 60 * 1000, // 5 minutes
       });
     }

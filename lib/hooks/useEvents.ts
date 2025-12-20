@@ -226,7 +226,12 @@ export const useDeleteEvent = () => {
         queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
         queryClient.invalidateQueries({ queryKey: eventKeys.upcoming() });
         queryClient.invalidateQueries({ queryKey: eventKeys.today() });
-        queryClient.invalidateQueries({ queryKey: eventKeys.calendar('') }); // Invalidate all calendars potentially
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            Array.isArray(query.queryKey) &&
+            query.queryKey[0] === eventKeys.all[0] &&
+            query.queryKey[1] === 'calendar',
+        });
       },
     }
   );

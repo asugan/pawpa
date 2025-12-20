@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePrefetchData } from './usePrefetchData';
-import { petKeys } from './usePets';
 import { healthRecordKeys } from './useHealthRecords';
 import { eventKeys } from './useEvents';
 import { feedingScheduleKeys } from './useFeedingSchedules';
+import { unwrapApiResponse } from './core/unwrapApiResponse';
 
 interface PrefetchStrategy {
   priority: 'high' | 'medium' | 'low';
@@ -70,8 +70,13 @@ export function useSmartPrefetching() {
             // Prefetch additional data for pet details view
             queryClient.prefetchQuery({
               queryKey: feedingScheduleKeys.list({ petId: context.petId }),
-              queryFn: () => import('@/lib/services/feedingScheduleService')
-                .then(m => m.feedingScheduleService.getFeedingSchedulesByPetId(context.petId!)),
+              queryFn: () =>
+                unwrapApiResponse(
+                  import('@/lib/services/feedingScheduleService').then(m =>
+                    m.feedingScheduleService.getFeedingSchedulesByPetId(context.petId!)
+                  ),
+                  { defaultValue: [] }
+                ),
               staleTime: 5 * 60 * 1000,
             });
           }
@@ -81,15 +86,25 @@ export function useSmartPrefetching() {
           // Prefetch upcoming vaccinations and today's events
           queryClient.prefetchQuery({
             queryKey: healthRecordKeys.upcoming(),
-            queryFn: () => import('@/lib/services/healthRecordService')
-              .then(m => m.healthRecordService.getUpcomingRecords()),
+            queryFn: () =>
+              unwrapApiResponse(
+                import('@/lib/services/healthRecordService').then(m =>
+                  m.healthRecordService.getUpcomingRecords()
+                ),
+                { defaultValue: [] }
+              ),
             staleTime: 2 * 60 * 1000,
           });
 
           queryClient.prefetchQuery({
             queryKey: eventKeys.today(),
-            queryFn: () => import('@/lib/services/eventService')
-              .then(m => m.eventService.getTodayEvents()),
+            queryFn: () =>
+              unwrapApiResponse(
+                import('@/lib/services/eventService').then(m =>
+                  m.eventService.getTodayEvents()
+                ),
+                { defaultValue: [] }
+              ),
             staleTime: 1 * 60 * 1000,
           });
           break;
@@ -98,15 +113,25 @@ export function useSmartPrefetching() {
           // Refresh critical data in background
           queryClient.prefetchQuery({
             queryKey: eventKeys.upcoming(),
-            queryFn: () => import('@/lib/services/eventService')
-              .then(m => m.eventService.getUpcomingEvents()),
+            queryFn: () =>
+              unwrapApiResponse(
+                import('@/lib/services/eventService').then(m =>
+                  m.eventService.getUpcomingEvents()
+                ),
+                { defaultValue: [] }
+              ),
             staleTime: 1 * 60 * 1000,
           });
 
           queryClient.prefetchQuery({
             queryKey: feedingScheduleKeys.active(),
-            queryFn: () => import('@/lib/services/feedingScheduleService')
-              .then(m => m.feedingScheduleService.getActiveFeedingSchedules()),
+            queryFn: () =>
+              unwrapApiResponse(
+                import('@/lib/services/feedingScheduleService').then(m =>
+                  m.feedingScheduleService.getActiveFeedingSchedules()
+                ),
+                { defaultValue: [] }
+              ),
             staleTime: 1 * 60 * 1000,
           });
           break;
@@ -159,15 +184,25 @@ export function useSmartPrefetching() {
     if (hour >= 6 && hour < 12) {
       queryClient.prefetchQuery({
         queryKey: eventKeys.today(),
-        queryFn: () => import('@/lib/services/eventService')
-          .then(m => m.eventService.getTodayEvents()),
+        queryFn: () =>
+          unwrapApiResponse(
+            import('@/lib/services/eventService').then(m =>
+              m.eventService.getTodayEvents()
+            ),
+            { defaultValue: [] }
+          ),
         staleTime: 1 * 60 * 1000,
       });
 
       queryClient.prefetchQuery({
         queryKey: feedingScheduleKeys.today(),
-        queryFn: () => import('@/lib/services/feedingScheduleService')
-          .then(m => m.feedingScheduleService.getTodayFeedingSchedules()),
+        queryFn: () =>
+          unwrapApiResponse(
+            import('@/lib/services/feedingScheduleService').then(m =>
+              m.feedingScheduleService.getTodayFeedingSchedules()
+            ),
+            { defaultValue: [] }
+          ),
         staleTime: 1 * 60 * 1000,
       });
     }
@@ -179,8 +214,13 @@ export function useSmartPrefetching() {
 
       queryClient.prefetchQuery({
         queryKey: eventKeys.calendar(tomorrow.toISOString().split('T')[0]),
-        queryFn: () => import('@/lib/services/eventService')
-          .then(m => m.eventService.getEventsByDate(tomorrow.toISOString().split('T')[0])),
+        queryFn: () =>
+          unwrapApiResponse(
+            import('@/lib/services/eventService').then(m =>
+              m.eventService.getEventsByDate(tomorrow.toISOString().split('T')[0])
+            ),
+            { defaultValue: [] }
+          ),
         staleTime: 2 * 60 * 1000,
       });
     }

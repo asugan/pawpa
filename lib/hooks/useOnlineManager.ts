@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { focusManager } from '@tanstack/react-query';
+import { onlineManager, useQueryClient } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
 
 export function useOnlineManager() {
@@ -8,10 +7,10 @@ export function useOnlineManager() {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      const isOnline = state.isConnected ?? false;
+      const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
 
       // Set React Query's online status
-      focusManager.setFocused(isOnline);
+      onlineManager.setOnline(isOnline);
 
       // When coming back online, refetch all stale queries
       if (isOnline) {
