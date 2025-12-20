@@ -525,15 +525,6 @@ export default function FinanceScreen() {
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <View style={styles.header}>
-          <Text
-            variant="titleLarge"
-            style={{ color: theme.colors.onBackground }}
-          >
-            {t("finance.title")}
-          </Text>
-        </View>
-
         <View style={styles.tabsContainer}>
           <SegmentedButtons
             value={activeTab}

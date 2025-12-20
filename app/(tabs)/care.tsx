@@ -280,11 +280,6 @@ export default function CareScreen() {
   return (
     <ProtectedRoute featureName={t('subscription.features.healthRecords')}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onBackground }}>
-            {t('care.title')}
-          </Text>
-        </View>
 
         <View style={styles.segmentedContainer}>
           <SegmentedButtons
