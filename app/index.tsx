@@ -8,10 +8,10 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 export default function Index() {
   const { isAuthenticated, isPending } = useAuth();
   const { theme } = useTheme();
-  const { hasSeenOnboarding } = useOnboardingStore();
+  const { hasSeenOnboarding, hasHydrated } = useOnboardingStore();
 
   // Show loading while checking auth state
-  if (isPending) {
+  if (isPending || !hasHydrated) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
