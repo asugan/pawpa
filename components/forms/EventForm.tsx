@@ -1,21 +1,21 @@
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { FormProvider, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Button, Text } from '@/components/ui';
 import { useEventForm } from '@/hooks/useEventForm';
 import { useTheme } from '@/lib/theme';
-import React from 'react';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { createEventTypeOptions } from '../../constants';
+import { REMINDER_PRESETS, ReminderPresetKey } from '@/constants/reminders';
+import { requestNotificationPermissions } from '@/lib/services/notificationService';
 import { type EventFormData } from '../../lib/schemas/eventSchema';
 import { Event, Pet } from '../../lib/types';
 import { FormSection } from './FormSection';
 import { SmartDateTimePicker } from './SmartDateTimePicker';
 import { SmartDropdown } from './SmartDropdown';
+import { SmartEventTypePicker } from './SmartEventTypePicker';
 import { SmartInput } from './SmartInput';
 import { SmartSwitch } from './SmartSwitch';
 import { StepHeader } from './StepHeader';
-import { REMINDER_PRESETS, ReminderPresetKey } from '@/constants/reminders';
-import { requestNotificationPermissions } from '@/lib/services/notificationService';
 
 interface EventFormProps {
   event?: Event;
@@ -49,9 +49,6 @@ export function EventForm({
   const selectedPetId = useWatch({ control, name: 'petId' });
   const eventType = useWatch({ control, name: 'type' });
   const reminderEnabled = useWatch({ control, name: 'reminder' });
-
-  // Event type options with i18n support
-  const eventTypeOptions = React.useMemo(() => createEventTypeOptions(t), [t]);
 
   // Pet options from real pet data
   const petOptions = React.useMemo(
@@ -248,13 +245,10 @@ export function EventForm({
             />
 
             {/* Event Type */}
-            <SmartDropdown
+            <SmartEventTypePicker
               name="type"
-              required
-              options={eventTypeOptions}
-              placeholder={t('events.typePlaceholder')}
               label={t('events.type')}
-              testID={`${testID}-type`}
+              testID={testID ? `${testID}-type` : 'event-form-type'}
             />
 
             {/* Event type suggestions */}
