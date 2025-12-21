@@ -321,7 +321,17 @@ export default function FinanceScreen() {
           <Chip
             selected={!selectedPetId}
             onPress={() => setSelectedPetId(undefined)}
-            textStyle={{ fontSize: 12 }}
+            textStyle={{
+              fontSize: 12,
+              color: !selectedPetId ? theme.colors.onPrimary : theme.colors.onSurfaceVariant,
+            }}
+            style={[
+              styles.petChip,
+              {
+                backgroundColor: !selectedPetId ? theme.colors.primary : theme.colors.surface,
+                borderColor: !selectedPetId ? theme.colors.primary : theme.colors.outlineVariant,
+              },
+            ]}
           >
             {t("common.all")}
           </Chip>
@@ -330,7 +340,26 @@ export default function FinanceScreen() {
               key={pet._id}
               selected={selectedPetId === pet._id}
               onPress={() => setSelectedPetId(pet._id)}
-              textStyle={{ fontSize: 12 }}
+              textStyle={{
+                fontSize: 12,
+                color:
+                  selectedPetId === pet._id
+                    ? theme.colors.onPrimary
+                    : theme.colors.onSurfaceVariant,
+              }}
+              style={[
+                styles.petChip,
+                {
+                  backgroundColor:
+                    selectedPetId === pet._id
+                      ? theme.colors.primary
+                      : theme.colors.surface,
+                  borderColor:
+                    selectedPetId === pet._id
+                      ? theme.colors.primary
+                      : theme.colors.outlineVariant,
+                },
+              ]}
             >
               {pet.name}
             </Chip>
@@ -339,6 +368,48 @@ export default function FinanceScreen() {
       </View>
     );
   };
+
+  const renderExportActions = (containerStyle?: object) => (
+    <View style={[styles.exportSection, containerStyle]}>
+      <View style={styles.exportRow}>
+        <Button
+          mode="outlined"
+          icon="download"
+          loading={exportCsvMutation.isPending}
+          onPress={handleExportCsv}
+          style={[styles.exportButton, { backgroundColor: theme.colors.surface }]}
+          labelStyle={styles.exportButtonLabel}
+          textColor={theme.colors.primary}
+        >
+          {t("expenses.exportCsv", "Export CSV")}
+        </Button>
+        <Button
+          mode="outlined"
+          icon="file-pdf-box"
+          loading={exportPdfMutation.isPending}
+          onPress={handleExportPdf}
+          style={[styles.exportButton, { backgroundColor: theme.colors.surface }]}
+          labelStyle={styles.exportButtonLabel}
+          textColor={theme.colors.primary}
+        >
+          {t("expenses.exportPdf", "Export PDF")}
+        </Button>
+      </View>
+      <Button
+        mode="contained"
+        icon="plus"
+        loading={exportVetSummaryMutation.isPending}
+        onPress={handleVetSummary}
+        disabled={!selectedPetId}
+        buttonColor={theme.colors.surfaceVariant}
+        textColor={theme.colors.onSurfaceVariant}
+        style={styles.vetSummaryButton}
+        labelStyle={styles.vetSummaryLabel}
+      >
+        {t("expenses.vetSummary", "Vet summary PDF")}
+      </Button>
+    </View>
+  );
 
   // Render budget tab content
   const renderBudgetContent = () => {
@@ -353,35 +424,7 @@ export default function FinanceScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.budgetSection}>
-          <View style={styles.exportRow}>
-            <Button
-              mode="outlined"
-              icon="file-download"
-              loading={exportCsvMutation.isPending}
-              onPress={handleExportCsv}
-              style={styles.exportButton}
-            >
-              {t("expenses.exportCsv", "Export CSV")}
-            </Button>
-            <Button
-              mode="outlined"
-              icon="file-pdf-box"
-              loading={exportPdfMutation.isPending}
-              onPress={handleExportPdf}
-              style={styles.exportButton}
-            >
-              {t("expenses.exportPdf", "Export PDF")}
-            </Button>
-          </View>
-          <Button
-            mode="contained"
-            icon="hospital"
-            loading={exportVetSummaryMutation.isPending}
-            onPress={handleVetSummary}
-            disabled={!selectedPetId}
-          >
-            {t("expenses.vetSummary", "Vet summary PDF")}
-          </Button>
+          {renderExportActions()}
 
           {/* EmptyState - shown when no budget exists */}
           {(!budget || (typeof budget === 'object' && Object.keys(budget).length === 0)) && (
@@ -483,30 +526,25 @@ export default function FinanceScreen() {
         scrollEventThrottle={400}
       >
         {expenseStats && (
-          <Card
-            style={[
-              styles.statsCard,
-              { backgroundColor: theme.colors.surface },
-            ]}
-          >
+          <Card style={[styles.statsCard, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.statsContent}>
-              <Text
-                variant="titleMedium"
-                style={{ color: theme.colors.onSurface }}
-              >
+              <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
                 {t("expenses.totalSpent")}: {expenseStats.total || 0}{" "}
                 {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onSurfaceVariant }}
-              >
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                 {t("expenses.average")}: {expenseStats.average || 0}{" "}
                 {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
             </View>
           </Card>
         )}
+
+        {renderExportActions(styles.exportSectionInset)}
+
+        <Text variant="titleMedium" style={[styles.recentTitle, { color: theme.colors.onSurface }]}>
+          {t("expenses.recent", "Recent Expenses")}
+        </Text>
 
         <View style={styles.expensesGrid}>
           {allExpenses.map((expense) => (
@@ -542,7 +580,7 @@ export default function FinanceScreen() {
               {
                 value: 'expenses',
                 label: t('finance.expenses', 'Expenses'),
-                icon: 'receipt'
+                icon: 'cash'
               }
             ]}
             density="small"
@@ -625,8 +663,6 @@ const styles = StyleSheet.create({
   },
   segmentedButtons: {
     marginBottom: 0,
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E5E7EB",
     borderWidth: 1,
     borderRadius: 999,
     shadowColor: "#000",
@@ -636,13 +672,17 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   petSelector: {
-    padding: 16,
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   petChips: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 10,
+  },
+  petChip: {
+    borderWidth: 1,
   },
   content: {
     flex: 1,
@@ -663,8 +703,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expensesGrid: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
   sectionTitle: {
     paddingHorizontal: 16,
@@ -676,14 +716,16 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
+    paddingTop: 12,
   },
   statsCard: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
+    borderRadius: 16,
     elevation: 2,
   },
   statsContent: {
-    padding: 16,
+    padding: 18,
   },
   fab: {
     position: "absolute",
@@ -691,14 +733,33 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  exportSection: {
+    marginBottom: 16,
+  },
+  exportSectionInset: {
+    paddingHorizontal: 16,
+  },
   exportRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 8,
+    gap: 12,
+    marginBottom: 12,
   },
   exportButton: {
     flex: 1,
+    borderRadius: 14,
+  },
+  exportButtonLabel: {
+    fontWeight: "600",
+  },
+  vetSummaryButton: {
+    borderRadius: 14,
+  },
+  vetSummaryLabel: {
+    fontWeight: "600",
+  },
+  recentTitle: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    fontWeight: "700",
   },
 });
