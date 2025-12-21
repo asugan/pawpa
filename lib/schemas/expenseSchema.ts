@@ -106,15 +106,7 @@ export const ExpenseSchema = BaseExpenseSchema.extend({
 });
 
 // Schema for creating a new expense
-export const ExpenseCreateSchema = BaseExpenseSchema.refine(
-  (data) => {
-    return data.petId && data.category && data.amount > 0 && data.date;
-  },
-  {
-    message: 'Pet ID, category, amount, and date are required',
-    path: ['petId']
-  }
-);
+export const ExpenseCreateSchema = BaseExpenseSchema;
 
 // Schema for updating an existing expense (all fields optional)
 export const ExpenseUpdateSchema = BaseExpenseSchema.partial().omit({ petId: true });
