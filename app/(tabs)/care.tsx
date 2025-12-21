@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, SegmentedButtons, FAB, Chip, IconButton } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { FAB, IconButton, SegmentedButtons, Text } from '@/components/ui';
+import { PetPickerBase } from '@/components/PetPicker';
+import { ProtectedRoute } from '@/components/subscription';
+import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
+import { useTheme } from '@/lib/theme';
 import { usePets } from '../../lib/hooks/usePets';
 import { useHealthRecords } from '../../lib/hooks/useHealthRecords';
 import {
@@ -19,8 +21,6 @@ import { HealthRecordForm } from '../../components/forms/HealthRecordForm';
 import { FeedingScheduleModal } from '../../components/FeedingScheduleModal';
 import { TURKCE_LABELS, HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, LAYOUT } from '../../constants';
 import type { HealthRecord, FeedingSchedule } from '../../lib/types';
-import { ProtectedRoute } from '@/components/subscription';
-import { FeedingScheduleCard } from '@/components/feeding/FeedingScheduleCard';
 
 
 type CareTabValue = 'health' | 'feeding';
@@ -329,36 +329,17 @@ export default function CareScreen() {
         </View>
 
         {/* Pet selector */}
-        {pets.length > 0 && (
+        {!petsLoading && pets.length > 0 && (
           <View style={styles.petSelector}>
-            <Text
-              variant="labelSmall"
-              style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
-            >
-              {t('health.selectPet')}
-            </Text>
-            <View style={styles.petChips}>
-              <Chip
-                selected={!selectedPetId}
-                onPress={() => setSelectedPetId(undefined)}
-                textStyle={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
-                style={styles.petChip}
-              >
-                {t('common.all')}
-              </Chip>
-              {pets.map((pet) => (
-                <Chip
-                  key={pet._id}
-                  selected={selectedPetId === pet._id}
-                  onPress={() => setSelectedPetId(pet._id)}
-                  textStyle={styles.chipText}
-                  style={styles.petChip}
-                  selectedColor={theme.colors.secondary}
-                >
-                  {pet.name}
-                </Chip>
-              ))}
-            </View>
+            <PetPickerBase
+              pets={pets}
+              selectedPetId={selectedPetId}
+              onSelect={(petId) => setSelectedPetId(petId)}
+              onSelectAll={() => setSelectedPetId(undefined)}
+              showAllOption
+              label={t('health.selectPet')}
+              allLabel={t('common.all')}
+            />
           </View>
         )}
 
@@ -438,24 +419,6 @@ const styles = StyleSheet.create({
   petSelector: {
     padding: 16,
     paddingTop: 8,
-  },
-  petChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  sectionLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 8,
-  },
-  petChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  chipText: {
-    fontSize: 12,
-    fontWeight: '600',
   },
   content: {
     flex: 1,

@@ -1,10 +1,10 @@
-import { Button, Text, TextInput } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
-import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Text, TextInput } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
 import { ExpenseCreateInput, ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
 import { CreateExpenseInput as CreateExpenseInputType, Currency, Expense, ExpenseCategory } from '../lib/types';
 import { toISODateString } from '../lib/utils/dateConversion';
@@ -14,7 +14,7 @@ import { SmartDatePicker } from './forms/SmartDatePicker';
 import { SmartInput } from './forms/SmartInput';
 import { SmartNumberInput } from './forms/SmartNumberInput';
 import { SmartPaymentMethodPicker } from './forms/SmartPaymentMethodPicker';
-import { PetSelector } from './forms/PetSelector';
+import { SmartPetPicker } from './forms/SmartPetPicker';
 import { FormSection } from './forms/FormSection';
 import { StepHeader } from './forms/StepHeader';
 
@@ -55,11 +55,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    watch,
-    trigger,
-  } = methods;
+  const { handleSubmit, trigger } = methods;
 
   const handleFormSubmit = React.useCallback(
     (data: ExpenseCreateInput) => {
@@ -132,10 +128,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             {/* Pet Selection */}
             {!initialData && (
               <FormSection title={t('forms.petSelection', 'Pet Selection')}>
-                <PetSelector
-                  selectedPetId={watch('petId')}
-                  onPetSelect={(petId) => methods.setValue('petId', petId)}
-                  error={methods.formState.errors.petId?.message}
+                <SmartPetPicker
+                  name="petId"
+                  label={t('common.selectPet')}
+                  required
                 />
               </FormSection>
             )}

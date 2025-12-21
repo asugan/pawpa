@@ -14,6 +14,7 @@ import { SmartDateTimePicker } from './SmartDateTimePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartEventTypePicker } from './SmartEventTypePicker';
 import { SmartInput } from './SmartInput';
+import { SmartPetPicker } from './SmartPetPicker';
 import { SmartSwitch } from './SmartSwitch';
 import { StepHeader } from './StepHeader';
 
@@ -46,19 +47,8 @@ export function EventForm({
   const { form, control, handleSubmit, isDirty } = useEventForm(event, initialPetId);
 
   // Watch form values for dynamic behavior
-  const selectedPetId = useWatch({ control, name: 'petId' });
   const eventType = useWatch({ control, name: 'type' });
   const reminderEnabled = useWatch({ control, name: 'reminder' });
-
-  // Pet options from real pet data
-  const petOptions = React.useMemo(
-    () =>
-      pets.map((pet) => ({
-        value: pet._id,
-        label: `${pet.name} (${pet.type})`,
-      })),
-    [pets]
-  );
 
   const reminderPresetOptions = React.useMemo(
     () =>
@@ -67,12 +57,6 @@ export function EventForm({
         label: t(REMINDER_PRESETS[key].labelKey),
       })),
     [t]
-  );
-
-  // Get selected pet details
-  const selectedPet = React.useMemo(
-    () => petOptions.find((pet) => pet.value === selectedPetId),
-    [petOptions, selectedPetId]
   );
 
   // Event type specific validation and suggestions
@@ -214,22 +198,13 @@ export function EventForm({
             subtitle={t('events.createSubtitle')}
           >
             {/* Pet Selection */}
-            <SmartDropdown
+            <SmartPetPicker
               name="petId"
               required
-              options={petOptions}
-              placeholder={t('events.selectPet')}
               label={t('events.pet')}
-              testID={`${testID}-pet`}
+              pets={pets}
+              testID={testID ? `${testID}-pet` : 'event-form-pet'}
             />
-
-            {selectedPet && (
-              <View style={[styles.selectedPetDisplay, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Text style={{ color: theme.colors.onPrimaryContainer }}>
-                  {t('common.selected')}: {selectedPet.label}
-                </Text>
-              </View>
-            )}
           </FormSection>
         )}
 
@@ -459,12 +434,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     paddingBottom: 40,
-  },
-  selectedPetDisplay: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: -8, // Adjust spacing after SmartDropdown
   },
   suggestionsBox: {
     padding: 12,

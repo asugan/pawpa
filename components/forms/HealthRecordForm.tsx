@@ -1,12 +1,11 @@
+import React, { useState } from 'react';
+import { Alert, Modal as RNModal, ScrollView, StyleSheet, View } from 'react-native';
+import { FormProvider } from 'react-hook-form';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { Button, Text } from '@/components/ui';
 import { useHealthRecordForm } from '@/hooks/useHealthRecordForm';
 import { useTheme } from '@/lib/theme';
-import React, { useState } from 'react';
-import { FormProvider } from 'react-hook-form';
-import { Alert, Modal as RNModal, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES, TURKCE_LABELS } from '../../constants';
 import { useCreateHealthRecord, useUpdateHealthRecord } from '../../lib/hooks/useHealthRecords';
 import {
   formatValidationErrors,
@@ -18,9 +17,9 @@ import { FormRow } from './FormRow';
 import { FormSection } from './FormSection';
 import { SmartCurrencyInput } from './SmartCurrencyInput';
 import { SmartDatePicker } from './SmartDatePicker';
+import { SmartHealthRecordTypePicker } from './SmartHealthRecordTypePicker';
 import { SmartInput } from './SmartInput';
-import { SmartSegmentedButtons } from './SmartSegmentedButtons';
-import { PetSelector } from './PetSelector';
+import { SmartPetPicker } from './SmartPetPicker';
 import { StepHeader } from './StepHeader';
 
 interface HealthRecordFormProps {
@@ -48,7 +47,7 @@ export function HealthRecordForm({
   const isEditing = !!initialData;
 
   // Use the custom hook for form management
-  const { form, handleSubmit, reset, watch } = useHealthRecordForm(petId || '', initialData);
+  const { form, handleSubmit, reset } = useHealthRecordForm(petId || '', initialData);
 
   const getEmptyFormValues = React.useCallback((): HealthRecordCreateFormInput => ({
     petId: petId || '',
@@ -139,13 +138,6 @@ export function HealthRecordForm({
   const handleCancel = () => {
     onCancel?.();
   };
-
-  // Segmented buttons options
-  const recordTypeButtons = Object.entries(HEALTH_RECORD_TYPES).map(([key, value]) => ({
-    value,
-    label: TURKCE_LABELS.HEALTH_RECORD_TYPES[key as keyof typeof TURKCE_LABELS.HEALTH_RECORD_TYPES],
-    icon: HEALTH_RECORD_ICONS[value as keyof typeof HEALTH_RECORD_ICONS],
-  }));
 
   const steps = React.useMemo(() => {
     const stepList = [
@@ -241,10 +233,11 @@ export function HealthRecordForm({
 
             {steps[currentStep].key === 'pet' && (
               <FormSection title={t('healthRecords.petSelection')}>
-                <PetSelector
-                  selectedPetId={watch('petId')}
-                  onPetSelect={(petId) => form.setValue('petId', petId)}
-                  error={form.formState.errors.petId?.message}
+                <SmartPetPicker
+                  name="petId"
+                  label={t('common.selectPet')}
+                  required
+                  testID="health-record-pet"
                 />
               </FormSection>
             )}
@@ -255,10 +248,10 @@ export function HealthRecordForm({
                 subtitle={t('healthRecords.createSubtitle')}
               >
                 {/* Record Type */}
-                <SmartSegmentedButtons
+                <SmartHealthRecordTypePicker
                   name="type"
-                  buttons={recordTypeButtons}
-                  density="small"
+                  label={t('health.recordType')}
+                  testID="health-record-type"
                 />
 
                 {/* Title */}

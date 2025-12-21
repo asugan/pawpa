@@ -1,13 +1,12 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Chip, Text } from '@/components/ui';
-import { PET_TYPES } from '@/constants';
+import { HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES } from '@/constants';
 import { useTheme } from '@/lib/theme';
-import { getPetTypeColor, getPetTypeIcon } from '@/lib/utils/petTypeVisuals';
-import { Pet } from '@/lib/types';
 
-interface PetTypePickerProps {
+interface HealthRecordTypePickerProps {
   selectedType?: string | null;
   onSelect: (type: string) => void;
   label?: string;
@@ -15,7 +14,7 @@ interface PetTypePickerProps {
   testID?: string;
 }
 
-const PetTypePicker: React.FC<PetTypePickerProps> = ({
+const HealthRecordTypePicker: React.FC<HealthRecordTypePickerProps> = ({
   selectedType,
   onSelect,
   label,
@@ -24,7 +23,7 @@ const PetTypePicker: React.FC<PetTypePickerProps> = ({
 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const petTypes = Object.values(PET_TYPES);
+  const recordTypes = Object.values(HEALTH_RECORD_TYPES);
 
   return (
     <View style={styles.container}>
@@ -39,8 +38,11 @@ const PetTypePicker: React.FC<PetTypePickerProps> = ({
         contentContainerStyle={styles.chipContainer}
         testID={testID}
       >
-        {petTypes.map((type) => {
+        {recordTypes.map((type) => {
           const isSelected = selectedType === type;
+          const chipColor = HEALTH_RECORD_COLORS[type as keyof typeof HEALTH_RECORD_COLORS];
+          const iconName = HEALTH_RECORD_ICONS[type as keyof typeof HEALTH_RECORD_ICONS];
+          const iconColor = isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurface;
 
           return (
             <Chip
@@ -49,13 +51,19 @@ const PetTypePicker: React.FC<PetTypePickerProps> = ({
               onPress={() => onSelect(type)}
               style={[
                 styles.chip,
-                isSelected && { backgroundColor: getPetTypeColor(type as Pet['type']) },
+                isSelected && { backgroundColor: chipColor },
               ]}
-              icon={getPetTypeIcon(type as Pet['type'])}
-              textColor={theme.colors.onSurface}
+              icon={({ size }) => (
+                <MaterialCommunityIcons
+                  name={iconName as keyof typeof MaterialCommunityIcons.glyphMap}
+                  size={size}
+                  color={iconColor}
+                />
+              )}
+              textStyle={{ color: iconColor }}
               mode={isSelected ? 'flat' : 'outlined'}
             >
-              {t(`petTypes.${type}`, type)}
+              {t(`healthRecordTypes.${type}`, type)}
             </Chip>
           );
         })}
@@ -91,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PetTypePicker;
+export default HealthRecordTypePicker;

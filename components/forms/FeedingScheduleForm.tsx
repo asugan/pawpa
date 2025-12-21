@@ -1,10 +1,10 @@
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { FormProvider, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Button, Text } from '@/components/ui';
 import { useFeedingScheduleForm } from '@/hooks/useFeedingScheduleForm';
 import { useTheme } from '@/lib/theme';
-import React from 'react';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { createFoodTypeOptions } from '../../constants';
 import { type FeedingScheduleFormData } from '../../lib/schemas/feedingScheduleSchema';
 import { FeedingSchedule, Pet } from '../../lib/types';
@@ -13,6 +13,7 @@ import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDayPicker } from './SmartDayPicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
+import { SmartPetPicker } from './SmartPetPicker';
 import { SmartSwitch } from './SmartSwitch';
 import { StepHeader } from './StepHeader';
 
@@ -45,29 +46,12 @@ export function FeedingScheduleForm({
   const { form, control, handleSubmit, isDirty } = useFeedingScheduleForm(schedule, initialPetId);
 
   // Watch form values for dynamic behavior
-  const selectedPetId = useWatch({ control, name: 'petId' });
   const foodType = useWatch({ control, name: 'foodType' });
 
   // Food type options with i18n support
   const foodTypeOptions = React.useMemo(
     () => createFoodTypeOptions((key: string) => t(key)),
     [t]
-  );
-
-  // Pet options from real pet data
-  const petOptions = React.useMemo(
-    () =>
-      pets.map((pet) => ({
-        value: pet._id,
-        label: `${pet.name} (${t(`petTypes.${pet.type}`)})`,
-      })),
-    [pets, t]
-  );
-
-  // Get selected pet details
-  const selectedPet = React.useMemo(
-    () => petOptions.find((pet) => pet.value === selectedPetId),
-    [petOptions, selectedPetId]
   );
 
   // Food type specific suggestions
@@ -206,22 +190,13 @@ export function FeedingScheduleForm({
             subtitle={t('feedingSchedule.subtitle')}
           >
             {/* Pet Selection */}
-            <SmartDropdown
+            <SmartPetPicker
               name="petId"
               required
-              options={petOptions}
-              placeholder={t('feedingSchedule.placeholders.selectPet')}
               label={t('feedingSchedule.fields.pet')}
-              testID={`${testID}-pet`}
+              pets={pets}
+              testID={testID ? `${testID}-pet` : 'feeding-form-pet'}
             />
-
-            {selectedPet && (
-              <View style={[styles.infoBox, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
-                  {t('feedingSchedule.selectedPet')}: {selectedPet.label}
-                </Text>
-              </View>
-            )}
           </FormSection>
         )}
 
@@ -356,11 +331,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
     paddingBottom: 40,
-  },
-  infoBox: {
-    padding: 12,
-    borderRadius: 8,
-    marginTop: -8, // Adjust spacing after SmartDropdown
   },
   suggestionBox: {
     flexDirection: 'row',

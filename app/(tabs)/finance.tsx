@@ -6,9 +6,15 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { Text, FAB, Snackbar, Chip, Card, SegmentedButtons, Button } from "@/components/ui";
-import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button, Card, FAB, SegmentedButtons, Snackbar, Text } from "@/components/ui";
+import { PetPickerBase } from "@/components/PetPicker";
+import { BudgetInsights } from "@/components/BudgetInsights";
+import { ProtectedRoute } from "@/components/subscription";
+import { useTheme } from "@/lib/theme";
+import { expenseService } from "@/lib/services/expenseService";
 import { usePets } from "../../lib/hooks/usePets";
 import {
   useExpenses,
@@ -28,14 +34,12 @@ import {
   useDeleteUserBudget,
   useBudgetAlertNotifications,
 } from "../../lib/hooks/useUserBudget";
-import { useQueryClient } from "@tanstack/react-query";
 import ExpenseCard from "../../components/ExpenseCard";
 import ExpenseFormModal from "../../components/ExpenseFormModal";
 import UserBudgetCard from "../../components/UserBudgetCard";
 import UserBudgetFormModal from "../../components/UserBudgetFormModal";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import EmptyState from "../../components/EmptyState";
-import { useTranslation } from "react-i18next";
 import {
   CreateExpenseInput,
   Expense,
@@ -44,9 +48,6 @@ import {
 } from "../../lib/types";
 import { LAYOUT } from "../../constants";
 import { ENV } from "../../lib/config/env";
-import { ProtectedRoute } from "@/components/subscription";
-import { BudgetInsights } from "@/components/BudgetInsights";
-import { expenseService } from "@/lib/services/expenseService";
 
 type FinanceTabValue = 'budget' | 'expenses';
 
@@ -311,60 +312,15 @@ export default function FinanceScreen() {
 
     return (
       <View style={styles.petSelector}>
-        <Text
-          variant="labelMedium"
-          style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}
-        >
-          {t("expenses.selectPet")}
-        </Text>
-        <View style={styles.petChips}>
-          <Chip
-            selected={!selectedPetId}
-            onPress={() => setSelectedPetId(undefined)}
-            textStyle={{
-              fontSize: 12,
-              color: !selectedPetId ? theme.colors.onPrimary : theme.colors.onSurfaceVariant,
-            }}
-            style={[
-              styles.petChip,
-              {
-                backgroundColor: !selectedPetId ? theme.colors.primary : theme.colors.surface,
-                borderColor: !selectedPetId ? theme.colors.primary : theme.colors.outlineVariant,
-              },
-            ]}
-          >
-            {t("common.all")}
-          </Chip>
-          {pets.map((pet) => (
-            <Chip
-              key={pet._id}
-              selected={selectedPetId === pet._id}
-              onPress={() => setSelectedPetId(pet._id)}
-              textStyle={{
-                fontSize: 12,
-                color:
-                  selectedPetId === pet._id
-                    ? theme.colors.onPrimary
-                    : theme.colors.onSurfaceVariant,
-              }}
-              style={[
-                styles.petChip,
-                {
-                  backgroundColor:
-                    selectedPetId === pet._id
-                      ? theme.colors.primary
-                      : theme.colors.surface,
-                  borderColor:
-                    selectedPetId === pet._id
-                      ? theme.colors.primary
-                      : theme.colors.outlineVariant,
-                },
-              ]}
-            >
-              {pet.name}
-            </Chip>
-          ))}
-        </View>
+        <PetPickerBase
+          pets={pets}
+          selectedPetId={selectedPetId}
+          onSelect={(petId) => setSelectedPetId(petId)}
+          onSelectAll={() => setSelectedPetId(undefined)}
+          showAllOption
+          label={t("expenses.selectPet")}
+          allLabel={t("common.all")}
+        />
       </View>
     );
   };
@@ -675,14 +631,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 4,
-  },
-  petChips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  petChip: {
-    borderWidth: 1,
   },
   content: {
     flex: 1,
