@@ -1,7 +1,7 @@
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import PetPicker from '@/components/PetPicker';
+import PetPicker, { PetPickerBase } from '@/components/PetPicker';
 import { Pet } from '@/lib/types';
 
 interface SmartPetPickerProps {
@@ -29,16 +29,28 @@ export const SmartPetPicker = ({
       name={name}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View style={styles.container}>
-          <PetPicker
-            selectedPetId={value as string}
-            onSelect={onChange}
-            label={label}
-            error={error?.message}
-            required={required}
-            pets={pets}
-            disabled={disabled}
-            testID={testID}
-          />
+          {pets ? (
+            <PetPickerBase
+              pets={pets}
+              selectedPetId={value as string}
+              onSelect={onChange}
+              label={label}
+              error={error?.message}
+              required={required}
+              disabled={disabled}
+              testID={testID}
+            />
+          ) : (
+            <PetPicker
+              selectedPetId={value as string}
+              onSelect={onChange}
+              label={label}
+              error={error?.message}
+              required={required}
+              disabled={disabled}
+              testID={testID}
+            />
+          )}
         </View>
       )}
     />

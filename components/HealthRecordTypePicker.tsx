@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Chip, Text } from '@/components/ui';
 import { HEALTH_RECORD_COLORS, HEALTH_RECORD_ICONS, HEALTH_RECORD_TYPES } from '@/constants';
 import { useTheme } from '@/lib/theme';
+import { getReadableTextColor } from '@/lib/utils/colorContrast';
 
 interface HealthRecordTypePickerProps {
   selectedType?: string | null;
@@ -42,7 +43,12 @@ const HealthRecordTypePicker: React.FC<HealthRecordTypePickerProps> = ({
           const isSelected = selectedType === type;
           const chipColor = HEALTH_RECORD_COLORS[type as keyof typeof HEALTH_RECORD_COLORS];
           const iconName = HEALTH_RECORD_ICONS[type as keyof typeof HEALTH_RECORD_ICONS];
-          const iconColor = isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurface;
+          const selectedTextColor = getReadableTextColor(
+            chipColor,
+            theme.colors.onPrimary,
+            theme.colors.onSurface
+          );
+          const iconColor = isSelected ? selectedTextColor : theme.colors.onSurface;
 
           return (
             <Chip

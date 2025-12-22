@@ -6,6 +6,7 @@ import { Chip, Text } from '@/components/ui';
 import { EVENT_TYPES } from '@/constants';
 import { getEventTypeIcon, getEventTypeLabel } from '@/constants/eventIcons';
 import { useTheme } from '@/lib/theme';
+import { getReadableTextColor } from '@/lib/utils/colorContrast';
 import { getEventColor } from '@/lib/utils/eventColors';
 
 interface EventTypePickerProps {
@@ -43,7 +44,12 @@ const EventTypePicker: React.FC<EventTypePickerProps> = ({
         {eventTypes.map((type) => {
           const isSelected = selectedType === type;
           const eventColor = getEventColor(type, theme);
-          const iconColor = isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurface;
+          const selectedTextColor = getReadableTextColor(
+            eventColor,
+            theme.colors.onPrimary,
+            theme.colors.onSurface
+          );
+          const iconColor = isSelected ? selectedTextColor : theme.colors.onSurface;
 
           return (
             <Chip

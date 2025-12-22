@@ -1,9 +1,11 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Chip, Text } from '@/components/ui';
 import { PET_TYPES } from '@/constants';
 import { useTheme } from '@/lib/theme';
+import { getReadableTextColor } from '@/lib/utils/colorContrast';
 import { getPetTypeColor, getPetTypeIcon } from '@/lib/utils/petTypeVisuals';
 import { Pet } from '@/lib/types';
 
@@ -41,6 +43,12 @@ const PetTypePicker: React.FC<PetTypePickerProps> = ({
       >
         {petTypes.map((type) => {
           const isSelected = selectedType === type;
+          const chipColor = getPetTypeColor(type as Pet['type']);
+          const selectedTextColor = getReadableTextColor(
+            chipColor,
+            theme.colors.onPrimary,
+            theme.colors.onSurface
+          );
 
           return (
             <Chip
@@ -49,10 +57,16 @@ const PetTypePicker: React.FC<PetTypePickerProps> = ({
               onPress={() => onSelect(type)}
               style={[
                 styles.chip,
-                isSelected && { backgroundColor: getPetTypeColor(type as Pet['type']) },
+                isSelected && { backgroundColor: chipColor },
               ]}
-              icon={getPetTypeIcon(type as Pet['type'])}
-              textColor={theme.colors.onSurface}
+              icon={({ size, color }) => (
+                <Ionicons
+                  name={getPetTypeIcon(type as Pet['type'])}
+                  size={size}
+                  color={isSelected ? selectedTextColor : color}
+                />
+              )}
+              textColor={isSelected ? selectedTextColor : theme.colors.onSurface}
               mode={isSelected ? 'flat' : 'outlined'}
             >
               {t(`petTypes.${type}`, type)}

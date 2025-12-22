@@ -6,6 +6,7 @@ import { Chip, Text } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 import { usePets } from '@/lib/hooks/usePets';
 import { Pet } from '@/lib/types';
+import { getReadableTextColor } from '@/lib/utils/colorContrast';
 import { getPetTypeColor, getPetTypeIcon } from '@/lib/utils/petTypeVisuals';
 
 interface PetPickerBaseProps {
@@ -86,16 +87,22 @@ export const PetPickerBase: React.FC<PetPickerBaseProps> = ({
         {showAllOption && (
           <Chip
             selected={!selectedPetId}
-            onPress={onSelectAll}
+            onPress={() => onSelectAll?.()}
             style={[
               styles.chip,
               !selectedPetId && { backgroundColor: theme.colors.primary },
             ]}
             textStyle={{
-              color: !selectedPetId ? theme.colors.onPrimary : theme.colors.onSurface,
+              color: !selectedPetId
+                ? getReadableTextColor(
+                    theme.colors.primary,
+                    theme.colors.onPrimary,
+                    theme.colors.onSurface
+                  )
+                : theme.colors.onSurface,
             }}
             mode={!selectedPetId ? 'flat' : 'outlined'}
-            disabled={disabled}
+            disabled={disabled || !onSelectAll}
           >
             {allLabel || t('common.all')}
           </Chip>
@@ -103,7 +110,12 @@ export const PetPickerBase: React.FC<PetPickerBaseProps> = ({
         {pets.map((pet) => {
           const isSelected = selectedPetId === pet._id;
           const chipColor = getPetTypeColor(pet.type);
-          const iconColor = isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurface;
+          const selectedTextColor = getReadableTextColor(
+            chipColor,
+            theme.colors.onPrimary,
+            theme.colors.onSurface
+          );
+          const iconColor = isSelected ? selectedTextColor : theme.colors.onSurface;
 
           return (
             <Chip
