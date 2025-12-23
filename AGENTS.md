@@ -18,6 +18,11 @@
 - `npm run android` / `npm run ios`: run the native app via Expo Dev Client.
 - `npm run web`: run in the browser.
 - `npm run lint`: run ESLint (Expo flat config).
+- `npm run test`: run all Vitest unit tests.
+- `npm run test:watch`: run Vitest in watch mode.
+- `npm run test:coverage`: run Vitest with coverage report.
+- `npm run test:ui`: run Vitest UI for interactive testing.
+- `npm run test:expo`: run Expo CLI tests (for component/integration tests with native modules).
 - `npm run reset-project`: reset to a clean state (see `scripts/reset-project.js`).
 - `npx tsc --noEmit`: typecheck (TypeScript `strict` is enabled).
 
@@ -30,7 +35,81 @@
 
 ## Testing Guidelines
 
-No automated test command is configured in `package.json`. Until a runner is added, validate changes with `npm run lint` and `npx tsc --noEmit`. If you introduce tests, place them under `__tests__/` and include the scripts/config in the same PR.
+### Test Strategy (2025)
+
+The project uses a **hybrid testing approach**:
+
+| Tool | Purpose | What to Test |
+|------|---------|--------------|
+| **Vitest** | Pure logic testing | Hooks, services, utils, stores, API functions |
+| **Expo CLI** | Component & integration tests | UI components with native modules, Expo Router |
+
+### Test Structure
+
+```
+__tests__/
+├── unit/                 # Vitest tests (pure logic)
+│   ├── hooks/            # Form hooks, custom hooks
+│   ├── services/         # API service classes
+│   ├── utils/            # Utility functions, helpers
+│   └── stores/           # Zustand stores
+└── components/           # Expo CLI tests (future - UI with native modules)
+```
+
+### Vitest Configuration
+
+- **Config**: `vitest.config.ts`
+- **Setup**: `__tests__/vitest.setup.ts` (includes React Native and Expo mocks)
+- **Environment**: Node.js (no DOM needed for pure logic tests)
+
+### Test Best Practices
+
+1. **Separation of concerns**:
+   - Pure business logic → Vitest (fast, no dependencies)
+   - UI/native modules → Expo CLI (when needed)
+
+2. **Test coverage**: Aim for 70%+ on pure logic (hooks, services, utils)
+
+3. **Mocking**:
+   - Use `vi.mock()` in `vitest.setup.ts` for React Native/Expo modules
+   - Mock API calls in service tests with simple function implementations
+
+4. **TDD**: Write tests before implementation when possible
+
+5. **Describe tests clearly**: Use descriptive test names and organize with `describe()` blocks
+
+### Writing Vitest Tests
+
+**Hook Tests** (`usePetForm.test.ts`):
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+
+it('should initialize with empty values', () => {
+  const { result } = renderHook(() => usePetForm());
+  expect(result.current.control).toBeDefined();
+});
+```
+
+**Service Tests** (`eventService.test.ts`):
+```typescript
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+it('should create event successfully', async () => {
+  const result = await eventService.createEvent(data);
+  expect(result.success).toBe(true);
+});
+```
+
+### Running Tests
+
+| Command | Description |
+|---------|-------------|
+| `npm run test` | Run all Vitest unit tests |
+| `npm run test:watch` | Run Vitest in watch mode (auto-rerun on changes) |
+| `npm run test:coverage` | Run tests with coverage report |
+| `npm run test:ui` | Open Vitest UI for interactive testing |
+| `npm run test:expo` | Run Expo CLI tests (for component/integration tests) |
 
 ## Commit & Pull Request Guidelines
 

@@ -82,14 +82,20 @@ const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
       <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons
-              name="card"
-              size={24}
-              color={theme.colors.primary}
-              style={styles.icon}
-            />
+            <View
+              style={[
+                styles.iconContainer,
+                { backgroundColor: theme.colors.primaryContainer },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="calendar"
+                size={20}
+                color={theme.colors.primary}
+              />
+            </View>
             <View style={styles.headerText}>
-              <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+              <Text variant="titleMedium" style={{ fontWeight: "700" }}>
                 {t("budgets.monthlyBudget", "Monthly Budget")}
               </Text>
               <Text
@@ -100,15 +106,36 @@ const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
               </Text>
             </View>
           </View>
-          {!budget.isActive && (
-            <Badge
-              size={20}
-              style={{ backgroundColor: theme.colors.surfaceDisabled }}
-            >
-              {t("budgets.inactive", "Inactive")}
-            </Badge>
+          {showActions && (
+            <View style={styles.headerActions}>
+              {onEdit && (
+                <IconButton
+                  icon="pencil"
+                  size={18}
+                  onPress={onEdit}
+                  iconColor={theme.colors.primary}
+                />
+              )}
+              {onDelete && (
+                <IconButton
+                  icon="delete"
+                  size={18}
+                  onPress={onDelete}
+                  iconColor={theme.colors.error}
+                />
+              )}
+            </View>
           )}
         </View>
+
+        {!budget.isActive && (
+          <Badge
+            size={20}
+            style={{ backgroundColor: theme.colors.surfaceDisabled }}
+          >
+            {t("budgets.inactive", "Inactive")}
+          </Badge>
+        )}
 
         <View style={styles.amountSection}>
           <Text variant="headlineLarge" style={styles.budgetAmount}>
@@ -141,7 +168,7 @@ const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
                 style={{
                   color: getProgressColor(percentage),
                   marginLeft: 4,
-                  fontWeight: "bold",
+                  fontWeight: "700",
                 }}
               >
                 {percentage.toFixed(1)}%
@@ -194,27 +221,6 @@ const UserBudgetCard: React.FC<UserBudgetCardProps> = ({
             </Text>
           </View>
         )}
-
-        {showActions && (
-          <View style={styles.actions}>
-            {onEdit && (
-              <IconButton
-                icon="pencil"
-                size={20}
-                onPress={onEdit}
-                iconColor={theme.colors.primary}
-              />
-            )}
-            {onDelete && (
-              <IconButton
-                icon="delete"
-                size={20}
-                onPress={onDelete}
-                iconColor={theme.colors.error}
-              />
-            )}
-          </View>
-        )}
       </View>
     </Card>
   );
@@ -236,43 +242,52 @@ const styles = StyleSheet.create({
   },
   card: {
     marginVertical: 6,
-    borderRadius: 12,
+    borderRadius: 18,
   },
   cardContent: {
-    padding: 16,
+    padding: 18,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
-  icon: {
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   headerText: {
     flex: 1,
     gap: 4,
   },
+  headerActions: {
+    flexDirection: "row",
+    gap: 4,
+  },
   amountSection: {
-    marginBottom: 16,
+    marginVertical: 8,
     alignItems: "center",
   },
   budgetAmount: {
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 4,
   },
   progressSection: {
-    marginBottom: 12,
+    marginTop: 8,
   },
   progressBar: {
-    height: 8,
-    borderRadius: 4,
+    height: 6,
+    borderRadius: 6,
     marginBottom: 8,
   },
   progressInfo: {
@@ -288,14 +303,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 8,
-    marginRight: -8,
+    borderRadius: 12,
+    marginTop: 12,
   },
 });
 

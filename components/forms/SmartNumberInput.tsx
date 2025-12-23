@@ -1,6 +1,6 @@
 import { HelperText, TextInput } from '@/components/ui';
 import React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 interface SmartNumberInputProps extends Omit<React.ComponentProps<typeof TextInput>, 'value' | 'onChangeText'> {
@@ -24,6 +24,9 @@ export const SmartNumberInput = ({
   ...props
 }: SmartNumberInputProps) => {
   const { control } = useFormContext();
+  const [displayValue, setDisplayValue] = React.useState('');
+  const [isFocused, setIsFocused] = React.useState(false);
+  const watchedValue = useWatch({ control, name });
 
   // Convert number to display string
   const formatValue = (value: number | string | undefined | null): string => {
@@ -54,28 +57,45 @@ export const SmartNumberInput = ({
       return undefined;
     }
 
-    // Apply precision for decimals
-    if (decimal && precision !== undefined) {
-      return Number(parsed.toFixed(precision));
-    }
-
     return parsed;
   };
+
+  React.useEffect(() => {
+    if (!isFocused) {
+      setDisplayValue(formatValue(watchedValue));
+    }
+  }, [watchedValue, isFocused]);
 
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+      render={({ field: { onChange, onBlur }, fieldState: { error } }) => {
+        return (
         <View style={styles.container}>
           <TextInput
             label={label ? `${label}${required ? ' *' : ''}` : undefined}
-            value={formatValue(value)}
+            value={displayValue}
             onChangeText={(text) => {
+              setDisplayValue(text);
               const numericValue = parseValue(text);
               onChange(numericValue);
             }}
-            onBlur={onBlur}
+            onFocus={(event) => {
+              setIsFocused(true);
+              props.onFocus?.(event);
+            }}
+            onBlur={(event) => {
+              setIsFocused(false);
+              const numericValue = parseValue(displayValue);
+              if (decimal && precision !== undefined && numericValue !== undefined) {
+                const rounded = Number(numericValue.toFixed(precision));
+                setDisplayValue(formatValue(rounded));
+                onChange(rounded);
+              }
+              onBlur();
+              props.onBlur?.(event);
+            }}
             error={!!error}
             mode="outlined"
             keyboardType={decimal ? 'decimal-pad' : 'number-pad'}
@@ -87,7 +107,8 @@ export const SmartNumberInput = ({
             </HelperText>
           )}
         </View>
-      )}
+        );
+      }}
     />
   );
 };

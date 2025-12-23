@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Budget Insights - Pet Care App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#00C4B4", // Teal/Turquoise from the screenshot
+              "primary-dark": "#009B8E",
+              "secondary-red": "#E74C3C", // Red for alerts/decreases
+              "secondary-green": "#2ECC71", // Green for increases
+              "background-light": "#F3F4F6",
+              "background-dark": "#1A202C", // Dark blue-grey like the screenshot
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#2D3748", // Slightly lighter dark for cards
+              "text-primary-light": "#1F2937",
+              "text-primary-dark": "#F9FAFB",
+              "text-secondary-light": "#6B7280",
+              "text-secondary-dark": "#9CA3AF",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.75rem", // 12px
+              "xl": "1rem",
+              "2xl": "1.5rem"
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
+<div class="px-6 py-2 flex justify-between items-center text-xs font-medium text-text-primary-light dark:text-text-primary-dark">
+<span>11:57</span>
+<div class="flex items-center gap-1">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<header class="px-4 py-3 flex items-center justify-between mb-2">
+<div class="bg-pink-700/80 text-white px-3 py-1 rounded-full flex items-center gap-2 text-xs shadow-sm">
+<span class="material-icons-round text-sm">wifi_off</span>
+<span>Wi-Fi</span>
+</div>
+<h1 class="text-lg font-semibold">Finance</h1>
+</header>
+<main class="px-4 pb-24 space-y-6">
+<div class="bg-surface-light dark:bg-surface-dark p-1 rounded-full flex relative shadow-sm">
+<button class="flex-1 bg-primary text-white py-2 rounded-full text-sm font-medium shadow-md z-10 flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-icons-round text-base">account_balance_wallet</span>
+                Budget
+            </button>
+<button class="flex-1 text-text-secondary-light dark:text-text-secondary-dark py-2 rounded-full text-sm font-medium flex items-center justify-center gap-2">
+<span class="material-icons-round text-base">receipt</span>
+                Expenses
+            </button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="border border-primary/30 text-primary py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<span class="material-icons-round text-base">download</span>
+                Export CSV
+            </button>
+<button class="border border-primary/30 text-primary py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<span class="material-icons-round text-base">picture_as_pdf</span>
+                Export PDF
+            </button>
+</div>
+<button class="w-full bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium shadow-sm">
+<span class="material-icons-round text-base">add</span>
+            Vet summary PDF
+        </button>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-5 shadow-sm relative overflow-hidden border-l-4 border-l-secondary-red">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-icons-round">calendar_today</span>
+</div>
+<div>
+<h3 class="font-semibold text-base">Monthly Budget</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">TRY</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="text-primary hover:text-primary-dark transition-colors">
+<span class="material-icons-round text-xl">edit</span>
+</button>
+<button class="text-secondary-red hover:text-red-600 transition-colors">
+<span class="material-icons-round text-xl">delete</span>
+</button>
+</div>
+</div>
+<div class="text-center mb-2">
+<div class="text-3xl font-bold text-text-primary-light dark:text-white">₺500.00</div>
+<div class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1">Current spending: ₺500.00</div>
+</div>
+<div class="mt-4 mb-2">
+<div class="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-red w-full rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between items-center text-xs font-medium mb-4">
+<div class="flex items-center gap-1 text-secondary-red">
+<span class="material-icons-round text-sm">error</span>
+<span>100.0%</span>
+</div>
+<div class="text-text-secondary-light dark:text-text-secondary-dark">₺0.00 remaining</div>
+</div>
+<div class="bg-secondary-red/10 border border-secondary-red/20 rounded-xl p-3 flex items-center gap-3 text-secondary-red">
+<span class="material-icons-round">warning</span>
+<span class="text-sm font-medium">Budget exceeded!</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-5 shadow-md">
+<h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-icons-round text-primary">insights</span>
+                Budget Insights
+            </h2>
+<div class="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark font-medium mb-1">Month-over-month</p>
+<div class="flex items-center gap-2">
+<div class="bg-secondary-red/10 text-secondary-red px-2 py-1 rounded-md flex items-center gap-1 text-xs font-bold">
+<span class="material-icons-round text-sm">arrow_upward</span>
+                                100%
+                            </div>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">vs Previous Month</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-semibold">Current: ₺500.00</div>
+<div class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Prev: ₺0.00</div>
+</div>
+</div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-3 leading-relaxed">
+                    Spending has increased significantly compared to last month. Consider reviewing recurring expenses.
+                </p>
+</div>
+<div>
+<div class="flex justify-between items-end mb-3">
+<h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">Category Breakdown</h3>
+<span class="text-xs text-primary font-medium cursor-pointer">View All</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-icons-round text-sm">pets</span> 
+</div>
+<div class="flex-1">
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium">Premium Food</span>
+<span class="font-bold text-text-primary-light dark:text-text-primary-dark">₺500.00</span>
+</div>
+<div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex items-center gap-2">
+<div class="h-full bg-primary rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<div class="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark w-8 text-right">100%</div>
+</div>
+<div class="flex items-center gap-3 opacity-60">
+<div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-500 flex-shrink-0">
+<span class="material-icons-round text-sm">vaccines</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium">Vaccination</span>
+<span class="font-bold text-text-primary-light dark:text-text-primary-dark">₺0.00</span>
+</div>
+<div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-purple-500 rounded-full" style="width: 0%"></div>
+</div>
+</div>
+<div class="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark w-8 text-right">0%</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-24 right-4 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-20">
+<span class="material-icons-round text-2xl">edit</span>
+</button>
+<nav class="fixed bottom-0 left-0 right-0 bg-surface-light dark:bg-surface-dark border-t border-gray-200 dark:border-gray-800 px-6 py-2 flex justify-between items-center z-30 pb-6">
+<a class="flex flex-col items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round">pets</span>
+<span class="text-[10px] font-medium">Pets</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round">monitor_heart</span>
+<span class="text-[10px] font-medium">Care</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round">calendar_today</span>
+<span class="text-[10px] font-medium">Calendar</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-icons-round">account_balance_wallet</span>
+<span class="text-[10px] font-medium">Finance</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple script to demonstrate dark mode toggling if desired, usually handled by system pref
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+
+</body></html>

@@ -28,6 +28,19 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   const { t } = useTranslation();
 
   const categoryConfig = getExpenseCategoryConfig(expense.category);
+  const resolveColor = (colorValue: string) => {
+    if (colorValue.startsWith("#")) return colorValue;
+    return theme.colors[colorValue as keyof typeof theme.colors] || theme.colors.primary;
+  };
+  const withOpacity = (color: string, opacity: number) => {
+    if (!color.startsWith("#")) return color;
+    const alpha = Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, "0");
+    return `${color}${alpha}`;
+  };
+  const categoryColor = resolveColor(categoryConfig.color);
+  const iconBackground = withOpacity(categoryColor, 0.15);
 
   const formattedDate = React.useMemo(() => {
     try {
@@ -38,18 +51,24 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   }, [expense.date]);
 
   const cardContent = (
-    <Card style={[styles.card, {
-      backgroundColor: theme.colors.surface,
-      borderColor: theme.colors.outline
-    }]} elevation={3}>
+    <Card
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.surfaceVariant,
+        },
+      ]}
+      elevation={2}
+    >
       <View style={styles.cardContent}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: categoryConfig.color.startsWith('#') ? categoryConfig.color : theme.colors[categoryConfig.color as keyof typeof theme.colors] }]}>
+            <View style={[styles.iconContainer, { backgroundColor: iconBackground }]}>
               <MaterialCommunityIcons
                 name={categoryConfig.icon}
                 size={24}
-                color={theme.colors.onPrimaryContainer}
+                color={categoryColor}
               />
             </View>
             <View style={styles.headerText}>
@@ -82,8 +101,14 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
               <Chip
                 mode="outlined"
                 compact
-                style={styles.chip}
-                textStyle={{ fontSize: 12 }}
+                style={[
+                  styles.chip,
+                  {
+                    borderColor: theme.colors.outlineVariant,
+                    backgroundColor: theme.colors.surface,
+                  },
+                ]}
+                textStyle={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
               >
                 {t(`expenses.paymentMethods.${expense.paymentMethod}`, expense.paymentMethod)}
               </Chip>
@@ -92,8 +117,14 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
               <Chip
                 mode="outlined"
                 compact
-                style={styles.chip}
-                textStyle={{ fontSize: 12 }}
+                style={[
+                  styles.chip,
+                  {
+                    borderColor: theme.colors.outlineVariant,
+                    backgroundColor: theme.colors.surface,
+                  },
+                ]}
+                textStyle={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
                 icon="store"
               >
                 {expense.vendor}
@@ -108,7 +139,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                   icon="pencil"
                   size={20}
                   onPress={onEdit}
-                  iconColor={theme.colors.primary}
+                  iconColor={theme.colors.onSurfaceVariant}
                 />
               )}
               {onDelete && (
@@ -116,7 +147,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                   icon="delete"
                   size={20}
                   onPress={onDelete}
-                  iconColor={theme.colors.error}
+                  iconColor={theme.colors.onSurfaceVariant}
                 />
               )}
             </View>
@@ -141,18 +172,18 @@ const styles = StyleSheet.create({
   pressable: {
   },
   card: {
-    marginVertical: 6,
-    borderRadius: 16,
-    borderWidth: 0.5,
+    marginVertical: 8,
+    borderRadius: 18,
+    borderWidth: 1,
   },
   cardContent: {
-    padding: 18,
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -160,9 +191,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -182,7 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
   tags: {
     flexDirection: 'row',

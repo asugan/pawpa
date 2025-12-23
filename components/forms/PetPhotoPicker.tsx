@@ -7,11 +7,12 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { Avatar, Button, Surface, Text, Modal, ListItem } from '@/components/ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
+import { Avatar, Button, Surface, Text, Modal, ListItem } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import { getPetTypeColor, getPetTypeIcon } from '@/lib/utils/petTypeVisuals';
 import { Pet } from '../../lib/types';
 
 interface PetPhotoPickerProps {
@@ -20,49 +21,6 @@ interface PetPhotoPickerProps {
   petType?: Pet['type'];
   disabled?: boolean;
 }
-
-const getDefaultIcon = (petType?: Pet['type']): keyof typeof import('@expo/vector-icons').Ionicons.glyphMap => {
-  // Map pet types to Ionicons icon names
-  switch (petType) {
-    case 'dog':
-      return 'paw';
-    case 'cat':
-      return 'paw';
-    case 'bird':
-      return 'leaf'; // Ionicons doesn't have bird
-    case 'rabbit':
-      return 'paw';
-    case 'hamster':
-      return 'paw';
-    case 'fish':
-      return 'fish';
-    case 'reptile':
-      return 'fish'; // Ionicons doesn't have reptile
-    default:
-      return 'paw';
-  }
-};
-
-const getDefaultColor = (petType?: Pet['type']): string => {
-  switch (petType) {
-    case 'dog':
-      return '#FFB3D1'; // Pink
-    case 'cat':
-      return '#B3FFD9'; // Mint
-    case 'bird':
-      return '#C8B3FF'; // Lavender
-    case 'rabbit':
-      return '#FFDAB3'; // Peach
-    case 'hamster':
-      return '#FFF3B3'; // Light yellow
-    case 'fish':
-      return '#87CEEB'; // Sky blue
-    case 'reptile':
-      return '#98FB98'; // Pale green
-    default:
-      return '#FFB3D1'; // Default pink
-  }
-};
 
 export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
   value,
@@ -171,8 +129,8 @@ export const PetPhotoPicker: React.FC<PetPhotoPickerProps> = ({
     }
   };
 
-  const defaultIcon = getDefaultIcon(petType);
-  const defaultColor = getDefaultColor(petType);
+  const defaultIcon = getPetTypeIcon(petType);
+  const defaultColor = getPetTypeColor(petType);
 
   return (
     <>

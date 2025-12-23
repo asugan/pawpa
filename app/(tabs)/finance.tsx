@@ -6,9 +6,15 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { Text, FAB, Snackbar, Chip, Card, SegmentedButtons, Button } from "@/components/ui";
-import { useTheme } from "@/lib/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button, Card, FAB, SegmentedButtons, Snackbar, Text } from "@/components/ui";
+import { PetPickerBase } from "@/components/PetPicker";
+import { BudgetInsights } from "@/components/BudgetInsights";
+import { ProtectedRoute } from "@/components/subscription";
+import { useTheme } from "@/lib/theme";
+import { expenseService } from "@/lib/services/expenseService";
 import { usePets } from "../../lib/hooks/usePets";
 import {
   useExpenses,
@@ -28,14 +34,12 @@ import {
   useDeleteUserBudget,
   useBudgetAlertNotifications,
 } from "../../lib/hooks/useUserBudget";
-import { useQueryClient } from "@tanstack/react-query";
 import ExpenseCard from "../../components/ExpenseCard";
 import ExpenseFormModal from "../../components/ExpenseFormModal";
 import UserBudgetCard from "../../components/UserBudgetCard";
 import UserBudgetFormModal from "../../components/UserBudgetFormModal";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import EmptyState from "../../components/EmptyState";
-import { useTranslation } from "react-i18next";
 import {
   CreateExpenseInput,
   Expense,
@@ -44,9 +48,6 @@ import {
 } from "../../lib/types";
 import { LAYOUT } from "../../constants";
 import { ENV } from "../../lib/config/env";
-import { ProtectedRoute } from "@/components/subscription";
-import { BudgetInsights } from "@/components/BudgetInsights";
-import { expenseService } from "@/lib/services/expenseService";
 
 type FinanceTabValue = 'budget' | 'expenses';
 
@@ -311,34 +312,60 @@ export default function FinanceScreen() {
 
     return (
       <View style={styles.petSelector}>
-        <Text
-          variant="labelMedium"
-          style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}
-        >
-          {t("expenses.selectPet")}
-        </Text>
-        <View style={styles.petChips}>
-          <Chip
-            selected={!selectedPetId}
-            onPress={() => setSelectedPetId(undefined)}
-            textStyle={{ fontSize: 12 }}
-          >
-            {t("common.all")}
-          </Chip>
-          {pets.map((pet) => (
-            <Chip
-              key={pet._id}
-              selected={selectedPetId === pet._id}
-              onPress={() => setSelectedPetId(pet._id)}
-              textStyle={{ fontSize: 12 }}
-            >
-              {pet.name}
-            </Chip>
-          ))}
-        </View>
+        <PetPickerBase
+          pets={pets}
+          selectedPetId={selectedPetId}
+          onSelect={(petId) => setSelectedPetId(petId)}
+          onSelectAll={() => setSelectedPetId(undefined)}
+          showAllOption
+          label={t("expenses.selectPet")}
+          allLabel={t("common.all")}
+        />
       </View>
     );
   };
+
+  const renderExportActions = (containerStyle?: object) => (
+    <View style={[styles.exportSection, containerStyle]}>
+      <View style={styles.exportRow}>
+        <Button
+          mode="outlined"
+          icon="download"
+          loading={exportCsvMutation.isPending}
+          onPress={handleExportCsv}
+          style={[styles.exportButton, { backgroundColor: theme.colors.surface }]}
+          labelStyle={styles.exportButtonLabel}
+          textColor={theme.colors.primary}
+        >
+          {t("expenses.exportCsv", "Export CSV")}
+        </Button>
+        <Button
+          mode="outlined"
+          icon="file-pdf-box"
+          loading={exportPdfMutation.isPending}
+          onPress={handleExportPdf}
+          style={[styles.exportButton, { backgroundColor: theme.colors.surface }]}
+          labelStyle={styles.exportButtonLabel}
+          textColor={theme.colors.primary}
+        >
+          {t("expenses.exportPdf", "Export PDF")}
+        </Button>
+      </View>
+      <Button
+        mode="contained"
+        icon="plus"
+        loading={exportVetSummaryMutation.isPending}
+        onPress={handleVetSummary}
+        disabled={!selectedPetId}
+        buttonColor={theme.colors.surfaceVariant}
+        textColor={theme.colors.onSurfaceVariant}
+        style={styles.vetSummaryButton}
+        labelStyle={styles.vetSummaryLabel}
+      >
+        {t("expenses.vetSummary", "Vet summary PDF")}
+      </Button>
+    </View>
+  );
 
   // Render budget tab content
   const renderBudgetContent = () => {
@@ -353,35 +380,7 @@ export default function FinanceScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.budgetSection}>
-          <View style={styles.exportRow}>
-            <Button
-              mode="outlined"
-              icon="file-download"
-              loading={exportCsvMutation.isPending}
-              onPress={handleExportCsv}
-              style={styles.exportButton}
-            >
-              {t("expenses.exportCsv", "Export CSV")}
-            </Button>
-            <Button
-              mode="outlined"
-              icon="file-pdf-box"
-              loading={exportPdfMutation.isPending}
-              onPress={handleExportPdf}
-              style={styles.exportButton}
-            >
-              {t("expenses.exportPdf", "Export PDF")}
-            </Button>
-          </View>
-          <Button
-            mode="contained"
-            icon="hospital"
-            loading={exportVetSummaryMutation.isPending}
-            onPress={handleVetSummary}
-            disabled={!selectedPetId}
-          >
-            {t("expenses.vetSummary", "Vet summary PDF")}
-          </Button>
+          {renderExportActions()}
 
           {/* EmptyState - shown when no budget exists */}
           {(!budget || (typeof budget === 'object' && Object.keys(budget).length === 0)) && (
@@ -483,30 +482,25 @@ export default function FinanceScreen() {
         scrollEventThrottle={400}
       >
         {expenseStats && (
-          <Card
-            style={[
-              styles.statsCard,
-              { backgroundColor: theme.colors.surface },
-            ]}
-          >
+          <Card style={[styles.statsCard, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.statsContent}>
-              <Text
-                variant="titleMedium"
-                style={{ color: theme.colors.onSurface }}
-              >
+              <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
                 {t("expenses.totalSpent")}: {expenseStats.total || 0}{" "}
                 {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onSurfaceVariant }}
-              >
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                 {t("expenses.average")}: {expenseStats.average || 0}{" "}
                 {expenseStats.byCurrency?.[0]?.currency || "TRY"}
               </Text>
             </View>
           </Card>
         )}
+
+        {renderExportActions(styles.exportSectionInset)}
+
+        <Text variant="titleMedium" style={[styles.recentTitle, { color: theme.colors.onSurface }]}>
+          {t("expenses.recent", "Recent Expenses")}
+        </Text>
 
         <View style={styles.expensesGrid}>
           {allExpenses.map((expense) => (
@@ -542,7 +536,7 @@ export default function FinanceScreen() {
               {
                 value: 'expenses',
                 label: t('finance.expenses', 'Expenses'),
-                icon: 'receipt'
+                icon: 'cash'
               }
             ]}
             density="small"
@@ -625,8 +619,6 @@ const styles = StyleSheet.create({
   },
   segmentedButtons: {
     marginBottom: 0,
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E5E7EB",
     borderWidth: 1,
     borderRadius: 999,
     shadowColor: "#000",
@@ -636,13 +628,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   petSelector: {
-    padding: 16,
-    paddingBottom: 8,
-  },
-  petChips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   content: {
     flex: 1,
@@ -663,8 +651,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expensesGrid: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
   sectionTitle: {
     paddingHorizontal: 16,
@@ -676,14 +664,16 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: LAYOUT.TAB_BAR_HEIGHT,
+    paddingTop: 12,
   },
   statsCard: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
+    borderRadius: 16,
     elevation: 2,
   },
   statsContent: {
-    padding: 16,
+    padding: 18,
   },
   fab: {
     position: "absolute",
@@ -691,14 +681,33 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  exportSection: {
+    marginBottom: 16,
+  },
+  exportSectionInset: {
+    paddingHorizontal: 16,
+  },
   exportRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 8,
+    gap: 12,
+    marginBottom: 12,
   },
   exportButton: {
     flex: 1,
+    borderRadius: 14,
+  },
+  exportButtonLabel: {
+    fontWeight: "600",
+  },
+  vetSummaryButton: {
+    borderRadius: 14,
+  },
+  vetSummaryLabel: {
+    fontWeight: "600",
+  },
+  recentTitle: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    fontWeight: "700",
   },
 });

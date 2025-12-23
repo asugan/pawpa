@@ -1,21 +1,22 @@
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { FormProvider, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Button, Text } from '@/components/ui';
 import { useEventForm } from '@/hooks/useEventForm';
 import { useTheme } from '@/lib/theme';
-import React from 'react';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { createEventTypeOptions } from '../../constants';
+import { REMINDER_PRESETS, ReminderPresetKey } from '@/constants/reminders';
+import { requestNotificationPermissions } from '@/lib/services/notificationService';
 import { type EventFormData } from '../../lib/schemas/eventSchema';
 import { Event, Pet } from '../../lib/types';
 import { FormSection } from './FormSection';
 import { SmartDateTimePicker } from './SmartDateTimePicker';
 import { SmartDropdown } from './SmartDropdown';
+import { SmartEventTypePicker } from './SmartEventTypePicker';
 import { SmartInput } from './SmartInput';
+import { SmartPetPicker } from './SmartPetPicker';
 import { SmartSwitch } from './SmartSwitch';
 import { StepHeader } from './StepHeader';
-import { REMINDER_PRESETS, ReminderPresetKey } from '@/constants/reminders';
-import { requestNotificationPermissions } from '@/lib/services/notificationService';
 
 interface EventFormProps {
   event?: Event;
@@ -46,22 +47,8 @@ export function EventForm({
   const { form, control, handleSubmit, isDirty } = useEventForm(event, initialPetId);
 
   // Watch form values for dynamic behavior
-  const selectedPetId = useWatch({ control, name: 'petId' });
   const eventType = useWatch({ control, name: 'type' });
   const reminderEnabled = useWatch({ control, name: 'reminder' });
-
-  // Event type options with i18n support
-  const eventTypeOptions = React.useMemo(() => createEventTypeOptions(t), [t]);
-
-  // Pet options from real pet data
-  const petOptions = React.useMemo(
-    () =>
-      pets.map((pet) => ({
-        value: pet._id,
-        label: `${pet.name} (${pet.type})`,
-      })),
-    [pets]
-  );
 
   const reminderPresetOptions = React.useMemo(
     () =>
@@ -70,12 +57,6 @@ export function EventForm({
         label: t(REMINDER_PRESETS[key].labelKey),
       })),
     [t]
-  );
-
-  // Get selected pet details
-  const selectedPet = React.useMemo(
-    () => petOptions.find((pet) => pet.value === selectedPetId),
-    [petOptions, selectedPetId]
   );
 
   // Event type specific validation and suggestions
@@ -217,22 +198,13 @@ export function EventForm({
             subtitle={t('events.createSubtitle')}
           >
             {/* Pet Selection */}
-            <SmartDropdown
+            <SmartPetPicker
               name="petId"
               required
-              options={petOptions}
-              placeholder={t('events.selectPet')}
               label={t('events.pet')}
-              testID={`${testID}-pet`}
+              pets={pets}
+              testID={testID ? `${testID}-pet` : 'event-form-pet'}
             />
-
-            {selectedPet && (
-              <View style={[styles.selectedPetDisplay, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Text style={{ color: theme.colors.onPrimaryContainer }}>
-                  {t('common.selected')}: {selectedPet.label}
-                </Text>
-              </View>
-            )}
           </FormSection>
         )}
 
@@ -248,13 +220,10 @@ export function EventForm({
             />
 
             {/* Event Type */}
-            <SmartDropdown
+            <SmartEventTypePicker
               name="type"
-              required
-              options={eventTypeOptions}
-              placeholder={t('events.typePlaceholder')}
               label={t('events.type')}
-              testID={`${testID}-type`}
+              testID={testID ? `${testID}-type` : 'event-form-type'}
             />
 
             {/* Event type suggestions */}
@@ -465,12 +434,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     paddingBottom: 40,
-  },
-  selectedPetDisplay: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: -8, // Adjust spacing after SmartDropdown
   },
   suggestionsBox: {
     padding: 12,

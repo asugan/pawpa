@@ -17,6 +17,7 @@ import { HomeHeader } from "@/components/home/HomeHeader";
 import { Text } from "@/components/ui";
 import { useHomeData } from "@/lib/hooks/useHomeData";
 import { useTheme } from "@/lib/theme";
+import { LAYOUT } from "@/constants";
 
 export default function HomeScreen() {
   const { theme } = useTheme();
@@ -59,6 +60,7 @@ export default function HomeScreen() {
       >
         <ScrollView
           style={[styles.scrollView, { padding: layout.scrollPadding }]}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           <HomeHeader
@@ -146,6 +148,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: LAYOUT.TAB_BAR_HEIGHT },
   statsScrollView: { marginBottom: 24 },
   statsContainer: { gap: 12, paddingHorizontal: 0 },
   statsGrid: { flexDirection: "row", gap: 12, marginBottom: 24 },

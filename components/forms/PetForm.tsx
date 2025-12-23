@@ -1,10 +1,10 @@
-import { Button, Text } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
 import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { createGenderOptions, createPetTypeOptions } from '../../constants';
+import { Button, Text } from '@/components/ui';
+import { useTheme } from '@/lib/theme';
+import { createGenderOptions } from '../../constants';
 import { usePetForm } from '../../hooks/usePetForm';
 import { PetCreateFormInput } from '../../lib/schemas/petSchema';
 import { Pet } from '../../lib/types';
@@ -14,6 +14,7 @@ import { SmartDatePicker } from './SmartDatePicker';
 import { SmartDropdown } from './SmartDropdown';
 import { SmartInput } from './SmartInput';
 import { SmartPetPhotoPicker } from './SmartPetPhotoPicker';
+import { SmartPetTypePicker } from './SmartPetTypePicker';
 import { StepHeader } from './StepHeader';
 
 interface PetFormProps {
@@ -46,7 +47,6 @@ export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: Pe
   const isEditMode = !!pet;
 
   // Create dropdown options using i18n helper functions
-  const petTypeOptions = React.useMemo(() => createPetTypeOptions(t), [t]);
   const genderOptions = React.useMemo(() => createGenderOptions(t), [t]);
 
   const steps = React.useMemo(
@@ -130,13 +130,9 @@ export function PetForm({ pet, onSubmit, onCancel, loading = false, testID }: Pe
             />
 
             {/* Pet Type */}
-            <SmartDropdown
+            <SmartPetTypePicker
               name="type"
-              required
-              options={petTypeOptions}
-              placeholder={t('forms.petForm.typePlaceholder')}
               label={t('forms.petForm.type')}
-              searchable
               testID="pet-type-dropdown"
             />
 
