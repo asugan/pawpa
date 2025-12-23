@@ -42,5 +42,11 @@ app-example
 /ios
 /android
 
+# test coverage
+coverage/
+
 #vscode
 .vscode/
+
+#factory docs
+.docs/

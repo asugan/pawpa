@@ -195,6 +195,25 @@ npm run lint
 npm run reset-project
 ```
 
+### Tests
+
+```bash
+# Run all unit tests (Vitest)
+npm run test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+
+# Vitest UI
+npm run test:ui
+
+# Expo CLI tests (UI/native modules)
+npm run test:expo
+```
+
 ## 🌐 Features Overview
 
 ### Navigation
