@@ -51,7 +51,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   };
 
   const methods = useForm<ExpenseCreateFormInput>({
-    resolver: zodResolver(ExpenseCreateSchema),
+    resolver: zodResolver(ExpenseCreateSchema()),
     defaultValues,
   });
 

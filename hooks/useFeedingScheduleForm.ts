@@ -69,7 +69,7 @@ export const useFeedingScheduleForm = (
   }, [schedule, initialPetId]);
 
   const form = useForm<FeedingScheduleFormData>({
-    resolver: zodResolver(feedingScheduleFormSchema),
+    resolver: zodResolver(feedingScheduleFormSchema()),
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',

@@ -34,7 +34,7 @@ const UserBudgetForm: React.FC<UserBudgetFormProps> = ({
   const [showStepError, setShowStepError] = React.useState(false);
 
   const form = useForm<SetUserBudgetInput>({
-    resolver: zodResolver(SetUserBudgetSchema),
+    resolver: zodResolver(SetUserBudgetSchema()),
     defaultValues: {
       amount: initialData?.amount || 0,
       currency: initialData?.currency || "TRY",

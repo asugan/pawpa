@@ -292,6 +292,7 @@ export function useSubscription(): UseSubscriptionReturn {
       fetchSubscriptionStatus,
       hasActiveSubscription,
       t,
+      ensureRevenueCatReady,
     ]
   );
 
@@ -344,6 +345,7 @@ export function useSubscription(): UseSubscriptionReturn {
     setCustomerInfo,
     fetchSubscriptionStatus,
     hasActiveSubscription,
+    ensureRevenueCatReady,
   ]);
 
   /**

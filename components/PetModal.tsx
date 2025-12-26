@@ -41,7 +41,7 @@ export function PetModal({
     setLoading(true);
     try {
       // Transform form data to API format using the schema transformation
-      const apiData: PetCreateInput = PetCreateSchema.parse(data);
+      const apiData: PetCreateInput = PetCreateSchema().parse(data);
 
       if (pet) {
         // Pet güncelleme

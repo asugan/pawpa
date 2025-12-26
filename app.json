@@ -102,11 +102,6 @@
     },
     "extra": {
       "router": {},
-      "revenuecat": {
-        "iosApiKey": "test_UiihlcyhWzqDIMEtDIrQCmEVYQS",
-        "androidApiKey": "test_UiihlcyhWzqDIMEtDIrQCmEVYQS",
-        "entitlementId": "Petopia Pro"
-      },
       "eas": {
         "projectId": "b829ebb6-cac8-4731-94f5-4b130b65a827"
       }

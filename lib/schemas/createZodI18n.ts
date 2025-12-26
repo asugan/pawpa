@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import { ZodIssue, z } from 'zod';
+import { z } from 'zod';
 import { TranslationFunction } from '../types';
 
 /**
@@ -29,52 +29,35 @@ export const t = (key: string, options?: Record<string, unknown>) => {
 /**
  * MongoDB ObjectId validation schema
  */
-export const objectIdSchema = z
-  .string()
-  .regex(/^[0-9a-fA-F]{24}$/, t('forms.validation.objectIdInvalid'));
+export const createObjectIdSchema = () =>
+  z.string().regex(/^[0-9a-fA-F]{24}$/, { message: t('forms.validation.objectIdInvalid') });
 
 /**
  * Creates a Zod error map for internationalized error messages
  * @returns Zod error map function
  */
 export const createZodI18nErrorMap = () => {
-  return (issue: ZodIssue) => {
+  return (issue: { code?: string; input?: unknown; message?: string }) => {
     const translate = getT();
-    let message: string | undefined;
+    const params = (issue as { params?: Record<string, unknown> }).params as {
+      i18nKey?: string;
+      i18nOptions?: Record<string, unknown>;
+    } | undefined;
 
-    switch (issue.code) {
-      case 'too_small':
-        if ('origin' in issue && issue.origin === 'string') {
-          message = translate('forms.validation.nameMinLength', { min: Number(issue.minimum) });
-        } else if ('origin' in issue && issue.origin === 'number') {
-          message = translate('forms.validation.weightMin', { min: Number(issue.minimum) });
-        }
-        break;
-
-      case 'too_big':
-        if ('origin' in issue && issue.origin === 'string') {
-          message = translate('forms.validation.nameMaxLength', { max: Number(issue.maximum) });
-        } else if ('origin' in issue && issue.origin === 'number') {
-          message = translate('forms.validation.weightMax', { max: Number(issue.maximum) });
-        }
-        break;
-
-      case 'invalid_format':
-        if ('format' in issue && issue.format === 'regex') {
-          message = translate('forms.validation.nameInvalidChars');
-        }
-        break;
-
-      case 'invalid_type':
-        if ('input' in issue && issue.input === undefined) {
-          message = translate('forms.validation.required');
-        }
-        break;
-
-      default:
-        message = translate('forms.validation.invalid');
+    if (issue.code === 'custom' && params?.i18nKey) {
+      return { message: translate(params.i18nKey, params.i18nOptions) };
     }
 
-    return { message: message ?? translate('forms.validation.invalid') };
+    if (issue.message) {
+      return { message: issue.message };
+    }
+
+    if (issue.code === 'invalid_type' && issue.input === undefined) {
+      return { message: translate('forms.validation.required') };
+    }
+
+    return { message: translate('forms.validation.invalid') };
   };
 };
+
+z.setErrorMap(createZodI18nErrorMap());

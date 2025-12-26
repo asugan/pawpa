@@ -85,7 +85,7 @@ const normalizeGender = (gender: string): PetGender => {
 // Main hook for pet form - for creating new pets
 export const usePetForm = (pet?: Pet): UsePetFormReturn => {
   const form = useForm<PetCreateFormInput>({
-    resolver: zodResolver(PetCreateFormSchema),
+    resolver: zodResolver(PetCreateFormSchema()),
     defaultValues: pet ? {
       name: pet.name || '',
       type: normalizePetType(pet.type),
@@ -127,7 +127,7 @@ export const usePetForm = (pet?: Pet): UsePetFormReturn => {
 // Hook for updating existing pets
 export const usePetUpdateForm = (pet: Pet): UsePetUpdateFormReturn => {
   const form = useForm<PetUpdateFormInput>({
-    resolver: zodResolver(PetUpdateFormSchema),
+    resolver: zodResolver(PetUpdateFormSchema()),
     defaultValues: {
       name: pet.name || '',
       type: normalizePetType(pet.type),

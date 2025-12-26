@@ -60,6 +60,8 @@ export default function LoginScreen() {
       const result = await signIn.google('/');
       if (result?.error) {
         setError(result.error.message || t('auth.socialLoginError'));
+      } else {
+        router.replace('/(tabs)');
       }
     } catch {
       setError(t('auth.socialLoginError'));

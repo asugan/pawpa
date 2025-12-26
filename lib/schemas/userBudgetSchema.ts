@@ -2,19 +2,14 @@ import { z } from "zod";
 import { CURRENCIES } from "./expenseSchema";
 import { t } from "./createZodI18n";
 
-// Custom validation functions
-const validateAlertThreshold = (threshold: number) => {
-  return threshold >= 0 && threshold <= 1;
-};
-
 // Schema for setting/updating user budget (simplified)
-export const SetUserBudgetSchema = z
+export const SetUserBudgetSchema = () => z
   .object({
     amount: z
       .number({ message: t("forms.validation.budget.amountInvalidType") })
-      .positive(t("forms.validation.budget.amountPositive"))
-      .min(1, t("forms.validation.budget.amountMin"))
-      .max(10000000, t("forms.validation.budget.amountMax")),
+      .positive({ message: t("forms.validation.budget.amountPositive") })
+      .min(1, { message: t("forms.validation.budget.amountMin") })
+      .max(10000000, { message: t("forms.validation.budget.amountMax") }),
 
     currency: z.enum(CURRENCIES, {
       message: t("forms.validation.budget.currencyInvalid"),
@@ -22,12 +17,9 @@ export const SetUserBudgetSchema = z
 
     alertThreshold: z
       .number()
-      .min(0, t("forms.validation.budget.alertThresholdMin"))
-      .max(1, t("forms.validation.budget.alertThresholdMax"))
+      .min(0, { message: t("forms.validation.budget.alertThresholdMin") })
+      .max(1, { message: t("forms.validation.budget.alertThresholdMax") })
       .default(0.8)
-      .refine(validateAlertThreshold, {
-        message: t("forms.validation.budget.alertThresholdRange"),
-      })
       .optional(),
 
     isActive: z.boolean().default(true).optional(),
@@ -37,13 +29,13 @@ export const SetUserBudgetSchema = z
       return data.amount > 0 && data.currency;
     },
     {
-      message: t("forms.validation.budget.amountAndCurrencyRequired"),
+      params: { i18nKey: "forms.validation.budget.amountAndCurrencyRequired" },
       path: ["amount"],
     }
   );
 
 // Type exports for TypeScript
-export type SetUserBudgetInput = z.infer<typeof SetUserBudgetSchema>;
+export type SetUserBudgetInput = z.infer<ReturnType<typeof SetUserBudgetSchema>>;
 
 // Validation error type for better error handling
 export type ValidationError = {
