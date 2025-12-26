@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { toUTCWithOffset, isValidUTCISOString } from '@/lib/utils/dateConversion';
-import { objectIdSchema } from './createZodI18n';
+import { objectIdSchema, t } from './createZodI18n';
 // import { createZodI18nErrorMap } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
@@ -39,19 +39,23 @@ const HealthRecordTypeEnum = z.enum([
 
 // Base health record schema for common validations
 const BaseHealthRecordSchema = z.object({
-  petId: objectIdSchema.refine(() => true, { message: 'Pet seçilmesi zorunludur' }),
+  petId: objectIdSchema.refine(() => true, {
+    message: t('forms.validation.healthRecord.petRequired'),
+  }),
 
-  type: HealthRecordTypeEnum,
+  type: HealthRecordTypeEnum.refine(() => true, {
+    message: t('forms.validation.healthRecord.typeInvalid'),
+  }),
 
   title: z
     .string()
-    .min(2, 'Başlık en az 2 karakter olmalı')
-    .max(100, 'Başlık en fazla 100 karakter olabilir')
+    .min(2, t('forms.validation.healthRecord.titleMin'))
+    .max(100, t('forms.validation.healthRecord.titleMax'))
     .transform(val => val.trim()),
 
   description: z
     .string()
-    .max(1000, 'Açıklama en fazla 1000 karakter olabilir')
+    .max(1000, t('forms.validation.healthRecord.descriptionMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
@@ -72,40 +76,40 @@ const BaseHealthRecordSchema = z.object({
       throw new Error('Invalid date type');
     })
     .refine((val) => isValidUTCISOString(val), {
-      message: 'Sağlık kayıt tarihi geçersiz format. UTC formatında olmalı'
+      message: t('forms.validation.healthRecord.dateUtcInvalid'),
     })
     .refine(validateHealthDate, {
-      message: 'Tarih gelecekte olamaz'
+      message: t('forms.validation.healthRecord.dateFuture'),
     }),
 
   veterinarian: z
     .string()
-    .max(100, 'Veteriner adı en fazla 100 karakter olabilir')
+    .max(100, t('forms.validation.healthRecord.veterinarianMax'))
     .optional()
     .refine(validateVeterinarianName, {
-      message: 'Veteriner adı geçersiz karakterler içeriyor'
+      message: t('forms.validation.healthRecord.veterinarianInvalid'),
     })
     .transform(val => val?.trim() || undefined),
 
   clinic: z
     .string()
-    .max(100, 'Klinik adı en fazla 100 karakter olabilir')
+    .max(100, t('forms.validation.healthRecord.clinicMax'))
     .optional()
     .refine(validateClinicName, {
-      message: 'Klinik adı geçersiz karakterler içeriyor'
+      message: t('forms.validation.healthRecord.clinicInvalid'),
     })
     .transform(val => val?.trim() || undefined),
 
   cost: z
     .number()
-    .nonnegative('Maliyet negatif olamaz')
-    .max(50000, 'Maliyet en fazla 50000 olabilir')
+    .nonnegative(t('forms.validation.healthRecord.costNonNegative'))
+    .max(50000, t('forms.validation.healthRecord.costMax'))
     .optional()
     .transform(val => val === undefined ? undefined : parseFloat(val.toFixed(2))),
 
   notes: z
     .string()
-    .max(2000, 'Notlar en fazla 2000 karakter olabilir')
+    .max(2000, t('forms.validation.healthRecord.notesMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 });
@@ -114,11 +118,16 @@ const BaseHealthRecordSchema = z.object({
 const BaseHealthRecordFormSchema = z.object({
   title: z
     .string()
-    .min(1, 'Başlık zorunludur')
-    .max(100, 'Başlık en fazla 100 karakter olabilir')
-    .regex(/^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/, 'Başlık geçersiz karakterler içeriyor'),
+    .min(1, t('forms.validation.healthRecord.titleRequired'))
+    .max(100, t('forms.validation.healthRecord.titleMax'))
+    .regex(
+      /^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/,
+      t('forms.validation.healthRecord.titleInvalidChars')
+    ),
 
-  type: z.enum(['visit', 'other', 'grooming', 'checkup', 'surgery', 'dental'] as const),
+  type: z.enum(['visit', 'other', 'grooming', 'checkup', 'surgery', 'dental'] as const, {
+    message: t('forms.validation.healthRecord.typeInvalid'),
+  }),
 
   date: z
     .union([z.string(), z.date()])
@@ -130,14 +139,14 @@ const BaseHealthRecordFormSchema = z.object({
       }
       return false;
     }, {
-      message: 'Geçerli bir tarih giriniz'
+      message: t('forms.validation.healthRecord.dateInvalid'),
     })
     .refine((val) => {
       const date = val instanceof Date ? val : new Date(val);
       const now = new Date();
       return date <= now;
     }, {
-      message: 'Tarih gelecekte olamaz'
+      message: t('forms.validation.healthRecord.dateFuture'),
     }),
 
   description: z
@@ -146,30 +155,32 @@ const BaseHealthRecordFormSchema = z.object({
     .optional()
     .transform(val => val?.trim() || undefined),
 
-  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
+  petId: objectIdSchema.refine(() => true, {
+    message: t('forms.validation.healthRecord.petRequired'),
+  }),
 
   veterinarian: z
     .string()
-    .max(100)
+    .max(100, t('forms.validation.healthRecord.veterinarianMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
   clinic: z
     .string()
-    .max(100)
+    .max(100, t('forms.validation.healthRecord.clinicMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
   cost: z
     .number()
-    .positive()
-    .max(100000)
+    .positive(t('forms.validation.healthRecord.costPositive'))
+    .max(100000, t('forms.validation.healthRecord.costMaxForm'))
     .optional()
     .nullable(),
 
   notes: z
     .string()
-    .max(2000, 'Notlar en fazla 2000 karakter olabilir')
+    .max(2000, t('forms.validation.healthRecord.notesMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 });
@@ -198,8 +209,8 @@ export const HealthRecordUpdateSchema = BaseHealthRecordSchema.partial();
 export type HealthRecord = z.infer<typeof HealthRecordSchema>;
 export type HealthRecordCreateInput = z.infer<typeof HealthRecordCreateSchema>;
 export type HealthRecordUpdateInput = z.infer<typeof HealthRecordUpdateSchema>;
-export type HealthRecordCreateFormInput = z.infer<typeof HealthRecordCreateFormSchema>;
-export type HealthRecordUpdateFormInput = z.infer<typeof HealthRecordUpdateFormSchema>;
+export type HealthRecordCreateFormInput = z.input<typeof HealthRecordCreateFormSchema>;
+export type HealthRecordUpdateFormInput = z.input<typeof HealthRecordUpdateFormSchema>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -210,7 +221,7 @@ export type ValidationError = {
 
 // Helper function to format validation errors
 export const formatValidationErrors = (error: z.ZodError): ValidationError[] => {
-  return error.errors.map(err => ({
+  return error.issues.map(err => ({
     path: err.path.map(String),
     message: err.message,
     code: err.code,
@@ -219,7 +230,7 @@ export const formatValidationErrors = (error: z.ZodError): ValidationError[] => 
 
 // Helper function to get field-specific error message
 export const getFieldError = (error: z.ZodError, fieldName: string): string | undefined => {
-  const fieldError = error.errors.find(err => err.path[0] === fieldName);
+  const fieldError = error.issues.find(err => err.path[0] === fieldName);
   return fieldError?.message;
 };
 

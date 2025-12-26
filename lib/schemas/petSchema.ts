@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { toUTCWithOffset, isValidUTCISOString } from '@/lib/utils/dateConversion';
-import { objectIdSchema } from './createZodI18n';
+import { objectIdSchema, t } from './createZodI18n';
 
 // Custom validation regex for Turkish characters
 const TURKISH_NAME_REGEX = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/;
@@ -24,16 +24,18 @@ const validateTurkishName = (name: string) => {
 const BasePetSchema = z.object({
   name: z
     .string()
-    .min(2)
-    .max(50)
-    .regex(TURKISH_NAME_REGEX)
+    .min(2, t('forms.validation.pet.nameMin'))
+    .max(50, t('forms.validation.pet.nameMax'))
+    .regex(TURKISH_NAME_REGEX, t('forms.validation.pet.nameInvalidChars'))
     .transform(val => val.trim()),
 
-  type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other'] as const),
+  type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other'] as const, {
+    message: t('forms.validation.pet.typeRequired'),
+  }),
 
   breed: z
     .string()
-    .max(100)
+    .max(100, t('forms.validation.pet.breedMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
@@ -54,21 +56,25 @@ const BasePetSchema = z.object({
       throw new Error('Invalid date type');
     })
     .refine((val) => isValidUTCISOString(val), {
-      message: 'Doğum tarihi geçersiz format. UTC formatında olmalı'
+      message: t('forms.validation.pet.birthDateUtcInvalid'),
     })
     .refine(validateBirthDate, {
-      message: "Doğum tarihi gelecekte veya 30 yıldan eski olamaz"
+      message: t('forms.validation.pet.birthDateRange'),
     })
     .optional(),
 
   weight: z
     .number()
-    .positive()
-    .min(0.1)
-    .max(200)
+    .positive(t('forms.validation.pet.weightPositive'))
+    .min(0.1, t('forms.validation.pet.weightMin'))
+    .max(200, t('forms.validation.pet.weightMax'))
     .optional(),
 
-  gender: z.enum(['male', 'female', 'other'] as const).optional(),
+  gender: z
+    .enum(['male', 'female', 'other'] as const, {
+      message: t('forms.validation.pet.genderRequired'),
+    })
+    .optional(),
 
   profilePhoto: z
     .string()
@@ -80,7 +86,7 @@ const BasePetSchema = z.object({
       return val.startsWith('file://') || val.startsWith('/') ||
              val.startsWith('data:image/') || val.startsWith('http');
     }, {
-      message: "Photo must be a valid image file or URL"
+      message: t('forms.validation.pet.photoInvalid'),
     })
 });
 
@@ -103,7 +109,7 @@ export const PetCreateFormSchema = BasePetSchema.extend({
       }
       return false;
     }, {
-      message: 'Geçerli bir tarih giriniz'
+      message: t('forms.validation.pet.birthDateInvalid'),
     })
     .refine((val) => {
       const date = val instanceof Date ? val : new Date(val);
@@ -111,7 +117,7 @@ export const PetCreateFormSchema = BasePetSchema.extend({
       const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate());
       return date <= now && date >= minDate;
     }, {
-      message: "Doğum tarihi gelecekte veya 30 yıldan eski olamaz"
+      message: t('forms.validation.pet.birthDateRange'),
     })
     .optional(),
 });
@@ -124,7 +130,7 @@ export const PetCreateSchema = BasePetSchema.refine(
     return nameValid && typeValid;
   },
   {
-    message: "Pet name (min 2 chars) and type are required",
+    message: t('forms.validation.pet.nameAndTypeRequired'),
     path: ["name"]
   }
 );
@@ -142,7 +148,7 @@ export const PetUpdateFormSchema = BasePetSchema.partial().extend({
       }
       return false;
     }, {
-      message: 'Geçerli bir tarih giriniz'
+      message: t('forms.validation.pet.birthDateInvalid'),
     })
     .refine((val) => {
       if (!val) return true; // Optional field
@@ -151,7 +157,7 @@ export const PetUpdateFormSchema = BasePetSchema.partial().extend({
       const minDate = new Date(now.getFullYear() - 30, now.getMonth(), now.getDate());
       return date <= now && date >= minDate;
     }, {
-      message: "Doğum tarihi gelecekte veya 30 yıldan eski olamaz"
+      message: t('forms.validation.pet.birthDateRange'),
     })
     .optional(),
 });
@@ -163,8 +169,8 @@ export const PetUpdateSchema = BasePetSchema.partial();
 export type Pet = z.infer<typeof PetSchema>;
 export type PetCreateInput = z.infer<typeof PetCreateSchema>;
 export type PetUpdateInput = z.infer<typeof PetUpdateSchema>;
-export type PetCreateFormInput = z.infer<typeof PetCreateFormSchema>;
-export type PetUpdateFormInput = z.infer<typeof PetUpdateFormSchema>;
+export type PetCreateFormInput = z.input<typeof PetCreateFormSchema>;
+export type PetUpdateFormInput = z.input<typeof PetUpdateFormSchema>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -174,7 +180,7 @@ export type ValidationError = {
 
 // Helper function to format validation errors
 export const formatValidationErrors = (error: z.ZodError): ValidationError[] => {
-  return error.errors.map(err => ({
+  return error.issues.map(err => ({
     path: err.path.map(String),
     message: err.message
   }));

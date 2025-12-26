@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { objectIdSchema } from './createZodI18n';
+import { objectIdSchema, t } from './createZodI18n';
 
 // Expense categories enum
 export const EXPENSE_CATEGORIES = [
@@ -46,55 +46,56 @@ const BaseExpenseSchema = z.object({
   petId: objectIdSchema,
 
   category: z.enum(EXPENSE_CATEGORIES, {
-    errorMap: () => ({ message: 'Invalid category' })
+    message: t('forms.validation.expense.categoryInvalid'),
   }),
 
   amount: z
-    .number({
-      required_error: 'Amount is required',
-      invalid_type_error: 'Amount must be a number'
+    .number({ message: t('forms.validation.expense.amountInvalidType') })
+    .positive(t('forms.validation.expense.amountPositive'))
+    .min(0.01, t('forms.validation.expense.amountMin'))
+    .max(1000000, t('forms.validation.expense.amountMax')),
+
+  currency: z.enum(CURRENCIES, {
+    message: t('forms.validation.expense.currencyInvalid'),
+  }),
+
+  paymentMethod: z
+    .enum(PAYMENT_METHODS, {
+      message: t('forms.validation.expense.paymentMethodInvalid'),
     })
-    .positive('Amount must be positive')
-    .min(0.01, 'Amount must be at least 0.01')
-    .max(1000000, 'Amount is too large'),
-
-  currency: z.enum(CURRENCIES),
-
-  paymentMethod: z.enum(PAYMENT_METHODS).optional(),
+    .optional(),
 
   description: z
     .string()
-    .max(500, 'Description is too long')
+    .max(500, t('forms.validation.expense.descriptionMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
   date: z
-    .string({
-      required_error: 'Date is required',
-      invalid_type_error: 'Date must be a valid date string'
-    })
+    .string()
+    .min(1, t('forms.validation.expense.dateRequired'))
     .refine((val) => {
       const date = new Date(val);
       return !isNaN(date.getTime()) && validateExpenseDate(date);
     }, {
-      message: 'Date cannot be in the future or more than 10 years ago'
+      message: t('forms.validation.expense.dateInvalidRange'),
     }),
 
   receiptPhoto: z
     .string()
-    .url('Receipt photo must be a valid URL')
+    .url(t('forms.validation.expense.receiptUrl'))
     .optional()
     .or(z.literal('').transform(() => undefined)),
 
   vendor: z
     .string()
-    .max(200, 'Vendor name is too long')
+    .max(200, t('forms.validation.expense.vendorMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 
   notes: z
     .string()
-    .max(1000, 'Notes are too long')
+    .max(1000, t('forms.validation.expense.notesMax'))
     .optional()
     .transform(val => val?.trim() || undefined),
 });
@@ -113,13 +114,30 @@ export const ExpenseUpdateSchema = BaseExpenseSchema.partial().omit({ petId: tru
 
 // Query params schema for filtering expenses
 export const ExpenseQuerySchema = z.object({
-  page: z.number().int().positive().optional().default(1),
-  limit: z.number().int().positive().max(100).optional().default(20),
+  page: z
+    .number({ message: t('forms.validation.expense.query.pageInvalidType') })
+    .int(t('forms.validation.expense.query.pageInteger'))
+    .positive(t('forms.validation.expense.query.pagePositive'))
+    .optional()
+    .default(1),
+  limit: z
+    .number({ message: t('forms.validation.expense.query.limitInvalidType') })
+    .int(t('forms.validation.expense.query.limitInteger'))
+    .positive(t('forms.validation.expense.query.limitPositive'))
+    .max(100, t('forms.validation.expense.query.limitMax'))
+    .optional()
+    .default(20),
   category: z.enum(EXPENSE_CATEGORIES).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  minAmount: z.number().positive().optional(),
-  maxAmount: z.number().positive().optional(),
+  minAmount: z
+    .number({ message: t('forms.validation.expense.query.minAmountInvalidType') })
+    .positive(t('forms.validation.expense.query.minAmountPositive'))
+    .optional(),
+  maxAmount: z
+    .number({ message: t('forms.validation.expense.query.maxAmountInvalidType') })
+    .positive(t('forms.validation.expense.query.maxAmountPositive'))
+    .optional(),
   currency: z.enum(CURRENCIES).optional(),
   paymentMethod: z.enum(PAYMENT_METHODS).optional()
 });
@@ -129,6 +147,7 @@ export type Expense = z.infer<typeof ExpenseSchema>;
 export type ExpenseCreateInput = z.infer<typeof ExpenseCreateSchema>;
 export type ExpenseUpdateInput = z.infer<typeof ExpenseUpdateSchema>;
 export type ExpenseQueryParams = z.infer<typeof ExpenseQuerySchema>;
+export type ExpenseCreateFormInput = z.input<typeof ExpenseCreateSchema>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -138,7 +157,7 @@ export type ValidationError = {
 
 // Helper function to format validation errors
 export const formatExpenseValidationErrors = (error: z.ZodError): ValidationError[] => {
-  return error.errors.map(err => ({
+  return error.issues.map(err => ({
     path: err.path.map(String),
     message: err.message
   }));

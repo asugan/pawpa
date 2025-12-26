@@ -1,35 +1,40 @@
 import { z } from 'zod';
 import { EVENT_TYPES } from '../../constants';
 import { combineDateTimeToISO, toUTCWithOffset, isValidUTCISOString } from '../utils/dateConversion';
-import { objectIdSchema } from './createZodI18n';
+import { objectIdSchema, t } from './createZodI18n';
 
 // Form input schema (matches the form structure with separate date/time fields)
 export const eventFormSchema = z.object({
   title: z
     .string()
-    .min(1, 'Etkinlik başlığı zorunludur')
-    .max(100, 'Etkinlik başlığı en fazla 100 karakter olabilir')
-    .regex(/^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/, 'Başlık geçersiz karakterler içeriyor'),
+    .min(1, t('forms.validation.event.titleRequired'))
+    .max(100, t('forms.validation.event.titleMax'))
+    .regex(
+      /^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/,
+      t('forms.validation.event.titleInvalidChars')
+    ),
 
   description: z
     .string()
     .optional()
     .transform(val => val?.trim() || undefined),
 
-  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
+  petId: objectIdSchema.refine(() => true, {
+    message: t('forms.validation.event.petRequired'),
+  }),
 
   type: z
     .enum(Object.values(EVENT_TYPES) as [string, ...string[]], {
-      errorMap: () => ({ message: 'Geçerli bir etkinlik türü seçiniz' })
+      message: t('forms.validation.event.typeInvalid'),
     }),
 
   startDate: z
     .string()
-    .min(1, 'Başlangıç tarihi zorunludur'),
+    .min(1, t('forms.validation.event.startDateRequired')),
 
   startTime: z
     .string()
-    .min(1, 'Başlangıç saati zorunludur'),
+    .min(1, t('forms.validation.event.startTimeRequired')),
 
   endDate: z
     .string()
@@ -92,7 +97,7 @@ export const eventFormSchema = z.object({
   if ((data.endDate && !data.endTime) || (!data.endDate && data.endTime)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Hem bitiş tarihi hem de saati gereklidir',
+      message: t('forms.validation.event.endDateTimeRequired'),
       path: ['endTime']
     });
   }
@@ -110,7 +115,7 @@ export const eventFormSchema = z.object({
     if (end < minimumEndTime) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Bitiş zamanı başlangıçtan en az 15 dakika sonra olmalıdır',
+        message: t('forms.validation.event.endAfterStart'),
         path: ['endTime']
       });
     }
@@ -127,7 +132,7 @@ export const eventFormSchema = z.object({
     if (selectedDate < oneMinuteFromNow) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Başlangıç zamanı gelecekte bir tarih olmalıdır',
+        message: t('forms.validation.event.startInFuture'),
         path: ['startTime']
       });
     }
@@ -144,7 +149,7 @@ export const eventFormSchema = z.object({
     if (eventTime > oneYearFromNow) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Hatırlatıcı 1 yıldan uzun süreli etkinlikler için ayarlanamaz',
+        message: t('forms.validation.event.reminderTooFar'),
         path: ['reminder']
       });
     }
@@ -153,7 +158,7 @@ export const eventFormSchema = z.object({
   if (data.type === EVENT_TYPES.VACCINATION && !data.vaccineName) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Aşı adı zorunludur',
+      message: t('forms.validation.event.vaccineNameRequired'),
       path: ['vaccineName']
     });
   }
@@ -162,21 +167,21 @@ export const eventFormSchema = z.object({
     if (!data.medicationName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'İlaç adı zorunludur',
+        message: t('forms.validation.event.medicationNameRequired'),
         path: ['medicationName']
       });
     }
     if (!data.dosage) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Doz bilgisi zorunludur',
+        message: t('forms.validation.event.dosageRequired'),
         path: ['dosage']
       });
     }
     if (!data.frequency) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Kullanım sıklığı zorunludur',
+        message: t('forms.validation.event.frequencyRequired'),
         path: ['frequency']
       });
     }
@@ -190,18 +195,20 @@ export type EventFormData = z.infer<typeof eventFormSchema>;
 export const eventSchema = z.object({
   title: z
     .string()
-    .min(1, 'Etkinlik başlığı zorunludur')
-    .max(100, 'Etkinlik başlığı en fazla 100 karakter olabilir'),
+    .min(1, t('forms.validation.event.titleRequired'))
+    .max(100, t('forms.validation.event.titleMax')),
 
   description: z
     .string()
     .optional(),
 
-  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
+  petId: objectIdSchema.refine(() => true, {
+    message: t('forms.validation.event.petRequired'),
+  }),
 
   type: z
     .enum(Object.values(EVENT_TYPES) as [string, ...string[]], {
-      errorMap: () => ({ message: 'Geçerli bir etkinlik türü seçiniz' })
+      message: t('forms.validation.event.typeInvalid'),
     }),
 
   startTime: z
@@ -221,7 +228,7 @@ export const eventSchema = z.object({
       throw new Error('Invalid date type');
     })
     .refine((val) => isValidUTCISOString(val), {
-      message: 'Başlangıç zamanı geçersiz format. UTC formatında olmalı'
+      message: t('forms.validation.event.startTimeUtcInvalid'),
     }),
 
   endTime: z
@@ -243,7 +250,7 @@ export const eventSchema = z.object({
       throw new Error('Invalid date type');
     })
     .refine((val) => !val || isValidUTCISOString(val), {
-      message: 'Bitiş zamanı geçersiz format. UTC formatında olmalı'
+      message: t('forms.validation.event.endTimeUtcInvalid'),
     }),
 
   location: z
@@ -279,21 +286,64 @@ export type Event = z.infer<typeof EventSchema>;
 
 // Schema for event updates (all fields optional)
 export const updateEventSchema = z.object({
-  title: z.string().min(1).max(100).optional(),
-  description: z.string().max(500).optional(),
+  title: z
+    .string()
+    .min(1, t('forms.validation.event.titleRequired'))
+    .max(100, t('forms.validation.event.titleMax'))
+    .optional(),
+  description: z
+    .string()
+    .max(500, t('forms.validation.event.descriptionMax'))
+    .optional(),
   petId: objectIdSchema.optional(),
-  type: z.enum(Object.values(EVENT_TYPES) as [string, ...string[]]).optional(),
-  startTime: z.string().min(1).optional(),
+  type: z
+    .enum(Object.values(EVENT_TYPES) as [string, ...string[]], {
+      message: t('forms.validation.event.typeInvalid'),
+    })
+    .optional(),
+  startTime: z.string().min(1, t('forms.validation.event.startTimeRequired')).optional(),
   endTime: z.string().nullable().optional(),
-  location: z.string().max(200).nullable().optional(),
+  location: z
+    .string()
+    .max(200, t('forms.validation.event.locationMax'))
+    .nullable()
+    .optional(),
   reminder: z.boolean().optional(),
-  notes: z.string().max(1000).nullable().optional(),
-  vaccineName: z.string().max(100).nullable().optional(),
-  vaccineManufacturer: z.string().max(100).nullable().optional(),
-  batchNumber: z.string().max(50).nullable().optional(),
-  medicationName: z.string().max(100).nullable().optional(),
-  dosage: z.string().max(50).nullable().optional(),
-  frequency: z.string().max(100).nullable().optional(),
+  notes: z
+    .string()
+    .max(1000, t('forms.validation.event.notesMax'))
+    .nullable()
+    .optional(),
+  vaccineName: z
+    .string()
+    .max(100, t('forms.validation.event.vaccineNameMax'))
+    .nullable()
+    .optional(),
+  vaccineManufacturer: z
+    .string()
+    .max(100, t('forms.validation.event.vaccineManufacturerMax'))
+    .nullable()
+    .optional(),
+  batchNumber: z
+    .string()
+    .max(50, t('forms.validation.event.batchNumberMax'))
+    .nullable()
+    .optional(),
+  medicationName: z
+    .string()
+    .max(100, t('forms.validation.event.medicationNameMax'))
+    .nullable()
+    .optional(),
+  dosage: z
+    .string()
+    .max(50, t('forms.validation.event.dosageMax'))
+    .nullable()
+    .optional(),
+  frequency: z
+    .string()
+    .max(100, t('forms.validation.event.frequencyMax'))
+    .nullable()
+    .optional(),
 });
 
 export type UpdateEventFormData = z.infer<typeof updateEventSchema>;
@@ -338,11 +388,11 @@ export const getEventTypeSpecificRules = (eventType: string) => {
           min: 1,
           max: 50,
           pattern: /^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/,
-          message: 'Besleme zamanı başlığı en fazla 50 karakter olabilir'
+          message: t('forms.validation.event.rules.feedingTitleMax')
         },
         duration: {
           maxMinutes: 60, // Feeding activities shouldn't exceed 1 hour
-          message: 'Besleme aktivitesi 1 saatten uzun olmamalıdır'
+          message: t('forms.validation.event.rules.feedingDurationMax')
         }
       };
 
@@ -352,12 +402,12 @@ export const getEventTypeSpecificRules = (eventType: string) => {
           min: 1,
           max: 100,
           pattern: /^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s\-_.,!?()]+$/,
-          message: 'Veteriner ziyareti başlığı gereklidir'
+          message: t('forms.validation.event.rules.vetVisitTitleRequired')
         },
         duration: {
           minMinutes: 30, // Vet visits usually take at least 30 minutes
           maxMinutes: 480, // 8 hours max
-          message: 'Veteriner ziyareti 30 dakika ile 8 saat arasında olmalıdır'
+          message: t('forms.validation.event.rules.vetVisitDurationRange')
         }
       };
 
@@ -367,7 +417,7 @@ export const getEventTypeSpecificRules = (eventType: string) => {
         duration: {
           minMinutes: 15,
           maxMinutes: 240, // 4 hours max
-          message: 'Egzersiz/yürüyüş 15 dakika ile 4 saat arasında olmalıdır'
+          message: t('forms.validation.event.rules.exerciseDurationRange')
         }
       };
 
@@ -376,7 +426,7 @@ export const getEventTypeSpecificRules = (eventType: string) => {
         duration: {
           minMinutes: 15,
           maxMinutes: 480, // 8 hours max default
-          message: 'Etkinlik süresi 15 dakika ile 8 saat arasında olmalıdır'
+          message: t('forms.validation.event.rules.defaultDurationRange')
         }
       };
   }

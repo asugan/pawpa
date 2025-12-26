@@ -16,60 +16,6 @@ const getT = () => {
 };
 
 /**
- * MongoDB ObjectId validation schema
- */
-export const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId format');
-
-/**
- * Creates a Zod error map for internationalized error messages
- * @returns Zod error map function
- */
-export const createZodI18nErrorMap = () => {
-  return (issue: ZodIssue) => {
-    const translate = getT();
-
-    switch (issue.code) {
-      case 'too_small':
-        if (issue.type === 'string') {
-          issue.message = translate('forms.validation.nameMinLength', { min: issue.minimum });
-        } else if (issue.type === 'number') {
-          issue.message = translate('forms.validation.weightMin', { min: issue.minimum });
-        }
-        break;
-
-      case 'too_big':
-        if (issue.type === 'string') {
-          issue.message = translate('forms.validation.nameMaxLength', { max: issue.maximum });
-        } else if (issue.type === 'number') {
-          issue.message = translate('forms.validation.weightMax', { max: issue.maximum });
-        }
-        break;
-
-      case 'invalid_string':
-        if (issue.validation === 'regex') {
-          issue.message = translate('forms.validation.nameInvalidChars');
-        }
-        break;
-
-      case 'invalid_type':
-        if (issue.received === 'undefined') {
-          issue.message = translate('forms.validation.required');
-        }
-        break;
-
-      case 'invalid_date':
-        issue.message = translate('forms.validation.birthDateRequired');
-        break;
-
-      default:
-        issue.message = translate('forms.validation.invalid');
-    }
-
-    return issue;
-  };
-};
-
-/**
  * Creates a validation error message with translation key
  * @param key - The translation key
  * @param options - Options for interpolation
@@ -78,4 +24,57 @@ export const createZodI18nErrorMap = () => {
 export const t = (key: string, options?: Record<string, unknown>) => {
   const translate = getT();
   return translate(key, options);
+};
+
+/**
+ * MongoDB ObjectId validation schema
+ */
+export const objectIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, t('forms.validation.objectIdInvalid'));
+
+/**
+ * Creates a Zod error map for internationalized error messages
+ * @returns Zod error map function
+ */
+export const createZodI18nErrorMap = () => {
+  return (issue: ZodIssue) => {
+    const translate = getT();
+    let message: string | undefined;
+
+    switch (issue.code) {
+      case 'too_small':
+        if ('origin' in issue && issue.origin === 'string') {
+          message = translate('forms.validation.nameMinLength', { min: Number(issue.minimum) });
+        } else if ('origin' in issue && issue.origin === 'number') {
+          message = translate('forms.validation.weightMin', { min: Number(issue.minimum) });
+        }
+        break;
+
+      case 'too_big':
+        if ('origin' in issue && issue.origin === 'string') {
+          message = translate('forms.validation.nameMaxLength', { max: Number(issue.maximum) });
+        } else if ('origin' in issue && issue.origin === 'number') {
+          message = translate('forms.validation.weightMax', { max: Number(issue.maximum) });
+        }
+        break;
+
+      case 'invalid_format':
+        if ('format' in issue && issue.format === 'regex') {
+          message = translate('forms.validation.nameInvalidChars');
+        }
+        break;
+
+      case 'invalid_type':
+        if ('input' in issue && issue.input === undefined) {
+          message = translate('forms.validation.required');
+        }
+        break;
+
+      default:
+        message = translate('forms.validation.invalid');
+    }
+
+    return { message: message ?? translate('forms.validation.invalid') };
+  };
 };

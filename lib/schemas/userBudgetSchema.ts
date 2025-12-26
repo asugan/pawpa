@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CURRENCIES } from "./expenseSchema";
+import { t } from "./createZodI18n";
 
 // Custom validation functions
 const validateAlertThreshold = (threshold: number) => {
@@ -10,23 +11,22 @@ const validateAlertThreshold = (threshold: number) => {
 export const SetUserBudgetSchema = z
   .object({
     amount: z
-      .number({
-        required_error: "Amount is required",
-        invalid_type_error: "Amount must be a number",
-      })
-      .positive("Amount must be positive")
-      .min(1, "Amount must be at least 1")
-      .max(10000000, "Amount is too large"),
+      .number({ message: t("forms.validation.budget.amountInvalidType") })
+      .positive(t("forms.validation.budget.amountPositive"))
+      .min(1, t("forms.validation.budget.amountMin"))
+      .max(10000000, t("forms.validation.budget.amountMax")),
 
-    currency: z.enum(CURRENCIES),
+    currency: z.enum(CURRENCIES, {
+      message: t("forms.validation.budget.currencyInvalid"),
+    }),
 
     alertThreshold: z
       .number()
-      .min(0, "Alert threshold must be at least 0")
-      .max(1, "Alert threshold must be at most 1")
+      .min(0, t("forms.validation.budget.alertThresholdMin"))
+      .max(1, t("forms.validation.budget.alertThresholdMax"))
       .default(0.8)
       .refine(validateAlertThreshold, {
-        message: "Alert threshold must be between 0 and 1",
+        message: t("forms.validation.budget.alertThresholdRange"),
       })
       .optional(),
 
@@ -37,7 +37,7 @@ export const SetUserBudgetSchema = z
       return data.amount > 0 && data.currency;
     },
     {
-      message: "Amount and currency are required",
+      message: t("forms.validation.budget.amountAndCurrencyRequired"),
       path: ["amount"],
     }
   );
@@ -55,7 +55,7 @@ export type ValidationError = {
 export const formatUserBudgetValidationErrors = (
   error: z.ZodError
 ): ValidationError[] => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     path: err.path.map(String),
     message: err.message,
   }));
