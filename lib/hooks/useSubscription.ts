@@ -208,6 +208,26 @@ export function useSubscription(): UseSubscriptionReturn {
     return Object.keys(customerInfo.entitlements.active);
   }, [customerInfo]);
 
+  const ensureRevenueCatReady = useCallback(async (): Promise<boolean> => {
+    if (isInitialized) {
+      return true;
+    }
+
+    try {
+      const configured = await Purchases.isConfigured();
+      if (configured) {
+        return true;
+      }
+    } catch (error) {
+      console.warn("[Subscription] Failed to check RevenueCat configuration:", error);
+    }
+
+    const message = t("subscription.notInitialized", "Subscription system is not ready yet.");
+    console.warn("[Subscription] RevenueCat not configured");
+    setError(message);
+    return false;
+  }, [isInitialized, setError, t]);
+
   /**
    * Present the RevenueCat paywall
    * Returns true if a purchase or restore was made
@@ -218,6 +238,10 @@ export function useSubscription(): UseSubscriptionReturn {
       try {
         setLoading(true);
         setError(null);
+
+        if (!(await ensureRevenueCatReady())) {
+          return false;
+        }
 
         const result = await RevenueCatUI.presentPaywall({
           offering: offering?.current || undefined,
@@ -280,6 +304,10 @@ export function useSubscription(): UseSubscriptionReturn {
       setLoading(true);
       setError(null);
 
+      if (!(await ensureRevenueCatReady())) {
+        return false;
+      }
+
       const result = await RevenueCatUI.presentPaywallIfNeeded({
         requiredEntitlementIdentifier: REVENUECAT_CONFIG.ENTITLEMENT_ID,
       });
@@ -325,6 +353,10 @@ export function useSubscription(): UseSubscriptionReturn {
     try {
       setLoading(true);
       setError(null);
+
+      if (!(await ensureRevenueCatReady())) {
+        return;
+      }
 
       await RevenueCatUI.presentCustomerCenter({
         callbacks: {
@@ -372,6 +404,10 @@ export function useSubscription(): UseSubscriptionReturn {
     try {
       setLoading(true);
       setError(null);
+
+      if (!(await ensureRevenueCatReady())) {
+        return false;
+      }
 
       const customerInfo = await restorePurchasesApi();
       setCustomerInfo(customerInfo);
@@ -422,6 +458,10 @@ export function useSubscription(): UseSubscriptionReturn {
       try {
         setLoading(true);
         setError(null);
+
+        if (!(await ensureRevenueCatReady())) {
+          return false;
+        }
 
         const { customerInfo } = await Purchases.purchasePackage(pkg);
         setCustomerInfo(customerInfo);
@@ -493,13 +533,17 @@ export function useSubscription(): UseSubscriptionReturn {
   const getOfferings =
     useCallback(async (): Promise<PurchasesOfferings | null> => {
       try {
+        if (!(await ensureRevenueCatReady())) {
+          return null;
+        }
+
         const offerings = await Purchases.getOfferings();
         return offerings;
       } catch (error) {
         console.error("[Subscription] Error getting offerings:", error);
         return null;
       }
-    }, []);
+    }, [ensureRevenueCatReady]);
 
   /**
    * Check if user has a specific entitlement (from RevenueCat)
