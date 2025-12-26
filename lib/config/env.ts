@@ -10,13 +10,6 @@ export const ENV = {
     SCHEME: "petopia-petcare",
     STORAGE_PREFIX: "petopia-auth",
   },
-  GOOGLE: {
-    EXPO_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID ?? "",
-    WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "",
-    ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "",
-    IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "",
-  },
-
   // API Endpoints
   ENDPOINTS: {
     // Pet endpoints
