@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
-import { Alert } from "react-native";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Purchases, {
   CustomerInfo,
@@ -12,6 +11,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { REVENUECAT_CONFIG } from "@/lib/revenuecat/config";
 import { restorePurchases as restorePurchasesApi } from "@/lib/revenuecat/initialize";
+import { showAlert } from "@/lib/utils/alert";
 
 // Rate limiting configuration
 const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
@@ -208,6 +208,17 @@ export function useSubscription(): UseSubscriptionReturn {
     return Object.keys(customerInfo.entitlements.active);
   }, [customerInfo]);
 
+  const tRef = useRef(t);
+  const setErrorRef = useRef(setError);
+
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  useEffect(() => {
+    setErrorRef.current = setError;
+  }, [setError]);
+
   const ensureRevenueCatReady = useCallback(async (): Promise<boolean> => {
     if (isInitialized) {
       return true;
@@ -222,11 +233,14 @@ export function useSubscription(): UseSubscriptionReturn {
       console.warn("[Subscription] Failed to check RevenueCat configuration:", error);
     }
 
-    const message = t("subscription.notInitialized", "Subscription system is not ready yet.");
+    const message = tRef.current(
+      "subscription.notInitialized",
+      "Subscription system is not ready yet."
+    );
     console.warn("[Subscription] RevenueCat not configured");
-    setError(message);
+    setErrorRef.current(message);
     return false;
-  }, [isInitialized, setError, t]);
+  }, [isInitialized]);
 
   /**
    * Present the RevenueCat paywall
@@ -426,10 +440,10 @@ export function useSubscription(): UseSubscriptionReturn {
           () => hasActiveSubscription()
         );
 
-        Alert.alert(t("common.success"), t("subscription.restoreSuccess"));
+        showAlert(t("common.success"), t("subscription.restoreSuccess"));
         return true;
       } else {
-        Alert.alert(
+        showAlert(
           t("subscription.noPurchases"),
           t("subscription.noPurchasesMessage")
         );
@@ -438,7 +452,7 @@ export function useSubscription(): UseSubscriptionReturn {
     } catch (error) {
       console.error("[Subscription] Error restoring purchases:", error);
       setError((error as Error).message);
-      Alert.alert(t("common.error"), t("subscription.restoreError"));
+      showAlert(t("common.error"), t("subscription.restoreError"));
       return false;
     } finally {
       setLoading(false);
@@ -512,7 +526,7 @@ export function useSubscription(): UseSubscriptionReturn {
             ? (error as { message: string }).message
             : "Purchase failed";
         setError(errorMessage);
-        Alert.alert(t("common.error"), errorMessage);
+        showAlert(t("common.error"), errorMessage);
         return false;
       } finally {
         setLoading(false);
@@ -662,7 +676,7 @@ export function useSubscription(): UseSubscriptionReturn {
             return currentError || t("subscription.trialStartFailed");
         }
       })();
-      Alert.alert(t("common.error"), message);
+      showAlert(t("common.error"), message);
     }
 
     // Clear bypass flag

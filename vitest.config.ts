@@ -30,10 +30,26 @@ export default defineConfig({
     },
     // Mock React Native and Expo modules for pure logic testing
     setupFiles: ['./__tests__/vitest.setup.ts'],
+    server: {
+      deps: {
+        external: ['react-native'],
+      },
+    },
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './'),
-    },
+    alias: [
+      { find: /^react-native$/, replacement: path.resolve(__dirname, './__tests__/mocks/react-native.ts') },
+      { find: /^@react-native-async-storage\/async-storage$/, replacement: path.resolve(__dirname, './__tests__/mocks/async-storage.ts') },
+      { find: /^expo-constants$/, replacement: path.resolve(__dirname, './__tests__/mocks/expo-constants.ts') },
+      { find: /^expo-font$/, replacement: path.resolve(__dirname, './__tests__/mocks/expo-font.ts') },
+      { find: /^expo$/, replacement: path.resolve(__dirname, './__tests__/mocks/expo.ts') },
+      { find: /^expo-notifications$/, replacement: path.resolve(__dirname, './__tests__/mocks/expo-notifications.ts') },
+      { find: /^@react-navigation\/native$/, replacement: path.resolve(__dirname, './__tests__/mocks/react-navigation-native.ts') },
+      { find: /^expo-router$/, replacement: path.resolve(__dirname, './__tests__/mocks/expo-router.ts') },
+      { find: /^@expo\/vector-icons$/, replacement: path.resolve(__dirname, './__tests__/mocks/vector-icons.ts') },
+      { find: /^react-native-purchases$/, replacement: path.resolve(__dirname, './__tests__/mocks/react-native-purchases.ts') },
+      { find: /^react-native-purchases-ui$/, replacement: path.resolve(__dirname, './__tests__/mocks/react-native-purchases-ui.ts') },
+      { find: '@', replacement: path.resolve(__dirname, './') },
+    ],
   },
 });

@@ -7,7 +7,9 @@
 (globalThis as any).__DEV__ = false;
 
 // Mock React Native
-vi.mock('react-native', () => ({
+vi.mock(
+  'react-native',
+  () => ({
   Platform: {
     OS: 'ios',
     select: (obj: any) => obj.ios,
@@ -32,57 +34,81 @@ vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
   SafeAreaView: 'SafeAreaView',
   StatusBar: 'StatusBar',
-}));
+  }),
+  { virtual: true }
+);
 
 // Mock AsyncStorage (used by Zustand persist)
-vi.mock('@react-native-async-storage/async-storage', () => ({
-  setItem: vi.fn(),
-  getItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  getAllKeys: vi.fn(),
-  multiSet: vi.fn(),
-  multiGet: vi.fn(),
-  multiRemove: vi.fn(),
-}));
+vi.mock(
+  '@react-native-async-storage/async-storage',
+  () => ({
+    setItem: vi.fn(),
+    getItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+    getAllKeys: vi.fn(),
+    multiSet: vi.fn(),
+    multiGet: vi.fn(),
+    multiRemove: vi.fn(),
+  }),
+  { virtual: true }
+);
 
 // Mock Expo modules
-vi.mock('expo-constants', () => ({
-  expoConfig: {
-    version: '1.0.0',
-  },
-  executionEnvironment: 'storeClient',
-}));
+vi.mock(
+  'expo-constants',
+  () => ({
+    default: {
+      expoConfig: {
+        version: '1.0.0',
+      },
+      executionEnvironment: 'storeClient',
+    },
+  }),
+  { virtual: true }
+);
 
-vi.mock('expo-font', () => ({
-  loadAsync: vi.fn(),
-  isLoaded: vi.fn(() => true),
-}));
+vi.mock(
+  'expo-font',
+  () => ({
+    loadAsync: vi.fn(),
+    isLoaded: vi.fn(() => true),
+  }),
+  { virtual: true }
+);
 
 // Mock React Navigation
-vi.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({
-    navigate: vi.fn(),
-    goBack: vi.fn(),
-    replace: vi.fn(),
+vi.mock(
+  '@react-navigation/native',
+  () => ({
+    useNavigation: () => ({
+      navigate: vi.fn(),
+      goBack: vi.fn(),
+      replace: vi.fn(),
+    }),
+    useRoute: () => ({
+      params: {},
+      name: 'test',
+    }),
   }),
-  useRoute: () => ({
-    params: {},
-    name: 'test',
-  }),
-}));
+  { virtual: true }
+);
 
 // Mock expo-router
-vi.mock('expo-router', () => ({
-  useRouter: () => ({
-    navigate: vi.fn(),
-    goBack: vi.fn(),
-    replace: vi.fn(),
-    back: vi.fn(),
+vi.mock(
+  'expo-router',
+  () => ({
+    useRouter: () => ({
+      navigate: vi.fn(),
+      goBack: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+    }),
+    useLocalSearchParams: () => ({}),
+    useSegments: () => [],
   }),
-  useLocalSearchParams: () => ({}),
-  useSegments: () => [],
-}));
+  { virtual: true }
+);
 
 // Mock Zustand persist
 vi.mock('zustand/middleware', () => ({
@@ -143,33 +169,45 @@ vi.mock('i18next', () => ({
 }));
 
 // Mock @expo/vector-icons
-vi.mock('@expo/vector-icons', () => ({
-  MaterialCommunityIcons: 'MaterialCommunityIcons',
-  Ionicons: 'Ionicons',
-  AntDesign: 'AntDesign',
-  FontAwesome: 'FontAwesome',
-}));
+vi.mock(
+  '@expo/vector-icons',
+  () => ({
+    MaterialCommunityIcons: 'MaterialCommunityIcons',
+    Ionicons: 'Ionicons',
+    AntDesign: 'AntDesign',
+    FontAwesome: 'FontAwesome',
+  }),
+  { virtual: true }
+);
 
 // Mock expo modules that have internal dependencies
-vi.mock('expo', () => ({
-  Constants: { expoConfig: { version: '1.0.0' } },
-}));
+vi.mock(
+  'expo',
+  () => ({
+    Constants: { expoConfig: { version: '1.0.0' } },
+  }),
+  { virtual: true }
+);
 
 // Mock expo-notifications
-vi.mock('expo-notifications', () => ({
-  scheduleNotificationAsync: vi.fn(),
-  cancelScheduledNotificationAsync: vi.fn(),
-  cancelAllScheduledNotificationsAsync: vi.fn(),
-  getAllScheduledNotificationsAsync: vi.fn(),
-  setNotificationHandler: vi.fn(),
-  addNotificationReceivedListener: vi.fn(),
-  addNotificationResponseReceivedListener: vi.fn(),
-  requestPermissionsAsync: vi.fn(),
-  getPermissionsAsync: vi.fn(),
-  AndroidImportance: { DEFAULT: 0, HIGH: 2 },
-  iOSNotificationCategoryActionIdentifier: { DEFAULT: 'default' },
-  NotificationBehaviorAndroid: { DEFAULT: 'default' },
-}));
+vi.mock(
+  'expo-notifications',
+  () => ({
+    scheduleNotificationAsync: vi.fn(),
+    cancelScheduledNotificationAsync: vi.fn(),
+    cancelAllScheduledNotificationsAsync: vi.fn(),
+    getAllScheduledNotificationsAsync: vi.fn(),
+    setNotificationHandler: vi.fn(),
+    addNotificationReceivedListener: vi.fn(),
+    addNotificationResponseReceivedListener: vi.fn(),
+    requestPermissionsAsync: vi.fn(),
+    getPermissionsAsync: vi.fn(),
+    AndroidImportance: { DEFAULT: 0, HIGH: 2 },
+    iOSNotificationCategoryActionIdentifier: { DEFAULT: 'default' },
+    NotificationBehaviorAndroid: { DEFAULT: 'default' },
+  }),
+  { virtual: true }
+);
 
 // Mock reminder scheduler hook
 vi.mock('@/hooks/useReminderScheduler', () => ({

@@ -1,0 +1,12 @@
+export const scheduleNotificationAsync = async () => undefined;
+export const cancelScheduledNotificationAsync = async () => undefined;
+export const cancelAllScheduledNotificationsAsync = async () => undefined;
+export const getAllScheduledNotificationsAsync = async () => [];
+export const setNotificationHandler = () => undefined;
+export const addNotificationReceivedListener = () => undefined;
+export const addNotificationResponseReceivedListener = () => undefined;
+export const requestPermissionsAsync = async () => ({ status: 'granted' });
+export const getPermissionsAsync = async () => ({ status: 'granted' });
+export const AndroidImportance = { DEFAULT: 0, HIGH: 2 };
+export const iOSNotificationCategoryActionIdentifier = { DEFAULT: 'default' };
+export const NotificationBehaviorAndroid = { DEFAULT: 'default' };
