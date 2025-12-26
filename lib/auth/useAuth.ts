@@ -31,18 +31,20 @@ export function useAuth() {
     /**
      * Sign in with Google OAuth
      */
-    google: async () => {
+    google: async (idToken: string) => {
       return authClient.signIn.social({
         provider: 'google',
+        idToken: { token: idToken },
       });
     },
 
     /**
      * Sign in with Apple OAuth
      */
-    apple: async () => {
+    apple: async (idToken: string) => {
       return authClient.signIn.social({
         provider: 'apple',
+        idToken: { token: idToken },
       });
     },
   };

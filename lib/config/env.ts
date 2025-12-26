@@ -2,13 +2,19 @@
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__
-    ? "https://eceb5ac6c330.ngrok-free.app"
+    ? "https://0a4fa817fce2.ngrok-free.app"
     : "https://your-production-api.com",
 
   // Auth configuration
   AUTH: {
     SCHEME: "petopia-petcare",
     STORAGE_PREFIX: "petopia-auth",
+  },
+  GOOGLE: {
+    EXPO_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID ?? "",
+    WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "",
+    ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "",
+    IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "",
   },
 
   // API Endpoints

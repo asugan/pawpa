@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -8,14 +8,20 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/lib/theme';
 import { useAuth } from '@/lib/auth';
+import { ENV } from '@/lib/config/env';
 import { useAuthStore } from '@/stores/authStore';
 import { Text, Button, Card } from '@/components/ui';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const { theme } = useTheme();
@@ -27,6 +33,43 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: ENV.GOOGLE.EXPO_CLIENT_ID || undefined,
+    webClientId: ENV.GOOGLE.WEB_CLIENT_ID || undefined,
+    androidClientId: ENV.GOOGLE.ANDROID_CLIENT_ID || undefined,
+    iosClientId: ENV.GOOGLE.IOS_CLIENT_ID || undefined,
+  });
+
+  useEffect(() => {
+    if (response?.type !== 'success') {
+      return;
+    }
+
+    const idToken = response.authentication?.idToken;
+    if (!idToken) {
+      setError(t('auth.socialLoginError'));
+      return;
+    }
+
+    const completeGoogleSignIn = async () => {
+      setLoading(true);
+      try {
+        const result = await signIn.google(idToken);
+        if (result?.error) {
+          setError(result.error.message || t('auth.socialLoginError'));
+        } else {
+          router.replace('/(tabs)');
+        }
+      } catch {
+        setError(t('auth.socialLoginError'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void completeGoogleSignIn();
+  }, [response, router, setError, setLoading, signIn, t]);
 
   const handleEmailLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -53,11 +96,16 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!request) {
+      setError(t('auth.socialLoginError'));
+      return;
+    }
+
     clearError();
     setLoading(true);
 
     try {
-      await signIn.google();
+      await promptAsync();
     } catch {
       setError(t('auth.socialLoginError'));
     } finally {
@@ -70,9 +118,28 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await signIn.apple();
-    } catch {
-      setError(t('auth.socialLoginError'));
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        setError(t('auth.socialLoginError'));
+        return;
+      }
+
+      const result = await signIn.apple(credential.identityToken);
+      if (result?.error) {
+        setError(result.error.message || t('auth.socialLoginError'));
+      } else {
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      if ((error as { code?: string })?.code !== 'ERR_REQUEST_CANCELED') {
+        setError(t('auth.socialLoginError'));
+      }
     } finally {
       setLoading(false);
     }
@@ -210,7 +277,7 @@ export default function LoginScreen() {
             <Button
               mode="outlined"
               onPress={handleGoogleLogin}
-              disabled={isLoading}
+              disabled={isLoading || !request}
               style={styles.socialButton}
               icon="google"
             >
