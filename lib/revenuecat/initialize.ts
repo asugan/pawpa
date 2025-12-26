@@ -1,6 +1,6 @@
 import Purchases, { LOG_LEVEL, CustomerInfo } from 'react-native-purchases';
 import { Platform } from 'react-native';
-import { REVENUECAT_CONFIG } from './config';
+import { getRevenueCatApiKey, REVENUECAT_CONFIG } from './config';
 
 /**
  * Initialize the RevenueCat SDK
@@ -30,8 +30,13 @@ export async function initializeRevenueCat(userId: string | null): Promise<void>
   });
 
   // Configure the SDK
+  const apiKey = getRevenueCatApiKey(Platform.OS === 'ios' ? 'ios' : 'android');
+  if (!apiKey) {
+    throw new Error('[RevenueCat] Missing API key. Set EXPO_PUBLIC_REVENUECAT_IOS_API_KEY and EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY.');
+  }
+
   await Purchases.configure({
-    apiKey: REVENUECAT_CONFIG.API_KEY,
+    apiKey,
     appUserID: userId ?? undefined, // null creates anonymous user
   });
 
