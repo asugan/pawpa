@@ -17,6 +17,7 @@ import { showAlert } from "@/lib/utils/alert";
 const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_BASE = 1000; // 1 second base delay
+const IN_FLIGHT_WAIT_TIMEOUT_MS = 2000;
 const TRIAL_START_BYPASS_KEY = 'trial-start-in-progress';
 
 async function setTrialBypassFlag(value: string): Promise<void> {
@@ -122,7 +123,7 @@ export function useSubscription(): UseSubscriptionReturn {
   // Rate limiting and circuit breaker refs
   const lastRequestTimeRef = useRef<number>(0);
   const retryCountRef = useRef<number>(0);
-  const isFetchingRef = useRef<boolean>(false);
+  const inFlightStatusFetchRef = useRef<Promise<boolean> | null>(null);
 
   // Use useShallow to prevent unnecessary re-renders
   const {
@@ -411,7 +412,13 @@ export function useSubscription(): UseSubscriptionReturn {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, setCustomerInfo, fetchSubscriptionStatus]);
+  }, [
+    setLoading,
+    setError,
+    setCustomerInfo,
+    fetchSubscriptionStatus,
+    ensureRevenueCatReady,
+  ]);
 
   /**
    * Restore purchases for the current user
@@ -464,6 +471,7 @@ export function useSubscription(): UseSubscriptionReturn {
     fetchSubscriptionStatus,
     hasActiveSubscription,
     t,
+    ensureRevenueCatReady,
   ]);
 
   /**
@@ -540,6 +548,7 @@ export function useSubscription(): UseSubscriptionReturn {
       hasActiveSubscription,
       t,
       restorePurchases,
+      ensureRevenueCatReady,
     ]
   );
 
@@ -574,13 +583,31 @@ export function useSubscription(): UseSubscriptionReturn {
     [customerInfo]
   );
 
+  const runStatusFetch = useCallback(
+    (options: { bypassCache: boolean }): Promise<boolean> => {
+      if (inFlightStatusFetchRef.current) {
+        console.log(
+          "[useSubscription] Reusing in-flight subscription status fetch"
+        );
+        return inFlightStatusFetchRef.current;
+      }
+
+      const fetchPromise = fetchSubscriptionStatus(options).finally(() => {
+        inFlightStatusFetchRef.current = null;
+      });
+      inFlightStatusFetchRef.current = fetchPromise;
+      return fetchPromise;
+    },
+    [fetchSubscriptionStatus]
+  );
+
   /**
    * Refresh subscription status from backend
    * Implements circuit breaker and rate limiting to prevent infinite loops
    */
   const refreshSubscriptionStatus = useCallback(async (): Promise<void> => {
     // Prevent duplicate concurrent requests
-    if (isFetchingRef.current) {
+    if (inFlightStatusFetchRef.current) {
       console.log(
         "[useSubscription] Skipping fetch - request already in progress"
       );
@@ -612,42 +639,53 @@ export function useSubscription(): UseSubscriptionReturn {
       return;
     }
 
-    isFetchingRef.current = true;
     lastRequestTimeRef.current = now;
 
-    try {
-      const success = await fetchSubscriptionStatus({ bypassCache: true });
-      if (success) {
-        // Success - reset retry counter
-        retryCountRef.current = 0;
-        console.log(
-          "[useSubscription] Subscription status refreshed successfully"
-        );
-      } else {
-        // Increment retry counter on failure
-        retryCountRef.current += 1;
-        const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
-        console.error(
-          `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
-            `next retry after ${delay}ms`
-        );
-      }
-    } finally {
-      isFetchingRef.current = false;
+    const success = await runStatusFetch({ bypassCache: true });
+    if (success) {
+      // Success - reset retry counter
+      retryCountRef.current = 0;
+      console.log(
+        "[useSubscription] Subscription status refreshed successfully"
+      );
+    } else {
+      // Increment retry counter on failure
+      retryCountRef.current += 1;
+      const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
+      console.error(
+        `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
+          `next retry after ${delay}ms`
+      );
     }
-  }, [fetchSubscriptionStatus]);
+  }, [runStatusFetch]);
 
   /**
    * Immediate refresh that bypasses rate limiting for trial activation
    */
   const refreshSubscriptionStatusImmediate = useCallback(async (): Promise<void> => {
-    // Bypass rate limiting and circuit breaker for trial activation
-    isFetchingRef.current = false;
+    // Wait for any in-progress fetch to complete before bypassing limits
+    if (inFlightStatusFetchRef.current) {
+      console.log(
+        "[useSubscription] Waiting for in-progress fetch before immediate refresh"
+      );
+      const timeoutPromise = new Promise<"timeout">((resolve) =>
+        setTimeout(() => resolve("timeout"), IN_FLIGHT_WAIT_TIMEOUT_MS)
+      );
+      const result = await Promise.race([
+        inFlightStatusFetchRef.current,
+        timeoutPromise,
+      ]);
+      if (result === "timeout") {
+        console.warn(
+          "[useSubscription] In-flight fetch wait timed out, proceeding with immediate refresh"
+        );
+      }
+    }
     retryCountRef.current = 0;
     lastRequestTimeRef.current = 0;
 
-    await fetchSubscriptionStatus({ bypassCache: true });
-  }, [fetchSubscriptionStatus]);
+    await runStatusFetch({ bypassCache: true });
+  }, [runStatusFetch]);
 
   /**
    * Start trial with immediate status refresh (bypasses rate limiting)
