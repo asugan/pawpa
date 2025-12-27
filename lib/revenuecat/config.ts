@@ -1,18 +1,45 @@
+import Constants from 'expo-constants';
+
+type RevenueCatExtra = {
+  revenuecat?: {
+    iosApiKey?: string;
+    androidApiKey?: string;
+    entitlementId?: string;
+  };
+};
+
+const extraConfig = Constants.expoConfig?.extra as RevenueCatExtra | undefined;
+const iosApiKey =
+  process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ??
+  extraConfig?.revenuecat?.iosApiKey ??
+  '';
+const androidApiKey =
+  process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ??
+  extraConfig?.revenuecat?.androidApiKey ??
+  '';
+const entitlementId =
+  process.env.EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID ??
+  extraConfig?.revenuecat?.entitlementId ??
+  'Petopia Pro';
+
 /**
  * RevenueCat configuration constants
  */
 export const REVENUECAT_CONFIG = {
   /**
-   * RevenueCat API Key
-   * This is a public SDK key that can be safely included in the app
+   * RevenueCat API Keys
+   * Public SDK keys can be safely included in the app
    */
-  API_KEY: 'test_VSghWTpnyhxbgOfFxUIFCwIigFM',
+  API_KEYS: {
+    IOS: iosApiKey,
+    ANDROID: androidApiKey,
+  },
 
   /**
    * Entitlement identifier for Pro access
    * Must match the entitlement ID configured in RevenueCat dashboard
    */
-  ENTITLEMENT_ID: 'Dekadans Technology Pro',
+  ENTITLEMENT_ID: entitlementId,
 
   /**
    * Product identifiers
@@ -30,6 +57,14 @@ export const REVENUECAT_CONFIG = {
    */
   TRIAL_DURATION_DAYS: 3,
 } as const;
+
+export type RevenueCatPlatform = 'ios' | 'android';
+
+export function getRevenueCatApiKey(platform: RevenueCatPlatform): string {
+  return platform === 'ios'
+    ? REVENUECAT_CONFIG.API_KEYS.IOS
+    : REVENUECAT_CONFIG.API_KEYS.ANDROID;
+}
 
 /**
  * Type for product identifiers

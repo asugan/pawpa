@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { DAYS_OF_WEEK, FOOD_TYPES } from '../../constants';
-import { objectIdSchema } from './createZodI18n';
+import { createObjectIdSchema, t } from './createZodI18n';
 
 // Valid day names for validation
 const VALID_DAYS = Object.values(DAYS_OF_WEEK);
@@ -22,114 +22,132 @@ const isValidDaysString = (days: string): boolean => {
 };
 
 // Form input schema (for create/edit forms with multi-select days)
-export const feedingScheduleFormSchema = z.object({
-  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
+export const feedingScheduleFormSchema = () => {
+  const objectIdSchema = createObjectIdSchema();
 
+  return z.object({
+    petId: objectIdSchema.refine(() => true, {
+      params: { i18nKey: 'forms.validation.feedingSchedule.petRequired' },
+    }),
+
+    time: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.timeRequired') })
+      .refine(isValidTimeFormat, {
+        params: { i18nKey: 'forms.validation.feedingSchedule.timeInvalidFormatExample' },
+      }),
+
+    foodType: z
+      .enum(Object.values(FOOD_TYPES) as [string, ...string[]], {
+        message: t('forms.validation.feedingSchedule.foodTypeInvalid'),
+      }),
+
+    amount: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.amountRequired') })
+      .max(50, { message: t('forms.validation.feedingSchedule.amountMax') })
+      .refine(
+        (val) => val.trim().length > 0,
+        { params: { i18nKey: 'forms.validation.feedingSchedule.amountNotEmpty' } }
+      ),
+
+    // Days as array for form (easier to work with multi-select)
+    daysArray: z
+      .array(z.enum(Object.values(DAYS_OF_WEEK) as [string, ...string[]]))
+      .min(1, { message: t('forms.validation.feedingSchedule.daysMin') })
+      .max(7, { message: t('forms.validation.feedingSchedule.daysMax') }),
+
+    isActive: z.boolean(),
+  }).refine((data) => {
+    // Validate that time is reasonable (not empty after trim)
+    return data.time.trim().length > 0;
+  }, {
+    params: { i18nKey: 'forms.validation.feedingSchedule.timeInvalidValue' },
+    path: ['time'],
+  });
+};
+
+// Type inference from the form schema
+export type FeedingScheduleFormData = z.infer<ReturnType<typeof feedingScheduleFormSchema>>;
+
+// API schema (matches backend expectations with comma-separated days string)
+export const feedingScheduleSchema = () => {
+  const objectIdSchema = createObjectIdSchema();
+
+  return z.object({
+    petId: objectIdSchema.refine(() => true, {
+      params: { i18nKey: 'forms.validation.feedingSchedule.petRequired' },
+    }),
+
+    time: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.timeRequired') })
+      .refine(isValidTimeFormat, {
+        params: { i18nKey: 'forms.validation.feedingSchedule.timeInvalidFormat' },
+      }),
+
+    foodType: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.foodTypeRequired') }),
+
+    amount: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.amountRequired') })
+      .max(50, { message: t('forms.validation.feedingSchedule.amountMax') }),
+
+    days: z
+      .string()
+      .min(1, { message: t('forms.validation.feedingSchedule.daysRequired') })
+      .refine(isValidDaysString, {
+        params: { i18nKey: 'forms.validation.feedingSchedule.daysInvalidFormat' },
+      }),
+
+    isActive: z
+      .boolean()
+      .optional()
+      .default(true),
+  });
+};
+
+// Full FeedingSchedule schema including server-side fields
+export const FeedingScheduleSchema = () => {
+  const objectIdSchema = createObjectIdSchema();
+
+  return feedingScheduleSchema().extend({
+    _id: objectIdSchema,
+    createdAt: z.string().datetime(),
+  });
+};
+
+// Type inference from the API schema
+export type FeedingScheduleData = z.infer<ReturnType<typeof feedingScheduleSchema>>;
+export type FeedingSchedule = z.infer<ReturnType<typeof FeedingScheduleSchema>>;
+
+// Schema for feeding schedule updates (all fields optional)
+export const updateFeedingScheduleSchema = () => z.object({
   time: z
     .string()
-    .min(1, 'Besleme saati zorunludur')
     .refine(isValidTimeFormat, {
-      message: 'Geçersiz saat formatı. HH:MM formatında olmalıdır (örn: 08:00)',
-    }),
+      params: { i18nKey: 'forms.validation.feedingSchedule.timeInvalidFormat' },
+    })
+    .optional(),
 
   foodType: z
     .enum(Object.values(FOOD_TYPES) as [string, ...string[]], {
-      errorMap: () => ({ message: 'Geçerli bir mama türü seçiniz' })
-    }),
-
-  amount: z
-    .string()
-    .min(1, 'Porsiyon miktarı zorunludur')
-    .max(50, 'Porsiyon miktarı en fazla 50 karakter olabilir')
-    .refine(
-      (val) => val.trim().length > 0,
-      { message: 'Porsiyon miktarı boş olamaz' }
-    ),
-
-  // Days as array for form (easier to work with multi-select)
-  daysArray: z
-    .array(z.enum(Object.values(DAYS_OF_WEEK) as [string, ...string[]]))
-    .min(1, 'En az bir gün seçmelisiniz')
-    .max(7, 'En fazla 7 gün seçebilirsiniz'),
-
-  isActive: z.boolean(),
-}).refine((data) => {
-  // Validate that time is reasonable (not empty after trim)
-  return data.time.trim().length > 0;
-}, {
-  message: 'Besleme saati geçerli bir değer olmalıdır',
-  path: ['time'],
-});
-
-// Type inference from the form schema
-export type FeedingScheduleFormData = z.infer<typeof feedingScheduleFormSchema>;
-
-// API schema (matches backend expectations with comma-separated days string)
-export const feedingScheduleSchema = z.object({
-  petId: objectIdSchema.refine(() => true, { message: 'Evcil hayvan seçimi zorunludur' }),
-
-  time: z
-    .string()
-    .min(1, 'Besleme saati zorunludur')
-    .refine(isValidTimeFormat, {
-      message: 'Geçersiz saat formatı. HH:MM formatında olmalıdır',
-    }),
-
-  foodType: z
-    .string()
-    .min(1, 'Mama türü zorunludur'),
-
-  amount: z
-    .string()
-    .min(1, 'Porsiyon miktarı zorunludur')
-    .max(50, 'Porsiyon miktarı en fazla 50 karakter olabilir'),
-
-  days: z
-    .string()
-    .min(1, 'Günler zorunludur')
-    .refine(isValidDaysString, {
-      message: 'Geçersiz gün formatı. Virgülle ayrılmış geçerli gün isimleri olmalıdır',
-    }),
-
-  isActive: z
-    .boolean()
-    .optional()
-    .default(true),
-});
-
-// Full FeedingSchedule schema including server-side fields
-export const FeedingScheduleSchema = feedingScheduleSchema.extend({
-  _id: objectIdSchema,
-  createdAt: z.string().datetime(),
-});
-
-// Type inference from the API schema
-export type FeedingScheduleData = z.infer<typeof feedingScheduleSchema>;
-export type FeedingSchedule = z.infer<typeof FeedingScheduleSchema>;
-
-// Schema for feeding schedule updates (all fields optional)
-export const updateFeedingScheduleSchema = z.object({
-  time: z
-    .string()
-    .refine(isValidTimeFormat, {
-      message: 'Geçersiz saat formatı. HH:MM formatında olmalıdır',
+      message: t('forms.validation.feedingSchedule.foodTypeInvalid'),
     })
     .optional(),
 
-  foodType: z
-    .enum(Object.values(FOOD_TYPES) as [string, ...string[]])
-    .optional(),
-
   amount: z
     .string()
-    .min(1)
-    .max(50)
+    .min(1, { message: t('forms.validation.feedingSchedule.amountRequired') })
+    .max(50, { message: t('forms.validation.feedingSchedule.amountMax') })
     .optional(),
 
   days: z
     .string()
     .refine(isValidDaysString, {
-      message: 'Geçersiz gün formatı',
+      params: { i18nKey: 'forms.validation.feedingSchedule.daysInvalid' },
     })
     .optional(),
 
@@ -138,9 +156,9 @@ export const updateFeedingScheduleSchema = z.object({
     .optional(),
 });
 
-export type UpdateFeedingScheduleFormData = z.infer<typeof updateFeedingScheduleSchema>;
+export type UpdateFeedingScheduleFormData = z.infer<ReturnType<typeof updateFeedingScheduleSchema>>;
 export type CreateFeedingScheduleInput = FeedingScheduleData;
-export type UpdateFeedingScheduleInput = z.infer<typeof updateFeedingScheduleSchema>;
+export type UpdateFeedingScheduleInput = z.infer<ReturnType<typeof updateFeedingScheduleSchema>>;
 
 // Helper function to transform form data to API format
 export const transformFormDataToAPI = (formData: FeedingScheduleFormData): FeedingScheduleData => {

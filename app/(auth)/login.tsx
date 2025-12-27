@@ -57,7 +57,12 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await signIn.google();
+      const result = await signIn.google('/');
+      if (result?.error) {
+        setError(result.error.message || t('auth.socialLoginError'));
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch {
       setError(t('auth.socialLoginError'));
     } finally {
@@ -70,7 +75,12 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await signIn.apple();
+      const result = await signIn.apple('/');
+      if (result?.error) {
+        setError(result.error.message || t('auth.socialLoginError'));
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch {
       setError(t('auth.socialLoginError'));
     } finally {

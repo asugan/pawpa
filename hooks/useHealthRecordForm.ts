@@ -55,7 +55,7 @@ export const useHealthRecordForm = (
   }, [petId, initialData]);
 
   const form = useForm<HealthRecordCreateFormInput>({
-    resolver: zodResolver(HealthRecordCreateFormSchema),
+    resolver: zodResolver(HealthRecordCreateFormSchema()),
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',

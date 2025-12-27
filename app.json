@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "petopia-petcare",
+    "name": "Petopia",
     "slug": "petopia-petcare",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.petopia.app"
+      "bundleIdentifier": "com.petopia.petcare",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.petopia.app",
@@ -31,15 +34,10 @@
               "scheme": "petopia-petcare"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ],
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "output": "static",

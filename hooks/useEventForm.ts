@@ -59,7 +59,7 @@ export const useEventForm = (event?: Event, initialPetId?: string): UseEventForm
   }, [event, initialPetId, presetSelections]);
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
+    resolver: zodResolver(eventFormSchema()) as Resolver<EventFormData>,
     defaultValues,
     mode: 'onChange', // Validate on change for better UX
     reValidateMode: 'onChange',

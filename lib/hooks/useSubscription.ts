@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
-import { Alert } from "react-native";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Purchases, {
   CustomerInfo,
@@ -12,11 +11,13 @@ import { useShallow } from "zustand/react/shallow";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { REVENUECAT_CONFIG } from "@/lib/revenuecat/config";
 import { restorePurchases as restorePurchasesApi } from "@/lib/revenuecat/initialize";
+import { showAlert } from "@/lib/utils/alert";
 
 // Rate limiting configuration
 const MIN_REQUEST_INTERVAL = 5000; // 5 seconds minimum between requests
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_BASE = 1000; // 1 second base delay
+const IN_FLIGHT_WAIT_TIMEOUT_MS = 2000;
 const TRIAL_START_BYPASS_KEY = 'trial-start-in-progress';
 
 async function setTrialBypassFlag(value: string): Promise<void> {
@@ -122,7 +123,7 @@ export function useSubscription(): UseSubscriptionReturn {
   // Rate limiting and circuit breaker refs
   const lastRequestTimeRef = useRef<number>(0);
   const retryCountRef = useRef<number>(0);
-  const isFetchingRef = useRef<boolean>(false);
+  const inFlightStatusFetchRef = useRef<Promise<boolean> | null>(null);
 
   // Use useShallow to prevent unnecessary re-renders
   const {
@@ -208,6 +209,40 @@ export function useSubscription(): UseSubscriptionReturn {
     return Object.keys(customerInfo.entitlements.active);
   }, [customerInfo]);
 
+  const tRef = useRef(t);
+  const setErrorRef = useRef(setError);
+
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  useEffect(() => {
+    setErrorRef.current = setError;
+  }, [setError]);
+
+  const ensureRevenueCatReady = useCallback(async (): Promise<boolean> => {
+    if (isInitialized) {
+      return true;
+    }
+
+    try {
+      const configured = await Purchases.isConfigured();
+      if (configured) {
+        return true;
+      }
+    } catch (error) {
+      console.warn("[Subscription] Failed to check RevenueCat configuration:", error);
+    }
+
+    const message = tRef.current(
+      "subscription.notInitialized",
+      "Subscription system is not ready yet."
+    );
+    console.warn("[Subscription] RevenueCat not configured");
+    setErrorRef.current(message);
+    return false;
+  }, [isInitialized]);
+
   /**
    * Present the RevenueCat paywall
    * Returns true if a purchase or restore was made
@@ -218,6 +253,10 @@ export function useSubscription(): UseSubscriptionReturn {
       try {
         setLoading(true);
         setError(null);
+
+        if (!(await ensureRevenueCatReady())) {
+          return false;
+        }
 
         const result = await RevenueCatUI.presentPaywall({
           offering: offering?.current || undefined,
@@ -268,6 +307,7 @@ export function useSubscription(): UseSubscriptionReturn {
       fetchSubscriptionStatus,
       hasActiveSubscription,
       t,
+      ensureRevenueCatReady,
     ]
   );
 
@@ -279,6 +319,10 @@ export function useSubscription(): UseSubscriptionReturn {
     try {
       setLoading(true);
       setError(null);
+
+      if (!(await ensureRevenueCatReady())) {
+        return false;
+      }
 
       const result = await RevenueCatUI.presentPaywallIfNeeded({
         requiredEntitlementIdentifier: REVENUECAT_CONFIG.ENTITLEMENT_ID,
@@ -316,6 +360,7 @@ export function useSubscription(): UseSubscriptionReturn {
     setCustomerInfo,
     fetchSubscriptionStatus,
     hasActiveSubscription,
+    ensureRevenueCatReady,
   ]);
 
   /**
@@ -325,6 +370,10 @@ export function useSubscription(): UseSubscriptionReturn {
     try {
       setLoading(true);
       setError(null);
+
+      if (!(await ensureRevenueCatReady())) {
+        return;
+      }
 
       await RevenueCatUI.presentCustomerCenter({
         callbacks: {
@@ -363,7 +412,13 @@ export function useSubscription(): UseSubscriptionReturn {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, setCustomerInfo, fetchSubscriptionStatus]);
+  }, [
+    setLoading,
+    setError,
+    setCustomerInfo,
+    fetchSubscriptionStatus,
+    ensureRevenueCatReady,
+  ]);
 
   /**
    * Restore purchases for the current user
@@ -372,6 +427,10 @@ export function useSubscription(): UseSubscriptionReturn {
     try {
       setLoading(true);
       setError(null);
+
+      if (!(await ensureRevenueCatReady())) {
+        return false;
+      }
 
       const customerInfo = await restorePurchasesApi();
       setCustomerInfo(customerInfo);
@@ -388,10 +447,10 @@ export function useSubscription(): UseSubscriptionReturn {
           () => hasActiveSubscription()
         );
 
-        Alert.alert(t("common.success"), t("subscription.restoreSuccess"));
+        showAlert(t("common.success"), t("subscription.restoreSuccess"));
         return true;
       } else {
-        Alert.alert(
+        showAlert(
           t("subscription.noPurchases"),
           t("subscription.noPurchasesMessage")
         );
@@ -400,7 +459,7 @@ export function useSubscription(): UseSubscriptionReturn {
     } catch (error) {
       console.error("[Subscription] Error restoring purchases:", error);
       setError((error as Error).message);
-      Alert.alert(t("common.error"), t("subscription.restoreError"));
+      showAlert(t("common.error"), t("subscription.restoreError"));
       return false;
     } finally {
       setLoading(false);
@@ -412,6 +471,7 @@ export function useSubscription(): UseSubscriptionReturn {
     fetchSubscriptionStatus,
     hasActiveSubscription,
     t,
+    ensureRevenueCatReady,
   ]);
 
   /**
@@ -422,6 +482,10 @@ export function useSubscription(): UseSubscriptionReturn {
       try {
         setLoading(true);
         setError(null);
+
+        if (!(await ensureRevenueCatReady())) {
+          return false;
+        }
 
         const { customerInfo } = await Purchases.purchasePackage(pkg);
         setCustomerInfo(customerInfo);
@@ -470,7 +534,7 @@ export function useSubscription(): UseSubscriptionReturn {
             ? (error as { message: string }).message
             : "Purchase failed";
         setError(errorMessage);
-        Alert.alert(t("common.error"), errorMessage);
+        showAlert(t("common.error"), errorMessage);
         return false;
       } finally {
         setLoading(false);
@@ -484,6 +548,7 @@ export function useSubscription(): UseSubscriptionReturn {
       hasActiveSubscription,
       t,
       restorePurchases,
+      ensureRevenueCatReady,
     ]
   );
 
@@ -493,13 +558,17 @@ export function useSubscription(): UseSubscriptionReturn {
   const getOfferings =
     useCallback(async (): Promise<PurchasesOfferings | null> => {
       try {
+        if (!(await ensureRevenueCatReady())) {
+          return null;
+        }
+
         const offerings = await Purchases.getOfferings();
         return offerings;
       } catch (error) {
         console.error("[Subscription] Error getting offerings:", error);
         return null;
       }
-    }, []);
+    }, [ensureRevenueCatReady]);
 
   /**
    * Check if user has a specific entitlement (from RevenueCat)
@@ -514,13 +583,31 @@ export function useSubscription(): UseSubscriptionReturn {
     [customerInfo]
   );
 
+  const runStatusFetch = useCallback(
+    (options: { bypassCache: boolean }): Promise<boolean> => {
+      if (inFlightStatusFetchRef.current) {
+        console.log(
+          "[useSubscription] Reusing in-flight subscription status fetch"
+        );
+        return inFlightStatusFetchRef.current;
+      }
+
+      const fetchPromise = fetchSubscriptionStatus(options).finally(() => {
+        inFlightStatusFetchRef.current = null;
+      });
+      inFlightStatusFetchRef.current = fetchPromise;
+      return fetchPromise;
+    },
+    [fetchSubscriptionStatus]
+  );
+
   /**
    * Refresh subscription status from backend
    * Implements circuit breaker and rate limiting to prevent infinite loops
    */
   const refreshSubscriptionStatus = useCallback(async (): Promise<void> => {
     // Prevent duplicate concurrent requests
-    if (isFetchingRef.current) {
+    if (inFlightStatusFetchRef.current) {
       console.log(
         "[useSubscription] Skipping fetch - request already in progress"
       );
@@ -552,42 +639,53 @@ export function useSubscription(): UseSubscriptionReturn {
       return;
     }
 
-    isFetchingRef.current = true;
     lastRequestTimeRef.current = now;
 
-    try {
-      const success = await fetchSubscriptionStatus({ bypassCache: true });
-      if (success) {
-        // Success - reset retry counter
-        retryCountRef.current = 0;
-        console.log(
-          "[useSubscription] Subscription status refreshed successfully"
-        );
-      } else {
-        // Increment retry counter on failure
-        retryCountRef.current += 1;
-        const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
-        console.error(
-          `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
-            `next retry after ${delay}ms`
-        );
-      }
-    } finally {
-      isFetchingRef.current = false;
+    const success = await runStatusFetch({ bypassCache: true });
+    if (success) {
+      // Success - reset retry counter
+      retryCountRef.current = 0;
+      console.log(
+        "[useSubscription] Subscription status refreshed successfully"
+      );
+    } else {
+      // Increment retry counter on failure
+      retryCountRef.current += 1;
+      const delay = RETRY_DELAY_BASE * Math.pow(2, retryCountRef.current - 1);
+      console.error(
+        `[useSubscription] Failed to refresh subscription status (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}), ` +
+          `next retry after ${delay}ms`
+      );
     }
-  }, [fetchSubscriptionStatus]);
+  }, [runStatusFetch]);
 
   /**
    * Immediate refresh that bypasses rate limiting for trial activation
    */
   const refreshSubscriptionStatusImmediate = useCallback(async (): Promise<void> => {
-    // Bypass rate limiting and circuit breaker for trial activation
-    isFetchingRef.current = false;
+    // Wait for any in-progress fetch to complete before bypassing limits
+    if (inFlightStatusFetchRef.current) {
+      console.log(
+        "[useSubscription] Waiting for in-progress fetch before immediate refresh"
+      );
+      const timeoutPromise = new Promise<"timeout">((resolve) =>
+        setTimeout(() => resolve("timeout"), IN_FLIGHT_WAIT_TIMEOUT_MS)
+      );
+      const result = await Promise.race([
+        inFlightStatusFetchRef.current,
+        timeoutPromise,
+      ]);
+      if (result === "timeout") {
+        console.warn(
+          "[useSubscription] In-flight fetch wait timed out, proceeding with immediate refresh"
+        );
+      }
+    }
     retryCountRef.current = 0;
     lastRequestTimeRef.current = 0;
 
-    await fetchSubscriptionStatus({ bypassCache: true });
-  }, [fetchSubscriptionStatus]);
+    await runStatusFetch({ bypassCache: true });
+  }, [runStatusFetch]);
 
   /**
    * Start trial with immediate status refresh (bypasses rate limiting)
@@ -616,7 +714,7 @@ export function useSubscription(): UseSubscriptionReturn {
             return currentError || t("subscription.trialStartFailed");
         }
       })();
-      Alert.alert(t("common.error"), message);
+      showAlert(t("common.error"), message);
     }
 
     // Clear bypass flag

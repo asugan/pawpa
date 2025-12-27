@@ -30,19 +30,23 @@ export function useAuth() {
 
     /**
      * Sign in with Google OAuth
+     * @param callbackURL - Optional URL to redirect to after authentication
      */
-    google: async () => {
+    google: async (callbackURL?: string) => {
       return authClient.signIn.social({
         provider: 'google',
+        callbackURL,
       });
     },
 
     /**
      * Sign in with Apple OAuth
+     * @param callbackURL - Optional URL to redirect to after authentication
      */
-    apple: async () => {
+    apple: async (callbackURL?: string) => {
       return authClient.signIn.social({
         provider: 'apple',
+        callbackURL,
       });
     },
   };

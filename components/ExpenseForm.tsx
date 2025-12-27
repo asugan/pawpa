@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Button, Text, TextInput } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
-import { ExpenseCreateInput, ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
+import { ExpenseCreateFormInput, ExpenseCreateSchema } from '../lib/schemas/expenseSchema';
 import { CreateExpenseInput as CreateExpenseInputType, Currency, Expense, ExpenseCategory } from '../lib/types';
 import { toISODateString } from '../lib/utils/dateConversion';
 import { SmartCategoryPicker } from './forms/SmartCategoryPicker';
@@ -50,15 +50,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     notes: initialData?.notes || '',
   };
 
-  const methods = useForm<ExpenseCreateInput>({
-    resolver: zodResolver(ExpenseCreateSchema),
+  const methods = useForm<ExpenseCreateFormInput>({
+    resolver: zodResolver(ExpenseCreateSchema()),
     defaultValues,
   });
 
   const { handleSubmit, trigger } = methods;
 
   const handleFormSubmit = React.useCallback(
-    (data: ExpenseCreateInput) => {
+    (data: ExpenseCreateFormInput) => {
       onSubmit(data as CreateExpenseInputType);
     },
     [onSubmit]
@@ -69,17 +69,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       {
         key: 'petCategory',
         title: t('expenses.steps.petCategory'),
-        fields: ['petId', 'category'] as (keyof ExpenseCreateInput)[],
+        fields: ['petId', 'category'] as (keyof ExpenseCreateFormInput)[],
       },
       {
         key: 'amount',
         title: t('expenses.steps.amount'),
-        fields: ['amount', 'currency', 'paymentMethod'] as (keyof ExpenseCreateInput)[],
+        fields: ['amount', 'currency', 'paymentMethod'] as (keyof ExpenseCreateFormInput)[],
       },
       {
         key: 'details',
         title: t('expenses.steps.details'),
-        fields: ['date', 'description', 'vendor', 'notes'] as (keyof ExpenseCreateInput)[],
+        fields: ['date', 'description', 'vendor', 'notes'] as (keyof ExpenseCreateFormInput)[],
       },
     ],
     [t]

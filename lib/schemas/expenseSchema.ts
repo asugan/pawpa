@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { objectIdSchema } from './createZodI18n';
+import { createObjectIdSchema, t } from './createZodI18n';
 
 // Expense categories enum
 export const EXPENSE_CATEGORIES = [
@@ -42,93 +42,120 @@ const validateExpenseDate = (date: Date) => {
 };
 
 // Base expense schema for common validations
-const BaseExpenseSchema = z.object({
-  petId: objectIdSchema,
+const BaseExpenseSchema = () => {
+  const objectIdSchema = createObjectIdSchema();
 
-  category: z.enum(EXPENSE_CATEGORIES, {
-    errorMap: () => ({ message: 'Invalid category' })
-  }),
+  return z.object({
+    petId: objectIdSchema,
 
-  amount: z
-    .number({
-      required_error: 'Amount is required',
-      invalid_type_error: 'Amount must be a number'
-    })
-    .positive('Amount must be positive')
-    .min(0.01, 'Amount must be at least 0.01')
-    .max(1000000, 'Amount is too large'),
-
-  currency: z.enum(CURRENCIES),
-
-  paymentMethod: z.enum(PAYMENT_METHODS).optional(),
-
-  description: z
-    .string()
-    .max(500, 'Description is too long')
-    .optional()
-    .transform(val => val?.trim() || undefined),
-
-  date: z
-    .string({
-      required_error: 'Date is required',
-      invalid_type_error: 'Date must be a valid date string'
-    })
-    .refine((val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime()) && validateExpenseDate(date);
-    }, {
-      message: 'Date cannot be in the future or more than 10 years ago'
+    category: z.enum(EXPENSE_CATEGORIES, {
+      message: t('forms.validation.expense.categoryInvalid'),
     }),
 
-  receiptPhoto: z
-    .string()
-    .url('Receipt photo must be a valid URL')
-    .optional()
-    .or(z.literal('').transform(() => undefined)),
+    amount: z
+      .number({ message: t('forms.validation.expense.amountInvalidType') })
+      .positive({ message: t('forms.validation.expense.amountPositive') })
+      .min(0.01, { message: t('forms.validation.expense.amountMin') })
+      .max(1000000, { message: t('forms.validation.expense.amountMax') }),
 
-  vendor: z
-    .string()
-    .max(200, 'Vendor name is too long')
-    .optional()
-    .transform(val => val?.trim() || undefined),
+    currency: z.enum(CURRENCIES, {
+      message: t('forms.validation.expense.currencyInvalid'),
+    }),
 
-  notes: z
-    .string()
-    .max(1000, 'Notes are too long')
-    .optional()
-    .transform(val => val?.trim() || undefined),
-});
+    paymentMethod: z
+      .enum(PAYMENT_METHODS, {
+        message: t('forms.validation.expense.paymentMethodInvalid'),
+      })
+      .optional(),
+
+    description: z
+      .string()
+      .max(500, { message: t('forms.validation.expense.descriptionMax') })
+      .optional()
+      .transform(val => val?.trim() || undefined),
+
+    date: z
+      .string()
+      .min(1, { message: t('forms.validation.expense.dateRequired') })
+      .refine((val) => {
+        const date = new Date(val);
+        return !isNaN(date.getTime()) && validateExpenseDate(date);
+      }, {
+        params: { i18nKey: 'forms.validation.expense.dateInvalidRange' },
+      }),
+
+    receiptPhoto: z
+      .string()
+      .url({ message: t('forms.validation.expense.receiptUrl') })
+      .optional()
+      .or(z.literal('').transform(() => undefined)),
+
+    vendor: z
+      .string()
+      .max(200, { message: t('forms.validation.expense.vendorMax') })
+      .optional()
+      .transform(val => val?.trim() || undefined),
+
+    notes: z
+      .string()
+      .max(1000, { message: t('forms.validation.expense.notesMax') })
+      .optional()
+      .transform(val => val?.trim() || undefined),
+  });
+};
 
 // Full Expense schema including server-side fields
-export const ExpenseSchema = BaseExpenseSchema.extend({
-  _id: objectIdSchema,
-  createdAt: z.string().datetime(),
-});
+export const ExpenseSchema = () => {
+  const objectIdSchema = createObjectIdSchema();
+
+  return BaseExpenseSchema().extend({
+    _id: objectIdSchema,
+    createdAt: z.string().datetime(),
+  });
+};
 
 // Schema for creating a new expense
-export const ExpenseCreateSchema = BaseExpenseSchema;
+export const ExpenseCreateSchema = () => BaseExpenseSchema();
 
 // Schema for updating an existing expense (all fields optional)
-export const ExpenseUpdateSchema = BaseExpenseSchema.partial().omit({ petId: true });
+export const ExpenseUpdateSchema = () => BaseExpenseSchema().partial().omit({ petId: true });
 
 // Query params schema for filtering expenses
-export const ExpenseQuerySchema = z.object({
-  page: z.number().int().positive().optional().default(1),
-  limit: z.number().int().positive().max(100).optional().default(20),
+export const ExpenseQuerySchema = () => z.object({
+  page: z
+    .number({ message: t('forms.validation.expense.query.pageInvalidType') })
+    .int({ message: t('forms.validation.expense.query.pageInteger') })
+    .positive({ message: t('forms.validation.expense.query.pagePositive') })
+    .optional()
+    .default(1),
+  limit: z
+    .number({ message: t('forms.validation.expense.query.limitInvalidType') })
+    .int({ message: t('forms.validation.expense.query.limitInteger') })
+    .positive({ message: t('forms.validation.expense.query.limitPositive') })
+    .max(100, { message: t('forms.validation.expense.query.limitMax') })
+    .optional()
+    .default(20),
   category: z.enum(EXPENSE_CATEGORIES).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  minAmount: z.number().positive().optional(),
-  maxAmount: z.number().positive().optional(),
+  minAmount: z
+    .number({ message: t('forms.validation.expense.query.minAmountInvalidType') })
+    .positive({ message: t('forms.validation.expense.query.minAmountPositive') })
+    .optional(),
+  maxAmount: z
+    .number({ message: t('forms.validation.expense.query.maxAmountInvalidType') })
+    .positive({ message: t('forms.validation.expense.query.maxAmountPositive') })
+    .optional(),
   currency: z.enum(CURRENCIES).optional(),
   paymentMethod: z.enum(PAYMENT_METHODS).optional()
 });
 
 // Type exports for TypeScript
-export type Expense = z.infer<typeof ExpenseSchema>;
-export type ExpenseCreateInput = z.infer<typeof ExpenseCreateSchema>;
-export type ExpenseUpdateInput = z.infer<typeof ExpenseUpdateSchema>;
-export type ExpenseQueryParams = z.infer<typeof ExpenseQuerySchema>;
+export type Expense = z.infer<ReturnType<typeof ExpenseSchema>>;
+export type ExpenseCreateInput = z.infer<ReturnType<typeof ExpenseCreateSchema>>;
+export type ExpenseUpdateInput = z.infer<ReturnType<typeof ExpenseUpdateSchema>>;
+export type ExpenseQueryParams = z.infer<ReturnType<typeof ExpenseQuerySchema>>;
+export type ExpenseCreateFormInput = z.input<ReturnType<typeof ExpenseCreateSchema>>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -138,7 +165,7 @@ export type ValidationError = {
 
 // Helper function to format validation errors
 export const formatExpenseValidationErrors = (error: z.ZodError): ValidationError[] => {
-  return error.errors.map(err => ({
+  return error.issues.map(err => ({
     path: err.path.map(String),
     message: err.message
   }));

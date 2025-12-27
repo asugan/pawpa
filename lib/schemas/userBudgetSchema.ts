@@ -1,33 +1,25 @@
 import { z } from "zod";
 import { CURRENCIES } from "./expenseSchema";
-
-// Custom validation functions
-const validateAlertThreshold = (threshold: number) => {
-  return threshold >= 0 && threshold <= 1;
-};
+import { t } from "./createZodI18n";
 
 // Schema for setting/updating user budget (simplified)
-export const SetUserBudgetSchema = z
+export const SetUserBudgetSchema = () => z
   .object({
     amount: z
-      .number({
-        required_error: "Amount is required",
-        invalid_type_error: "Amount must be a number",
-      })
-      .positive("Amount must be positive")
-      .min(1, "Amount must be at least 1")
-      .max(10000000, "Amount is too large"),
+      .number({ message: t("forms.validation.budget.amountInvalidType") })
+      .positive({ message: t("forms.validation.budget.amountPositive") })
+      .min(1, { message: t("forms.validation.budget.amountMin") })
+      .max(10000000, { message: t("forms.validation.budget.amountMax") }),
 
-    currency: z.enum(CURRENCIES),
+    currency: z.enum(CURRENCIES, {
+      message: t("forms.validation.budget.currencyInvalid"),
+    }),
 
     alertThreshold: z
       .number()
-      .min(0, "Alert threshold must be at least 0")
-      .max(1, "Alert threshold must be at most 1")
+      .min(0, { message: t("forms.validation.budget.alertThresholdMin") })
+      .max(1, { message: t("forms.validation.budget.alertThresholdMax") })
       .default(0.8)
-      .refine(validateAlertThreshold, {
-        message: "Alert threshold must be between 0 and 1",
-      })
       .optional(),
 
     isActive: z.boolean().default(true).optional(),
@@ -37,13 +29,13 @@ export const SetUserBudgetSchema = z
       return data.amount > 0 && data.currency;
     },
     {
-      message: "Amount and currency are required",
+      params: { i18nKey: "forms.validation.budget.amountAndCurrencyRequired" },
       path: ["amount"],
     }
   );
 
 // Type exports for TypeScript
-export type SetUserBudgetInput = z.infer<typeof SetUserBudgetSchema>;
+export type SetUserBudgetInput = z.infer<ReturnType<typeof SetUserBudgetSchema>>;
 
 // Validation error type for better error handling
 export type ValidationError = {
@@ -55,7 +47,7 @@ export type ValidationError = {
 export const formatUserBudgetValidationErrors = (
   error: z.ZodError
 ): ValidationError[] => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     path: err.path.map(String),
     message: err.message,
   }));

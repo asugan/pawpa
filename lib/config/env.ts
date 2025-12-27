@@ -2,7 +2,7 @@
 export const ENV = {
   // API Base URL - development için localhost, production için değiştirilecek
   API_BASE_URL: __DEV__
-    ? "https://eceb5ac6c330.ngrok-free.app"
+    ? "https://0a4fa817fce2.ngrok-free.app"
     : "https://your-production-api.com",
 
   // Auth configuration
@@ -10,7 +10,6 @@ export const ENV = {
     SCHEME: "petopia-petcare",
     STORAGE_PREFIX: "petopia-auth",
   },
-
   // API Endpoints
   ENDPOINTS: {
     // Pet endpoints

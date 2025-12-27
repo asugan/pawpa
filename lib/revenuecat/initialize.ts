@@ -1,6 +1,6 @@
 import Purchases, { LOG_LEVEL, CustomerInfo } from 'react-native-purchases';
 import { Platform } from 'react-native';
-import { REVENUECAT_CONFIG } from './config';
+import { getRevenueCatApiKey, REVENUECAT_CONFIG } from './config';
 
 /**
  * Initialize the RevenueCat SDK
@@ -9,18 +9,6 @@ import { REVENUECAT_CONFIG } from './config';
  * @param userId - The authenticated user ID from better-auth, or null for anonymous
  */
 export async function initializeRevenueCat(userId: string | null): Promise<void> {
-  // Check if already configured
-  const isConfigured = await Purchases.isConfigured();
-  if (isConfigured) {
-    console.log('[RevenueCat] SDK already configured');
-    return;
-  }
-
-  // Enable debug logs in development
-  if (__DEV__) {
-    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-  }
-
   // Set a default log handler to prevent "customLogHandler is not a function" error
   // This must be called before configure() to handle log events properly
   Purchases.setLogHandler((logLevel: LOG_LEVEL, message: string) => {
@@ -29,9 +17,26 @@ export async function initializeRevenueCat(userId: string | null): Promise<void>
     }
   });
 
+  // Enable debug logs in development
+  if (__DEV__) {
+    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+  }
+
+  // Check if already configured
+  const isConfigured = await Purchases.isConfigured();
+  if (isConfigured) {
+    console.log('[RevenueCat] SDK already configured');
+    return;
+  }
+
   // Configure the SDK
+  const apiKey = getRevenueCatApiKey(Platform.OS === 'ios' ? 'ios' : 'android');
+  if (!apiKey) {
+    throw new Error('[RevenueCat] Missing API key. Set EXPO_PUBLIC_REVENUECAT_IOS_API_KEY and EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY.');
+  }
+
   await Purchases.configure({
-    apiKey: REVENUECAT_CONFIG.API_KEY,
+    apiKey,
     appUserID: userId ?? undefined, // null creates anonymous user
   });
 
